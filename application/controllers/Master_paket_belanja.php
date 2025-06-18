@@ -259,22 +259,201 @@ class Master_paket_belanja extends CI_Controller {
 		$view = $this->load->view('paket_belanja/v_paket_belanja', $data, true);
 		$azapp->add_content($view);
 
-		// $v_modal = $this->load->view('onthespot/v_onthespot_modal', $data, true);
-		// $modal = $azapp->add_modal();
-		// $modal->set_id('add');
-		// $modal->set_modal_title('Tambah Produk');
-		// $modal->set_modal($v_modal);
-		// $modal->set_action_modal(array('save'=>'Simpan'));
-		// $azapp->add_content($modal->render());
+		$v_modal = $this->load->view('paket_belanja/v_paket_belanja_modal', $data, true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('add');
+		$modal->set_modal_title('Tambah Akun Belanja');
+		$modal->set_modal($v_modal);
+		$modal->set_action_modal(array('save_akun_belanja'=>'Simpan'));
+		$azapp->add_content($modal->render());
 		
-		// $js = az_add_js('pos/vjs_pos_add', $data);
-		// $azapp->add_js($js);
+		$js = az_add_js('paket_belanja/vjs_paket_belanja_add', $data);
+		$azapp->add_js($js);
 		
 		$data_header['title'] = 'Paket Belanja';
 		$data_header['breadcrumb'] = array('master', 'master_paket_belanja');
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
+	}
+
+	function edit_order() {
+		$id = $this->input->post("id");
+		$id = az_decode_url($id);
+
+		$err_code = 0;
+		$err_message = "";
+		
+		$this->db->where('idpaket_belanja_detail', $id);
+		$this->db->join('akun_belanja', 'paket_belanja_detail.idakun_belanja = akun_belanja.idakun_belanja');
+		$this->db->select('paket_belanja_detail.idakun_belanja, akun_belanja.nama_akun_belanja');
+		$pb_detail = $this->db->get('paket_belanja_detail')->result_array();
+
+		$ret = array(
+			'data' => azarr($pb_detail, 0),
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($ret);
+	}
+
+	function add_akun_belanja() {
+		$err_code = 0;
+		$err_message = '';
+
+	 	$idpaket_belanja = $this->input->post('idpaket_belanja');
+	 	$idpb_akun_belanja = $this->input->post('idpb_akun_belanja');
+	 	if (strlen($idpb_akun_belanja) > 0) {
+	 		$idpb_akun_belanja = az_decode_url($idpb_akun_belanja);
+	 	}
+
+	 	$idakun_belanja = $this->input->post('idakun_belanja');
+		$idprogram = $this->input->post('idprogram');
+	 	$idkegiatan = $this->input->post('idkegiatan');
+	 	$idsub_kegiatan = $this->input->post('idsub_kegiatan');
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('idakun_belanja', 'Akun Belanja', 'required');
+
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			// iduser_onthespot, transaction_date_start, transaction_date, transaction_code, total_weight, total_delivery, total_delivery_weight, total_price, unique_code, grand_total_price, transaction_status, transaction_state, is_onthespot
+			if (strlen($idpaket_belanja) == 0) {
+				$arr_pb = array(
+					'idprogram' => $idprogram,
+					'idkegiatan' => $idkegiatan,
+					'idsub_kegiatan' => $idsub_kegiatan,
+				);
+
+				$save_paket_belanja = az_crud_save($idpaket_belanja, 'paket_belanja', $arr_pb);
+				$idpaket_belanja = azarr($save_paket_belanja, 'insert_id');
+			}
+
+			//transaction detail
+			$arr_pb_detail = array(
+				'idpaket_belanja' => $idpaket_belanja,
+				'idakun_belanja' => $idakun_belanja,
+			);
+
+			$save_pb_detail = az_crud_save($idpb_akun_belanja, 'paket_belanja_detail', $arr_pb_detail);
+			$idpaket_belanja_detail = azarr($save_pb_detail, 'insert_id');
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idpaket_belanja' => $idpaket_belanja,
+			'idpaket_belanja_detail' => az_encode_url($idpaket_belanja_detail),
+		);
+		echo json_encode($return);
+	}
+
+	function get_list_akun_belanja() {
+		$idpaket_belanja = $this->input->post("idpaket_belanja");
+
+		$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('paket_belanja_detail.status', 1);
+		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
+		$this->db->select('idpaket_belanja_detail, nama_akun_belanja, status_paket_belanja');
+		$pb_detail = $this->db->get('paket_belanja_detail');
+
+		$arr_pb_detail = array();
+		foreach ($pb_detail->result() as $key => $value) {
+			$arr_pb_detail[] = array(
+				'idpaket_belanja_detail' => $value->idpaket_belanja_detail,
+				'nama_akun_belanja' => $value->nama_akun_belanja,
+				'status_paket_belanja' => $value->status_paket_belanja,
+			);
+		}
+
+		$data['arr_pb_detail'] = $arr_pb_detail;
+
+		$view = $this->load->view('paket_belanja/v_paket_belanja_table', $data, true);
+		$arr = array(
+			'data' => $view
+		);
+		echo json_encode($arr);
+	}
+
+	function save_paket_belanja() {
+		$err_code = 0;
+		$err_message = '';
+
+		$idpaket_belanja = $this->input->post('hd_idpaket_belanja');
+		$idprogram = $this->input->post("idprogram");
+		$idkegiatan = $this->input->post("idkegiatan");
+		$idsub_kegiatan = $this->input->post("idsub_kegiatan");
+		$nama_paket_belanja = $this->input->post("nama_paket_belanja");
+		$nilai_anggaran = az_crud_number($this->input->post("nilai_anggaran"));
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('idprogram', 'Nama Program', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('idkegiatan', 'Nomor Kegiatan', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('idsub_kegiatan', 'Nomor Sub Kegiatan', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('nama_paket_belanja', 'Nomor Paket Belanja', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('nilai_anggaran', 'Jumlah Anggaran', 'required|trim|max_length[200]');
+		
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+		if ($err_code == 0) {
+			if (strlen($idpaket_belanja) == 0) {
+				$err_code++;
+				$err_message = 'Invalid ID';
+			}
+		}
+
+		if ($err_code == 0) {
+	    	$arr_data = array(
+	    		'idprogram' => $idprogram,
+	    		'idkegiatan' => $idkegiatan,
+	    		'idsub_kegiatan' => $idsub_kegiatan,
+	    		'nama_paket_belanja' => $nama_paket_belanja,
+	    		'nilai_anggaran' => $nilai_anggaran,
+				'status_paket_belanja' => "OK",
+	    	);
+
+	    	az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($return);
+	}
+
+	function delete_akun_belanja() {
+		$err_code = 0;
+		$err_message = '';
+
+		$id = $this->input->post('id');
+		$id = az_decode_url($id);
+
+		$this->db->where('idpaket_belanja_detail', $id);
+		$this->db->select('idpaket_belanja');
+		$pb = $this->db->get('paket_belanja');
+		
+		$idpaket_belanja = $pb->row()->idpaket_belanja;
+		
+		// cek apakah ada detail dari akun belanja ini?
+
+		$data_delete = az_crud_delete('paket_belanja_detail', $id, true);
+		$err_code = $data_delete['err_code'];
+		$err_message = $data_delete['err_message'];
+		
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idpaket_belanja' => $idpaket_belanja,
+		);
+		echo json_encode($return);
 	}
 
 
@@ -488,402 +667,6 @@ class Master_paket_belanja extends CI_Controller {
 		echo json_encode($arr);
 	}
 
-	function add_product() {
-		$err_code = 0;
-		$err_message = '';
-
-		$sip_product_finishing = az_get_config('sip_product_finishing', 'config_app');
-
-	 	$idtransaction = $this->input->post('idtransaction');
-	 	$idtransaction_detail = $this->input->post('idtransaction_detail');
-	 	if (strlen($idtransaction_detail) > 0) {
-	 		$idtransaction_detail = az_decode_url($idtransaction_detail);
-	 	}
-
-	 	if($sip_product_finishing) {
-	 		$idtransaction_detail_main = $this->input->post('idtransaction_detail_main');
-			if (strlen($idtransaction_detail_main) > 0) {
-				$idtransaction_detail_main = az_decode_url($idtransaction_detail_main);
-			}
-
-			$is_finishing = $this->input->post('is_finishing');
-	 	}
-
-	 	$idproduct = $this->input->post('idproduct');
-	 	$qty = az_crud_number($this->input->post('qty'));
-	 	$transaction_description = $this->input->post('transaction_description');
-	 	$length = az_crud_number($this->input->post('length'));
-		$width = az_crud_number($this->input->post('width'));
-		$material_length = az_crud_number($this->input->post('material_length'));
-		$material_width = az_crud_number($this->input->post('material_width'));
-		$idproduct_finishing = $this->input->post('idproduct_finishing');
-		$is_two_side = $this->input->post('is_two_side');
-		$idproduct_finishing = $this->input->post('idproduct_finishing');
-		$product_calendar_content = $this->input->post('product_calendar_content');
-		$deadline = $this->input->post('deadline');
-
-		if ($this->app_accounting) {
-			$idacc_tax = $this->input->post('idacc_tax');
-		}
-
-		$this->db->where('idproduct', $idproduct);
-		$product = $this->db->get('product');
-		$product_type = azobj($product->row(),'product_type');
-
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idproduct', 'Produk', 'required');
-		if($product_type != "DESAIN"){
-			$this->form_validation->set_rules('qty', 'Jumlah Produk', 'required');
-		}
-		if ($product->row()->product_size != 'TANPA KOMA') {
-			$this->form_validation->set_rules('length', 'Panjang', 'required');
-			$this->form_validation->set_rules('width', 'Lebar', 'required');
-		}
-		if ($this->is_sip || $this->is_siplite) {
-			if($product_type != "DESAIN"){
-				if($sip_product_finishing) {
-					if($is_finishing != '1') {
-						$this->form_validation->set_rules('deadline', 'Deadline', 'required');
-					}
-				} else {
-					$this->form_validation->set_rules('deadline', 'Deadline', 'required');
-				}
-			}
-		}
-		if ($product_type == "DESAIN") {
-			if (strlen($idtransaction) > 0 && strlen($idtransaction_detail) == 0) {
-				$this->db->where('transaction.idtransaction',$idtransaction);
-				$this->db->where('product_type',"DESAIN");
-				$this->db->where('transaction_detail.status',1);
-				$this->db->where('desain_end is null');
-				$this->db->join('transaction_detail','transaction_detail.idtransaction = transaction.idtransaction','left');
-				$this->db->join('product','product.idproduct = transaction_detail.idproduct','left');
-				$check = $this->db->get('transaction');
-
-				if ($check->num_rows() > 0) {
-					$err_code++;
-					$err_message = "Layanan desain sebelumnya belum selesai";
-				}
-			}
-
-			if(strlen($idtransaction_detail) > 0){
-				$this->db->where('idtransaction_detail',$idtransaction_detail);
-				$this->db->where('desain_start is not null');
-				$check = $this->db->get('transaction_detail');
-
-				if ($check->num_rows() > 0) {
-					$err_code++;
-					$err_message = "Layanan desain tidak dapat diedit";
-				}
-			}
-		}
-
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-
-		if ($err_code == 0) {
-			if(strlen($material_length) > 0) {
-				if($material_length < $length) {
-					$err_code++;
-					$err_message = 'Lebar bahan tidak boleh lebih kecil dari ukuran aslinya.';
-				}
-			}
-			if(strlen($material_width) > 0) {
-				if($material_width < $width) {
-					$err_code++;
-					$err_message = 'Lebar bahan tidak boleh lebih kecil dari ukuran aslinya.';
-				}
-			}
-		}
-
-		$this->db->where('idtransaction',$idtransaction);
-		$transaction = $this->db->get('transaction');
-
-		if ($transaction->num_rows() > 0) {
-			$status = $transaction->row()->transaction_status;
-			// echo $status;
-			if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
-				$err_code++;
-				$err_message = "Transaksi tidak bisa diedit atau dihapus.";
-			}
-		}
-		if ($err_code == 0) {
-			// iduser_onthespot, transaction_date_start, transaction_date, transaction_code, total_weight, total_delivery, total_delivery_weight, total_price, unique_code, grand_total_price, transaction_status, transaction_state, is_onthespot
-			if (strlen($idtransaction) == 0) {
-				$arr_transaction = array(
-					'iduser_onthespot' => $this->session->userdata('iduser'),
-					'transaction_date_start' => Date('Y-m-d H:i:s'),
-					'transaction_date' => Date('Y-m-d H:i:s'),
-					'transaction_status' => 'DRAFT',
-					'transaction_state' => 'PEMBAYARAN',
-					'is_onthespot' => 1,
-					'transaction_code' => $this->generate_transaction_code(),
-					// 'unique_code' => rand(10, 99)
-				);
-
-				if ($this->is_sip || $this->is_siplite) {
-					// $arr_transaction['unique_code'] = NULL;
-				}
-
-				$save_transaction = az_crud_save($idtransaction, 'transaction', $arr_transaction);
-				$idtransaction = azarr($save_transaction, 'insert_id');
-			}
-
-			//transaction detail
-			$this->load->library('lite');
-			$length = str_replace(',', '.', $length);
-			$width = str_replace(',', '.', $width);
-			if (strlen($length) == 0) {
-				$length = 1;
-			}
-			if (strlen($width) == 0) {
-				$width = 1;
-			}
-
-			$is_min_order = 0;
-			$qty = str_replace('.', '', $qty);
-
-			$this->db->where('idproduct', $idproduct);
-			$rproduct = $this->db->get('product')->row();
-
-			$min_order = $rproduct->min_order;
-			$min_order_type = $rproduct->min_order_type;
-			$product_size = $rproduct->product_size;
-
-			$qty_main = 1;
-			if($sip_product_finishing) {
-				$qty_group = $qty;
-				if($is_finishing == 1) {
-					$this->db->where('idtransaction_detail', $idtransaction_detail_main);
-					$this->db->select('idtransaction_detail, qty');
-					$td_main = $this->db->get('transaction_detail');
-					$qty_main = azobj($td_main->row(), 'qty');
-				}
-			}
-
-			$arr_calculate = array(
-				'idproduct' => $idproduct,
-				'length' => $length,
-				'width' => $width,
-				'is_two_side' => $is_two_side,
-				'qty' => $qty * $qty_main,
-				'idproduct_finishing' => $idproduct_finishing,
-				'product_calendar_content' => $product_calendar_content
-			);
-
-			if($product_size == 'MENGIKUTI LEBAR BAHAN') {
-				if(strlen($material_length) > 0 && $material_length != 0) {
-					$arr_calculate['material_length'] = $material_length;
-				}
-				if(strlen($material_width) > 0 && $material_width != 0) {
-					$arr_calculate['material_width'] = $material_width;
-				}
-			}
-
-			$the_product = $this->lite->calculate_product($arr_calculate);
-
-			$qty = azarr($the_product, 'qty');
-			$qty_original = azarr($the_product, 'qty_original');
-			$is_min_order = azarr($the_product, 'is_min_order');
-			$is_min_order_price = azarr($the_product, 'is_min_order_price');
-
-			$qty_total = azarr($the_product, 'qty_total');
-			$qty_subtotal = azarr($the_product, 'qty_subtotal');
-			$work_duration = azarr($the_product, 'work_duration');
-			$work_duration_type = azarr($the_product, 'work_duration_type');
-			$price = azarr($the_product, 'product_price');
-			$total_price = azarr($the_product, 'total_price');
-			$finishing_list = azarr($the_product, 'finishing_list', array());
-
-			$sub_price = $price * $qty_subtotal;
-			$grand_price = $price * $qty_total;
-			$qty_original = $qty;
-
-			$arr_transaction_detail = array(
-				'idtransaction' => $idtransaction,
-				'idproduct' => $idproduct,
-				'weight' => $rproduct->product_weight * $qty * $length * $width,
-				'price' => $price,
-				'sub_price' => $sub_price,
-				'work_duration' => $work_duration,
-				'work_duration_type' => $work_duration_type,
-				'qty' => $qty,
-				'qty_subtotal' => $qty_subtotal,
-				'qty_total' => $qty_total,
-				'transaction_description' => $transaction_description,
-				'length' => $length,
-				'width' => $width,
-				'is_min_order' => $is_min_order,
-				'is_two_side' => $is_two_side,
-				'qty_original' => $qty_original,
-				'is_min_order_price' => $is_min_order_price,
-				'product_name' => $rproduct->product_name,
-				'grand_price' => $grand_price,
-				'created' => Date('Y-m-d H:i:s'),
-				'product_calendar_content' => $product_calendar_content
-			);
-			if ($this->app_accounting) {
-				$arr_transaction_detail['idacc_tax'] = $idacc_tax;
-			}
-			if(strlen($material_length) > 0 && !empty($material_length)) {
-				$arr_transaction_detail['material_length'] = $material_length;
-			} else {
-				$arr_transaction_detail['material_length'] = null;
-			}
-			if(strlen($material_width) > 0 && !empty($material_width)) {
-				$arr_transaction_detail['material_width'] = $material_width;
-			} else {
-				$arr_transaction_detail['material_width'] = null;
-			}
-			if ($this->is_sip || $this->is_siplite) {
-				$this->load->helper('az_crud');
-				// var_dump(azarr($the_product, 'product_price_bottom'));die;
-				$arr_transaction_detail['price_bid'] = null;
-				$arr_transaction_detail['price_bottom'] = azarr($the_product, 'product_price_bottom');
-				$arr_transaction_detail['deadline'] = az_crud_date($deadline);
-			}
-			if($sip_product_finishing) {
-				$arr_transaction_detail['qty_group'] = $qty_group;
-				if ($is_finishing == 1) {
-					$arr_transaction_detail['idtransaction_detail_main'] = $idtransaction_detail_main;
-				}
-			}
-			if ($rproduct->product_type == "DESAIN") {
-				if (strlen($idtransaction_detail) == 0) {
-					$arr_transaction_detail['desain_start'] = date('Y-m-d H:i:s');
-				}
-				else{
-					$desain_start = $this->input->post('desain_start');
-					$desain_end = $this->input->post('desain_end');
-					if (strlen($desain_start) > 0) {
-						$arr_transaction_detail['desain_start'] = $desain_start;
-					}
-					if (strlen($desain_end) > 0) {
-						$arr_transaction_detail['desain_end'] = $desain_end;
-					}
-				}
-			}
-			$td = az_crud_save($idtransaction_detail, 'transaction_detail', $arr_transaction_detail);
-			$idtransaction_detail = azarr($td, 'insert_id');
-
-			// check child td
-			if($sip_product_finishing) {
-				if(strlen($idtransaction_detail_main) == 0) {
-					if ($err_code == 0) {
-						$this->db->where('idtransaction_detail_main', $idtransaction_detail);
-						$this->db->where('status > ', 0);
-						$tdc = $this->db->get('transaction_detail');
-						foreach($tdc->result() as $tdc_key => $tdc_value) {
-							if ($err_code == 0) {
-								$idp = azobj($tdc_value, 'idproduct');
-								$idtd = azobj($tdc_value, 'idtransaction_detail');
-								$param = array(
-									"idproduct" => $idp,
-									"idtransaction_detail" => $idtd,
-									"qty" => $qty,
-								);
-
-								if (az_get_config('app_sip', 'config_app') || az_get_config('app_siplite', 'config_app')) {
-									$price_bid = azobj($tdc_value, 'price_bid');
-									$param['price_bid'] = $price_bid;
-								}
-
-								$calculated_product = $this->calculate_product_finishing($param);
-								$calculated_product['idtransaction_detail'] = $idtd;
-								$calculated_product['idproduct'] = $idp;
-
-								if (az_get_config('app_sip', 'config_app') || az_get_config('app_siplite', 'config_app')) {
-									$calculated_product['price_bid'] = $price_bid;
-								}
-								
-								$response = $this->save_product_finishing($calculated_product);
-								$err_code = azarr($response, 'err_code');
-								$err_message = azarr($response, 'err_message');
-							}
-						}
-					}
-				}
-			}
-
-			$grand_finishing_price = 0;
-			$grand_finishing_sub_price = 0;
-
-			$this->db->where('idtransaction_detail', $idtransaction_detail);
-			$this->db->delete('transaction_finishing');
-
-			foreach ((array) $finishing_list as $key => $value) {
-				$finishing_price = azarr($value, 'price');
-				$finishing_weight = azarr($value, 'weight');
-				$finishing_name = azarr($value, 'name');
-				$idfinishing_list = azarr($value, 'id');
-				$finishing_sub_price = $finishing_price * $qty_subtotal;
-				$finishing_total_price = $finishing_price * $qty_total;
-
-				$grand_finishing_price += $finishing_sub_price;
-				$grand_finishing_sub_price += $finishing_total_price;
-
-				$arr_finishing = array(
-					'idtransaction_detail' => $idtransaction_detail,
-					'idproduct_finishing' => $idfinishing_list,
-					'finishing_name' => $finishing_name,
-					'weight' => $finishing_weight * $qty * $length * $width,
-					'price' => $finishing_price,
-					'sub_price' => $finishing_sub_price,
-					'total_price' => $finishing_total_price
-				);
-				$this->db->insert('transaction_finishing', $arr_finishing);
-			}
-
-			//update grand finishing
-			$arr_new_finishing = array(
-				'grand_finishing_price' => $grand_finishing_price,
-				'grand_finishing_sub_price' => $grand_finishing_sub_price,
-				'grand_product_finishing_price' => $sub_price + $grand_finishing_price,
-				// 'grand_product_finishing_sub_price' => $grand_price + $grand_finishing_sub_price
-				'grand_product_finishing_sub_price' => az_crud_number($total_price)
-			);
-
-			if ($this->app_accounting) {
-				if (strlen($idacc_tax) > 0) {
-					$this->db->where('idacc_tax', $idacc_tax);
-					$acc_tax = $this->db->get('acc_tax');
-
-					$tax_percentase = $acc_tax->row()->tax_percentase;
-
-					$price_tax = ( ( ($sub_price + $grand_finishing_price) * $qty ) * $tax_percentase ) / 100;
-
-					if ($this->is_comma_price) {
-						$price_tax = round($price_tax, 2);
-					}
-					else {
-						$price_tax = ceil($price_tax);
-					}
-				
-					$arr_new_finishing['price_tax'] = $price_tax;
-				}
-
-			}
-
-			$this->db->where('idtransaction_detail', $idtransaction_detail);
-			$this->db->update('transaction_detail', $arr_new_finishing);
-
-			$this->null_delivery($idtransaction);
-
-			$this->lite->update_weight_price($idtransaction);
-		}
-
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-			'idtransaction' => $idtransaction,
-			'product_type' => $product_type,
-			'idtransaction_detail' => az_encode_url($idtransaction_detail),
-		);
-		echo json_encode($return);
-	}
-
 	private function null_delivery($idtransaction) {
 		$arr_delivery = array(
 			'delivery_type' => NULL,
@@ -919,19 +702,6 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		return 'ON'.Date('Ymd').$numb;
-	}
-
-	function get_list_order() {
-		$idtransaction = $this->input->post("idtransaction");
-
-		$this->load->library('Lite');
-		$data['data'] = $this->lite->cart($idtransaction);
-
-		$view = $this->load->view('onthespot/v_onthespot_table', $data, true);
-		$arr = array(
-			'data' => $view
-		);
-		echo json_encode($arr);
 	}
 
 	function save_onthespot() {
@@ -1205,113 +975,6 @@ class Master_paket_belanja extends CI_Controller {
 			'transaction_detail' => $transaction_detail
 		);
 		echo json_encode($return);
-	}
-
-	function delete_order() {
-		$id = $this->input->post('id');
-		$id = az_decode_url($id);
-		$the_edit = $this->input->post('the_edit');
-		$sip_product_finishing = az_get_config('sip_product_finishing', 'config_app');
-
-		$this->db->where('idtransaction_detail', $id);
-		$td = $this->db->get('transaction_detail')->row();
-		$idtransaction = $td->idtransaction;
-		$grand_product_finishing_sub_price = $td->grand_product_finishing_sub_price;
-		$this->db->where('idtransaction', $idtransaction);
-		$transaction = $this->db->get('transaction')->row();
-		$status = $transaction->transaction_status;
-		$is_delete = true;
-		if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
-			$is_delete = false;
-		}
-
-		$ret = array();
-
-		if ($is_delete) {
-			$grand_product_finishing_sub_price_finishing = 0;
-
-			if($sip_product_finishing) {
-				$idtd_main = azobj($td, 'idtransaction_detail_main');
-
-				if (is_null($idtd_main)) {
-					$this->db->where('idtransaction_detail_main', $id);
-					$this->db->where('status > ', 0);
-					$product_finishing = $this->db->get('transaction_detail');
-
-					if ($product_finishing->num_rows() > 0) {
-						foreach ($product_finishing->result() as $key => $value) {
-							$grand_product_finishing_sub_price_finishing += azobj($value, 'grand_product_finishing_sub_price', 0);
-							$res = az_crud_delete('transaction_detail', azobj($value, 'idtransaction_detail'), true, true);
-							$err_code = azarr($res, 'err_code');
-							$err_message = azarr($res, 'err_message');
-						}
-					}
-				}
-			}
-
-			if(strlen($the_edit) > 0) {
-				$total_lack = $transaction->total_lack;
-				$arr_del = array(
-					'total_lack' => $total_lack + $grand_product_finishing_sub_price + $grand_product_finishing_sub_price_finishing
-				);
-				$this->db->where('idtransaction', $idtransaction);
-				$this->db->update('transaction', $arr_del);
-			}
-
-			$this->db->where("idtransaction_detail", $id);
-			$this->db->delete('transaction_detail');
-
-			// [DELETE] Ketika hapus transaction_detail dihapus juga product jadi finishingnya
-			if (az_get_config('sip_product_finishing','config_app') == 1) {
-				$this->db->where('idtransaction_detail_main', $id)
-						->delete('transaction_detail');
-			}
-
-			$this->null_delivery($idtransaction);
-
-			$this->load->library('lite');
-			$this->lite->update_weight_price($idtransaction);
-
-			$ret['err_code'] = 0;
-			$ret['err_message'] = "";
-		}
-		else{
-			$ret['err_code'] = 1;
-			$ret['err_message'] = "Transaksi tidak dapat diedit atau dihapus.";
-		}
-		echo json_encode($ret);
-	}
-
-	function edit_order() {
-		$id = $this->input->post("id");
-		$id = az_decode_url($id);
-
-		$err_code = 0;
-		$err_message = "";
-		$accounting = '';
-		if ($this->app_accounting) {
-			$accounting = ', transaction_detail.idacc_tax, acc_tax.tax_name';
-		}
-		$this->db->select('transaction_detail.idproduct, product.product_name, product.idproduct_subcategory, product_subcategory_name, product_subcategory.idproduct_category, product_category_name, transaction_description, deadline'.$accounting);
-		$this->db->where('idtransaction_detail', $id);
-		$this->db->join('product', 'transaction_detail.idproduct = product.idproduct');
-		$this->db->join('product_subcategory', 'product.idproduct_subcategory = product_subcategory.idproduct_subcategory');
-		$this->db->join('product_category', 'product_subcategory.idproduct_category = product_category.idproduct_category');
-		if ($this->app_accounting) {
-			$this->db->join('acc_tax', 'transaction_detail.idacc_tax = acc_tax.idacc_tax', 'left');
-		}
-		$product = $this->db->get('transaction_detail')->result_array();
-
-		if (azarr(azarr($product,0,array()),'product_type') == "DESAIN") {
-			$err_code++;
-			$err_message = "Produk desain tidak bisa diedit";
-		}
-		$ret = array(
-			'data' => azarr($product, 0),
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
-		echo json_encode($ret);
 	}
 
 	function generate_delivery($iddistrict = '', $iddelivery = '', $idoutlet = '') {

@@ -20,7 +20,7 @@
 	<div class="form-group">
 		<label class="control-label col-sm-2">Paket Belanja</label>
 		<div class="col-md-4 col-sm-6">
-			<input type="text" class="form-control" name="nama_paket_belanja" id="nama_paket_belanja" placeholder="Paket Belanja">
+			<input type="text" class="form-control" name="vf_nama_paket_belanja" id="vf_nama_paket_belanja" placeholder="Paket Belanja">
 		</div>
 	</div>
 </form>
