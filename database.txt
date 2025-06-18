@@ -1,0 +1,10 @@
+nama database : pulsa21
+username      : root
+password      : 2tpsBMz/BW_8[w3j
+
+
+nama database : pulsa21_copy
+username      : root_copy
+password      : 2tpsBMz/BW_8[w3j
+
+
