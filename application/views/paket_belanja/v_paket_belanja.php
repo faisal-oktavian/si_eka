@@ -1,4 +1,11 @@
-<form class="form-horizontal row" id="form_paket_belanja" style="margin-top:20px;">
+
+<div  style="margin-top:10px;">
+	<a href="<?php echo app_url();?>master_paket_belanja/add"><button class="btn btn-default" type="button"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button></a>
+</div>
+
+<hr>
+
+<form class="form-horizontal row" id="form_paket_belanja">
 	<div class="col-md-6">
 		<input type="hidden" id="hd_idpaket_belanja" name="hd_idpaket_belanja" value="<?php echo $id;?>">
 

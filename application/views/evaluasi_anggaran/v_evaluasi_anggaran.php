@@ -53,74 +53,94 @@
                 foreach ($bu_value['program'] as $p_key => $p_value) { // looping program
                   foreach ($p_value['kegiatan'] as $k_key => $k_value) { // looping kegiatan
                     foreach ($k_value['sub_kegiatan'] as $sk_key => $sk_value) { // loopping sub kegiatan
-                    ?>  
-                      <tr>
-                        <td width="150px;">Urusan</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6"><?php echo $value['nama_urusan']; ?></td>
-                      </tr>
-                      <tr>
-                        <td>Bidang Urusan</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6"><?php echo $bu_value['nama_bidang_urusan']; ?></td>
-                      </tr>
-                      <tr>
-                        <td>Program</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6"><?php echo $p_value['nama_program']; ?></td>
-                      </tr>
-                      <tr>
-                        <td>Kegiatan</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6"><?php echo $k_value['nama_kegiatan']; ?></td>
-                      </tr>
-                      <tr>
-                        <td>Sub Kegiatan</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6"><?php echo $sk_value['nama_sub_kegiatan']; ?></td>
-                      </tr>
+                      foreach ($sk_value['paket_belanja'] as $sk_key => $pb_value) { // loopping paket belanja
+                      ?>
+                        <tr>
+                          <td width="150px;">Urusan</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6"><?php echo $value['nama_urusan']; ?></td>
+                        </tr>
+                        <tr>
+                          <td>Bidang Urusan</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6"><?php echo $bu_value['nama_bidang_urusan']; ?></td>
+                        </tr>
+                        <tr>
+                          <td>Program</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6"><?php echo $p_value['nama_program']; ?></td>
+                        </tr>
+                        <tr>
+                          <td>Kegiatan</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6"><?php echo $k_value['nama_kegiatan']; ?></td>
+                        </tr>
+                        <tr>
+                          <td>Sub Kegiatan</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6"><?php echo $sk_value['nama_sub_kegiatan']; ?></td>
+                        </tr>
+                        <tr>
+                          <td>Paket Belanja</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6"><?php echo $pb_value['nama_paket_belanja']; ?></td>
+                        </tr>
+                        <tr>
+                          <td>Jumlah</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="6">Rp. <?php echo az_thousand_separator_decimal($pb_value['nilai_anggaran']); ?></td>
+                        </tr>
+
+                        <!-- Detail -->
+                        <tr>
+                          <td style="text-align:center; vertical-align: middle; font-weight:bold;" colspan="2" rowspan="2">Kode Rekening</td>
+                          <td style="text-align:center; vertical-align: middle; font-weight:bold; width:auto;" rowspan="2">Uraian</td>
+                          <td style="text-align:center; font-weight:bold; width:auto;" colspan="3">Rincian Perhitungan</td>
+                          <td style="text-align:center; vertical-align: middle; font-weight:bold; width:180px;" rowspan="2">Jumlah</td>
+                          <td style="font-weight:bold; text-align:center; width:70px;"></td>
+                        </tr>
+                        <tr>
+                          <td style="font-weight:bold; text-align:center; width:50px;">Volume</td>
+                          <td style="font-weight:bold; text-align:center; width:80px;">Satuan</td>
+                          <td style="font-weight:bold; text-align:center; width:130px;">Harga Satuan</td>
+                          <td></td>
+                        </tr>
+
+                        <?php
+                          foreach ($pb_value['akun_belanja'] as $ab_key => $ab_value) {
+                        ?>
+                            <tr>
+                              <td style="font-weight:bold;" colspan="2"><?php echo $ab_value['no_rekening_akunbelanja']; ?></td>
+                              <td style="font-weight:bold;"><?php echo $ab_value['nama_akun_belanja']; ?></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td style="font-weight:bold;">Rp. <?php // echo ; ?></td>
+                              <td></td>
+                            </tr>
 
 
-                      <!-- paket belanja -->
-                      <tr>
-                        <td>Paket Belanja</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6"><?php // echo $sk_value['nama_sub_kegiatan']; ?></td>
-                      </tr>
-                      <tr>
-                        <td>Jumlah</td>
-                        <td class="titik-dua">:</td>
-                        <td colspan="6">Rp. <?php // echo $sk_value['nama_sub_kegiatan']; ?></td>
-                      </tr>
-                      <tr>
-                        <td style="text-align:center; vertical-align: middle; font-weight:bold;" colspan="2" rowspan="2">Kode Rekening</td>
-                        <td style="text-align:center; vertical-align: middle; font-weight:bold; width:auto;" rowspan="2">Uraian</td>
-                        <td style="text-align:center; font-weight:bold; width:auto;" colspan="3">Rincian Perhitungan</td>
-                        <td style="text-align:center; vertical-align: middle; font-weight:bold; width:180px;" rowspan="2">Jumlah</td>
-                        <td style="font-weight:bold; text-align:center; width:70px;"></td>
-                      </tr>
-                      <tr>
-                        <td style="font-weight:bold; text-align:center; width:50px;">Volume</td>
-                        <td style="font-weight:bold; text-align:center; width:80px;">Satuan</td>
-                        <td style="font-weight:bold; text-align:center; width:130px;">Harga Satuan</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td colspan="2"><?php // echo ; ?></td>
-                        <td><?php // echo ; ?></td>
-                        <td><?php // echo ; ?></td>
-                        <td><?php // echo ; ?></td>
-                        <td><?php // echo ; ?></td>
-                        <td><?php // echo ; ?></td>
-                        <td style="text-align: center;">
-                          <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
-                        </td>
-                      </tr>
+                            <!-- kategori, cth: hari besar, rapat, diklat, bbm -->
+                            <tr>
+                              <td colspan="2"><?php // echo ; ?></td>
+                              <td><?php // echo ; ?></td>
+                              <td><?php // echo ; ?></td>
+                              <td><?php // echo ; ?></td>
+                              <td><?php // echo ; ?></td>
+                              <td><?php // echo ; ?></td>
+                              <td style="text-align: center;">
+                                <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
+                              </td>
+                            </tr>
+                        <?php
+                          }
+                        ?>
 
-                      <!-- separator -->
-                      <tr><td colspan="8" style="padding-top: 10px;"></td></tr>
+                        <!-- separator -->
+                        <tr><td colspan="8" style="padding-top: 10px;"></td></tr>
 
-                    <?php
+                      <?php
+                      }
                     }
                   }
                 }

@@ -7,44 +7,6 @@ class Data extends CI_Controller {
 
     }
 
-	public function get_rak(){
-		$limit = 20;
-		$q = $this->input->get("term");
-		$page = $this->input->get("page");
-
-		$offset = ($page - 1) * $limit;
-		
-		// var_dump($parent);die();
-		$this->db->order_by("rak_name");
-		if (strlen($q) > 0) {
-			$this->db->like("rak_name", $q);
-		}
-		$this->db->select("idrak as id, rak_name as text");
-		$this->db->where('status', '1');
-		$this->db->where('is_active', '1');
-
-		$data = $this->db->get("rak", $limit, $offset);
-		
-		if (strlen($q) > 0) {
-			$this->db->like("rak_name", $q);
-		}
-		$this->db->where('status', '1');
-		$this->db->where('is_active', '1');
-		$cdata = $this->db->get("rak");
-		$count = $cdata->num_rows();
-
-		$endCount = $offset + $limit;
-		$morePages = $endCount < $count;
-
-		$results = array(
-		  "results" => $data->result_array(),
-		  "pagination" => array(
-		  	"more" => $morePages
-		  )
-		);
-		echo json_encode($results);
-	}
-
 	public function get_outlet_all(){
 		$limit = 20;
 		$q = $this->input->get("term");
@@ -533,6 +495,100 @@ class Data extends CI_Controller {
 		$this->db->where('is_active','1');
 		$this->db->where('status', '1');
 		$cdata = $this->db->get("akun_belanja");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
+
+	public function get_kategori(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+		// $parent = $this->input->get("parent");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("nama_kategori");
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("nama_kategori", $q);
+			$this->db->or_like("no_rekening_kategori", $q);
+			$this->db->group_end();
+		}
+		// $this->db->where('idurusan_pemerintah', $parent);
+		$this->db->where('is_active','1');
+		$this->db->select("idkategori id, concat(no_rekening_kategori, ' - ', nama_kategori) as text");
+		$this->db->where('status', '1');
+
+		$data = $this->db->get("kategori", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("nama_kategori", $q);
+			$this->db->or_like("no_rekening_kategori", $q);
+			$this->db->group_end();
+		}
+		// $this->db->where('idurusan_pemerintah', $parent);
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$cdata = $this->db->get("kategori");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
+
+	public function get_subkategori(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+		// $parent = $this->input->get("parent");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("nama_sub_kategori");
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("nama_sub_kategori", $q);
+			$this->db->or_like("no_rekening_subkategori", $q);
+			$this->db->group_end();
+		}
+		// $this->db->where('idurusan_pemerintah', $parent);
+		$this->db->where('is_active','1');
+		$this->db->select("idsub_kategori id, concat(no_rekening_subkategori, ' - ', nama_sub_kategori) as text");
+		$this->db->where('status', '1');
+
+		$data = $this->db->get("sub_kategori", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("nama_sub_kategori", $q);
+			$this->db->or_like("no_rekening_subkategori", $q);
+			$this->db->group_end();
+		}
+		// $this->db->where('idurusan_pemerintah', $parent);
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$cdata = $this->db->get("sub_kategori");
 		$count = $cdata->num_rows();
 
 		$endCount = $offset + $limit;
