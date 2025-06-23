@@ -19,12 +19,11 @@ class Master_kategori extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'No. Rekening', 'Nama Akun Belanja', 'Nama Kategori', 'Status', azlang('Action')));
+		$crud->set_column(array('#', 'No. Rekening', 'Nama Kategori', 'Status', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
 		$crud->add_aodata('vf_no_rekening_kategori', 'vf_no_rekening_kategori');
-		$crud->add_aodata('idf_nama_akunbelanja', 'idf_nama_akunbelanja');
 		$crud->add_aodata('vf_nama_kategori', 'vf_nama_kategori');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
@@ -56,23 +55,18 @@ class Master_kategori extends CI_Controller {
 		$crud = $this->azapp->add_crud();
 
 		$no_rekening_kategori = $this->input->get('vf_no_rekening_kategori');
-		$idakun_belanja = $this->input->get('idf_nama_akunbelanja');
 		$nama_kategori = $this->input->get('vf_nama_kategori');
 		$is_active = $this->input->get('vf_is_active');
 
-		$crud->set_select('idkategori, no_rekening_akunbelanja, no_rekening_kategori, nama_akun_belanja, nama_kategori, kategori.is_active');
-		$crud->set_select_table('idkategori, no_rekening_kategori, nama_akun_belanja, nama_kategori, is_active');
-		$crud->set_filter('no_rekening_kategori, nama_akun_belanja, nama_kategori');
-		$crud->set_sorting('no_rekening_kategori, nama_akun_belanja, nama_kategori');
+		$crud->set_select('idkategori,no_rekening_kategori, nama_kategori, kategori.is_active');
+		$crud->set_select_table('idkategori, no_rekening_kategori, nama_kategori, is_active');
+		$crud->set_filter('no_rekening_kategori, nama_kategori');
+		$crud->set_sorting('no_rekening_kategori, nama_kategori');
 		$crud->set_select_align('center');
 		$crud->set_id($this->controller);
-        $crud->add_join('akun_belanja', 'akun_belanja.idakun_belanja = kategori.idakun_belanja');
 		$crud->add_where('kategori.status = "1" ');
 		if (strlen($no_rekening_kategori) > 0) {
 			$crud->add_where('kategori.no_rekening_kategori = "' . $no_rekening_kategori . '"');
-		}
-		if (strlen($idakun_belanja) > 0) {
-			$crud->add_where('akun_belanja.idakun_belanja = "' . $idakun_belanja . '"');
 		}
 		if (strlen($nama_kategori) > 0) {
 			$crud->add_where('kategori.nama_kategori = "' . $nama_kategori . '"');
@@ -96,12 +90,6 @@ class Master_kategori extends CI_Controller {
 				$tlbl = 'AKTIF';
 			}
 			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
-		}
-
-        if ($key == 'no_rekening_kategori') {
-            $no_rekening_akunbelanja = azarr($data, 'no_rekening_akunbelanja');
-			
-			return $no_rekening_akunbelanja.'.'.$value;
 		}
 
 		if ($key == 'action') {

@@ -235,6 +235,7 @@
 		var idpaket_belanja = jQuery(this).attr('data-idpaket-belanja');
 		var idpaket_belanja_detail = jQuery(this).attr('data-idpb-detail');
 		var idakun_belanja = jQuery(this).attr('data-idakun-belanja');
+		var idds_parent = jQuery(this).attr('data-idds_parent'); // terisi jika mempunyai kategori
 
 		jQuery("#idsub_kategori").select2("val", "");
 		jQuery('#hds_is_edit').val('0');
@@ -242,6 +243,7 @@
 		jQuery('#hds_idpaket_belanja').val(idpaket_belanja);
 		jQuery('#hds_idpaket_belanja_detail').val(idpaket_belanja_detail);
 		jQuery('#hds_idakun_belanja').val(idakun_belanja);
+		jQuery('#hds_idds_parent').val(idds_parent); // idpaket_belanja_detail_sub_parent
 		jQuery('#hds_is_kategori').val('0');
 		jQuery('#hds_is_subkategori').val('1');
 	});
@@ -272,4 +274,17 @@
 			},
 			error: function(response) {}
 		});
+	});
+
+	jQuery('#form_add_subkategori').on('keyup', '.volume, .harga-satuan', function() {
+		var volume			=  jQuery('#volume').val();
+		var harga_satuan 	=  jQuery('#harga_satuan').val();
+
+		volume = remove_separator(volume);
+		harga_satuan 	= remove_separator(harga_satuan);
+
+  		var jumlah = volume * harga_satuan;
+
+		console.log('jumlah '+jumlah);
+		jQuery('#jumlah').val(thousand_separator(jumlah));
 	});

@@ -37,7 +37,7 @@ class Master_bidang_urusan extends CI_Controller {
 		$crud->set_modal_title(azlang("Bidang Urusan"));
 		$v_modal = $crud->generate_modal();
 
-		$js = az_add_js('bidang_urusan/vjs_bidang_kategori');
+		$js = az_add_js('bidang_urusan/vjs_bidang_urusan');
 		$azapp->add_js($js);
 		
 		$crud = $crud->render();

@@ -51,7 +51,11 @@
 		<table class="table table-bordered table-condensed" id="table_onthespot">
 			<thead>
 				<tr>
-					<th width="350px">Akun Belanja</th>
+					<th width="450px">Akun Belanja</th>
+					<th width="80px">Volume</th>
+					<th width="80px">Satuan</th>
+					<th width="110px">Harga Satuan</th>
+					<th width="150px">Jumlah</th>
 					<th width="130px">Aksi</th>
 				</tr>
 			</thead>

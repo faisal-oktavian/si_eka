@@ -85,6 +85,12 @@
                     "url" => "master_ruang",
                     "submenu" => array()
                 ),
+                array(
+                    "name" => "master_satuan",
+                    "title" => "Satuan",
+                    "url" => "master_satuan",
+                    "submenu" => array()
+                ),
             )
         ),
         array(

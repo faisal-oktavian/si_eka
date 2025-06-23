@@ -111,28 +111,58 @@
                         ?>
                             <tr>
                               <td style="font-weight:bold;" colspan="2"><?php echo $ab_value['no_rekening_akunbelanja']; ?></td>
-                              <td style="font-weight:bold;"><?php echo $ab_value['nama_akun_belanja']; ?></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td style="font-weight:bold;">Rp. <?php // echo ; ?></td>
+                              <td style="font-weight:bold;" colspan="4"><?php echo $ab_value['nama_akun_belanja']; ?></td>
+                              <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_jumlah']); ?></td>
                               <td></td>
                             </tr>
 
 
                             <!-- kategori, cth: hari besar, rapat, diklat, bbm -->
-                            <tr>
-                              <td colspan="2"><?php // echo ; ?></td>
-                              <td><?php // echo ; ?></td>
-                              <td><?php // echo ; ?></td>
-                              <td><?php // echo ; ?></td>
-                              <td><?php // echo ; ?></td>
-                              <td><?php // echo ; ?></td>
-                              <td style="text-align: center;">
-                                <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
-                              </td>
-                            </tr>
-                        <?php
+                            <?php 
+                              foreach ($ab_value['arr_detail_sub'] as $ds_key => $ds_value) {
+                                if ($ds_value['is_subkategori'] == 1) {
+                            ?>
+                                  <tr>
+                                    <td colspan="2"><?php echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_subkategori'];?></td>
+                                    <td style="padding-left: 30px;"><?php echo $ds_value['nama_subkategori']; ?></td>
+                                    <td align="center"><?php echo $ds_value['volume']; ?></td>
+                                    <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
+                                    <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
+                                    <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
+                                    <td align="center">
+                                      <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
+                                    </td>
+                                  </tr>
+                            <?php
+                                }
+                                else if ($ds_value['is_kategori'] == 1) {
+                            ?>
+                                  <tr>
+                                      <td colspan="2" style="font-weight:bold;">
+                                        <?php echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'];?>
+                                      </td>
+                                      <td style="font-weight:bold; padding-left: 30px;" colspan="6"><?php echo $ds_value['nama_kategori'];?></td>
+                                  </tr>
+                            <?php
+                                  foreach ($ds_value['arr_pd_detail_sub_sub'] as $ss_key => $ss_value) {
+                            ?>
+                                      <tr>
+                                          <td colspan="2">
+                                            <?php echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'].'.'.$ss_value['no_rekening_subkategori'];?>
+                                          </td>
+                                          <td style="padding-left: 50px;"><?php echo $ss_value['nama_subkategori'];?></td>
+                                          <td align="center"><?php echo $ss_value['volume'];?></td>
+                                          <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
+                                          <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
+                                          <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
+                                          <td style="text-align: center;">
+                                            <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
+                                          </td>
+                                      </tr>
+                            <?php
+                                  }
+                                }
+                              }
                           }
                         ?>
 

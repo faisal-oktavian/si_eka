@@ -11,6 +11,10 @@
 
                 <button class="btn btn-default btn-xs btn-add-sub-kategori" type="button" data-idpaket-belanja="<?php echo $value['idpaket_belanja'];?>" data-idpb-detail="<?php echo $value['idpaket_belanja_detail'];?>" data-idakun-belanja="<?php echo $value['idakun_belanja'];?>" data-is-kategori="0" data-is-subkategori="1"><i class="fa fa-plus"></i> Tambah Sub Kategori</button>
             </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
             <td style="text-align: center;">
                 <button class="btn btn-default btn-xs btn-edit-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
                 <button class="btn btn-danger btn-xs btn-delete-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
@@ -27,19 +31,70 @@
 
         <?php
             foreach ($value['arr_pb_detail_sub'] as $sub_key => $sub_value) {
+                if ($sub_value['is_subkategori'] == 1) {
         ?>
-                <tr>
-                    <td>
-                        <div style="padding-left: 50px;">
-                            <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_subkategori'].' - '.$sub_value['nama_subkategori'];?>
-                        </div>
-                    </td>
-                    <td style="text-align: center;">
-                        <button class="btn btn-default btn-xs btn-edit-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
-                        <button class="btn btn-danger btn-xs btn-delete-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <div style="padding-left: 50px;">
+                                <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_subkategori'].' - '.$sub_value['nama_subkategori'];?>
+                            </div>
+                        </td>
+                        <td align="center"><?php echo $sub_value['volume'];?></td>
+                        <td align="center"><?php echo $sub_value['nama_satuan'];?></td>
+                        <td align="right">Rp. <?php echo az_thousand_separator($sub_value['harga_satuan']);?></td>
+                        <td align="right">Rp. <?php echo az_thousand_separator($sub_value['jumlah']);?></td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-default btn-xs btn-edit-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
+                            <button class="btn btn-danger btn-xs btn-delete-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
+                        </td>
+                    </tr>
         <?php
+                }
+                else if ($sub_value['is_kategori'] == 1) {
+        ?>
+                    <tr>
+                        <td>
+                            <div style="padding-left: 50px; font-weight:bold;">
+                                <div>
+                                    <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_kategori'].' - '.$sub_value['nama_kategori'];?>
+                                </div>
+
+                                <button class="btn btn-default btn-xs btn-add-sub-kategori" type="button" 
+                                data-idpaket-belanja="<?php echo $value['idpaket_belanja'];?>" 
+                                data-idpb-detail="<?php echo $value['idpaket_belanja_detail'];?>" 
+                                data-idakun-belanja="<?php echo $value['idakun_belanja'];?>" 
+                                data-idds_parent="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>" 
+                                data-is-kategori="0" data-is-subkategori="1">
+                                <i class="fa fa-plus"></i> Tambah Sub Kategori</button>
+                            </div>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+        <?php
+                    foreach ($sub_value['arr_pd_detail_sub_sub'] as $ss_key => $ss_value) {
+        ?>
+                        <tr>
+                            <td>
+                                <div style="padding-left: 80px;">
+                                    <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_kategori'].'.'.$ss_value['no_rekening_subkategori'].' - '.$ss_value['nama_subkategori'];?>
+                                </div>
+                            </td>
+                            <td align="center"><?php echo $ss_value['volume'];?></td>
+                            <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
+                            <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
+                            <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
+                            <td style="text-align: center;">
+                                <button class="btn btn-default btn-xs btn-edit-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
+                                <button class="btn btn-danger btn-xs btn-delete-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
+                            </td>
+                        </tr>
+        <?php
+                    }
+                }
             }
         ?>
 <?php

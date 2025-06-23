@@ -6,12 +6,6 @@
 		</div>
 	</div>
 	<div class="form-group">
-        <label class="control-label col-sm-2">Nama Akun Belanja</label>
-        <div class="col-md-4 col-sm-6">
-        	<?php echo az_select_nama_akun_belanja('f_nama_akunbelanja');?>
-        </div>
-	</div>
-	<div class="form-group">
 		<label class="control-label col-sm-2">Nama Kategori</label>
 		<div class="col-md-4 col-sm-6">
 			<input type="text" class="form-control" name="vf_nama_kategori" id="vf_nama_kategori" placeholder="Nama Kategori">
