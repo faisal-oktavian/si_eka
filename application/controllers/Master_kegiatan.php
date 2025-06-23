@@ -23,6 +23,14 @@ class Master_kegiatan extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		$tahun_anggaran = $azapp->add_datetime();
+		$tahun_anggaran->set_id('vf_tahun_anggaran');
+		$tahun_anggaran->set_name('vf_tahun_anggaran');
+		$tahun_anggaran->set_value(Date('Y'));
+		$tahun_anggaran->set_format('YYYY');
+		$data['tahun_anggaran'] = $tahun_anggaran->render();
+
+		$crud->add_aodata('vf_tahun_anggaran', 'vf_tahun_anggaran');
 		$crud->add_aodata('vf_no_rekening_kegiatan', 'vf_no_rekening_kegiatan');
 		$crud->add_aodata('idf_nama_urusan', 'idf_nama_urusan');
 		$crud->add_aodata('idf_nama_bidang_urusan', 'idf_nama_bidang_urusan');
@@ -30,10 +38,10 @@ class Master_kegiatan extends CI_Controller {
 		$crud->add_aodata('vf_nama_kegiatan', 'vf_nama_kegiatan');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
-		$filter = $this->load->view('kegiatan/vf_kegiatan', '', true);
+		$filter = $this->load->view('kegiatan/vf_kegiatan', $data, true);
 		$crud->set_top_filter($filter);
 
-		$v_modal = $this->load->view('kegiatan/v_kegiatan', '', true);
+		$v_modal = $this->load->view('kegiatan/v_kegiatan', $data, true);
 		$crud->set_form('form');
 		$crud->set_modal($v_modal);
 		$crud->set_modal_title(azlang("Kegiatan"));
@@ -41,6 +49,10 @@ class Master_kegiatan extends CI_Controller {
 
 		$js = az_add_js('kegiatan/vjs_kegiatan');
 		$azapp->add_js($js);
+
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -57,6 +69,7 @@ class Master_kegiatan extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
+		$tahun_anggaran = $this->input->get('vf_tahun_anggaran');
 		$vf_no_rekening_kegiatan = $this->input->get('vf_no_rekening_kegiatan');
 		$idf_nama_urusan = $this->input->get('idf_nama_urusan');
 		$idf_nama_bidang_urusan = $this->input->get('idf_nama_bidang_urusan');
@@ -75,6 +88,9 @@ class Master_kegiatan extends CI_Controller {
         $crud->add_join_manual('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		
         $crud->add_where('kegiatan.status = "1" ');
+		if (strlen($tahun_anggaran) > 0) {
+			$crud->add_where('urusan_pemerintah.tahun_anggaran_urusan = "' . $tahun_anggaran . '"');
+		}
 		if (strlen($vf_no_rekening_kegiatan) > 0) {
 			$crud->add_where('kegiatan.no_rekening_kegiatan = "' . $vf_no_rekening_kegiatan . '"');
 		}
@@ -178,8 +194,21 @@ class Master_kegiatan extends CI_Controller {
 	public function delete() {
 		$id = $this->input->post('id');
 
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
+		// tambah validasi ketika Kegiatan sudah digunakan untuk Sub Kegiatan
+		$this->db->where('status', 1);
+		$this->db->where('idkegiatan', $id);
+		$sk = $this->db->get('sub_kegiatan');
 
-		az_crud_delete($this->table, $id);
+		if ($sk->num_rows() > 0) {
+			$data_return = array(
+                'err_code' => 1,
+                'err_message' => "Nama Kegiatan tidak bisa dihapus karena sudah digunakan pada Sub Kegiatan."
+            );
+
+			echo json_encode($data_return);
+		}
+		else {
+			az_crud_delete($this->table, $id);
+		}
 	}
 }

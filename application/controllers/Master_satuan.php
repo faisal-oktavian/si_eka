@@ -38,9 +38,9 @@ class Master_satuan extends CI_Controller {
 		$js = az_add_js('satuan/vjs_satuan');
 		$azapp->add_js($js);
 
-		// $crud->set_callback_edit('
-		// 	check_copy();
-        // ');
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -95,7 +95,7 @@ class Master_satuan extends CI_Controller {
 			$idsatuan = azarr($data, 'idsatuan');
 			$btn = $value;
 
-			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_akun_belanja" data_id="'.$idsatuan.'"><i class="fa fa-file"></i> Copy</button>';
+			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_satuan" data_id="'.$idsatuan.'"><i class="fa fa-file"></i> Copy</button>';
 
 			return $btn;
 		}
@@ -144,8 +144,6 @@ class Master_satuan extends CI_Controller {
 
 	public function delete() {
 		$id = $this->input->post('id');
-
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
 
 		az_crud_delete($this->table, $id);
 	}

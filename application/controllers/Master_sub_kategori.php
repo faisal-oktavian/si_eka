@@ -24,7 +24,7 @@ class Master_sub_kategori extends CI_Controller {
 		$crud->set_default_url(true);
 
 		$crud->add_aodata('vf_no_rekening_subkategori', 'vf_no_rekening_subkategori');
-		$crud->add_aodata('nama_sub_kategori', 'nama_sub_kategori');
+		$crud->add_aodata('vf_nama_sub_kategori', 'vf_nama_sub_kategori');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
 		$filter = $this->load->view('sub_kategori/vf_sub_kategori', '', true);
@@ -39,9 +39,9 @@ class Master_sub_kategori extends CI_Controller {
 		$js = az_add_js('sub_kategori/vjs_sub_kategori');
 		$azapp->add_js($js);
 
-		// $crud->set_callback_edit('
-		// 	check_copy();
-        // ');
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -59,7 +59,7 @@ class Master_sub_kategori extends CI_Controller {
 		$crud = $this->azapp->add_crud();
 
 		$no_rekening_subkategori = $this->input->get('vf_no_rekening_subkategori');
-		$nama_sub_kategori = $this->input->get('nama_sub_kategori');
+		$nama_sub_kategori = $this->input->get('vf_nama_sub_kategori');
 		$is_active = $this->input->get('vf_is_active');
 
 		$crud->set_select('idsub_kategori, no_rekening_subkategori, nama_sub_kategori, is_active');
@@ -97,10 +97,10 @@ class Master_sub_kategori extends CI_Controller {
 		}
 
 		if ($key == 'action') {
-			$idakun_belanja = azarr($data, 'idakun_belanja');
+			$idsub_kategori = azarr($data, 'idsub_kategori');
 			$btn = $value;
 
-			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_akun_belanja" data_id="'.$idakun_belanja.'"><i class="fa fa-file"></i> Copy</button>';
+			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_sub_kategori" data_id="'.$idsub_kategori.'"><i class="fa fa-file"></i> Copy</button>';
 
 			return $btn;
 		}
@@ -151,8 +151,6 @@ class Master_sub_kategori extends CI_Controller {
 
 	public function delete() {
 		$id = $this->input->post('id');
-
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
 
 		az_crud_delete($this->table, $id);
 	}

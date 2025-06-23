@@ -23,6 +23,14 @@ class Master_sub_kegiatan extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		$tahun_anggaran = $azapp->add_datetime();
+		$tahun_anggaran->set_id('vf_tahun_anggaran');
+		$tahun_anggaran->set_name('vf_tahun_anggaran');
+		$tahun_anggaran->set_value(Date('Y'));
+		$tahun_anggaran->set_format('YYYY');
+		$data['tahun_anggaran'] = $tahun_anggaran->render();
+
+		$crud->add_aodata('vf_tahun_anggaran', 'vf_tahun_anggaran');
 		$crud->add_aodata('vf_no_rekening_subkegiatan', 'vf_no_rekening_subkegiatan');
 		$crud->add_aodata('idf_nama_urusan', 'idf_nama_urusan');
 		$crud->add_aodata('idf_nama_bidang_urusan', 'idf_nama_bidang_urusan');
@@ -31,10 +39,10 @@ class Master_sub_kegiatan extends CI_Controller {
 		$crud->add_aodata('vf_nama_subkegiatan', 'vf_nama_subkegiatan');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
-		$filter = $this->load->view('sub_kegiatan/vf_sub_kegiatan', '', true);
+		$filter = $this->load->view('sub_kegiatan/vf_sub_kegiatan', $data, true);
 		$crud->set_top_filter($filter);
 
-		$v_modal = $this->load->view('sub_kegiatan/v_sub_kegiatan', '', true);
+		$v_modal = $this->load->view('sub_kegiatan/v_sub_kegiatan', $data, true);
 		$crud->set_form('form');
 		$crud->set_modal($v_modal);
 		$crud->set_modal_title(azlang("Sub Kegiatan"));
@@ -42,6 +50,10 @@ class Master_sub_kegiatan extends CI_Controller {
 
 		$js = az_add_js('sub_kegiatan/vjs_sub_kegiatan');
 		$azapp->add_js($js);
+
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -58,6 +70,7 @@ class Master_sub_kegiatan extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
+		$tahun_anggaran = $this->input->get('vf_tahun_anggaran');
 		$vf_no_rekening_subkegiatan = $this->input->get('vf_no_rekening_subkegiatan');
 		$idf_nama_urusan = $this->input->get('idf_nama_urusan');
 		$idf_nama_bidang_urusan = $this->input->get('idf_nama_bidang_urusan');
@@ -78,6 +91,9 @@ class Master_sub_kegiatan extends CI_Controller {
         $crud->add_join_manual('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		
         $crud->add_where('sub_kegiatan.status = "1" ');
+		if (strlen($tahun_anggaran) > 0) {
+			$crud->add_where('urusan_pemerintah.tahun_anggaran_urusan = "' . $tahun_anggaran . '"');
+		}
 		if (strlen($vf_no_rekening_subkegiatan) > 0) {
 			$crud->add_where('sub_kegiatan.no_rekening_subkegiatan = "' . $vf_no_rekening_subkegiatan . '"');
 		}
@@ -127,10 +143,10 @@ class Master_sub_kegiatan extends CI_Controller {
 		}
 
 		if ($key == 'action') {
-			$idkegiatan = azarr($data, 'idkegiatan');
+			$idsub_kegiatan = azarr($data, 'idsub_kegiatan');
 			$btn = $value;
 
-			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_kegiatan" data_id="'.$idkegiatan.'"><i class="fa fa-file"></i> Copy</button>';
+			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_sub_kegiatan" data_id="'.$idsub_kegiatan.'"><i class="fa fa-file"></i> Copy</button>';
 
 			return $btn;
 		}
@@ -147,6 +163,7 @@ class Master_sub_kegiatan extends CI_Controller {
 		$this->form_validation->set_error_delimiters('', '');
 
 		$this->form_validation->set_rules('no_rekening_subkegiatan', 'No Rekening', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('idprogram', 'Nama Program', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('idkegiatan', 'Nama Kegiatan', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('nama_subkegiatan', 'Nama Sub Kegiatan', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
@@ -186,8 +203,21 @@ class Master_sub_kegiatan extends CI_Controller {
 	public function delete() {
 		$id = $this->input->post('id');
 
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
+		// tambah validasi ketika Sub Kegiatan sudah digunakan untuk Paket Belanja
+		$this->db->where('status', 1);
+		$this->db->where('idsub_kegiatan', $id);
+		$pb = $this->db->get('paket_belanja');
 
-		az_crud_delete($this->table, $id);
+		if ($pb->num_rows() > 0) {
+			$data_return = array(
+                'err_code' => 1,
+                'err_message' => "Nama Sub Kegiatan tidak bisa dihapus karena sudah digunakan pada Paket Belanja."
+            );
+
+			echo json_encode($data_return);
+		}
+		else {
+			az_crud_delete($this->table, $id);
+		}
 	}
 }

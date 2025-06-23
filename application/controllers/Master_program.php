@@ -23,16 +23,24 @@ class Master_program extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		$tahun_anggaran = $azapp->add_datetime();
+		$tahun_anggaran->set_id('vf_tahun_anggaran');
+		$tahun_anggaran->set_name('vf_tahun_anggaran');
+		$tahun_anggaran->set_value(Date('Y'));
+		$tahun_anggaran->set_format('YYYY');
+		$data['tahun_anggaran'] = $tahun_anggaran->render();
+
+		$crud->add_aodata('vf_tahun_anggaran', 'vf_tahun_anggaran');
 		$crud->add_aodata('vf_no_rekening_program', 'vf_no_rekening_program');
 		$crud->add_aodata('idf_nama_urusan', 'idf_nama_urusan');
 		$crud->add_aodata('idf_nama_bidang_urusan', 'idf_nama_bidang_urusan');
 		$crud->add_aodata('vf_nama_program', 'vf_nama_program');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
-		$filter = $this->load->view('program/vf_program', '', true);
+		$filter = $this->load->view('program/vf_program', $data, true);
 		$crud->set_top_filter($filter);
 
-		$v_modal = $this->load->view('program/v_program', '', true);
+		$v_modal = $this->load->view('program/v_program', $data, true);
 		$crud->set_form('form');
 		$crud->set_modal($v_modal);
 		$crud->set_modal_title(azlang("Program"));
@@ -40,6 +48,10 @@ class Master_program extends CI_Controller {
 
 		$js = az_add_js('program/vjs_program');
 		$azapp->add_js($js);
+
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -56,6 +68,7 @@ class Master_program extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
+		$tahun_anggaran = $this->input->get('vf_tahun_anggaran');
 		$vf_no_rekening_program = $this->input->get('vf_no_rekening_program');
 		$idf_nama_urusan = $this->input->get('idf_nama_urusan');
 		$idf_nama_bidang_urusan = $this->input->get('idf_nama_bidang_urusan');
@@ -72,6 +85,9 @@ class Master_program extends CI_Controller {
         $crud->add_join_manual('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		
         $crud->add_where('program.status = "1" ');
+		if (strlen($tahun_anggaran) > 0) {
+			$crud->add_where('urusan_pemerintah.tahun_anggaran_urusan = "' . $tahun_anggaran . '"');
+		}
 		if (strlen($vf_no_rekening_program) > 0) {
 			$crud->add_where('program.no_rekening_program = "' . $vf_no_rekening_program . '"');
 		}
@@ -133,7 +149,6 @@ class Master_program extends CI_Controller {
 		$this->form_validation->set_error_delimiters('', '');
 
 		$this->form_validation->set_rules('no_rekening_program', 'No Rekening', 'required|trim|max_length[200]');
-		// $this->form_validation->set_rules('idurusan_pemerintah', 'Nama Urusan', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('idbidang_urusan', 'Nama Bidang Urusan', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('nama_program', 'Nama Program', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
@@ -172,8 +187,21 @@ class Master_program extends CI_Controller {
 	public function delete() {
 		$id = $this->input->post('id');
 
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
+		// tambah validasi ketika Bidang Urusan sudah digunakan untuk Program
+		$this->db->where('status', 1);
+		$this->db->where('idprogram', $id);
+		$k = $this->db->get('kegiatan');
 
-		az_crud_delete($this->table, $id);
+		if ($k->num_rows() > 0) {
+			$data_return = array(
+                'err_code' => 1,
+                'err_message' => "Nama Program tidak bisa dihapus karena sudah digunakan pada Kegiatan."
+            );
+
+			echo json_encode($data_return);
+		}
+		else {
+			az_crud_delete($this->table, $id);
+		}
 	}
 }

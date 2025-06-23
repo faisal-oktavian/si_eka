@@ -38,6 +38,10 @@ class Master_kategori extends CI_Controller {
 
 		$js = az_add_js('kategori/vjs_kategori');
 		$azapp->add_js($js);
+
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -93,10 +97,10 @@ class Master_kategori extends CI_Controller {
 		}
 
 		if ($key == 'action') {
-			$idbidang_urusan = azarr($data, 'idbidang_urusan');
+			$idkategori = azarr($data, 'idkategori');
 			$btn = $value;
 
-			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_bidang_urusan" data_id="'.$idbidang_urusan.'"><i class="fa fa-file"></i> Copy</button>';
+			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_kategori" data_id="'.$idkategori.'"><i class="fa fa-file"></i> Copy</button>';
 
 			return $btn;
 		}
@@ -113,7 +117,6 @@ class Master_kategori extends CI_Controller {
 		$this->form_validation->set_error_delimiters('', '');
 
 		$this->form_validation->set_rules('no_rekening_kategori', 'No Rekening', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('idakun_belanja', 'Nama Akun Belanja', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('nama_kategori', 'Nama Kategori', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
 		
@@ -124,7 +127,6 @@ class Master_kategori extends CI_Controller {
 
 			$data_save = array(
 				'no_rekening_kategori' => azarr($data_post, 'no_rekening_kategori'), 
-				'idakun_belanja' => azarr($data_post, 'idakun_belanja'), 
 				'nama_kategori' => azarr($data_post, 'nama_kategori'), 
 				'is_active' => azarr($data_post, 'is_active'),
 			);
@@ -144,14 +146,11 @@ class Master_kategori extends CI_Controller {
 	}
 
 	public function edit() {
-        $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = kategori.idakun_belanja');
-		az_crud_edit('idkategori, no_rekening_kategori, kategori.idakun_belanja, concat(no_rekening_akunbelanja, " - ", akun_belanja.nama_akun_belanja) as ajax_idakun_belanja, nama_kategori, kategori.is_active');
+		az_crud_edit('idkategori, no_rekening_kategori, nama_kategori, kategori.is_active');
 	}
 
 	public function delete() {
 		$id = $this->input->post('id');
-
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
 
 		az_crud_delete($this->table, $id);
 	}

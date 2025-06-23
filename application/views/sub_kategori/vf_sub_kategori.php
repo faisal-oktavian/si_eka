@@ -8,7 +8,7 @@
 	<div class="form-group">
 		<label class="control-label col-sm-2">Nama Akun Belanja</label>
 		<div class="col-md-4 col-sm-6">
-			<input type="text" class="form-control" name="nama_sub_kategori" id="nama_sub_kategori" placeholder="Nama Sub Kategori">
+			<input type="text" class="form-control" name="vf_nama_sub_kategori" id="vf_nama_sub_kategori" placeholder="Nama Sub Kategori">
 		</div>
 	</div>
 	<div class="form-group">

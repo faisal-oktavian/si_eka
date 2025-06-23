@@ -20,12 +20,6 @@ width: 100%;
 			<input type="text" class="form-control" id="no_rekening_program" name="no_rekening_program"/>
 		</div>
 	</div>
-	<!-- <div class="form-group">
-        <label class="control-label col-md-4">Nama Urusan <red>*</red></label>
-        <div class="col-md-5">
-        	<?php // echo az_select_nama_urusan('urusan_pemerintah');?>
-        </div>
-	</div> -->
 	<div class="form-group">
         <label class="control-label col-md-4">Nama Bidang Urusan <red>*</red></label>
         <div class="col-md-5">

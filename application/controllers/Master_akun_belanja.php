@@ -39,9 +39,9 @@ class Master_akun_belanja extends CI_Controller {
 		$js = az_add_js('akun_belanja/vjs_akun_belanja');
 		$azapp->add_js($js);
 
-		// $crud->set_callback_edit('
-		// 	check_copy();
-        // ');
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -151,9 +151,7 @@ class Master_akun_belanja extends CI_Controller {
 
 	public function delete() {
 		$id = $this->input->post('id');
-
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
-
+		
 		az_crud_delete($this->table, $id);
 	}
 }

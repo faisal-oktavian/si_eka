@@ -23,15 +23,23 @@ class Master_bidang_urusan extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		$tahun_anggaran = $azapp->add_datetime();
+		$tahun_anggaran->set_id('vf_tahun_anggaran');
+		$tahun_anggaran->set_name('vf_tahun_anggaran');
+		$tahun_anggaran->set_value(Date('Y'));
+		$tahun_anggaran->set_format('YYYY');
+		$data['tahun_anggaran'] = $tahun_anggaran->render();
+
+		$crud->add_aodata('vf_tahun_anggaran', 'vf_tahun_anggaran');
 		$crud->add_aodata('vf_no_rekening_bidang_urusan', 'vf_no_rekening_bidang_urusan');
 		$crud->add_aodata('idf_nama_urusan', 'idf_nama_urusan');
 		$crud->add_aodata('vf_nama_bidang_urusan', 'vf_nama_bidang_urusan');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
-		$filter = $this->load->view('bidang_urusan/vf_bidang_urusan', '', true);
+		$filter = $this->load->view('bidang_urusan/vf_bidang_urusan', $data, true);
 		$crud->set_top_filter($filter);
 
-		$v_modal = $this->load->view('bidang_urusan/v_bidang_urusan', '', true);
+		$v_modal = $this->load->view('bidang_urusan/v_bidang_urusan', $data, true);
 		$crud->set_form('form');
 		$crud->set_modal($v_modal);
 		$crud->set_modal_title(azlang("Bidang Urusan"));
@@ -39,6 +47,10 @@ class Master_bidang_urusan extends CI_Controller {
 
 		$js = az_add_js('bidang_urusan/vjs_bidang_urusan');
 		$azapp->add_js($js);
+
+		$crud->set_callback_edit('
+			check_copy();
+        ');
 		
 		$crud = $crud->render();
 		$crud .= $v_modal;	
@@ -55,6 +67,7 @@ class Master_bidang_urusan extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
+		$tahun_anggaran = $this->input->get('vf_tahun_anggaran');
 		$no_rekening_bidang_urusan = $this->input->get('vf_no_rekening_bidang_urusan');
 		$nama_bidang_urusan = $this->input->get('vf_nama_bidang_urusan');
 		$idurusan_pemerintah = $this->input->get('idf_nama_urusan');
@@ -68,6 +81,9 @@ class Master_bidang_urusan extends CI_Controller {
 		$crud->set_id($this->controller);
         $crud->add_join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$crud->add_where('bidang_urusan.status = "1" ');
+		if (strlen($tahun_anggaran) > 0) {
+			$crud->add_where('urusan_pemerintah.tahun_anggaran_urusan = "' . $tahun_anggaran . '"');
+		}
 		if (strlen($no_rekening_bidang_urusan) > 0) {
 			$crud->add_where('bidang_urusan.no_rekening_bidang_urusan = "' . $no_rekening_bidang_urusan . '"');
 		}
@@ -125,6 +141,7 @@ class Master_bidang_urusan extends CI_Controller {
 		$this->form_validation->set_error_delimiters('', '');
 
 		$this->form_validation->set_rules('no_rekening_bidang_urusan', 'No Rekening', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('idurusan_pemerintah', 'Nama Urusan', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('nama_bidang_urusan', 'Nama Bidang Urusan', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
 		
@@ -162,8 +179,21 @@ class Master_bidang_urusan extends CI_Controller {
 	public function delete() {
 		$id = $this->input->post('id');
 
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
+		// tambah validasi ketika Bidang Urusan sudah digunakan untuk Program
+		$this->db->where('status', 1);
+		$this->db->where('idbidang_urusan', $id);
+		$p = $this->db->get('program');
 
-		az_crud_delete($this->table, $id);
+		if ($p->num_rows() > 0) {
+			$data_return = array(
+                'err_code' => 1,
+                'err_message' => "Nama Bidang Urusan tidak bisa dihapus karena sudah digunakan pada Program."
+            );
+
+			echo json_encode($data_return);
+		}
+		else {
+			az_crud_delete($this->table, $id);
+		}
 	}
 }
