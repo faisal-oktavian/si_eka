@@ -65,13 +65,8 @@ class Evaluasi_anggaran extends CI_Controller {
 	function get_data($the_data) {
 
 		$tahun_anggaran = azarr($the_data, 'tahun_anggaran');
-		
-		$this->db->where('urusan_pemerintah.status', 1);
-		$this->db->where('urusan_pemerintah.is_active', 1);
-		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
-		$this->db->order_by('urusan_pemerintah.idurusan_pemerintah ASC');
-		$this->db->select('idurusan_pemerintah, no_rekening_urusan, nama_urusan, tahun_anggaran_urusan');
-		$urusan_pemerintah = $this->db->get('urusan_pemerintah');
+
+		$urusan_pemerintah = $this->query_urusan_pemerintah($tahun_anggaran);
 		// echo "<pre>"; print_r($this->db->last_query());
 
 		$arr_urusan = array();
@@ -81,12 +76,7 @@ class Evaluasi_anggaran extends CI_Controller {
 			$nama_urusan = $value->nama_urusan;
 
 			// bidang urusan
-			$this->db->where('bidang_urusan.status', 1);
-			$this->db->where('bidang_urusan.is_active', 1);
-			$this->db->where('bidang_urusan.idurusan_pemerintah', $idurusan_pemerintah);
-			$this->db->order_by('bidang_urusan.idbidang_urusan ASC');
-			$this->db->select('idbidang_urusan, no_rekening_bidang_urusan, nama_bidang_urusan');
-			$bidang_urusan = $this->db->get('bidang_urusan');
+			$bidang_urusan = $this->query_bidang_urusan($idurusan_pemerintah);
 			// echo "<pre>"; print_r($this->db->last_query());
 
 			$arr_bidang_urusan = array();
@@ -97,12 +87,7 @@ class Evaluasi_anggaran extends CI_Controller {
 				$rekening_bidang = $no_rek_urusan.'.'.$no_rek_bidang_urusan;
 
 				// program
-				$this->db->where('program.status', 1);
-				$this->db->where('program.is_active', 1);
-				$this->db->where('program.idbidang_urusan', $idbidang_urusan);
-				$this->db->order_by('program.idprogram ASC');
-				$this->db->select('idprogram, no_rekening_program, nama_program');
-				$program = $this->db->get('program');
+				$program = $this->query_program($idbidang_urusan);
 				// echo "<pre>"; print_r($this->db->last_query());
 
 				$arr_program = array();
@@ -113,12 +98,7 @@ class Evaluasi_anggaran extends CI_Controller {
 					$rekening_program = $no_rek_urusan.'.'.$no_rek_bidang_urusan.'.'.$no_rekening_program;
 
 					// kegiatan
-					$this->db->where('kegiatan.status', 1);
-					$this->db->where('kegiatan.is_active', 1);
-					$this->db->where('kegiatan.idprogram', $idprogram);
-					$this->db->order_by('kegiatan.idkegiatan ASC');
-					$this->db->select('idkegiatan, no_rekening_kegiatan, nama_kegiatan');
-					$kegiatan = $this->db->get('kegiatan');
+					$kegiatan = $this->query_kegiatan($idprogram);
 					// echo "<pre>"; print_r($this->db->last_query());
 
 					$arr_kegiatan = array();
@@ -129,12 +109,7 @@ class Evaluasi_anggaran extends CI_Controller {
 						$rekening_kegiatan = $no_rek_urusan.'.'.$no_rek_bidang_urusan.'.'.$no_rekening_program.'.'.$no_rekening_kegiatan;
 
 						// Sub Kegiatan
-						$this->db->where('sub_kegiatan.status', 1);
-						$this->db->where('sub_kegiatan.is_active', 1);
-						$this->db->where('sub_kegiatan.idkegiatan', $idkegiatan);
-						$this->db->order_by('sub_kegiatan.idsub_kegiatan ASC');
-						$this->db->select('idsub_kegiatan, no_rekening_subkegiatan, nama_subkegiatan');
-						$sub_kegiatan = $this->db->get('sub_kegiatan');
+						$sub_kegiatan = $this->query_sub_kegiatan($idkegiatan);
 						// echo "<pre>"; print_r($this->db->last_query());
 
 						$arr_sub_kegiatan = array();
@@ -145,12 +120,7 @@ class Evaluasi_anggaran extends CI_Controller {
 							$rekening_subkegiatan = $no_rek_urusan.'.'.$no_rek_bidang_urusan.'.'.$no_rekening_program.'.'.$no_rekening_kegiatan.'.'.$no_rekening_subkegiatan;
 
 							// Paket Belanja + anggaran
-							$this->db->where('paket_belanja.status', 1);
-							$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
-							$this->db->where('paket_belanja.idsub_kegiatan', $idsub_kegiatan);
-							$this->db->order_by('paket_belanja.idpaket_belanja ASC');
-							$this->db->select('idpaket_belanja, nama_paket_belanja, nilai_anggaran');
-							$paket_belanja = $this->db->get('paket_belanja');
+							$paket_belanja = $this->query_paket_belanja($idsub_kegiatan);
 							// echo "<pre>"; print_r($this->db->last_query());
 
 							$arr_paket_belanja = array();
@@ -160,50 +130,31 @@ class Evaluasi_anggaran extends CI_Controller {
 								$nilai_anggaran = $pb_value->nilai_anggaran;
 
 								// Akun Belanja
-								$this->db->where('paket_belanja_detail.status', 1);
-								// $this->db->where('akun_belanja.is_active', 1);
-								$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
-								$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-								$this->db->order_by('paket_belanja_detail.idpaket_belanja_detail ASC');
-								$this->db->select('paket_belanja_detail.idpaket_belanja_detail, akun_belanja.idakun_belanja, akun_belanja.no_rekening_akunbelanja, akun_belanja.nama_akun_belanja');
-								$paket_belanja_detail = $this->db->get('paket_belanja_detail');
+								$akun_belanja = $this->query_akun_belanja($idpaket_belanja);
 								// echo "<pre>"; print_r($this->db->last_query());
 
 								$arr_akun_belanja = array();
-								foreach ($paket_belanja_detail->result() as $pbd_key => $pbd_value) {
+								foreach ($akun_belanja->result() as $pbd_key => $pbd_value) {
 									$idpaket_belanja_detail = $pbd_value->idpaket_belanja_detail;
 									$idakun_belanja = $pbd_value->idakun_belanja;
 									$no_rekening_akunbelanja = $pbd_value->no_rekening_akunbelanja;
 									$nama_akun_belanja = $pbd_value->nama_akun_belanja;
 
 									// Kategori / Sub Kategori
-									$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
-									$this->db->where('paket_belanja_detail_sub.status', 1);
-									$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
-									$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-									$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-									$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-									$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-									$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, kategori.no_rekening_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-									$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
+									$paket_belanja_detail = $this->query_paket_belanja_detail($idpaket_belanja_detail);
 									// echo "<pre>"; print_r($this->db->last_query());
 
 									$arr_detail_sub = array();
 									$total_jumlah = 0;
-									foreach ($pb_detail_sub->result() as $pbds_key => $ds_value) {
+									foreach ($paket_belanja_detail->result() as $pbds_key => $ds_value) {
 										$total_jumlah += $ds_value->jumlah;
 
 										// get sub sub detail
-										$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
-										$this->db->where('paket_belanja_detail_sub.status', 1);
-										$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-										$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-										$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-										$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
+										$paket_belanja_detail_sub = $this->query_paket_belanja_detail_sub($ds_value->idpaket_belanja_detail_sub);
 										// echo "<pre>"; print_r($this->db->last_query());die;
 
 										$arr_pd_detail_sub_sub = array();
-										foreach ($pd_detail_sub_sub->result() as $dss_key => $dss_value) {
+										foreach ($paket_belanja_detail_sub->result() as $dss_key => $dss_value) {
 											$total_jumlah += $dss_value->jumlah;
 
 											$arr_pd_detail_sub_sub[] = array(
@@ -302,6 +253,111 @@ class Evaluasi_anggaran extends CI_Controller {
 		
 		return $return;
 	}
+
+	function query_urusan_pemerintah($tahun_anggaran) {
+		$this->db->where('urusan_pemerintah.status', 1);
+		$this->db->where('urusan_pemerintah.is_active', 1);
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
+		$this->db->order_by('urusan_pemerintah.idurusan_pemerintah ASC');
+		$this->db->select('idurusan_pemerintah, no_rekening_urusan, nama_urusan, tahun_anggaran_urusan');
+		$urusan_pemerintah = $this->db->get('urusan_pemerintah');
+
+		return $urusan_pemerintah;
+	}
+
+	function query_bidang_urusan($idurusan_pemerintah) {
+		$this->db->where('bidang_urusan.status', 1);
+			$this->db->where('bidang_urusan.is_active', 1);
+			$this->db->where('bidang_urusan.idurusan_pemerintah', $idurusan_pemerintah);
+			$this->db->order_by('bidang_urusan.idbidang_urusan ASC');
+			$this->db->select('idbidang_urusan, no_rekening_bidang_urusan, nama_bidang_urusan');
+			$bidang_urusan = $this->db->get('bidang_urusan');
+
+		return $bidang_urusan;
+	}
+
+	function query_program($idbidang_urusan) {
+		$this->db->where('program.status', 1);
+		$this->db->where('program.is_active', 1);
+		$this->db->where('program.idbidang_urusan', $idbidang_urusan);
+		$this->db->order_by('program.idprogram ASC');
+		$this->db->select('idprogram, no_rekening_program, nama_program');
+		$program = $this->db->get('program');
+
+		return $program;
+	}
+
+	function query_kegiatan($idprogram) {
+		$this->db->where('kegiatan.status', 1);
+		$this->db->where('kegiatan.is_active', 1);
+		$this->db->where('kegiatan.idprogram', $idprogram);
+		$this->db->order_by('kegiatan.idkegiatan ASC');
+		$this->db->select('idkegiatan, no_rekening_kegiatan, nama_kegiatan');
+		$kegiatan = $this->db->get('kegiatan');
+
+		return $kegiatan;
+	}
+
+	function query_sub_kegiatan($idkegiatan) {
+		$this->db->where('sub_kegiatan.status', 1);
+		$this->db->where('sub_kegiatan.is_active', 1);
+		$this->db->where('sub_kegiatan.idkegiatan', $idkegiatan);
+		$this->db->order_by('sub_kegiatan.idsub_kegiatan ASC');
+		$this->db->select('idsub_kegiatan, no_rekening_subkegiatan, nama_subkegiatan');
+		$sub_kegiatan = $this->db->get('sub_kegiatan');
+
+		return $sub_kegiatan;
+	}
+
+	function query_paket_belanja($idsub_kegiatan) {
+		$this->db->where('paket_belanja.status', 1);
+		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
+		$this->db->where('paket_belanja.idsub_kegiatan', $idsub_kegiatan);
+		$this->db->order_by('paket_belanja.idpaket_belanja ASC');
+		$this->db->select('idpaket_belanja, nama_paket_belanja, nilai_anggaran');
+		$paket_belanja = $this->db->get('paket_belanja');
+
+		return $paket_belanja;
+	}
+
+	function query_akun_belanja($idpaket_belanja) {
+		$this->db->where('paket_belanja_detail.status', 1);
+		$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+		$this->db->order_by('paket_belanja_detail.idpaket_belanja_detail ASC');
+		$this->db->select('paket_belanja_detail.idpaket_belanja_detail, akun_belanja.idakun_belanja, akun_belanja.no_rekening_akunbelanja, akun_belanja.nama_akun_belanja');
+		$akun_belanja = $this->db->get('paket_belanja_detail');
+
+		return $akun_belanja;
+	}
+
+	function query_paket_belanja_detail($idpaket_belanja_detail) {
+		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
+		$this->db->where('paket_belanja_detail_sub.status', 1);
+		$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
+		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, kategori.no_rekening_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
+
+		return $paket_belanja_detail;
+	}
+
+	function query_paket_belanja_detail_sub($idpaket_belanja_detail_sub) {
+		$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$this->db->where('paket_belanja_detail_sub.status', 1);
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
+
+		return $paket_belanja_detail_sub;
+	}
+	
+
+	
 
 
 	//////////////////////////////////////////////

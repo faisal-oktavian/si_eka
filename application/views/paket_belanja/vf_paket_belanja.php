@@ -1,5 +1,15 @@
 <form class="form-horizontal">
 	<div class="form-group">
+		<label class="control-label col-sm-2">Tahun</label>
+		<div class="col-md-4 col-sm-6">
+			<div class="container-date">
+				<div class="cd-list">
+					<?php echo $tahun_anggaran;?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
         <label class="control-label col-sm-2">Nama Program</label>
         <div class="col-md-4 col-sm-6">
         	<?php echo az_select_nama_program('f_nama_program');?>

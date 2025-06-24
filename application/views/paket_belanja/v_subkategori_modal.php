@@ -1,5 +1,5 @@
 <form class="form-horizontal" id="form_add_subkategori">
-	<input type="" id="hd_idpb_detail_sub" name="hd_idpb_detail_sub" class="x-hidden">
+	<input type="" id="hds_idpb_detail_sub" name="hds_idpb_detail_sub" class="x-hidden">
 	<input type="" id="hds_idpaket_belanja_detail" name="hds_idpaket_belanja_detail" class="x-hidden">
 	<input type="" id="hds_is_kategori" name="hds_is_kategori" class="x-hidden">
 	<input type="" id="hds_is_subkategori" name="hds_is_subkategori" class="x-hidden">

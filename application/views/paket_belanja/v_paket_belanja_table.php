@@ -44,8 +44,8 @@
                         <td align="right">Rp. <?php echo az_thousand_separator($sub_value['harga_satuan']);?></td>
                         <td align="right">Rp. <?php echo az_thousand_separator($sub_value['jumlah']);?></td>
                         <td style="text-align: center;">
-                            <button class="btn btn-default btn-xs btn-edit-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
-                            <button class="btn btn-danger btn-xs btn-delete-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
+                            <button class="btn btn-default btn-xs btn-edit-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
+                            <button class="btn btn-danger btn-xs btn-delete-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
                         </td>
                     </tr>
         <?php
@@ -72,7 +72,10 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-default btn-xs btn-edit-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
+                            <button class="btn btn-danger btn-xs btn-delete-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
+                        </td>
                     </tr>
         <?php
                     foreach ($sub_value['arr_pd_detail_sub_sub'] as $ss_key => $ss_value) {
@@ -88,8 +91,8 @@
                             <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                             <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
                             <td style="text-align: center;">
-                                <button class="btn btn-default btn-xs btn-edit-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
-                                <button class="btn btn-danger btn-xs btn-delete-akun-belanja" type="button" data-id="<?php echo $value['idpaket_belanja_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
+                                <button class="btn btn-default btn-xs btn-edit-detail-sub" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
+                                <button class="btn btn-danger btn-xs btn-delete-detail-sub" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
                             </td>
                         </tr>
         <?php
