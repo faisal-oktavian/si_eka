@@ -268,88 +268,110 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             
             return $select->render();
         }
+    }
 
-        if(!function_exists('az_select_nama_akun_belanja')){
-            function az_select_nama_akun_belanja($id = 'akun_belanja', $class='', $attr='akun_belanja') {
-                $ci =& get_instance();
-                $ci->load->library('encrypt');
-                $azapp = $ci->load->library('AZApp');
-                $select = $ci->azapp->add_select2();
-                $select->set_id($id);
-                $select->set_url('data/get_akun_belanja');
-                $select->set_placeholder('Pilih Akun Belanja');
-                if (strlen($class) > 0) {
-                    $select->add_class($class);
-                }
-                if (strlen($attr) > 0) {
-                    $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idakun_belanja'));
-                    $select->add_attr('w', 'true');
-                }
-                
-                return $select->render();
+    if(!function_exists('az_select_nama_akun_belanja')){
+        function az_select_nama_akun_belanja($id = 'akun_belanja', $class='', $attr='akun_belanja') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_akun_belanja');
+            $select->set_placeholder('Pilih Akun Belanja');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
             }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idakun_belanja'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
         }
+    }
 
-        if(!function_exists('az_select_nama_kategori')){
-            function az_select_nama_kategori($id = 'kategori', $class='', $attr='kategori') {
-                $ci =& get_instance();
-                $ci->load->library('encrypt');
-                $azapp = $ci->load->library('AZApp');
-                $select = $ci->azapp->add_select2();
-                $select->set_id($id);
-                $select->set_url('data/get_kategori');
-                $select->set_placeholder('Pilih Kategori');
-                if (strlen($class) > 0) {
-                    $select->add_class($class);
-                }
-                if (strlen($attr) > 0) {
-                    $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idkategori'));
-                    $select->add_attr('w', 'true');
-                }
-                
-                return $select->render();
+    if(!function_exists('az_select_nama_kategori')){
+        function az_select_nama_kategori($id = 'kategori', $class='', $attr='kategori') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_kategori');
+            $select->set_placeholder('Pilih Kategori');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
             }
-        }
-        
-        if(!function_exists('az_select_nama_subkategori')){
-            function az_select_nama_subkategori($id = 'sub_kategori', $class='', $attr='sub_kategori') {
-                $ci =& get_instance();
-                $ci->load->library('encrypt');
-                $azapp = $ci->load->library('AZApp');
-                $select = $ci->azapp->add_select2();
-                $select->set_id($id);
-                $select->set_url('data/get_subkategori');
-                $select->set_placeholder('Pilih Sub Kategori');
-                if (strlen($class) > 0) {
-                    $select->add_class($class);
-                }
-                if (strlen($attr) > 0) {
-                    $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idsub_kategori'));
-                    $select->add_attr('w', 'true');
-                }
-                
-                return $select->render();
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idkategori'));
+                $select->add_attr('w', 'true');
             }
+            
+            return $select->render();
         }
+    }
+    
+    if(!function_exists('az_select_nama_subkategori')){
+        function az_select_nama_subkategori($id = 'sub_kategori', $class='', $attr='sub_kategori') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_subkategori');
+            $select->set_placeholder('Pilih Sub Kategori');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idsub_kategori'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }
 
-        if(!function_exists('az_select_nama_satuan')){
-            function az_select_nama_satuan($id = 'satuan', $class='', $attr='satuan') {
-                $ci =& get_instance();
-                $ci->load->library('encrypt');
-                $azapp = $ci->load->library('AZApp');
-                $select = $ci->azapp->add_select2();
-                $select->set_id($id);
-                $select->set_url('data/get_satuan');
-                $select->set_placeholder('Pilih Satuan');
-                if (strlen($class) > 0) {
-                    $select->add_class($class);
-                }
-                if (strlen($attr) > 0) {
-                    $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idsatuan'));
-                    $select->add_attr('w', 'true');
-                }
-                
-                return $select->render();
+    if(!function_exists('az_select_nama_satuan')){
+        function az_select_nama_satuan($id = 'satuan', $class='', $attr='satuan') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_satuan');
+            $select->set_placeholder('Pilih Satuan');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
             }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idsatuan'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }
+
+    if(!function_exists('az_select_nama_uraian_parent')){
+        function az_select_nama_uraian_parent($id = 'paket_belanja_detail_sub', $class='', $attr='paket_belanja_detail_sub', $parent = 'idpaket_belanja') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_select_parent($parent);
+            $select->set_url('data/get_paket_belanja_detail_sub_parent');
+            $select->set_placeholder('Pilih Uraian');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idpaket_belanja_detail_sub'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
         }
     }

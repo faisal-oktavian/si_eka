@@ -1,16 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Master_paket_belanja extends CI_Controller {
+class Realisasi_anggaran extends CI_Controller {
 	public function __construct() {
         parent::__construct();
 
         $this->load->helper('az_auth');
-        az_check_auth('master_paket_belanja');
-        $this->table = 'paket_belanja';
-        $this->controller = 'master_paket_belanja';
-		$this->load->helper('az_crud');
-        $this->load->helper('az_config');
+        az_check_auth('realisasi_anggaran');
+        $this->table = 'transaction';
+        $this->controller = 'realisasi_anggaran';
+        $this->load->helper('az_crud');
     }
 
 	public function index() {		
@@ -19,37 +18,42 @@ class Master_paket_belanja extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Program', 'Kegiatan', 'Sub Kegiatan', 'Paket Belanja', 'Anggaran', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Total Realisasi', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		$tahun_anggaran = $azapp->add_datetime();
-		$tahun_anggaran->set_id('vf_tahun_anggaran');
-		$tahun_anggaran->set_name('vf_tahun_anggaran');
-		$tahun_anggaran->set_value(Date('Y'));
-		$tahun_anggaran->set_format('YYYY');
-		$data['tahun_anggaran'] = $tahun_anggaran->render();
+		$date1 = $azapp->add_datetime();
+		$date1->set_id('date1');
+		$date1->set_name('date1');
+		$date1->set_format('DD-MM-YYYY');
+		$date1->set_value('01-'.Date('m-Y'));
+		$data['date1'] = $date1->render();
 
-		$crud->add_aodata('vf_tahun_anggaran', 'vf_tahun_anggaran');
-		$crud->add_aodata('idf_nama_program', 'idf_nama_program');
-		$crud->add_aodata('idf_nama_kegiatan', 'idf_nama_kegiatan');
-		$crud->add_aodata('idf_nama_subkegiatan', 'idf_nama_subkegiatan');
-		$crud->add_aodata('vf_nama_paket_belanja', 'vf_nama_paket_belanja');
+		$date2 = $azapp->add_datetime();
+		$date2->set_id('date2');
+		$date2->set_name('date2');
+		$date2->set_format('DD-MM-YYYY');
+		$date2->set_value(Date('t-m-Y'));
+		$data['date2'] = $date2->render();
 
-		$vf = $this->load->view('paket_belanja/vf_paket_belanja', $data, true);
+		$crud->add_aodata('date1', 'date1');
+		$crud->add_aodata('date2', 'date2');
+		$crud->add_aodata('transaction_code', 'transaction_code');
+
+		$vf = $this->load->view('realisasi_anggaran/vf_realisasi_anggaran', $data, true);
         $crud->set_top_filter($vf);
 
 		$crud = $crud->render();
 		$data['crud'] = $crud;
-		$data['active'] = 'pos';
-		$view = $this->load->view('paket_belanja/v_format_paket_belanja', $data, true);
+		$data['active'] = 'realisasi_anggaran';
+		$view = $this->load->view('realisasi_anggaran/v_format_realisasi_anggaran', $data, true);
 		$azapp->add_content($view);
 
-		$js = az_add_js('paket_belanja/vjs_paket_belanja');
+		$js = az_add_js('realisasi_anggaran/vjs_realisasi_anggaran');
 		$azapp->add_js($js);
 
-		$data_header['title'] = 'Paket Belanja';
-		$data_header['breadcrumb'] = array('master', 'master_paket_belanja');
+		$data_header['title'] = 'Realisasi Anggaran';
+		$data_header['breadcrumb'] = array('realisasi_anggaran');
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
@@ -59,643 +63,334 @@ class Master_paket_belanja extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
-		$tahun_anggaran = $this->input->get('vf_tahun_anggaran');
-		$idprogram = $this->input->get('idf_nama_program');
-		$idkegiatan = $this->input->get('idf_nama_kegiatan');
-		$idsub_kegiatan = $this->input->get('idf_nama_subkegiatan');
-		$nama_paket_belanja = $this->input->get('vf_nama_paket_belanja');
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$transaction_code = $this->input->get('transaction_code');
 
-		$crud->set_select('idpaket_belanja, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_select_table('idpaket_belanja, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_sorting('nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_filter('nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_select_align(', , , ,right');
-		
-		$crud->add_join_manual('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-		$crud->add_join_manual('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
-		$crud->add_join_manual('program', 'program.idprogram = paket_belanja.idprogram');
-		$crud->add_join_manual('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
-		$crud->add_join_manual('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
-		
-		$crud->add_where("paket_belanja.status = '1' ");
-		$crud->add_where("paket_belanja.status_paket_belanja = 'OK' ");
-		if (strlen($tahun_anggaran) > 0) {
-			$crud->add_where('urusan_pemerintah.tahun_anggaran_urusan = "' . $tahun_anggaran . '"');
-		}
-		if (strlen($idprogram) > 0) {
-			$crud->add_where('program.idprogram = "' . $idprogram . '"');
-		}
-		if (strlen($idkegiatan) > 0) {
-			$crud->add_where('kegiatan.idkegiatan = "' . $idkegiatan . '"');
-		}
-		if (strlen($idsub_kegiatan) > 0) {
-			$crud->add_where('sub_kegiatan.idsub_kegiatan = "' . $idsub_kegiatan . '"');
-		}
-		if (strlen($nama_paket_belanja) > 0) {
-			$crud->add_where('paket_belanja.nama_paket_belanja = "' . $nama_paket_belanja . '"');
-		}
-		
+        $crud->set_select('idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, total_realisasi, user.name as user_created');
+        $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, total_realisasi, user_created');
+        $crud->set_sorting('transaction_date, transaction_code, total_realisasi');
+        $crud->set_filter('transaction_date, transaction_code, total_realisasi');
 		$crud->set_id($this->controller);
+
+        $crud->add_join_manual('user', 'transaction.iduser_created = user.iduser');
+        
+        if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $crud->add_where('date(transaction.transaction_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $crud->add_where('date(transaction.transaction_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($transaction_code) > 0) {
+			$crud->add_where('transaction.transaction_code = "' . $transaction_code . '"');
+		}
+
+		$crud->add_where("transaction.status = 1");
+		$crud->add_where("transaction.transaction_status != 'DRAFT' ");
+
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
-		$crud->set_order_by('idpaket_belanja desc');
+		$crud->set_order_by('transaction_date desc');
 		echo $crud->get_table();
 	}
 
 	function custom_style($key, $value, $data) {
 		
-		if ($key == 'nilai_anggaran') {
-			return az_thousand_separator($value);
+		if ($key == 'total_realisasi') {
+			$total_realisasi = az_thousand_separator($value);
+
+			return $total_realisasi;
 		}
 
 		if ($key == 'action') {
-			$idpaket_belanja = azarr($data, 'idpaket_belanja');
+            $idtransaction = azarr($data, 'idtransaction');
 
-			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
-			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+            $btn = $value;
 
-			return $btn;
+            $this->db->where('idtransaction', $idtransaction);
+            $trx = $this->db->get('transaction');
+
+            $trx_status = $trx->row()->transaction_status;
+            // USER INPUT => statusnya INPUT DATA
+            // USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
+            // USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIVERIFIKASI BENDAHARA
+            if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIVERIFIKASI BENDAHARA'))) {
+                $btn = '<button class="btn btn-info btn-xs btn-view-only-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
+            }
 		}
 
 		return $value;
 	}
-
-	function add($id = '') {
+    
+    function add($id = '') {
 		$this->load->library('AZApp');
 		$azapp = $this->azapp;
 
-		$data['id'] = $id;
-
-		$view = $this->load->view('paket_belanja/v_paket_belanja', $data, true);
+        $data = array(
+            'id' => $id,
+            'iduser_created' => $this->session->userdata('iduser'),
+            'user_name' => $this->session->userdata('name'),
+        );
+        
+		$view = $this->load->view('realisasi_anggaran/v_realisasi_anggaran', $data, true);
 		$azapp->add_content($view);
 
-		$v_modal = $this->load->view('paket_belanja/v_paket_belanja_modal', $data, true);
+		$v_modal = $this->load->view('realisasi_anggaran/v_realisasi_anggaran_modal', '', true);
 		$modal = $azapp->add_modal();
 		$modal->set_id('add');
-		$modal->set_modal_title('Tambah Akun Belanja');
+		$modal->set_modal_title('Tambah Realisasi');
 		$modal->set_modal($v_modal);
-		$modal->set_action_modal(array('save_akun_belanja'=>'Simpan'));
+		$modal->set_action_modal(array('save'=>'Simpan'));
 		$azapp->add_content($modal->render());
-
-		$v_modal2 = $this->load->view('paket_belanja/v_kategori_modal', $data, true);
-		$modal2 = $azapp->add_modal();
-		$modal2->set_id('add_kategori');
-		$modal2->set_modal_title('Tambah Kategori');
-		$modal2->set_modal($v_modal2);
-		$modal2->set_action_modal(array('save_kategori'=>'Simpan'));
-		$azapp->add_content($modal2->render());
-
-		$v_modal3 = $this->load->view('paket_belanja/v_subkategori_modal', $data, true);
-		$modal3 = $azapp->add_modal();
-		$modal3->set_id('add_subkategori');
-		$modal3->set_modal_title('Tambah Sub Kategori');
-		$modal3->set_modal($v_modal3);
-		$modal3->set_action_modal(array('save_subkategori'=>'Simpan'));
-		$azapp->add_content($modal3->render());
 		
-		$js = az_add_js('paket_belanja/vjs_paket_belanja_add', $data);
+		$js = az_add_js('realisasi_anggaran/vjs_realisasi_anggaran_add', $data);
 		$azapp->add_js($js);
 		
-		$data_header['title'] = 'Paket Belanja';
-		$data_header['breadcrumb'] = array('master', 'master_paket_belanja');
+		$data_header['title'] = 'Realisasi Anggaran';
+		$data_header['breadcrumb'] = array('realisasi_anggaran');
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
 	}
 
-	function edit($id) {
+    function search_paket_belanja() {
+		$keyword = $this->input->get("term");
 
-		$this->db->where('idpaket_belanja', $id);
-		$check = $this->db->get('paket_belanja');
-		if ($check->num_rows() == 0) {
-			redirect(app_url().'master_paket_belanja');
-		}
+		$this->db->order_by("nama_paket_belanja");
+		$this->db->where('status', 1);
+		$this->db->like('nama_paket_belanja', $keyword);
+		$this->db->select("idpaket_belanja as id, nama_paket_belanja as text");
 
-		$this->add($id);
+		$data = $this->db->get("paket_belanja");
+
+		$results = array(
+			"results" => $data->result_array(),
+		);
+		echo json_encode($results);
 	}
 
-	function get_data() {
+    function select_paket_belanja() {
 		$id = $this->input->post('id');
 
-		$this->db->where('paket_belanja.idpaket_belanja', $id);
-		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
-		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
-		$this->db->select('kegiatan.idprogram, concat(program.no_rekening_program, " - ", program.nama_program) as nama_program, sub_kegiatan.idkegiatan, concat(kegiatan.no_rekening_kegiatan, " - ", kegiatan.nama_kegiatan) as nama_kegiatan, paket_belanja.idsub_kegiatan, concat(sub_kegiatan.no_rekening_subkegiatan, " - ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan, paket_belanja.nama_paket_belanja, paket_belanja.nilai_anggaran');
-		$paket_belanja = $this->db->get('paket_belanja')->result_array();
-
 		$this->db->where('idpaket_belanja', $id);
-		$paket_belanja_detail = $this->db->get('paket_belanja_detail')->result_array();
-
-		$return = array(
-			'paket_belanja' => azarr($paket_belanja, 0),
-			'paket_belanja_detail' => $paket_belanja_detail
-		);
-		echo json_encode($return);
-	}
-
-	function edit_paket_belanja() {
-		$id = $this->input->post("id");
-
-		$err_code = 0;
-		$err_message = "";
-		
-		$this->db->where('idpaket_belanja_detail', $id);
-		$this->db->join('akun_belanja', 'paket_belanja_detail.idakun_belanja = akun_belanja.idakun_belanja');
-		$this->db->select('paket_belanja_detail.idpaket_belanja_detail, paket_belanja_detail.idakun_belanja, concat(akun_belanja.no_rekening_akunbelanja, " - ", akun_belanja.nama_akun_belanja) as nama_akun_belanja');
-		$pb_detail = $this->db->get('paket_belanja_detail')->result_array();
-		// echo "<pre>"; print_r($this->db->last_query());die;
+		$this->db->join('sub_kegiatan', 'paket_belanja.idsub_kegiatan = sub_kegiatan.idsub_kegiatan');
+		$this->db->join('kegiatan', 'sub_kegiatan.idkegiatan = kegiatan.idkegiatan');
+		$this->db->join('program', 'kegiatan.idprogram = program.idprogram');
+		$this->db->join('bidang_urusan', 'program.idbidang_urusan = bidang_urusan.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'bidang_urusan.idurusan_pemerintah = urusan_pemerintah.idurusan_pemerintah');
+        $this->db->select('nama_urusan, nama_bidang_urusan, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja');
+		$paket_belanja = $this->db->get('paket_belanja');
+        // echo "<pre>"; print_r($this->db->last_query());die;
 
 		$ret = array(
-			'data' => azarr($pb_detail, 0),
-			'err_code' => $err_code,
-			'err_message' => $err_message
+			'nama_urusan' => $paket_belanja->row()->nama_urusan,
+			'nama_bidang_urusan' => $paket_belanja->row()->nama_bidang_urusan,
+			'nama_program' => $paket_belanja->row()->nama_program,
+			'nama_kegiatan' => $paket_belanja->row()->nama_kegiatan,
+			'nama_subkegiatan' => $paket_belanja->row()->nama_subkegiatan,
+			'nama_paket_belanja' => $paket_belanja->row()->nama_paket_belanja,
+			'idpaket_belanja' => $id,
 		);
+
 		echo json_encode($ret);
 	}
 
-	function edit_paket_belanja_detail() {
-		$id = $this->input->post("id");
-
-		$err_code = 0;
-		$err_message = "";
-		
-		$this->db->where('idpaket_belanja_detail_sub', $id);
-		$this->db->join('kategori', 'paket_belanja_detail_sub.idkategori = kategori.idkategori', 'left');
-		$this->db->join('sub_kategori', 'paket_belanja_detail_sub.idsub_kategori = sub_kategori.idsub_kategori', 'left');
-		$this->db->join('paket_belanja_detail', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail', 'left');
-		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, concat(kategori.no_rekening_kategori, " - ", kategori.nama_kategori) as nama_kategori, paket_belanja_detail.idakun_belanja, paket_belanja_detail_sub.idsub_kategori, concat(sub_kategori.no_rekening_subkategori, " - ", sub_kategori.nama_sub_kategori) as nama_sub_kategori, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.volume, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.idsatuan, satuan.nama_satuan');
-		$pb_detail = $this->db->get('paket_belanja_detail_sub')->result_array();
-		// echo "<pre>"; print_r($this->db->last_query());die;
-
-		$ret = array(
-			'data' => azarr($pb_detail, 0),
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
-		echo json_encode($ret);
-	}
-
-	function add_akun_belanja() {
-		$err_code = 0;
-		$err_message = '';
-
-	 	$idpaket_belanja = $this->input->post('idpaket_belanja');
-	 	$idpb_akun_belanja = $this->input->post('idpb_akun_belanja');
-
-	 	$idakun_belanja = $this->input->post('idakun_belanja');
-		$idprogram = $this->input->post('idprogram');
-	 	$idkegiatan = $this->input->post('idkegiatan');
-	 	$idsub_kegiatan = $this->input->post('idsub_kegiatan');
-
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idakun_belanja', 'Akun Belanja', 'required');
-
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-
-		if ($err_code == 0) {
-			if (strlen($idpaket_belanja) == 0) {
-				$arr_pb = array(
-					'idprogram' => $idprogram,
-					'idkegiatan' => $idkegiatan,
-					'idsub_kegiatan' => $idsub_kegiatan,
-				);
-
-				$save_paket_belanja = az_crud_save($idpaket_belanja, 'paket_belanja', $arr_pb);
-				$idpaket_belanja = azarr($save_paket_belanja, 'insert_id');
-			}
-
-			//transaction detail
-			$arr_pb_detail = array(
-				'idpaket_belanja' => $idpaket_belanja,
-				'idakun_belanja' => $idakun_belanja,
-			);
-
-			$save_pb_detail = az_crud_save($idpb_akun_belanja, 'paket_belanja_detail', $arr_pb_detail);
-			$idpaket_belanja_detail = azarr($save_pb_detail, 'insert_id');
-		}
-
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-			'idpaket_belanja' => $idpaket_belanja,
-			'idpaket_belanja_detail' => az_encode_url($idpaket_belanja_detail),
-		);
-		echo json_encode($return);
-	}
-
-	function add_kategori() {
-		$err_code = 0;
-		$err_message = '';
-
-	 	$idpb_detail_sub = $this->input->post('hd_idpb_detail_sub');
-	 	$idpaket_belanja = $this->input->post('hd_idpaket_belanja');
-	 	$idpaket_belanja_detail = $this->input->post('hd_idpaket_belanja_detail');
-	 	$idakun_belanja = $this->input->post('hd_idakun_belanja');
-	 	$idkategori = $this->input->post('idkategori');
-	 	$is_kategori = $this->input->post('is_kategori');
-	 	$is_subkategori = $this->input->post('is_subkategori');
-
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idkategori', 'Kategori', 'required');
-
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-
-		if ($err_code == 0) {
-			//detail
-			$arr_pb_detail_sub = array(
-				// 'idpaket_belanja' => $idpaket_belanja,
-				// 'idpaket_belanja_detail' => $idpaket_belanja_detail,
-				'idkategori' => $idkategori,
-				'idpaket_belanja_detail' => $idpaket_belanja_detail,
-				'is_kategori' => $is_kategori,
-				'is_subkategori' => $is_subkategori,
-			);
-			// echo "<pre>"; print_r($arr_pb_detail_sub);die;
-
-			$save_pb_detail_sub = az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_pb_detail_sub);
-			$idpb_detail_sub = azarr($save_pb_detail_sub, 'insert_id');
-		}
-
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-		);
-		echo json_encode($return);
-	}
-
-	function add_subkategori() {
-		$err_code = 0;
-		$err_message = '';
-
-	 	$idpb_detail_sub = $this->input->post('hds_idpb_detail_sub');
-	 	$idpaket_belanja_detail = $this->input->post('hds_idpaket_belanja_detail');
-	 	$idsub_kategori = $this->input->post('idsub_kategori');
-	 	$is_kategori = $this->input->post('hds_is_kategori');
-	 	$is_subkategori = $this->input->post('hds_is_subkategori');
-	 	$is_idpaket_belanja_detail_sub = $this->input->post('hds_idds_parent');
-	 	$volume = az_crud_number($this->input->post('volume'));
-	 	$idsatuan = $this->input->post('idsatuan');
-	 	$harga_satuan = az_crud_number($this->input->post('harga_satuan'));
-	 	$jumlah = az_crud_number($this->input->post('jumlah'));
-
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idsub_kategori', 'Sub Kategori', 'required');
-		$this->form_validation->set_rules('volume', 'Volume', 'required');
-		$this->form_validation->set_rules('idsatuan', 'Satuan', 'required');
-		$this->form_validation->set_rules('harga_satuan', 'Harga Satuan', 'required');
-
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-
-		if ($err_code == 0) {
-
-			// jika veriabel ini terisi maka tidak perlu simpan id paket belanja detail
-			if (strlen($is_idpaket_belanja_detail_sub) > 0 || strlen($idpaket_belanja_detail) == 0) {
-				$idpaket_belanja_detail = null;
-			}
-
-			//detail
-			$arr_pb_detail_sub = array(
-				// 'idpaket_belanja' => $idpaket_belanja,
-				// 'idpaket_belanja_detail' => $idpaket_belanja_detail,
-				'idsub_kategori' => $idsub_kategori,
-				'idpaket_belanja_detail' => $idpaket_belanja_detail,
-				'is_idpaket_belanja_detail_sub' => $is_idpaket_belanja_detail_sub,
-				'is_kategori' => $is_kategori,
-				'is_subkategori' => $is_subkategori,
-				'volume' => $volume,
-				'idsatuan' => $idsatuan,
-				'harga_satuan' => $harga_satuan,
-				'jumlah' => $jumlah,
-			);
-			// echo "<pre>"; print_r($arr_pb_detail_sub);die;
-
-			$save_pb_detail_sub = az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_pb_detail_sub);
-			$idpb_detail_sub = azarr($save_pb_detail_sub, 'insert_id');
-		}
-
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-		);
-		echo json_encode($return);
-	}
-
-	function get_list_akun_belanja() {
+    public function get_paket_belanja_detail_sub_parent(){
 		$idpaket_belanja = $this->input->post("idpaket_belanja");
-
-		$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
+		
+		// var_dump($parent);die();
 		$this->db->where('paket_belanja_detail.status', 1);
-		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
-		$this->db->select('idpaket_belanja_detail, nama_akun_belanja, status_paket_belanja, akun_belanja.no_rekening_akunbelanja, paket_belanja.idpaket_belanja, akun_belanja.idakun_belanja');
+		$this->db->where('paket_belanja_detail_sub.status', 1);
+		$this->db->where('idpaket_belanja', $idpaket_belanja);
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
 		$pb_detail = $this->db->get('paket_belanja_detail');
+        // echo "<pre>"; print_r($this->db->last_query()); die;
 
-		$arr_pb_detail = array();
+		$arr_data = array();
 		foreach ($pb_detail->result() as $key => $value) {
-			$idpaket_belanja_detail = $value->idpaket_belanja_detail;
-
-			// get sub detail
-			$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
+			
+			// cek apakah ada detailnya
 			$this->db->where('paket_belanja_detail_sub.status', 1);
-			$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
+			$this->db->where('is_idpaket_belanja_detail_sub', $value->idpaket_belanja_detail_sub);
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-			$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-			$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-			$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-			$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, kategori.no_rekening_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-			$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
-			// echo "<pre>"; print_r($this->db->last_query());die;
+			$dss = $this->db->get('paket_belanja_detail_sub');
 
-			$arr_pd_detail_sub = array();
-			foreach ($pb_detail_sub->result() as $ds_key => $ds_value) {
-
-				// get sub sub detail
-				$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
-				$this->db->where('paket_belanja_detail_sub.status', 1);
-				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-				$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-				$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-				$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
-				// echo "<pre>"; print_r($this->db->last_query());die;
-
-				$arr_pd_detail_sub_sub = array();
-				foreach ($pd_detail_sub_sub->result() as $dss_key => $dss_value) {
-					$arr_pd_detail_sub_sub[] = array(
+			if ($dss->num_rows() == 0) {
+				$arr_data[] = array(
+					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+					'iduraian' => $value->idsub_kategori,
+					'nama_uraian' => $value->nama_sub_kategori,
+				);
+			}
+			else {
+				foreach ($dss->result() as $dss_key => $dss_value) {
+					$arr_data[] = array(
 						'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
-						'idpaket_belanja_detail' => $dss_value->idpaket_belanja_detail,
-						'idsub_kategori' => $dss_value->idsub_kategori,
-						'nama_subkategori' => $dss_value->nama_sub_kategori,
-						'no_rekening_subkategori' => $dss_value->no_rekening_subkategori,
-						'is_kategori' => $dss_value->is_kategori,
-						'is_subkategori' => $dss_value->is_subkategori,
-						'volume' => $dss_value->volume,
-						'nama_satuan' => $dss_value->nama_satuan,
-						'harga_satuan' => $dss_value->harga_satuan,
-						'jumlah' => $dss_value->jumlah,
+						'iduraian' => $dss_value->idsub_kategori,
+						'nama_uraian' => $dss_value->nama_sub_kategori,
 					);
 				}
-
-
-				$arr_pd_detail_sub[] = array(
-					'idpaket_belanja_detail_sub' => $ds_value->idpaket_belanja_detail_sub,
-					'idpaket_belanja_detail' => $ds_value->idpaket_belanja_detail,
-					'idkategori' => $ds_value->idkategori,
-					'nama_kategori' => $ds_value->nama_kategori,
-					'no_rekening_kategori' => $ds_value->no_rekening_kategori,
-					'idsub_kategori' => $ds_value->idsub_kategori,
-					'nama_subkategori' => $ds_value->nama_sub_kategori,
-					'no_rekening_subkategori' => $ds_value->no_rekening_subkategori,
-					'is_kategori' => $ds_value->is_kategori,
-					'is_subkategori' => $ds_value->is_subkategori,
-					'no_rekening_akunbelanja' => $ds_value->no_rekening_akunbelanja,
-					'volume' => $ds_value->volume,
-					'nama_satuan' => $ds_value->nama_satuan,
-					'harga_satuan' => $ds_value->harga_satuan,
-					'jumlah' => $ds_value->jumlah,
-					'arr_pd_detail_sub_sub' => $arr_pd_detail_sub_sub,
-				);
 			}
-
-			$arr_pb_detail[] = array(
-				'idpaket_belanja_detail' => $value->idpaket_belanja_detail,
-				'nama_akun_belanja' => $value->no_rekening_akunbelanja." - ".$value->nama_akun_belanja,
-				'status_paket_belanja' => $value->status_paket_belanja,
-				'idpaket_belanja' => $value->idpaket_belanja,
-				'idakun_belanja' => $value->idakun_belanja,
-				'arr_pb_detail_sub' => $arr_pd_detail_sub,
-			);
 		}
 
-		$data['arr_pb_detail'] = $arr_pb_detail;
-		// echo "<pre>"; print_r($data); die;
+		$results = array(
+		  "results" => $arr_data,
+		);
+        // echo "<pre>"; print_r($results);die;
 
-		$view = $this->load->view('paket_belanja/v_paket_belanja_table', $data, true);
+		echo json_encode($results);
+	}
+
+    function add_product() {
+		$err_code = 0;
+		$err_message = '';
+
+
+	 	$idtransaction = $this->input->post('idtransaction');
+	 	$idtransaction_detail = $this->input->post('idtransaction_detail');
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('idpaket_belanja', 'Paket Belanja', 'required');
+		$this->form_validation->set_rules('iduraian', 'Uraian', 'required');
+		$this->form_validation->set_rules('jumlah', 'Jumlah', 'required');
+
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		$this->db->where('idtransaction',$idtransaction);
+		$transaction = $this->db->get('transaction');
+
+		if ($transaction->num_rows() > 0) {
+			$status = $transaction->row()->transaction_status;
+			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIVERIFIKASI BENDAHARA'))) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
+
+		if ($err_code == 0) {
+
+			if (strlen($idtransaction) == 0) {
+				$arr_transaction = array(
+					'iduser_created' => $this->session->userdata('iduser'),
+					'transaction_date' => Date('Y-m-d H:i:s'),
+					'transaction_status' => 'DRAFT',
+					'transaction_code' => $this->generate_transaction_code(),
+				);
+
+				$save_transaction = az_crud_save($idtransaction, 'transaction', $arr_transaction);
+				$idtransaction = azarr($save_transaction, 'insert_id');
+			}
+
+            $idpaket_belanja = $this->input->post('idpaket_belanja');
+            $iduraian = $this->input->post('iduraian');
+            $volume = az_crud_number($this->input->post('volume'));
+            $laki = az_crud_number($this->input->post('laki'));
+            $perempuan = az_crud_number($this->input->post('perempuan'));
+            $harga_satuan = az_crud_number($this->input->post('harga_satuan'));
+            $ppn = az_crud_number($this->input->post('ppn'));
+            $pph = az_crud_number($this->input->post('pph'));
+            $total = az_crud_number($this->input->post('total'));
+            $transaction_description = $this->input->post('transaction_description');
+            
+			//transaction detail
+			$arr_transaction_detail = array(
+				'idtransaction' => $idtransaction,
+				'idpaket_belanja' => $idpaket_belanja,
+				'iduraian' => $iduraian,
+				'volume' => $volume,
+				'laki' => $laki,
+				'perempuan' => $perempuan,
+				'harga_satuan' => $harga_satuan,
+				'ppn' => $ppn,
+				'pph' => $pph,
+				'total' => $total,
+				'transaction_description' => $transaction_description,
+			);
+			
+			$td = az_crud_save($idtransaction_detail, 'transaction_detail', $arr_transaction_detail);
+			$idtransaction_detail = azarr($td, 'insert_id');
+
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idtransaction' => $idtransaction,
+			'idtransaction_detail' => $idtransaction_detail,
+		);
+		echo json_encode($return);
+	}
+
+    function get_list_order() {
+		$idtransaction = $this->input->post("idtransaction");
+
+        $this->db->where('transaction_detail.status', 1);
+        $this->db->where('transaction_detail.idtransaction', $idtransaction);
+        $trx_detail = $this->db->get('transaction_detail');
+
+        $data['detail'] = $trx_detail;
+
+		$view = $this->load->view('onthespot/v_onthespot_table', $data, true);
 		$arr = array(
 			'data' => $view
 		);
 		echo json_encode($arr);
 	}
 
-	function save_paket_belanja() {
-		$err_code = 0;
-		$err_message = '';
+    private function generate_transaction_code() {
+		$this->db->where('day(transaction_date)', Date('d'));
+		$this->db->where('month(transaction_date)', Date('m'));
+		$this->db->where('year(transaction_date)', Date('Y'));
+		$this->db->where('transaction_code != "NULL" ');
+		$this->db->order_by('transaction_code desc');
+		$data = $this->db->get('acc_sales', 1);
+		if ($data->num_rows() == 0) {
+			$numb = '0001';
 
-		$idpaket_belanja = $this->input->post('hd_idpaket_belanja');
-		$idprogram = $this->input->post("idprogram");
-		$idkegiatan = $this->input->post("idkegiatan");
-		$idsub_kegiatan = $this->input->post("idsub_kegiatan");
-		$nama_paket_belanja = $this->input->post("nama_paket_belanja");
-		$nilai_anggaran = az_crud_number($this->input->post("nilai_anggaran"));
-
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idprogram', 'Nama Program', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('idkegiatan', 'Nomor Kegiatan', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('idsub_kegiatan', 'Nomor Sub Kegiatan', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('nama_paket_belanja', 'Nomor Paket Belanja', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('nilai_anggaran', 'Jumlah Anggaran', 'required|trim|max_length[200]');
-		
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
+			$transaction_code = 'ON'.Date('Ymd').$numb;
 		}
-		if ($err_code == 0) {
-			if (strlen($idpaket_belanja) == 0) {
-				$err_code++;
-				$err_message = 'Invalid ID';
+		else {
+			$last = $data->row()->transaction_code;
+			$last = substr($last, 10);
+			$numb = $last + 1;
+			$numb = sprintf("%04d", $numb);
+
+			$transaction_code = 'ON'.Date('Ymd').$numb;
+
+			$this->db->where('transaction_code', $transaction_code);
+			$this->db->select('transaction_code');
+			$check = $this->db->get('acc_sales');
+			$ok = 0;
+			if($check->num_rows() == 0) {
+				$ok = 1;
 			}
-		}
 
-		if ($err_code == 0) {
-	    	$arr_data = array(
-	    		'idprogram' => $idprogram,
-	    		'idkegiatan' => $idkegiatan,
-	    		'idsub_kegiatan' => $idsub_kegiatan,
-	    		'nama_paket_belanja' => $nama_paket_belanja,
-	    		'nilai_anggaran' => $nilai_anggaran,
-				'status_paket_belanja' => "OK",
-	    	);
+			while($ok == 0) {
+				$last = substr($transaction_code, 10);
+				$numb = $last + 1;
+				$numb = sprintf("%04d", $numb);
 
-	    	az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
-		}
+				$transaction_code = 'ON'.Date('Ymd').$numb;
 
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
-		echo json_encode($return);
-	}
-
-	function delete_paket_belanja() {
-		$err_code = 0;
-		$err_message = '';
-
-		$id = $this->input->post('id');
-		
-		// cek apakah ada detailnya?
-		$this->db->where('idpaket_belanja', $id);
-		$this->db->where('status', 1);
-		$ds = $this->db->get('paket_belanja_detail');
-		// echo "<pre>"; print_r($this->db->last_query());die;
-		
-		foreach ($ds->result() as $key => $value) {
-			// kategori / sub kategori
-			$idpaket_belanja_detail = $value->idpaket_belanja_detail;
-
-			$data_delete = az_crud_delete('paket_belanja_detail', $idpaket_belanja_detail, true);
-			$err_code = $data_delete['err_code'];
-			$err_message = $data_delete['err_message'];
-
-			// detail
-			$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
-			$this->db->where('status', 1);
-			$dss = $this->db->get('paket_belanja_detail_sub');
-			// echo "<pre>"; print_r($this->db->last_query());die;
-
-			foreach ($dss->result() as $dss_key => $dss_value) {
-				$idpaket_belanja_detail_sub = $dss_value->idpaket_belanja_detail_sub;
-
-				$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
-				$err_code = $data_delete['err_code'];
-				$err_message = $data_delete['err_message'];
-
-				$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-				$this->db->where('status', 1);
-				$dsss = $this->db->get('paket_belanja_detail_sub');
-				// echo "<pre>"; print_r($this->db->last_query());die;
-				
-				foreach ($dsss->result() as $dsss_key => $dsss_value) {
-
-					$data_delete_sub = az_crud_delete('paket_belanja_detail_sub', $dsss_value->idpaket_belanja_detail_sub, true);
-					$err_code = $data_delete_sub['err_code'];
-					$err_message = $data_delete_sub['err_message'];
+				$this->db->where('transaction_code', $transaction_code);
+				$this->db->select('transaction_code');
+				$check = $this->db->get('acc_sales');
+				$ok = 0;
+				if($check->num_rows() == 0) {
+					$ok = 1;
 				}
 			}
 		}
 
-		$data_delete = az_crud_delete('paket_belanja', $id, true);
-		$err_code = $data_delete['err_code'];
-		$err_message = $data_delete['err_message'];
-		
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-		);
-		echo json_encode($return);
+		return $transaction_code;
 	}
 
-	function delete_akun_belanja() {
-		$err_code = 0;
-		$err_message = '';
-
-		$id = $this->input->post('id');
-
-		$this->db->where('idpaket_belanja_detail', $id);
-		$this->db->select('idpaket_belanja');
-		$pb = $this->db->get('paket_belanja_detail');
-		
-		$idpaket_belanja = $pb->row()->idpaket_belanja;
-		
-		// cek apakah ada detail dari akun belanja ini?
-		$this->db->where('idpaket_belanja_detail', $id);
-		$this->db->where('status', 1);
-		$ds = $this->db->get('paket_belanja_detail_sub');
-		
-		foreach ($ds->result() as $key => $value) {
-			// kategori / sub kategori
-			$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
-
-			$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
-			$err_code = $data_delete['err_code'];
-			$err_message = $data_delete['err_message'];
-
-			// sub detail
-			$this->db->where('status', 1);
-			$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-			$dss = $this->db->get('paket_belanja_detail_sub');
-
-			foreach ($dss->result() as $dss_key => $dss_value) {
-
-				$data_delete = az_crud_delete('paket_belanja_detail_sub', $dss_value->idpaket_belanja_detail_sub, true);
-				$err_code = $data_delete['err_code'];
-				$err_message = $data_delete['err_message'];
-			}
-		}
-
-		$data_delete = az_crud_delete('paket_belanja_detail', $id, true);
-		$err_code = $data_delete['err_code'];
-		$err_message = $data_delete['err_message'];
-		
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-			'idpaket_belanja' => $idpaket_belanja,
-		);
-		echo json_encode($return);
-	}
-
-	function delete_detail() {
-		$err_code = 0;
-		$err_message = '';
-
-		$id = $this->input->post('id');
-
-		$this->db->where('idpaket_belanja_detail_sub', $id);
-		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
-		$this->db->select('idpaket_belanja, is_idpaket_belanja_detail_sub');
-		$pb = $this->db->get('paket_belanja_detail_sub');
-		
-		// jika ada turunan
-		if (strlen($pb->row()->is_idpaket_belanja_detail_sub) > 0) {
-			$this->db->where('idpaket_belanja_detail_sub', $pb->row()->is_idpaket_belanja_detail_sub);
-			$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-			$this->db->select('idpaket_belanja, is_idpaket_belanja_detail_sub');
-			$pb = $this->db->get('paket_belanja_detail_sub');
-		}
-		$idpaket_belanja = $pb->row()->idpaket_belanja;
-		
-
-		// cek apakah ada detail dari akun belanja ini?
-		$this->db->where('is_idpaket_belanja_detail_sub', $id);
-		$this->db->where('status', 1);
-		$ds = $this->db->get('paket_belanja_detail_sub');
-		
-		foreach ($ds->result() as $key => $value) {
-			// kategori / sub kategori
-			$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
-
-			$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
-			$err_code = $data_delete['err_code'];
-			$err_message = $data_delete['err_message'];
-		}
-
-		$data_delete = az_crud_delete('paket_belanja_detail_sub', $id, true);
-		$err_code = $data_delete['err_code'];
-		$err_message = $data_delete['err_message'];
-		
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-			'idpaket_belanja' => $idpaket_belanja,
-		);
-		echo json_encode($return);
-	}
-
-
-	///////////////////////////////////
+    ///////////////////////////////////
 	//// Cek
 	///////////////////////////////////
-	function validation_data_customer()
+    function validation_data_customer()
 	{
 		// dump($this->input->post());die;
 		$c_name = $this->input->post('customer_name');
@@ -725,6 +420,26 @@ class Master_paket_belanja extends CI_Controller {
 			];
 		}
 		echo json_encode($return) ;
+	}
+
+	function edit($id) {
+		$sess_idoutlet = $this->session->userdata('idoutlet');
+		if (strlen($sess_idoutlet) > 0) {
+			$this->db->where('idoutlet', $sess_idoutlet);
+		}
+
+		$this->db->where('idtransaction', $id);
+		$check = $this->db->get('transaction');
+		if ($check->num_rows() == 0) {
+			redirect(app_url().'pos');
+		} 
+		else if($this->uri->segment(4) != "view_only") {
+			$status = $check->row()->transaction_status;
+			if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
+				redirect(app_url().'pos');
+			}
+		}
+		$this->add($id);
 	}
 
 	public function get_member_data()
@@ -898,25 +613,6 @@ class Master_paket_belanja extends CI_Controller {
 		);
 		$this->db->where('idtransaction', $idtransaction);
 		$this->db->update('transaction', $arr_transaction);
-	}
-
-	private function generate_transaction_code() {
-		$this->db->where('day(transaction_date_start)', Date('d'));
-		$this->db->where('month(transaction_date_start)', Date('m'));
-		$this->db->where('year(transaction_date_start)', Date('Y'));
-		$this->db->order_by('idtransaction desc');
-		$data = $this->db->get('transaction', 1);
-		if ($data->num_rows() == 0) {
-			$numb = '0001';
-		}
-		else {
-			$last = $data->row()->transaction_code;
-			$last = substr($last, 10);
-			$numb = $last + 1;
-			$numb = sprintf("%04d", $numb);
-		}
-
-		return 'ON'.Date('Ymd').$numb;
 	}
 
 	function save_onthespot() {
@@ -1169,6 +865,134 @@ class Master_paket_belanja extends CI_Controller {
 			'err_message' => $err_message
 		);
 		echo json_encode($return);
+	}
+
+	function get_data() {
+		$id = $this->input->post('id');
+		$this->db->where('transaction.idtransaction', $id);
+		$this->db->join('transaction_delivery', 'transaction.idtransaction = transaction_delivery.idtransaction');
+		$this->db->join('outlet', 'transaction.idoutlet = outlet.idoutlet', 'left');
+		if ($this->app_accounting) {
+			$this->db->join('acc_term_payment', 'transaction.idacc_term_payment = acc_term_payment.idacc_term_payment', 'left');
+			$this->db->select('*, date_format(transaction_due_date, "%d-%m-%Y") as txt_transaction_due_date');
+		}
+		$transaction = $this->db->get('transaction')->result_array();
+
+		$this->db->where('idtransaction', $id);
+		$transaction_detail = $this->db->get('transaction_detail')->result_array();
+
+		$return = array(
+			'transaction' => azarr($transaction, 0),
+			'transaction_detail' => $transaction_detail
+		);
+		echo json_encode($return);
+	}
+
+	function delete_order() {
+		$id = $this->input->post('id');
+		$id = az_decode_url($id);
+		$the_edit = $this->input->post('the_edit');
+		$sip_product_finishing = az_get_config('sip_product_finishing', 'config_app');
+
+		$this->db->where('idtransaction_detail', $id);
+		$td = $this->db->get('transaction_detail')->row();
+		$idtransaction = $td->idtransaction;
+		$grand_product_finishing_sub_price = $td->grand_product_finishing_sub_price;
+		$this->db->where('idtransaction', $idtransaction);
+		$transaction = $this->db->get('transaction')->row();
+		$status = $transaction->transaction_status;
+		$is_delete = true;
+		if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
+			$is_delete = false;
+		}
+
+		$ret = array();
+
+		if ($is_delete) {
+			$grand_product_finishing_sub_price_finishing = 0;
+
+			if($sip_product_finishing) {
+				$idtd_main = azobj($td, 'idtransaction_detail_main');
+
+				if (is_null($idtd_main)) {
+					$this->db->where('idtransaction_detail_main', $id);
+					$this->db->where('status > ', 0);
+					$product_finishing = $this->db->get('transaction_detail');
+
+					if ($product_finishing->num_rows() > 0) {
+						foreach ($product_finishing->result() as $key => $value) {
+							$grand_product_finishing_sub_price_finishing += azobj($value, 'grand_product_finishing_sub_price', 0);
+							$res = az_crud_delete('transaction_detail', azobj($value, 'idtransaction_detail'), true, true);
+							$err_code = azarr($res, 'err_code');
+							$err_message = azarr($res, 'err_message');
+						}
+					}
+				}
+			}
+
+			if(strlen($the_edit) > 0) {
+				$total_lack = $transaction->total_lack;
+				$arr_del = array(
+					'total_lack' => $total_lack + $grand_product_finishing_sub_price + $grand_product_finishing_sub_price_finishing
+				);
+				$this->db->where('idtransaction', $idtransaction);
+				$this->db->update('transaction', $arr_del);
+			}
+
+			$this->db->where("idtransaction_detail", $id);
+			$this->db->delete('transaction_detail');
+
+			// [DELETE] Ketika hapus transaction_detail dihapus juga product jadi finishingnya
+			if (az_get_config('sip_product_finishing','config_app') == 1) {
+				$this->db->where('idtransaction_detail_main', $id)
+						->delete('transaction_detail');
+			}
+
+			$this->null_delivery($idtransaction);
+
+			$this->load->library('lite');
+			$this->lite->update_weight_price($idtransaction);
+
+			$ret['err_code'] = 0;
+			$ret['err_message'] = "";
+		}
+		else{
+			$ret['err_code'] = 1;
+			$ret['err_message'] = "Transaksi tidak dapat diedit atau dihapus.";
+		}
+		echo json_encode($ret);
+	}
+
+	function edit_order() {
+		$id = $this->input->post("id");
+		$id = az_decode_url($id);
+
+		$err_code = 0;
+		$err_message = "";
+		$accounting = '';
+		if ($this->app_accounting) {
+			$accounting = ', transaction_detail.idacc_tax, acc_tax.tax_name';
+		}
+		$this->db->select('transaction_detail.idproduct, product.product_name, product.idproduct_subcategory, product_subcategory_name, product_subcategory.idproduct_category, product_category_name, transaction_description, deadline'.$accounting);
+		$this->db->where('idtransaction_detail', $id);
+		$this->db->join('product', 'transaction_detail.idproduct = product.idproduct');
+		$this->db->join('product_subcategory', 'product.idproduct_subcategory = product_subcategory.idproduct_subcategory');
+		$this->db->join('product_category', 'product_subcategory.idproduct_category = product_category.idproduct_category');
+		if ($this->app_accounting) {
+			$this->db->join('acc_tax', 'transaction_detail.idacc_tax = acc_tax.idacc_tax', 'left');
+		}
+		$product = $this->db->get('transaction_detail')->result_array();
+
+		if (azarr(azarr($product,0,array()),'product_type') == "DESAIN") {
+			$err_code++;
+			$err_message = "Produk desain tidak bisa diedit";
+		}
+		$ret = array(
+			'data' => azarr($product, 0),
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($ret);
 	}
 
 	function generate_delivery($iddistrict = '', $iddelivery = '', $idoutlet = '') {
@@ -1604,66 +1428,6 @@ class Master_paket_belanja extends CI_Controller {
 
 		$ret = array(
 			'err_code' => 0
-		);
-		echo json_encode($ret);
-	}
-
-	function search_product() {
-		$keyword = $this->input->get("term");
-
-		$sip_api_tokopedia = az_get_config('sip_api_tokopedia', 'config_app');
-		$sip_api_shopee = az_get_config('sip_api_shopee', 'config_app');
-
-		$this->db->order_by("product_name");
-		$this->db->where('status', 1);
-		if($sip_api_tokopedia) {
-			$this->db->where('is_tokopedia', 0);
-		}
-		if($sip_api_shopee) {
-			$this->db->where('is_shopee', 0);
-		}
-		// $this->db->where("is_active", 1);
-		$this->db->like('product_name', $keyword);
-		$this->db->select("idproduct as id, product_name as text");
-
-		$data = $this->db->get("product");
-
-		$results = array(
-			"results" => $data->result_array(),
-		);
-		echo json_encode($results);
-	}
-
-	function select_product() {
-		$id = $this->input->post('id');
-		$type = az_get_config('show_product', 'config_app');
-
-		$this->db->where('idproduct', $id);
-		$this->db->join('product_subcategory', 'product.idproduct_subcategory = product_subcategory.idproduct_subcategory', 'left');
-		if ($type == '1') {
-			$this->db->join('product_category', 'product.idproduct_category = product_category.idproduct_category', 'left');
-		}
-		else {
-			$this->db->join('product_category', 'product_subcategory.idproduct_category = product_category.idproduct_category', 'left');
-		}
-		$product = $this->db->get('product');
-
-		$product_category_name = '';
-		$product_subcategory_name = '';
-		if (strlen($product->row()->product_category_name) > 0) {
-			$product_category_name = $product->row()->product_category_name;
-		}
-		if (strlen($product->row()->product_subcategory_name) > 0) {
-			$product_subcategory_name = $product->row()->product_subcategory_name;
-		}
-
-		$ret = array(
-			'idproduct_category' => $product->row()->idproduct_category,
-			'idproduct_subcategory' => $product->row()->idproduct_subcategory,
-			'idproduct' => $product->row()->idproduct,
-			'product_category_name' => $product_category_name,
-			'product_subcategory_name' => $product_subcategory_name,
-			'product_name' => $product->row()->product_name
 		);
 		echo json_encode($ret);
 	}

@@ -16,7 +16,7 @@
         array(
             "name" => "master",
             "title" => "Master",
-            "icon" => "user",
+            "icon" => "database",
             "url" => "",
             "submenu" => array(
                 array(
@@ -94,9 +94,15 @@
             )
         ),
         array(
+            "name" => "realisasi_anggaran",
+            "title" => "Realisasi Anggaran",
+            "icon" => "shopping-cart",
+            "url" => "realisasi_anggaran",
+        ),
+        array(
             "name" => "evaluasi_anggaran",
             "title" => "Evaluasi Anggaran",
-            "icon" => "users",
+            "icon" => "check-square",
             "url" => "evaluasi_anggaran",
         ),
         array(

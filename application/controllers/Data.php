@@ -7,41 +7,6 @@ class Data extends CI_Controller {
 
     }
 
-	public function get_outlet_all(){
-		$limit = 20;
-		$q = $this->input->get("term");
-		$page = $this->input->get("page");
-
-		$offset = ($page - 1) * $limit;
-
-		$this->db->order_by("outlet_name");
-		if (strlen($q) > 0) {
-			$this->db->like("outlet_name", $q);
-		}
-		$this->db->select("idoutlet as id, outlet_name as text");
-		$this->db->where('status', '1');
-
-		$data = $this->db->get("outlet", $limit, $offset);
-
-		if (strlen($q) > 0) {
-			$this->db->like("outlet_name", $q);
-		}
-		$this->db->where('status', '1');
-		$cdata = $this->db->get("outlet");
-		$count = $cdata->num_rows();
-
-		$endCount = $offset + $limit;
-		$morePages = $endCount < $count;
-
-		$results = array(
-		  "results" => $data->result_array(),
-		  "pagination" => array(
-		  	"more" => $morePages
-		  )
-		);
-		echo json_encode($results);
-	}
-
 	public function get_urusan_pemerintah(){
 		$limit = 20;
 		$q = $this->input->get("term");
