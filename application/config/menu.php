@@ -105,13 +105,13 @@
             "icon" => "check-square",
             "url" => "evaluasi_anggaran",
         ),
-        array(
-            "name" => "acc_report",
-            "title" => "Laporan",
-            "url" => "acc_report",
-            "icon" => "file",
-            "submenu" => array(),
-        ),
+        // array(
+        //     "name" => "acc_report",
+        //     "title" => "Laporan",
+        //     "url" => "acc_report",
+        //     "icon" => "file",
+        //     "submenu" => array(),
+        // ),
         array(
             "name" => "user",
             "title" => azlang("User"),

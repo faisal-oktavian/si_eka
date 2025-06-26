@@ -1,10 +1,10 @@
 <form class="form-horizontal">
-	<div class="form-group">
+	<!-- <div class="form-group">
 		<label class="control-label col-sm-2">No. Rekening</label>
 		<div class="col-md-4 col-sm-6">
 			<input type="text" class="form-control" name="vf_no_rekening_kategori" id="vf_no_rekening_kategori" placeholder="No. Rekening">
 		</div>
-	</div>
+	</div> -->
 	<div class="form-group">
 		<label class="control-label col-sm-2">Nama Kategori</label>
 		<div class="col-md-4 col-sm-6">

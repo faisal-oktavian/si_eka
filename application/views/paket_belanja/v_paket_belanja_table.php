@@ -36,7 +36,7 @@
                     <tr>
                         <td>
                             <div style="padding-left: 50px;">
-                                <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_subkategori'].' - '.$sub_value['nama_subkategori'];?>
+                                <?php echo $sub_value['nama_subkategori'];?>
                             </div>
                         </td>
                         <td align="center"><?php echo $sub_value['volume'];?></td>
@@ -56,7 +56,7 @@
                         <td>
                             <div style="padding-left: 50px; font-weight:bold;">
                                 <div>
-                                    <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_kategori'].' - '.$sub_value['nama_kategori'];?>
+                                    <?php echo $sub_value['nama_kategori'];?>
                                 </div>
 
                                 <button class="btn btn-default btn-xs btn-add-sub-kategori" type="button" 
@@ -83,7 +83,7 @@
                         <tr>
                             <td>
                                 <div style="padding-left: 80px;">
-                                    <?php echo $sub_value['no_rekening_akunbelanja'].'.'.$sub_value['no_rekening_kategori'].'.'.$ss_value['no_rekening_subkategori'].' - '.$ss_value['nama_subkategori'];?>
+                                    <?php echo $ss_value['no_rekening_subkategori'].' - '.$ss_value['nama_subkategori'];?>
                                 </div>
                             </td>
                             <td align="center"><?php echo $ss_value['volume'];?></td>

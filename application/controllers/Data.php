@@ -492,7 +492,7 @@ class Data extends CI_Controller {
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('is_active','1');
-		$this->db->select("idkategori id, concat(no_rekening_kategori, ' - ', nama_kategori) as text");
+		$this->db->select("idkategori id, nama_kategori as text");
 		$this->db->where('status', '1');
 
 		$data = $this->db->get("kategori", $limit, $offset);
@@ -539,7 +539,7 @@ class Data extends CI_Controller {
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('is_active','1');
-		$this->db->select("idsub_kategori id, concat(no_rekening_subkategori, ' - ', nama_sub_kategori) as text");
+		$this->db->select("idsub_kategori id, nama_sub_kategori as text");
 		$this->db->where('status', '1');
 
 		$data = $this->db->get("sub_kategori", $limit, $offset);

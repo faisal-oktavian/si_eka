@@ -19,11 +19,12 @@ class Master_sub_kategori extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'No. Rekening', 'Nama Sub Kategori', 'Status', azlang('Action')));
+		// $crud->set_column(array('#', 'No. Rekening', 'Nama Sub Kategori', 'Status', azlang('Action')));
+		$crud->set_column(array('#', 'Nama Sub Kategori', 'Status', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		$crud->add_aodata('vf_no_rekening_subkategori', 'vf_no_rekening_subkategori');
+		// $crud->add_aodata('vf_no_rekening_subkategori', 'vf_no_rekening_subkategori');
 		$crud->add_aodata('vf_nama_sub_kategori', 'vf_nama_sub_kategori');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
@@ -58,20 +59,20 @@ class Master_sub_kategori extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
-		$no_rekening_subkategori = $this->input->get('vf_no_rekening_subkategori');
+		// $no_rekening_subkategori = $this->input->get('vf_no_rekening_subkategori');
 		$nama_sub_kategori = $this->input->get('vf_nama_sub_kategori');
 		$is_active = $this->input->get('vf_is_active');
 
-		$crud->set_select('idsub_kategori, no_rekening_subkategori, nama_sub_kategori, is_active');
-		$crud->set_select_table('idsub_kategori, no_rekening_subkategori, nama_sub_kategori, is_active');
-		$crud->set_filter('no_rekening_subkategori, nama_sub_kategori');
-		$crud->set_sorting('no_rekening_subkategori, nama_sub_kategori');
-		$crud->set_select_align('center, ,center');
+		$crud->set_select('idsub_kategori, nama_sub_kategori, is_active');
+		$crud->set_select_table('idsub_kategori, nama_sub_kategori, is_active');
+		$crud->set_filter('nama_sub_kategori');
+		$crud->set_sorting('nama_sub_kategori');
+		$crud->set_select_align(' ,center');
 		$crud->set_id($this->controller);
 		$crud->add_where('status = "1" ');
-		if (strlen($no_rekening_subkategori) > 0) {
-			$crud->add_where('sub_kategori.no_rekening_subkategori = "' . $no_rekening_subkategori . '"');
-		}
+		// if (strlen($no_rekening_subkategori) > 0) {
+		// 	$crud->add_where('sub_kategori.no_rekening_subkategori = "' . $no_rekening_subkategori . '"');
+		// }
 		if (strlen($nama_sub_kategori) > 0) {
 			$crud->add_where('sub_kategori.nama_sub_kategori = "' . $nama_sub_kategori . '"');
 		}
@@ -116,7 +117,7 @@ class Master_sub_kategori extends CI_Controller {
 		$this->load->library('form_validation');
 		$this->form_validation->set_error_delimiters('', '');
 
-		$this->form_validation->set_rules('no_rekening_subkategori', 'No Rekening ', 'required|trim|max_length[200]');
+		// $this->form_validation->set_rules('no_rekening_subkategori', 'No Rekening ', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('nama_sub_kategori', 'Nama Sub Kategori', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
 		
@@ -126,7 +127,7 @@ class Master_sub_kategori extends CI_Controller {
 		if($this->form_validation->run() == TRUE){
 
 			$data_save = array(
-				'no_rekening_subkategori' => azarr($data_post, 'no_rekening_subkategori'), 
+				// 'no_rekening_subkategori' => azarr($data_post, 'no_rekening_subkategori'), 
 				'nama_sub_kategori' => azarr($data_post, 'nama_sub_kategori'), 
 				'is_active' => azarr($data_post, 'is_active'),
 			);

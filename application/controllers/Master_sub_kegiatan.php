@@ -83,7 +83,7 @@ class Master_sub_kegiatan extends CI_Controller {
 		$crud->set_select_table('idsub_kegiatan, no_rekening_subkegiatan, nama_urusan, nama_bidang_urusan, nama_program, nama_kegiatan, nama_subkegiatan, tahun_anggaran_urusan, is_active');
 		$crud->set_filter('no_rekening_subkegiatan, nama_urusan, nama_bidang_urusan, nama_program, nama_kegiatan, nama_subkegiatan, tahun_anggaran_urusan');
 		$crud->set_sorting('no_rekening_subkegiatan, nama_urusan, nama_bidang_urusan, nama_program, nama_kegiatan, nama_subkegiatan, tahun_anggaran_urusan');
-		$crud->set_select_align('center, , , , , , center, right, center');
+		$crud->set_select_align('center, , , , , , center, center, center');
 		$crud->set_id($this->controller);
         $crud->add_join_manual('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
         $crud->add_join_manual('program', 'program.idprogram = kegiatan.idprogram');

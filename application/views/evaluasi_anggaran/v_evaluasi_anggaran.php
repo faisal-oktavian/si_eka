@@ -123,7 +123,7 @@
                                 if ($ds_value['is_subkategori'] == 1) {
                             ?>
                                   <tr>
-                                    <td colspan="2"><?php echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_subkategori'];?></td>
+                                    <td colspan="2"><?php // echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_subkategori'];?></td>
                                     <td style="padding-left: 30px;"><?php echo $ds_value['nama_subkategori']; ?></td>
                                     <td align="center"><?php echo $ds_value['volume']; ?></td>
                                     <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
@@ -139,7 +139,7 @@
                             ?>
                                   <tr>
                                       <td colspan="2" style="font-weight:bold;">
-                                        <?php echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'];?>
+                                        <?php // echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'];?>
                                       </td>
                                       <td style="font-weight:bold; padding-left: 30px;" colspan="6"><?php echo $ds_value['nama_kategori'];?></td>
                                   </tr>
@@ -148,7 +148,7 @@
                             ?>
                                       <tr>
                                           <td colspan="2">
-                                            <?php echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'].'.'.$ss_value['no_rekening_subkategori'];?>
+                                            <?php // echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'].'.'.$ss_value['no_rekening_subkategori'];?>
                                           </td>
                                           <td style="padding-left: 50px;"><?php echo $ss_value['nama_subkategori'];?></td>
                                           <td align="center"><?php echo $ss_value['volume'];?></td>
