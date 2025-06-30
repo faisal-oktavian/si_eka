@@ -49,6 +49,14 @@ class Evaluasi_anggaran extends CI_Controller {
 		$data['arr_data'] = $get_data;
 		// echo "<pre>"; print_r($data);die;
 
+		// $v_modal = $this->load->view('evaluasi_anggaran/v_paket_belanja_modal', $data, true);
+		// $modal = $azapp->add_modal();
+		// $modal->set_id('detail_paket_belanja');
+		// $modal->set_modal_title('Detail Paket Belanja');
+		// $modal->set_modal($v_modal);
+		// // $modal->set_action_modal(array('save_akun_belanja'=>'Simpan'));
+		// $azapp->add_content($modal->render());
+
 		// $js = az_add_js('evaluasi_anggaran/vjs_evaluasi_anggaran', $data, true);
 		// $azapp->add_js($js);
 

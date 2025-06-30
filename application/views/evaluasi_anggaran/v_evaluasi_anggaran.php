@@ -113,7 +113,9 @@
                               <td style="font-weight:bold;" colspan="2"><?php echo $ab_value['no_rekening_akunbelanja']; ?></td>
                               <td style="font-weight:bold;" colspan="4"><?php echo $ab_value['nama_akun_belanja']; ?></td>
                               <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_jumlah']); ?></td>
-                              <td></td>
+                              <td>
+                                <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>
+                              </td>
                             </tr>
 
 
@@ -130,7 +132,7 @@
                                     <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
                                     <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
                                     <td align="center">
-                                      <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
+                                      <!-- <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button> -->
                                     </td>
                                   </tr>
                             <?php
@@ -156,7 +158,7 @@
                                           <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                                           <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
                                           <td style="text-align: center;">
-                                            <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button>
+                                            <!-- <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button> -->
                                           </td>
                                       </tr>
                             <?php

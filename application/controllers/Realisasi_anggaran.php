@@ -72,6 +72,7 @@ class Realisasi_anggaran extends CI_Controller {
         $crud->set_sorting('transaction_date, transaction_code, total_realisasi');
         $crud->set_filter('transaction_date, transaction_code, total_realisasi');
 		$crud->set_id($this->controller);
+		$crud->set_select_align(' , , right');
 
         $crud->add_join_manual('user', 'transaction.iduser_created = user.iduser');
         
@@ -103,7 +104,8 @@ class Realisasi_anggaran extends CI_Controller {
 		if ($key == 'action') {
             $idtransaction = azarr($data, 'idtransaction');
 
-            $btn = $value;
+            $btn = '<button class="btn btn-default btn-xs btn-edit-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+            $btn .= '<button class="btn btn-danger btn-xs btn-delete-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
             $this->db->where('idtransaction', $idtransaction);
             $trx = $this->db->get('transaction');
@@ -111,10 +113,12 @@ class Realisasi_anggaran extends CI_Controller {
             $trx_status = $trx->row()->transaction_status;
             // USER INPUT => statusnya INPUT DATA
             // USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
-            // USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIVERIFIKASI BENDAHARA
+            // USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIBAYAR BENDAHARA
             if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIVERIFIKASI BENDAHARA'))) {
                 $btn = '<button class="btn btn-info btn-xs btn-view-only-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
             }
+
+			return $btn;
 		}
 
 		return $value;
@@ -149,6 +153,21 @@ class Realisasi_anggaran extends CI_Controller {
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
+	}
+
+	function edit($id) {
+		$this->db->where('idtransaction', $id);
+		$check = $this->db->get('transaction');
+		if ($check->num_rows() == 0) {
+			redirect(app_url().'realisasi_anggaran');
+		} 
+		else if($this->uri->segment(4) != "view_only") {
+			$status = $check->row()->transaction_status;
+			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+				redirect(app_url().'realisasi_anggaran');
+			}
+		}
+		$this->add($id);
 	}
 
     function search_paket_belanja() {
@@ -219,6 +238,7 @@ class Realisasi_anggaran extends CI_Controller {
 					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
 					'iduraian' => $value->idsub_kategori,
 					'nama_uraian' => $value->nama_sub_kategori,
+					'is_gender' =>$value->is_gender,
 				);
 			}
 			else {
@@ -227,6 +247,7 @@ class Realisasi_anggaran extends CI_Controller {
 						'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
 						'iduraian' => $dss_value->idsub_kategori,
 						'nama_uraian' => $dss_value->nama_sub_kategori,
+						'is_gender' =>$dss_value->is_gender,
 					);
 				}
 			}
@@ -243,30 +264,92 @@ class Realisasi_anggaran extends CI_Controller {
     function add_product() {
 		$err_code = 0;
 		$err_message = '';
+		$validate_gender = false;
 
 
 	 	$idtransaction = $this->input->post('idtransaction');
 	 	$idtransaction_detail = $this->input->post('idtransaction_detail');
+		$idpaket_belanja = $this->input->post('idpaket_belanja');
+	 	$iduraian = $this->input->post('iduraian');
+		$volume = az_crud_number($this->input->post('volume'));	
+		$laki = az_crud_number($this->input->post('laki'));
+		$perempuan = az_crud_number($this->input->post('perempuan'));
+		$harga_satuan = az_crud_number($this->input->post('harga_satuan'));
+		$ppn = az_crud_number($this->input->post('ppn'));
+		$pph = az_crud_number($this->input->post('pph'));
+        $transaction_description = $this->input->post('transaction_description');
+
+		$total = (floatval($volume) * floatval($harga_satuan)) + floatval($ppn) - floatval($pph);
+
 
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('idpaket_belanja', 'Paket Belanja', 'required');
 		$this->form_validation->set_rules('iduraian', 'Uraian', 'required');
-		$this->form_validation->set_rules('jumlah', 'Jumlah', 'required');
+		$this->form_validation->set_rules('volume', 'Volume', 'required');
+		$this->form_validation->set_rules('volume', 'Volume', 'required');
+
+
+		$this->form_validation->set_rules('idpaket_belanja', 'Paket Belanja', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('iduraian', 'Uraian', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('volume', 'Volume', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('harga_satuan', 'Harga Satuan', 'required|trim|max_length[200]');
+
+		// validasi apakah inputan laki-laki dan perempuan wajib diisi
+		if (strlen($iduraian) > 0) {
+			$this->db->where('status', 1);
+			$this->db->where('idsub_kategori', $iduraian);
+			$this->db->select('is_gender');
+			$sub_kategori = $this->db->get('sub_kategori');
+
+			if ($sub_kategori->num_rows() > 0) {
+				// 0 : tidak wajib isi jenis kelamin
+				// 1 : wajib isi jenis kelamin
+				if ($sub_kategori->row()->is_gender == 1) {
+					$validate_gender = true;
+				}
+			}
+			else {
+				$err_code++;
+				$err_message = "Uraian tidak ditemukan.";
+			}
+		}
+
+		if ($validate_gender) {
+			$this->form_validation->set_rules('laki', 'Laki-laki', 'required|trim|max_length[200]');
+			$this->form_validation->set_rules('perempuan', 'Perempuan', 'required|trim|max_length[200]');
+		}
 
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
 			$err_message = validation_errors();
 		}
 
-		$this->db->where('idtransaction',$idtransaction);
-		$transaction = $this->db->get('transaction');
-
-		if ($transaction->num_rows() > 0) {
-			$status = $transaction->row()->transaction_status;
-			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIVERIFIKASI BENDAHARA'))) {
-				$err_code++;
-				$err_message = "Data tidak bisa diedit atau dihapus.";
+		// validasi jumlah laki-laki & perempuan tidak boleh lebih dari volume
+		if ($err_code == 0) {
+			if ($validate_gender) {
+				if (floatval($volume) != (floatval($laki) + floatval($perempuan)) ) {
+					$err_code++;
+					$err_message = "Jumlah inputan total laki-laki dan perempuan tidak sama dengan inputan volume.";
+				}
 			}
+		}
+
+		// validasi volume total volume yang sudah terealisasi tidak boleh lebih dari volume yang sudah ditentukan
+		if ($err_code == 0) {
+			// code
+		}
+
+		if ($err_code == 0) {
+			$this->db->where('idtransaction',$idtransaction);
+			$transaction = $this->db->get('transaction');
+
+			if ($transaction->num_rows() > 0) {
+				$status = $transaction->row()->transaction_status;
+				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
 		}
 
 		if ($err_code == 0) {
@@ -282,17 +365,21 @@ class Realisasi_anggaran extends CI_Controller {
 				$save_transaction = az_crud_save($idtransaction, 'transaction', $arr_transaction);
 				$idtransaction = azarr($save_transaction, 'insert_id');
 			}
+			else {
+				// validasi apakah data paket belanja yang disimpan sama?
+				// jika tidak maka data tidak perlu disimpan
 
-            $idpaket_belanja = $this->input->post('idpaket_belanja');
-            $iduraian = $this->input->post('iduraian');
-            $volume = az_crud_number($this->input->post('volume'));
-            $laki = az_crud_number($this->input->post('laki'));
-            $perempuan = az_crud_number($this->input->post('perempuan'));
-            $harga_satuan = az_crud_number($this->input->post('harga_satuan'));
-            $ppn = az_crud_number($this->input->post('ppn'));
-            $pph = az_crud_number($this->input->post('pph'));
-            $total = az_crud_number($this->input->post('total'));
-            $transaction_description = $this->input->post('transaction_description');
+				$this->db->where('status', 1);
+				$this->db->where('idtransaction', $idtransaction);
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$trxd = $this->db->get('transaction_detail');
+
+				if ($trxd->num_rows() == 0) {
+					$err_code++;
+					$err_message = "Paket Belanja yang anda inputkan berbeda dengan paket belanja yang telah diinputkan sebelumnya. <br>";
+					$err_message .= "Silahkan menginputkan data dengan paket belanja yang sama.";
+				}
+			}
             
 			//transaction detail
 			$arr_transaction_detail = array(
@@ -312,6 +399,8 @@ class Realisasi_anggaran extends CI_Controller {
 			$td = az_crud_save($idtransaction_detail, 'transaction_detail', $arr_transaction_detail);
 			$idtransaction_detail = azarr($td, 'insert_id');
 
+			// hitung total transaksi
+			$this->calculate_total_realisasi($idtransaction);
 		}
 
 		$return = array(
@@ -323,20 +412,201 @@ class Realisasi_anggaran extends CI_Controller {
 		echo json_encode($return);
 	}
 
+	function save_realisasi() {
+		$err_code = 0;
+		$err_message = '';
+
+		
+		$idtransaction = $this->input->post("hd_idtransaction");
+		$transaction_date = az_crud_date($this->input->post("transaction_date"));
+		$iduser_created = $this->input->post("iduser_created");
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('transaction_date', 'Tanggal Realisasi', 'required|trim|max_length[200]');
+
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+		if ($err_code == 0) {
+			if (strlen($idtransaction) == 0) {
+				$err_code++;
+				$err_message = 'Invalid ID';
+			}
+		}
+
+		if ($err_code == 0) {
+			$this->db->where('idtransaction',$idtransaction);
+			$transaction = $this->db->get('transaction');
+
+			if ($transaction->num_rows() > 0) {
+				$status = $transaction->row()->transaction_status;
+				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
+
+		if ($err_code == 0) {
+	    	$arr_data = array(
+	    		'transaction_date' => $transaction_date,
+	    		'transaction_status' => "INPUT DATA",
+	    		'iduser_created' => $iduser_created,
+	    	);
+
+	    	az_crud_save($idtransaction, 'transaction', $arr_data);
+
+			// hitung total transaksi
+			$this->calculate_total_realisasi($idtransaction);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($return);
+	}
+
+	function delete_realisasi() {
+		$id = $this->input->post('id');
+
+		$err_code = 0;
+		$err_message = '';
+
+		$this->db->where('idtransaction',$id);
+		$transaction = $this->db->get('transaction');
+
+		if ($transaction->num_rows() > 0) {
+			$status = $transaction->row()->transaction_status;
+			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
+
+		if($err_code == 0) {
+			az_crud_delete($this->table, $id);
+
+		} 
+		else{
+			$ret = array(
+				'err_code' => $err_code,
+				'err_message' => $err_message
+			);
+			echo json_encode($ret);
+		}
+	}
+
+	function edit_order() {
+		$id = $this->input->post("id");
+
+		$err_code = 0;
+		$err_message = "";
+		
+		$this->db->where('idtransaction_detail', $id);
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
+		$this->db->select('transaction_detail.idpaket_belanja, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, transaction_detail.volume, transaction_detail.harga_satuan, transaction_detail.ppn, transaction_detail.pph, transaction_detail.total, transaction_detail.transaction_description, transaction_detail.laki, transaction_detail.perempuan');
+		$trxd = $this->db->get('transaction_detail')->result_array();
+
+		$ret = array(
+			'data' => azarr($trxd, 0),
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($ret);
+	}
+
+	function delete_order() {
+		$id = $this->input->post('id');
+
+		$err_code = 0;
+		$err_message = "";
+		$is_delete = true;
+
+		$this->db->where('idtransaction_detail',$id);
+		$this->db->join('transaction', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$transaction = $this->db->get('transaction_detail');
+
+		$status = $transaction->row()->transaction_status;
+		$idtransaction = $transaction->row()->idtransaction;
+		if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+			$is_delete = false;
+		}
+
+		if ($is_delete) {
+			$delete = az_crud_delete('transaction_detail', $id, true);
+
+			$err_code = $delete['err_code'];
+			$err_message = $delete['err_message'];
+
+			if ($err_code == 0) {
+				// hitung total transaksi
+				$this->calculate_total_realisasi($idtransaction);
+			}
+		}
+		else{
+			$err_code = 1;
+			$err_message = "Data tidak bisa diedit atau dihapus.";
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+
+		echo json_encode($return);
+	}
+
+	function get_data() {
+		$id = $this->input->post('id');
+		$this->db->where('transaction.idtransaction', $id);
+		$this->db->join('user', 'user.iduser = transaction.iduser_created');
+		$this->db->select('date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, user.name as user_created, transaction.iduser_created');
+		$transaction = $this->db->get('transaction')->result_array();
+
+		$this->db->where('idtransaction', $id);
+		$transaction_detail = $this->db->get('transaction_detail')->result_array();
+
+		$return = array(
+			'transaction' => azarr($transaction, 0),
+			'transaction_detail' => $transaction_detail
+		);
+		echo json_encode($return);
+	}
+
     function get_list_order() {
 		$idtransaction = $this->input->post("idtransaction");
 
         $this->db->where('transaction_detail.status', 1);
         $this->db->where('transaction_detail.idtransaction', $idtransaction);
+		$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
+		$this->db->select('transaction_detail.idtransaction_detail, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori as nama_uraian, transaction_detail.volume, transaction_detail.harga_satuan, transaction_detail.total, transaction.transaction_status, transaction.total_realisasi');
         $trx_detail = $this->db->get('transaction_detail');
 
-        $data['detail'] = $trx_detail;
+        $data['detail'] = $trx_detail->result_array();
+		$data['total_realisasi'] = $trx_detail->row()->total_realisasi;
 
-		$view = $this->load->view('onthespot/v_onthespot_table', $data, true);
+		$view = $this->load->view('realisasi_anggaran/v_realisasi_anggaran_table', $data, true);
 		$arr = array(
 			'data' => $view
 		);
 		echo json_encode($arr);
+	}
+
+	public function get_validate_gender() {
+
+		$id = $this->input->get('id');
+
+		$this->db->where('idsub_kategori', $id);
+		$this->db->select('is_gender');
+		$sub_kategori = $this->db->get('sub_kategori');
+
+		$is_gender = $sub_kategori->row()->is_gender;
+		
+		echo json_encode($is_gender);
 	}
 
     private function generate_transaction_code() {
@@ -345,7 +615,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$this->db->where('year(transaction_date)', Date('Y'));
 		$this->db->where('transaction_code != "NULL" ');
 		$this->db->order_by('transaction_code desc');
-		$data = $this->db->get('acc_sales', 1);
+		$data = $this->db->get('transaction', 1);
 		if ($data->num_rows() == 0) {
 			$numb = '0001';
 
@@ -361,7 +631,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 			$this->db->where('transaction_code', $transaction_code);
 			$this->db->select('transaction_code');
-			$check = $this->db->get('acc_sales');
+			$check = $this->db->get('transaction');
 			$ok = 0;
 			if($check->num_rows() == 0) {
 				$ok = 1;
@@ -376,7 +646,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 				$this->db->where('transaction_code', $transaction_code);
 				$this->db->select('transaction_code');
-				$check = $this->db->get('acc_sales');
+				$check = $this->db->get('transaction');
 				$ok = 0;
 				if($check->num_rows() == 0) {
 					$ok = 1;
@@ -385,6 +655,22 @@ class Realisasi_anggaran extends CI_Controller {
 		}
 
 		return $transaction_code;
+	}
+
+	function calculate_total_realisasi($idtransaction) {
+
+		$this->db->where('status', 1);
+		$this->db->where('idtransaction', $idtransaction);
+		$this->db->select('sum(total) as total_realisasi');
+		$trxd = $this->db->get('transaction_detail');
+
+		$total_realisasi = azobj($trxd->row(), 'total_realisasi', 0);
+
+		$arr_update = array(
+			'total_realisasi' => $total_realisasi,
+		);
+
+		az_crud_save($idtransaction, 'transaction', $arr_update);
 	}
 
     ///////////////////////////////////
@@ -420,26 +706,6 @@ class Realisasi_anggaran extends CI_Controller {
 			];
 		}
 		echo json_encode($return) ;
-	}
-
-	function edit($id) {
-		$sess_idoutlet = $this->session->userdata('idoutlet');
-		if (strlen($sess_idoutlet) > 0) {
-			$this->db->where('idoutlet', $sess_idoutlet);
-		}
-
-		$this->db->where('idtransaction', $id);
-		$check = $this->db->get('transaction');
-		if ($check->num_rows() == 0) {
-			redirect(app_url().'pos');
-		} 
-		else if($this->uri->segment(4) != "view_only") {
-			$status = $check->row()->transaction_status;
-			if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
-				redirect(app_url().'pos');
-			}
-		}
-		$this->add($id);
 	}
 
 	public function get_member_data()
@@ -613,386 +879,6 @@ class Realisasi_anggaran extends CI_Controller {
 		);
 		$this->db->where('idtransaction', $idtransaction);
 		$this->db->update('transaction', $arr_transaction);
-	}
-
-	function save_onthespot() {
-		$app_sipplus = az_get_config('app_sipplus','config_app');
-		$err_code = 0;
-		$err_message = '';
-
-		$idprovince = $this->input->post('idprovince');
-		$idcity = $this->input->post('idcity');
-		$iddistrict = $this->input->post('iddistrict');
-		$iddelivery = $this->input->post('delivery');
-		$taken_sent = $this->input->post("taken_sent");
-		$idoutlet = $this->input->post("idoutlet");
-		$idmember = $this->input->post('idmember');
-		$sess_idoutlet = $this->session->userdata('idoutlet');
-		$transaction_type = $this->input->post("transaction_type");
-		$onthespot_type = $this->input->post("onthespot_type");
-		$idmarketplace = $this->input->post("idmarketplace");
-		$transaction_number_marketplace = $this->input->post("transaction_number_marketplace");
-
-		$idtransaction = $this->input->post('hd_idtransaction');
-		$c_name = $this->input->post('customer_name');
-		$c_email = $this->input->post('customer_email');
-		$c_handphone = $this->input->post('customer_handphone');
-
-		if ($this->app_accounting) {
-			$transaction_due_date = az_crud_date($this->input->post('transaction_due_date'));
-			$idacc_term_payment = $this->input->post('idacc_term_payment');			
-		}
-
-		$this->load->library('form_validation');
-		if (strlen($sess_idoutlet) > 0) {
-			$idoutlet = $sess_idoutlet;
-		}
-		else {
-			$this->form_validation->set_rules('idoutlet', 'Cabang', 'required|trim|max_length[200]');
-		}
-		$this->form_validation->set_rules('customer_name', 'Nama Pelanggan', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('customer_handphone', 'Nomor Handphone Pelanggan', 'required|trim|max_length[200]');
-		if ($taken_sent == 'DIKIRIM') {
-			$this->form_validation->set_rules('iddistrict', 'Kecamatan', 'required|trim|max_length[200]');
-			$this->form_validation->set_rules('address', 'Alamat', 'required|trim|max_length[200]');
-			$this->form_validation->set_rules('delivery', 'Pengiriman', 'required|trim|max_length[200]');
-		}
-		if (!$this->is_sip && !$this->is_siplite) {
-			$this->form_validation->set_rules('payment', 'Pembayaran', 'required|trim|max_length[200]');
-		}
-		else {
-			if ($transaction_type == 'MARKETPLACE') {
-				if ($transaction_type == 'MARKETPLACE') {
-					$this->form_validation->set_rules('idmarketplace', 'Jenis Marketplace', 'required|trim|max_length[200]');		
-					$this->form_validation->set_rules('transaction_number_marketplace', 'No Transaksi', 'required|trim|max_length[200]');		
-				}
-				$this->form_validation->set_rules('transaction_number_marketplace', 'No Transaksi', 'required|trim|max_length[200]');
-			}
-			else if ($transaction_type == 'WHATSAPP') {
-				$this->form_validation->set_rules('payment', 'Pembayaran', 'required|trim|max_length[200]');
-			}
-
-			if ($app_sipplus == 1) {
-				if ($transaction_type == 'ONTHESPOT') {
-					$this->form_validation->set_rules('onthespot_type', 'Jenis Transaksi', 'required|trim|max_length[200]');
-				}
-			}
-		}
-
-		if ($this->app_accounting) {
-			$this->form_validation->set_rules('idacc_term_payment', 'Syarat Pembayaran', 'required|trim|max_length[200]');
-		}
-
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-		if ($err_code == 0) {
-			if (strlen($idtransaction) == 0) {
-				$err_code++;
-				$err_message = 'Invalid ID';
-			}
-		}
-
-		$this->db->where('idtransaction',$idtransaction);
-		$check = $this->db->get('transaction');
-
-		if ($check->num_rows() > 0) {
-			$status = $check->row()->transaction_status;
-			if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
-				$err_code++;
-				$err_message = "Transaksi tidak bisa diedit atau dihapus.";
-			}
-		}
-		if($err_code == 0){
-			if (strlen($idtransaction) > 0 && az_get_config('is_timer_design','config_app') == 1) {
-				$this->db->where('transaction.idtransaction',$idtransaction);
-				$this->db->where('product_type',"DESAIN");
-				$this->db->where('transaction_detail.status',1);
-				$this->db->where('desain_end is null');
-				$this->db->join('transaction_detail','transaction_detail.idtransaction = transaction.idtransaction','left');
-				$this->db->join('product','product.idproduct = transaction_detail.idproduct','left');
-				$check_design = $this->db->get('transaction');
-	
-				if ($check_design->num_rows() > 0) {
-					foreach($check_design->result() as $key => $value){
-						$this->stop_desain($value->idtransaction_detail);
-					}
-				}
-			}
-		}
-		//register new member
-		if($err_code == 0){
-			if ($idmember == '') {
-				$this->db->where('status',1);
-				$this->db->where('handphone',$c_handphone);
-				$t_member = $this->db->get('member');
-				if ($t_member->num_rows() > 0) {
-					$idmember = $t_member->row()->idmember;
-				}
-				else{
-					$data_save = array(
-						'idoutlet_register' => $idoutlet,
-						'name' => $c_name,
-						'email' => $c_email,
-						'handphone' => $c_handphone
-					);
-
-					$save_member = az_crud_save('', 'member', $data_save);
-					$idmember = azarr($save_member,'insert_id');
-				}
-			}
-		}
-
-		if ($err_code == 0) {
-	    	$arr_data = array(
-	    		'taken_sent' => $this->input->post('taken_sent'),
-	    		'transaction_status' => 'MENUNGGU PEMBAYARAN',
-	    		'idproduct_payment' => $this->input->post('payment'),
-	    		'idoutlet' => $idoutlet,
-	    		'idmember' => $idmember
-	    	);
-	    	if ($this->app_accounting) {
-				$arr_data['transaction_due_date'] = $transaction_due_date;
-				$arr_data['idacc_term_payment'] = $idacc_term_payment;
-			}
-	    	if ($this->is_sip || $this->is_siplite) {
-	    		$arr_data['transaction_type'] = $transaction_type;
-	    		$arr_data['idmarketplace'] = NULL;
-	    		$arr_data['transaction_number_marketplace'] = NULL;
-	    		if ($transaction_type == 'MARKETPLACE') {
-	    			$arr_data['idmarketplace'] = $idmarketplace;
-	    			$arr_data['transaction_number_marketplace'] = $transaction_number_marketplace;
-	    		}
-
-	    		if ($transaction_type == "WHATSAPP") {
-	    			$arr_data['unique_code'] = rand(10,99);
-	    		}
-	    		else {
-	    			$arr_data['unique_code'] = null;
-	    		}
-
-	    		if ($app_sipplus == 1) {
-	    			$arr_data['onthespot_type'] = $onthespot_type;
-	    		}
-	    	}
-
-	    	az_crud_save($idtransaction, 'transaction', $arr_data);
-
-	    	$this->db->where('idtransaction', $idtransaction);
-	    	$delivery = $this->db->get('transaction_delivery');
-	    	$idtransaction_delivery = '';
-	    	if ($delivery->num_rows() > 0) {
-	    		$idtransaction_delivery = $delivery->row()->idtransaction_delivery;
-	    	}
-
-	    	$arr_delivery = array(
-	    		'idtransaction' => $idtransaction,
-	    		'customer_name' => $this->input->post('customer_name'),
-	    		'customer_handphone' => $this->input->post('customer_handphone'),
-	    		'customer_email' => $this->input->post('customer_email'),
-	    	);
-	    	$save_delivery = az_crud_save($idtransaction_delivery, 'transaction_delivery', $arr_delivery);
-	    	$idtransaction_delivery = azarr($save_delivery, 'insert_id');
-
-	    	// hitung ulang total transaksinya
-	    	$this->load->library('Lite');
-			$this->lite->update_weight_price($idtransaction);
-		}
-
-		if ($err_code == 0) {
-			if ($taken_sent == 'DIKIRIM') {
-		    	$this->load->helper('location');
-				$province_name = get_province($idprovince);
-				$city_name = get_city($idcity);
-				$district_name = get_district($iddistrict);
-
-				$arr_update_delivery = array(
-					'address' => $this->input->post('address'),
-					'idprovince' => $idprovince,
-					'idcity' => $idcity,
-					'iddistrict' => $iddistrict,
-					'province_name' => $province_name,
-					'city_name' => $city_name,
-					'district_name' => $district_name,
-					'updated' => Date('Y-m-d H:i:s')
-				);
-
-				$this->db->where('idtransaction_delivery', $idtransaction_delivery);
-				$this->db->update('transaction_delivery', $arr_update_delivery);
-			}
-		}
-		if ($app_sipplus == 1) {
-			if ($err_code == 0) {
-				if ($onthespot_type == "DITUNGGU") {
-					$this->db->where('transaction.idtransaction',$idtransaction);
-					$this->db->join('transaction_delivery','transaction_delivery.idtransaction = transaction.idtransaction','left');
-					$trx = $this->db->get('transaction')->row();
-
-					$this->db->where('code',$trx->transaction_code);
-					$check_ots = $this->db->get('tv_ots');
-
-					if ($check_ots->num_rows() == 0) {
-						$arr_ots = array(
-							'idoutlet' => $trx->idoutlet,
-							'code' => $trx->transaction_code,
-							'name' => $trx->customer_name,
-							'status' => 'PROSES',
-							'type' => 'add',
-						);
-						send_ots($arr_ots);
-					}		
-
-				}
-			}
-		}
-		if ($err_code == 0) {
-			// if ($this->is_sip || $this->is_siplite) {
-			if ($this->is_sip) {
-				if ($transaction_type == 'WHATSAPP') {
-					$this->load->library('Lite');
-					$this->lite->send_email($idtransaction);
-					if (function_exists('send_wa')) {
-						send_wa($idtransaction, 'wa_pay');
-					}
-				}
-			}
-		}
-
-
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
-		echo json_encode($return);
-	}
-
-	function get_data() {
-		$id = $this->input->post('id');
-		$this->db->where('transaction.idtransaction', $id);
-		$this->db->join('transaction_delivery', 'transaction.idtransaction = transaction_delivery.idtransaction');
-		$this->db->join('outlet', 'transaction.idoutlet = outlet.idoutlet', 'left');
-		if ($this->app_accounting) {
-			$this->db->join('acc_term_payment', 'transaction.idacc_term_payment = acc_term_payment.idacc_term_payment', 'left');
-			$this->db->select('*, date_format(transaction_due_date, "%d-%m-%Y") as txt_transaction_due_date');
-		}
-		$transaction = $this->db->get('transaction')->result_array();
-
-		$this->db->where('idtransaction', $id);
-		$transaction_detail = $this->db->get('transaction_detail')->result_array();
-
-		$return = array(
-			'transaction' => azarr($transaction, 0),
-			'transaction_detail' => $transaction_detail
-		);
-		echo json_encode($return);
-	}
-
-	function delete_order() {
-		$id = $this->input->post('id');
-		$id = az_decode_url($id);
-		$the_edit = $this->input->post('the_edit');
-		$sip_product_finishing = az_get_config('sip_product_finishing', 'config_app');
-
-		$this->db->where('idtransaction_detail', $id);
-		$td = $this->db->get('transaction_detail')->row();
-		$idtransaction = $td->idtransaction;
-		$grand_product_finishing_sub_price = $td->grand_product_finishing_sub_price;
-		$this->db->where('idtransaction', $idtransaction);
-		$transaction = $this->db->get('transaction')->row();
-		$status = $transaction->transaction_status;
-		$is_delete = true;
-		if (in_array($status, array('PEMBAYARAN DIVERIFIKASI', 'BATAL ORDER', 'PESANAN SUDAH DIVERIFIKASI', 'SELESAI DIKERJAKAN', 'PESANAN DALAM PENGIRIMAN', 'PESANAN SUDAH DITERIMA'))) {
-			$is_delete = false;
-		}
-
-		$ret = array();
-
-		if ($is_delete) {
-			$grand_product_finishing_sub_price_finishing = 0;
-
-			if($sip_product_finishing) {
-				$idtd_main = azobj($td, 'idtransaction_detail_main');
-
-				if (is_null($idtd_main)) {
-					$this->db->where('idtransaction_detail_main', $id);
-					$this->db->where('status > ', 0);
-					$product_finishing = $this->db->get('transaction_detail');
-
-					if ($product_finishing->num_rows() > 0) {
-						foreach ($product_finishing->result() as $key => $value) {
-							$grand_product_finishing_sub_price_finishing += azobj($value, 'grand_product_finishing_sub_price', 0);
-							$res = az_crud_delete('transaction_detail', azobj($value, 'idtransaction_detail'), true, true);
-							$err_code = azarr($res, 'err_code');
-							$err_message = azarr($res, 'err_message');
-						}
-					}
-				}
-			}
-
-			if(strlen($the_edit) > 0) {
-				$total_lack = $transaction->total_lack;
-				$arr_del = array(
-					'total_lack' => $total_lack + $grand_product_finishing_sub_price + $grand_product_finishing_sub_price_finishing
-				);
-				$this->db->where('idtransaction', $idtransaction);
-				$this->db->update('transaction', $arr_del);
-			}
-
-			$this->db->where("idtransaction_detail", $id);
-			$this->db->delete('transaction_detail');
-
-			// [DELETE] Ketika hapus transaction_detail dihapus juga product jadi finishingnya
-			if (az_get_config('sip_product_finishing','config_app') == 1) {
-				$this->db->where('idtransaction_detail_main', $id)
-						->delete('transaction_detail');
-			}
-
-			$this->null_delivery($idtransaction);
-
-			$this->load->library('lite');
-			$this->lite->update_weight_price($idtransaction);
-
-			$ret['err_code'] = 0;
-			$ret['err_message'] = "";
-		}
-		else{
-			$ret['err_code'] = 1;
-			$ret['err_message'] = "Transaksi tidak dapat diedit atau dihapus.";
-		}
-		echo json_encode($ret);
-	}
-
-	function edit_order() {
-		$id = $this->input->post("id");
-		$id = az_decode_url($id);
-
-		$err_code = 0;
-		$err_message = "";
-		$accounting = '';
-		if ($this->app_accounting) {
-			$accounting = ', transaction_detail.idacc_tax, acc_tax.tax_name';
-		}
-		$this->db->select('transaction_detail.idproduct, product.product_name, product.idproduct_subcategory, product_subcategory_name, product_subcategory.idproduct_category, product_category_name, transaction_description, deadline'.$accounting);
-		$this->db->where('idtransaction_detail', $id);
-		$this->db->join('product', 'transaction_detail.idproduct = product.idproduct');
-		$this->db->join('product_subcategory', 'product.idproduct_subcategory = product_subcategory.idproduct_subcategory');
-		$this->db->join('product_category', 'product_subcategory.idproduct_category = product_category.idproduct_category');
-		if ($this->app_accounting) {
-			$this->db->join('acc_tax', 'transaction_detail.idacc_tax = acc_tax.idacc_tax', 'left');
-		}
-		$product = $this->db->get('transaction_detail')->result_array();
-
-		if (azarr(azarr($product,0,array()),'product_type') == "DESAIN") {
-			$err_code++;
-			$err_message = "Produk desain tidak bisa diedit";
-		}
-		$ret = array(
-			'data' => azarr($product, 0),
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
-		echo json_encode($ret);
 	}
 
 	function generate_delivery($iddistrict = '', $iddelivery = '', $idoutlet = '') {
@@ -1432,38 +1318,7 @@ class Realisasi_anggaran extends CI_Controller {
 		echo json_encode($ret);
 	}
 
-	public function delete() {
-		$id = $this->input->post('id');
-		// print_r($id);
-
-		$err_code = 0;
-		$err_message = '';
-
-		if($err_code == 0) {
-			$this->db->where_in('idtransaction', $id);
-			$this->db->select('idtransaction, transaction_code, transaction_status');
-			$check = $this->db->get('transaction');
-			foreach($check->result() as $ckey => $cvalue) {
-				if(!in_array($cvalue->transaction_status, array('DRAFT', 'MENUNGGU PEMBAYARAN'))) {
-					$err_code++;
-					$err_message = 'Transaksi sudah diverifikasi, tidak dapat dihapus.';
-				}
-			}
-		}
-		// var_dump($err_code);
-		// var_dump($err_message);
-
-		if($err_code == 0) {
-			az_crud_delete($this->table, $id);
-
-		} else{
-			$ret = array(
-				'err_code' => $err_code,
-				'err_message' => $err_message
-			);
-			echo json_encode($ret);
-		}
-	}
+	
 
 	function save_search() {
 		$app_sipplus = az_get_config('app_sipplus', 'config_app');

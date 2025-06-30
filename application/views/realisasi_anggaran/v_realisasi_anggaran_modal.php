@@ -60,7 +60,7 @@
                 <input type="text" class="form-control format-number txt-right volume" id="volume" name="volume"/>
             </div>
         </div>
-        <div class="gender">
+        <div class="gender hide">
             <div class="form-group">
                 <label class="control-label col-md-3">Laki-laki</label>
                 <div class="col-md-8">

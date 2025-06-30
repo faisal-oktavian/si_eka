@@ -1,6 +1,6 @@
-<form class="form-horizontal row" id="form_onthespot">
+<form class="form-horizontal row" id="form_realisasi" style="margin-top: 20px;">
 	<div class="col-md-6">
-		<input type="" id="hd_idtransaction" name="hd_idtransaction" value="<?php echo $id;?>">
+		<input type="hidden" id="hd_idtransaction" name="hd_idtransaction" value="<?php echo $id;?>">
 		
 		<div class="form-group">
 			<label class="control-label col-md-4">Kode Order</label>
@@ -35,7 +35,7 @@
 		<div style="margin-bottom:10px;">
 			<button class="btn btn-primary btn-xs" type="button" id="btn_add_paket_belanja"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button>
 		</div>
-		<table class="table table-bordered table-condensed" id="table_onthespot">
+		<table class="table table-bordered table-condensed" id="table_realisasi">
 			<thead>
 				<tr>
 					<th>Paket Belanja</th>
@@ -52,7 +52,7 @@
 		<hr>
 		<div style="margin-bottom:10px;">
 			<a href="<?php echo app_url();?>realisasi_anggaran"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a>
-			<button class="btn btn-primary" type="button" id="btn_save_onthespot"><i class="fa fa-save"></i> Simpan</i></button>
+			<button class="btn btn-primary" type="button" id="btn_save_realisasi"><i class="fa fa-save"></i> Simpan</i></button>
 		</div>
 	</div>
 </form>

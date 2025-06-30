@@ -27,11 +27,18 @@
 	});
 
 	jQuery('body').on('click', '#btn_add_paket_belanja', function() {
-		show_modal('add');
+		var transaction_date = jQuery('#transaction_date').val();
 
-		jQuery('#idtransaction_detail').val('');
-		// jQuery(".form-product").addClass("hide");
-		// jQuery('#form_add input, #form_add select, #form_add textarea').not('.x-hidden').val('').trigger('change');
+		if (transaction_date == '' || transaction_date == null) {
+			bootbox.alert('Tanggal realisasi harus diisi.');
+		}
+		else {
+			show_modal('add');
+
+			jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
+			jQuery('#idtransaction_detail').val('');
+			jQuery('#form_add input, #form_add select, #form_add textarea').not('.x-hidden').val('').trigger('change.select2');	
+		}
 	});
 
 	jQuery("#search_paket_belanja").select2({
@@ -53,12 +60,18 @@
 
 	jQuery('body').on('change', '#search_paket_belanja', function() {
 		var id = jQuery(this).val();
+		console.log('asdasda '+id);
+		
+		seach_paket_belanja(id);
+	});
+
+	function seach_paket_belanja(idpaket_belanja) {
 		jQuery.ajax({
 			url: app_url + 'realisasi_anggaran/select_paket_belanja',
 			type: 'POST', 
 			dataType: 'JSON',
 			data: {
-				id: id
+				id: idpaket_belanja
 			},
 			success: function(response) {
 				jQuery('#form_add').find('.detail-paket-belanja').removeClass('hide');
@@ -71,17 +84,22 @@
 				jQuery('#nama_paket_belanja').val(response.nama_paket_belanja);
 				jQuery('#idpaket_belanja').val(response.idpaket_belanja);
 
-				jQuery("#search_paket_belanja").select2("val", "");
+				jQuery('#search_paket_belanja').val('').trigger('change.select2');
 
 				jQuery('#iduraian').html("<option value=''>~ Cari Uraian ~</option>");
 				jQuery('#iduraian').val('').trigger('change');
+				
+				reset_form_modal();
 			},
 			error: function(response) {}
 		});
-	});
+	}
 
 	jQuery('body').on('change', '#iduraian', function() {
 		var idpaket_belanja = jQuery('#idpaket_belanja').val();
+		var iduraian = jQuery(this).val();
+
+		reset_form_modal();
 		
 		if (idpaket_belanja != "") {
 			jQuery.ajax({
@@ -96,8 +114,9 @@
 
 					jQuery(response.results).each(function(adata, bdata) {
 						console.log(bdata);
-						var opt = "<option value='"+bdata.iduraian+"' class='autocomplete'>"+bdata.nama_uraian+"</option>";
-						jQuery('#iduraian').append(opt)
+						var opt = "<option value='"+bdata.iduraian+"' data-id='"+bdata.iduraian+"' class='input-gender'>"+bdata.nama_uraian+"</option>";
+
+						jQuery('#iduraian').append(opt);
 					});
 					if (helper_iduraian != undefined) {
 						// jQuery('#iduraian').val(helper_iduraian).trigger('change');
@@ -105,20 +124,60 @@
 					else {
 						console.log('jos');
 					}
+
+					if (iduraian != "") {
+						get_validate_gender(iduraian);
+					}
 				},
 				error: function(response) {}
 			});			
 		}
 	});
 
-	jQuery('#form_add').on('keyup', '.volume, .harga-satuan', function() {
+	function reset_form_modal() {
+		jQuery('.volume').val('');
+		jQuery('#laki').val('');
+		jQuery('#perempuan').val('');
+		jQuery('.harga-satuan').val('');
+		jQuery('.ppn').val('');
+		jQuery('.pph').val('');
+		jQuery('#total').val('');
+		jQuery('#transaction_description').val('');
+	}
+
+	function get_validate_gender(iduraian) {
+		jQuery.ajax({
+			url : app_url + 'realisasi_anggaran/get_validate_gender?id='+iduraian,
+			method : 'get',
+			dataType : 'json',
+			success : function(res){
+				console.log(res);
+
+				jQuery('#laki').val('');
+				jQuery('#perempuan').val('');
+				
+				if (res == 1) {
+					jQuery('.gender').removeClass('hide');
+				}
+				else {
+					jQuery('.gender').addClass('hide');
+				}
+			}
+		});
+	}
+
+	jQuery('#form_add').on('keyup', '.volume, .harga-satuan, .ppn, .pph', function() {
 		var volume			=  jQuery('#volume').val();
 		var harga_satuan 	=  jQuery('#harga_satuan').val();
+		var ppn 			=  jQuery('#ppn').val() || 0;
+		var pph 			=  jQuery('#pph').val() || 0;
 
-		volume = remove_separator(volume);
+		volume 			= remove_separator(volume);
 		harga_satuan 	= remove_separator(harga_satuan);
+		ppn 			= remove_separator(ppn);
+		pph 			= remove_separator(pph);
 
-  		var total = volume * harga_satuan;
+  		var total = (parseFloat(volume) * parseFloat(harga_satuan)) + parseFloat(ppn) - parseFloat(pph);
 
 		console.log('total '+total);
 		jQuery('#total').val(thousand_separator(total));
@@ -148,8 +207,9 @@
 			error: function(response) {}
 		});
 	});
-
-	function generate_transaction(idtransaction, tf) {
+	
+	// generate_transaction(6);
+	function generate_transaction(idtransaction) {
 		jQuery.ajax({
 			url: app_url+'realisasi_anggaran/get_list_order/',
 			type: 'POST',
@@ -158,12 +218,128 @@
 				idtransaction: idtransaction
 			},
 			success: function(response) {
-				jQuery('#table_onthespot tbody').html(response.data);
+				jQuery('#table_realisasi tbody').html(response.data);
 			},
 			error: function(response) {}
 		});
 	}
 
+	jQuery('body').on('click', '#btn_save_realisasi', function() {
+		// show_loading();
+
+		jQuery.ajax({
+			url: app_url + 'realisasi_anggaran/save_realisasi',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_realisasi').serialize(),
+			success: function(response) {
+				hide_loading();
+				if (response.err_code == 0) {
+					location.href = app_url + 'realisasi_anggaran';
+				}
+				else {
+					bootbox.alert(response.err_message);
+				}
+			},
+			error: function(response){}
+		});
+	});
+
+	jQuery('body').on('click','.btn-edit-order', function() {
+		var id = jQuery(this).attr('data-id');
+
+		show_loading();
+		jQuery.ajax({
+			url: app_url + 'realisasi_anggaran/edit_order',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				
+				hide_loading();
+
+				show_modal('add');
+
+				jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
+				jQuery('#idtransaction_detail').val(id);
+				jQuery('#form_add input, #form_add select, #form_add textarea').not('.x-hidden').val('').trigger('change.select2');
+
+				seach_paket_belanja(response.data.idpaket_belanja);
+				
+				setTimeout(function() {
+					jQuery('#iduraian').val(response.data.iduraian);
+					jQuery('#volume').val(response.data.volume);
+					jQuery('#harga_satuan').val(thousand_separator(response.data.harga_satuan));
+					jQuery('#ppn').val(thousand_separator(response.data.ppn));
+					jQuery('#pph').val(thousand_separator(response.data.pph));
+					jQuery('#total').val(thousand_separator(response.data.total));
+					jQuery('#transaction_description').val(response.data.transaction_description);
+
+					get_validate_gender(response.data.iduraian);
+
+					setTimeout(function() {
+						jQuery('#laki').val(response.data.laki);
+						jQuery('#perempuan').val(response.data.perempuan);
+					}, 500);
+				}, 1000);
+			},
+			error: function(response) {}
+		});
+	});
+
+	jQuery('body').on('click','.btn-delete-order', function() {
+		var id = jQuery(this).attr('data-id');
+		
+		bootbox.confirm('Apakah anda yakin ingin menghapus data ini?', function(e) {
+			show_loading();
+			if (e) {
+				jQuery.ajax({
+					url: app_url + 'realisasi_anggaran/delete_order',
+					type: 'POST',
+					dataType: 'JSON',
+					data: {
+						id: id
+					},
+					success: function(response) {
+						hide_loading();
+						if(response.err_code == 0) {
+							generate_transaction(jQuery('#idtransaction').val(), true);
+						} else {
+							bootbox.alert(response.err_message);
+						}
+					},
+					error: function(response) {}
+				});
+			}
+			else{
+				hide_loading();
+			}
+		})
+	});
+
+
+	var the_id =  "<?php echo $id;?>";
+	if (the_id != "") {
+		generate_transaction(the_id);
+
+		jQuery.ajax({
+			url: app_url + 'realisasi_anggaran/get_data',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: the_id
+			},
+			success: function(response) {
+				jQuery('#transaction_code').val(response.transaction.transaction_code);
+				jQuery('#iduser_created').val(response.transaction.iduser_created);
+				jQuery('#user_name').val(response.transaction.user_created);
+				jQuery('#transaction_date').val(response.transaction.txt_transaction_date);
+			},
+			error: function(response) {}
+		});
+	}
 
 
 	///////////////////////////////////
@@ -309,149 +485,6 @@
 				}
 			},
 				error: function(response){}
-		});
-	});
-
-	var is_edit_transaction = 0;
-	var the_id =  "<?php echo $id;?>";
-	if (the_id != "") {
-		generate_transaction(the_id, false);
-		is_edit_transaction = 1;
-		jQuery.ajax({
-			url: app_url + 'pos/get_data',
-			type: 'POST',
-			dataType: 'JSON',
-			data: {
-				id: the_id
-			},
-			success: function(response) {
-				jQuery('#customer_name').val(response.transaction.customer_name);
-				jQuery('#customer_handphone').val(response.transaction.customer_handphone);
-				jQuery('#idmember').val(response.transaction.idmember);
-				jQuery('#customer_email').val(response.transaction.customer_email);
-				jQuery('#taken_sent').val(response.transaction.taken_sent);
-				jQuery('#transaction_code').val(response.transaction.transaction_code);
-
-				if (response.transaction.idacc_tax_pph != null) {
-					setTimeout(function() {
-						jQuery(".idacc-tax-pph").append(new Option(response.transaction.tax_pph_name, response.transaction.idacc_tax_pph, true, true)).trigger('change');
-					}, 500);
-				}
-
-				// if (response.transaction.taken_sent == 'DIKIRIM') {
-				// 	setTimeout(function(){
-				// 		jQuery('#idprovince').val(response.transaction.idprovince).trigger('change');
-				// 	},1000);
-				// 	setTimeout(function(){
-				// 		jQuery('#helper_idcity').val(response.transaction.idcity).trigger('change');
-				// 		generate_city();
-				// 	},2000);
-				// 	setTimeout(function(){
-				// 		jQuery('#helper_iddistrict').val(response.transaction.iddistrict).trigger('change');
-				// 		generate_district();
-				// 	},3000);
-				// 	jQuery('#address').val(response.transaction.address);
-				// }
-				if (response.transaction.taken_sent == 'DIKIRIM') {
-					jQuery('#taken_sent').val("DIKIRIM").trigger('change');
-					setTimeout(function() {
-						if (response.transaction.idmember_address != null) {
-							jQuery('#idmember_address').val(response.transaction.idmember_address).trigger('change');
-						}
-
-						setTimeout(function() {
-							jQuery('#idprovince').val(response.transaction.idprovince).trigger('change');
-							setTimeout(function() {
-								jQuery('#helper_idcity').val(response.transaction.idcity).trigger('change');
-								jQuery('#idcity').val(response.transaction.idcity).trigger('change');
-								setTimeout(function() {
-									jQuery('#helper_iddistrict').val(response.transaction.iddistrict).trigger('change');
-									jQuery('#iddistrict').val(response.transaction.iddistrict).trigger('change');
-
-									show_loading();
-									setTimeout(function() {
-										jQuery('.radio-delivery[value=' + response.transaction.delivery_code + ']').prop('checked', true);
-
-										jQuery('#helper_delivery').val(response.transaction.delivery_code);
-										if (parseInt(response.transaction.total_custom_delivery) > 0) {
-											jQuery('#custom_shipping_price').val(thousand_separator(response.transaction.total_custom_delivery));
-										}
-										hide_loading();
-										// console.log(response.transaction.delivery_code);
-										// console.log(response.transaction.total_custom_delivery);
-
-										if (is_viewonly == true) {
-											jQuery('#idprovince').prop('disabled', true);
-											jQuery('#idcity').prop('disabled', true);
-											jQuery('#iddistrict').prop('disabled', true);
-											jQuery('.radio-delivery').prop('disabled', true);
-											jQuery('#custom_shipping_price').prop('disabled', true);
-											jQuery('.btn-custom-shipping').prop('disabled', true);
-										}
-
-									}, 5500);
-								}, 500);
-							}, 1000);
-						}, 2000);
-					}, 1000);
-
-					jQuery('#address').val(response.transaction.address);
-				}
-				jQuery('.idpayment[value="'+response.transaction.idproduct_payment+'"]').prop('checked', true);
-				jQuery('#helper_delivery').val(response.transaction.delivery_code);
-				jQuery("#idoutlet").append(new Option(response.transaction.outlet_name, response.transaction.idoutlet, true, true)).trigger('change');
-			},
-			error: function(response) {}
-		});
-	}
-
-	jQuery('body').on('click','.btn-delete-order', function() {
-		var id = jQuery(this).attr('data-id');
-		show_loading();
-		jQuery.ajax({
-			url: app_url + 'pos/delete_order',
-			type: 'POST',
-			dataType: 'JSON',
-			data: {
-				id: id
-			},
-			success: function(response) {
-				hide_loading();
-				if(response.err_code == 0) {
-					generate_transaction(jQuery('#idtransaction').val(), true);
-				} else {
-					bootbox.alert(response.err_message);
-				}
-			},
-			error: function(response) {}
-		});
-	});
-
-	jQuery('body').on('click','.btn-edit-order', function() {
-		var id = jQuery(this).attr('data-id');
-		var idmain = jQuery(this).attr('data-idmain');
-		var ini = jQuery(this);
-		show_loading();
-		jQuery.ajax({
-			url: app_url + 'pos/edit_order',
-			type: 'POST',
-			dataType: 'JSON',
-			data: {
-				id: id
-			},
-			success: function(response) {
-				hide_loading();
-				show_modal('add');
-				jQuery('#is_edit').val(id);
-				jQuery('#idtransaction_detail').val(id);
-				jQuery(".form-product").removeClass("hide");
-				jQuery("#idproduct_category.select2-ajax").append(new Option(response.data.product_category_name, response.data.idproduct_category, true, true)).trigger('change');
-				jQuery("#idproduct_subcategory.select2-ajax").append(new Option(response.data.product_subcategory_name, response.data.idproduct_subcategory, true, true)).trigger('change');
-				jQuery("#idproduct.select2-ajax").append(new Option(response.data.product_name, response.data.idproduct, true, true)).trigger('change');
-				jQuery('#transaction_description').val(response.data.transaction_description);
-				jQuery('#deadline').val(response.data.deadline);
-			},
-			error: function(response) {}
 		});
 	});
 

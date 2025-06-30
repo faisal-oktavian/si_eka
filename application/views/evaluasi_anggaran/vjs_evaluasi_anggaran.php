@@ -1,4 +1,23 @@
 <script>
+	jQuery('body').on('click', '.btn-add-sub-kategori', function() {
+		show_modal('detail_paket_belanja');
+
+		// var idpaket_belanja = jQuery(this).attr('data-idpaket-belanja');
+		// var idpaket_belanja_detail = jQuery(this).attr('data-idpb-detail');
+		// var idakun_belanja = jQuery(this).attr('data-idakun-belanja');
+		// var idds_parent = jQuery(this).attr('data-idds_parent'); // terisi jika mempunyai kategori
+
+		// jQuery("#idsub_kategori").select2("val", "");
+		// jQuery('#hds_is_edit').val('0');
+		
+		// jQuery('#hds_idpaket_belanja').val(idpaket_belanja);
+		// jQuery('#hds_idpaket_belanja_detail').val(idpaket_belanja_detail);
+		// jQuery('#hds_idakun_belanja').val(idakun_belanja);
+		// jQuery('#hds_idds_parent').val(idds_parent); // idpaket_belanja_detail_sub_parent
+		// jQuery('#hds_is_kategori').val('0');
+		// jQuery('#hds_is_subkategori').val('1');
+	});
+
 	jQuery('body').on('click', '.btn-filter-neraca', function() {
 		// var date1 = jQuery('#date1').val();
 		var idoutlet = jQuery('#idoutlet').val();

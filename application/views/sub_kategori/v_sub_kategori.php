@@ -27,6 +27,16 @@ width: 100%;
 		</div>
 	</div>
 	<div class="form-group">
+		<label class="control-label col-md-4">Wajib Isi Jenis Kelamin <red>*</red></label>
+		<div class="col-md-5">
+			<select class="form-control" name="is_gender" id="is_gender">
+				<option value="" disabled> ~Pilih Opsi~ </option>
+				<option value="1">YA</option>
+				<option value="0">TIDAK</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
 		<label class="control-label col-md-4">Aktif</label>
 		<div class="col-md-5">
 			<select class="form-control" name="is_active" id="is_active">
