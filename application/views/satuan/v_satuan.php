@@ -12,8 +12,8 @@ width: 100%;
 }
 </style>
 <form class="form-horizontal az-form" id="form" name="form" method="POST">
-	<input type="" name="idsatuan" id="idsatuan">
-	<input type="" name="is_copy" id="is_copy">
+	<input type="hidden" name="idsatuan" id="idsatuan">
+	<input type="hidden" name="is_copy" id="is_copy">
 	<div class="form-group">
 		<label class="control-label col-md-4">Nama Satuan <red>*</red></label>
 		<div class="col-md-5">
