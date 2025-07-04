@@ -340,7 +340,8 @@
                         hide_loading();
 
                         if (response.err_code == 0) {
-                            generate_detail_paket_belanja(response.idpaket_belanja);
+                            // generate_detail_paket_belanja(response.idpaket_belanja);
+							location.reload();
                         } 
                         else {
                             bootbox.alert(response.err_message);

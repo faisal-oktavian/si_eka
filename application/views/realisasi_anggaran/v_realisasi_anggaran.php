@@ -41,8 +41,8 @@
 					<th>Paket Belanja</th>
 					<th width="auto">Uraian</th>
 					<th width="auto">Volume</th>
-					<th width="auto">Harga Satuan</th>
-					<th width="auto">Total Harga</th>
+					<th width="130px">Harga Satuan</th>
+					<th width="130px">Total Harga</th>
 					<th width="130px">Aksi</th>
 				</tr>
 			</thead>

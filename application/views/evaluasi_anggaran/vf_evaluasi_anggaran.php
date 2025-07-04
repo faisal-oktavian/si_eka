@@ -16,7 +16,7 @@
                             <div class="container-date">
                                 <div class="cd-list">
                                     <div class="input-group az-datetime">
-                                        <input type="text" class="form-control" id="date2" name="date2" value="<?php echo date("Y"); ?>">
+                                        <input type="text" class="form-control" id="tahun_anggaran" name="tahun_anggaran" value="<?php echo date("Y"); ?>">
                                         <span class="input-group-addon">
                                             <span class="glyphicon glyphicon-calendar"></span>
                                         </span>
@@ -30,7 +30,7 @@
         </div>
 
         <div>
-            <button class="btn btn-info btn-filter-neraca" id="btn_top_filter" type="button"><i class="fa fa-search"></i> &nbsp;Filter</button>
+            <button class="btn btn-info btn-filter-evaluasi" id="btn_top_filter" type="button"><i class="fa fa-search"></i> &nbsp;Filter</button>
             <button class="btn btn-print-neraca btn-default"><i class="fa fa-print"></i> Cetak</button>
         </div>
     </div>

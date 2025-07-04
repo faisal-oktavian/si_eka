@@ -18,7 +18,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Total Realisasi', 'Admin', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Paket Belanja', 'Total Realisasi', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -67,14 +67,17 @@ class Realisasi_anggaran extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$transaction_code = $this->input->get('transaction_code');
 
-        $crud->set_select('idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, total_realisasi, user.name as user_created');
-        $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, total_realisasi, user_created');
-        $crud->set_sorting('transaction_date, transaction_code, total_realisasi');
-        $crud->set_filter('transaction_date, transaction_code, total_realisasi');
+        $crud->set_select('transaction.idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name as user_created');
+        $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, nama_paket_belanja, total_realisasi, user_created');
+        $crud->set_sorting('transaction_date, transaction_code, nama_paket_belanja, total_realisasi');
+        $crud->set_filter('transaction_date, transaction_code, nama_paket_belanja, total_realisasi');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(' , , right');
+		$crud->set_select_align(' , , , right');
 
         $crud->add_join_manual('user', 'transaction.iduser_created = user.iduser');
+        $crud->add_join_manual('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
+        $crud->add_join_manual('paket_belanja', 'transaction_detail.idpaket_belanja = paket_belanja.idpaket_belanja');
+		$crud->set_group_by('transaction.idtransaction');
         
         if (strlen($date1) > 0 && strlen($date2) > 0) {
             $crud->add_where('date(transaction.transaction_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');

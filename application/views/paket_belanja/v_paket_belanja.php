@@ -38,7 +38,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right" id="nilai_anggaran" name="nilai_anggaran"/>
+					<input type="text" class="form-control format-number txt-right" id="nilai_anggaran" name="nilai_anggaran" readonly/>
 				</div>
 			</div>
 		</div>
