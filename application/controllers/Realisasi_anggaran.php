@@ -268,6 +268,9 @@ class Realisasi_anggaran extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 		$validate_gender = false;
+		$validate_description = false;
+		$validate_room = false;
+		$validate_name_training = false;
 
 
 	 	$idtransaction = $this->input->post('idtransaction');
@@ -301,7 +304,7 @@ class Realisasi_anggaran extends CI_Controller {
 		if (strlen($iduraian) > 0) {
 			$this->db->where('status', 1);
 			$this->db->where('idsub_kategori', $iduraian);
-			$this->db->select('is_gender');
+			$this->db->select('is_gender, is_description, is_room, is_name_training');
 			$sub_kategori = $this->db->get('sub_kategori');
 
 			if ($sub_kategori->num_rows() > 0) {
@@ -309,6 +312,24 @@ class Realisasi_anggaran extends CI_Controller {
 				// 1 : wajib isi jenis kelamin
 				if ($sub_kategori->row()->is_gender == 1) {
 					$validate_gender = true;
+				}
+
+				// 0 : tidak wajib isi keterangan
+				// 1 : wajib isi keterangan
+				if ($sub_kategori->row()->is_description == 1) {
+					$validate_description = true;
+				}
+
+				// 0 : tidak wajib isi ruang
+				// 1 : wajib isi ruang
+				if ($sub_kategori->row()->is_room == 1) {
+					$validate_room = true;
+				}
+
+				// 0 : tidak wajib isi nama diklat
+				// 1 : wajib isi nama diklat
+				if ($sub_kategori->row()->is_name_training == 1) {
+					$validate_name_training = true;
 				}
 			}
 			else {
@@ -320,6 +341,12 @@ class Realisasi_anggaran extends CI_Controller {
 		if ($validate_gender) {
 			$this->form_validation->set_rules('laki', 'Laki-laki', 'required|trim|max_length[200]');
 			$this->form_validation->set_rules('perempuan', 'Perempuan', 'required|trim|max_length[200]');
+		}
+		if ($validate_description) {
+		}
+		if ($validate_room) {
+		}
+		if ($validate_name_training) {
 		}
 
 		if ($this->form_validation->run() == FALSE) {
@@ -338,6 +365,11 @@ class Realisasi_anggaran extends CI_Controller {
 		}
 
 		// validasi volume total volume yang sudah terealisasi tidak boleh lebih dari volume yang sudah ditentukan
+		if ($err_code == 0) {
+			// code
+		}
+
+		// validasi bulan realisasi tidak boleh mendahului bulan serapan
 		if ($err_code == 0) {
 			// code
 		}

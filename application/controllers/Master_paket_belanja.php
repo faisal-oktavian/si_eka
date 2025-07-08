@@ -225,7 +225,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->db->join('sub_kategori', 'paket_belanja_detail_sub.idsub_kategori = sub_kategori.idsub_kategori', 'left');
 		$this->db->join('paket_belanja_detail', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail', 'left');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, concat(kategori.no_rekening_kategori, " - ", kategori.nama_kategori) as nama_kategori, paket_belanja_detail.idakun_belanja, paket_belanja_detail_sub.idsub_kategori, concat(sub_kategori.no_rekening_subkategori, " - ", sub_kategori.nama_sub_kategori) as nama_sub_kategori, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.volume, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.idsatuan, satuan.nama_satuan');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, concat(kategori.no_rekening_kategori, " - ", kategori.nama_kategori) as nama_kategori, paket_belanja_detail.idakun_belanja, paket_belanja_detail_sub.idsub_kategori, concat(sub_kategori.no_rekening_subkategori, " - ", sub_kategori.nama_sub_kategori) as nama_sub_kategori, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.volume, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.idsatuan, satuan.nama_satuan, paket_belanja_detail_sub.rak_volume_januari, paket_belanja_detail_sub.rak_jumlah_januari, paket_belanja_detail_sub.rak_volume_februari, paket_belanja_detail_sub.rak_jumlah_februari, paket_belanja_detail_sub.rak_volume_maret, paket_belanja_detail_sub.rak_jumlah_maret, paket_belanja_detail_sub.rak_volume_april, paket_belanja_detail_sub.rak_jumlah_april, paket_belanja_detail_sub.rak_volume_mei, paket_belanja_detail_sub.rak_jumlah_mei, paket_belanja_detail_sub.rak_volume_juni, paket_belanja_detail_sub.rak_jumlah_juni, paket_belanja_detail_sub.rak_volume_juli, paket_belanja_detail_sub.rak_jumlah_juli, paket_belanja_detail_sub.rak_volume_agustus, paket_belanja_detail_sub.rak_jumlah_agustus, paket_belanja_detail_sub.rak_volume_september, paket_belanja_detail_sub.rak_jumlah_september, paket_belanja_detail_sub.rak_volume_oktober, paket_belanja_detail_sub.rak_jumlah_oktober, paket_belanja_detail_sub.rak_volume_november, paket_belanja_detail_sub.rak_jumlah_november, paket_belanja_detail_sub.rak_volume_desember, paket_belanja_detail_sub.rak_jumlah_desember');
 		$pb_detail = $this->db->get('paket_belanja_detail_sub')->result_array();
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -240,6 +240,7 @@ class Master_paket_belanja extends CI_Controller {
 	function add_akun_belanja() {
 		$err_code = 0;
 		$err_message = '';
+		$idpaket_belanja_detail = '';
 
 	 	$idpaket_belanja = $this->input->post('idpaket_belanja');
 	 	$idpb_akun_belanja = $this->input->post('idpb_akun_belanja');
@@ -283,7 +284,7 @@ class Master_paket_belanja extends CI_Controller {
 			'err_code' => $err_code,
 			'err_message' => $err_message,
 			'idpaket_belanja' => $idpaket_belanja,
-			'idpaket_belanja_detail' => az_encode_url($idpaket_belanja_detail),
+			'idpaket_belanja_detail' => $idpaket_belanja_detail,
 		);
 		echo json_encode($return);
 	}
@@ -346,6 +347,70 @@ class Master_paket_belanja extends CI_Controller {
 	 	$harga_satuan = az_crud_number($this->input->post('harga_satuan'));
 	 	$jumlah = az_crud_number($this->input->post('jumlah'));
 
+		// Rencana Aksi Kegiatan
+		$rak_volume_januari = az_crud_number($this->input->post('rak_volume_januari'));
+	 	$rak_jumlah_januari = az_crud_number($this->input->post('rak_jumlah_januari'));
+		$rak_volume_februari = az_crud_number($this->input->post('rak_volume_februari'));
+	 	$rak_jumlah_februari = az_crud_number($this->input->post('rak_jumlah_februari'));
+		$rak_volume_maret = az_crud_number($this->input->post('rak_volume_maret'));
+	 	$rak_jumlah_maret = az_crud_number($this->input->post('rak_jumlah_maret'));
+		$rak_volume_april = az_crud_number($this->input->post('rak_volume_april'));
+	 	$rak_jumlah_april = az_crud_number($this->input->post('rak_jumlah_april'));
+		$rak_volume_mei = az_crud_number($this->input->post('rak_volume_mei'));
+	 	$rak_jumlah_mei = az_crud_number($this->input->post('rak_jumlah_mei'));
+		$rak_volume_juni = az_crud_number($this->input->post('rak_volume_juni'));
+	 	$rak_jumlah_juni = az_crud_number($this->input->post('rak_jumlah_juni'));
+		$rak_volume_juli = az_crud_number($this->input->post('rak_volume_juli'));
+	 	$rak_jumlah_juli = az_crud_number($this->input->post('rak_jumlah_juli'));
+		$rak_volume_agustus = az_crud_number($this->input->post('rak_volume_agustus'));
+	 	$rak_jumlah_agustus = az_crud_number($this->input->post('rak_jumlah_agustus'));
+		$rak_volume_september = az_crud_number($this->input->post('rak_volume_september'));
+	 	$rak_jumlah_september = az_crud_number($this->input->post('rak_jumlah_september'));
+		$rak_volume_oktober = az_crud_number($this->input->post('rak_volume_oktober'));
+	 	$rak_jumlah_oktober = az_crud_number($this->input->post('rak_jumlah_oktober'));
+		$rak_volume_november = az_crud_number($this->input->post('rak_volume_november'));
+	 	$rak_jumlah_november = az_crud_number($this->input->post('rak_jumlah_november'));
+		$rak_volume_desember = az_crud_number($this->input->post('rak_volume_desember'));
+	 	$rak_jumlah_desember = az_crud_number($this->input->post('rak_jumlah_desember'));
+
+		if (strlen($rak_volume_januari) == 0) {
+			$rak_jumlah_januari = null;
+		}
+		if (strlen($rak_volume_februari) == 0) {
+			$rak_jumlah_februari = null;
+		}
+		if (strlen($rak_volume_maret) == 0) {
+			$rak_jumlah_maret = null;
+		}
+		if (strlen($rak_volume_april) == 0) {
+			$rak_jumlah_april = null;
+		}
+		if (strlen($rak_volume_mei) == 0) {
+			$rak_jumlah_mei = null;
+		}
+		if (strlen($rak_volume_juni) == 0) {
+			$rak_jumlah_juni = null;
+		}
+		if (strlen($rak_volume_juli) == 0) {
+			$rak_jumlah_juli = null;
+		}
+		if (strlen($rak_volume_agustus) == 0) {
+			$rak_jumlah_agustus = null;
+		}
+		if (strlen($rak_volume_september) == 0) {
+			$rak_jumlah_september = null;
+		}
+		if (strlen($rak_volume_oktober) == 0) {
+			$rak_jumlah_oktober = null;
+		}
+		if (strlen($rak_volume_november) == 0) {
+			$rak_jumlah_november = null;
+		}
+		if (strlen($rak_volume_desember) == 0) {
+			$rak_jumlah_desember = null;
+		}
+		
+
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('idsub_kategori', 'Sub Kategori', 'required');
 		$this->form_validation->set_rules('volume', 'Volume', 'required');
@@ -355,6 +420,16 @@ class Master_paket_belanja extends CI_Controller {
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
 			$err_message = validation_errors();
+		}
+
+		// cek apakah inputan volume rak per bulannya melebihi volume
+		if ($err_code == 0) {
+			$total_rak_volume = floatval($rak_volume_januari) + floatval($rak_volume_februari) + floatval($rak_volume_maret) + floatval($rak_volume_april) + floatval($rak_volume_mei) + floatval($rak_volume_juni) + floatval($rak_volume_juli) + floatval($rak_volume_agustus) + floatval($rak_volume_september) + floatval($rak_volume_oktober) + floatval($rak_volume_november) + floatval($rak_volume_desember);
+			
+			if ($total_rak_volume > $volume) {
+				$err_code++;
+				$err_message = 'Total volume rak per bulan tidak boleh melebihi volume';
+			}
 		}
 
 		if ($err_code == 0) {
@@ -372,15 +447,40 @@ class Master_paket_belanja extends CI_Controller {
 			$arr_pb_detail_sub = array(
 				// 'idpaket_belanja' => $idpaket_belanja,
 				// 'idpaket_belanja_detail' => $idpaket_belanja_detail,
-				'idsub_kategori' => $idsub_kategori,
-				'idpaket_belanja_detail' => $idpaket_belanja_detail,
+				'idsub_kategori' 				=> $idsub_kategori,
+				'idpaket_belanja_detail' 		=> $idpaket_belanja_detail,
 				'is_idpaket_belanja_detail_sub' => $is_idpaket_belanja_detail_sub,
-				'is_kategori' => $is_kategori,
-				'is_subkategori' => $is_subkategori,
-				'volume' => $volume,
-				'idsatuan' => $idsatuan,
-				'harga_satuan' => $harga_satuan,
-				'jumlah' => $jumlah,
+				'is_kategori' 					=> $is_kategori,
+				'is_subkategori' 				=> $is_subkategori,
+				'volume' 						=> $volume,
+				'idsatuan' 						=> $idsatuan,
+				'harga_satuan' 					=> $harga_satuan,
+				'jumlah' 						=> $jumlah,
+
+				'rak_volume_januari' 	=> ($rak_volume_januari == 0 || $rak_volume_januari === "" ? null : $rak_volume_januari),
+				'rak_jumlah_januari' 	=> ($rak_jumlah_januari == 0 || $rak_jumlah_januari === "" ? null : $rak_jumlah_januari),
+				'rak_volume_februari' 	=> ($rak_volume_februari == 0 || $rak_volume_februari === "" ? null : $rak_volume_februari),
+				'rak_jumlah_februari' 	=> ($rak_jumlah_februari == 0 || $rak_jumlah_februari === "" ? null : $rak_jumlah_februari),
+				'rak_volume_maret' 		=> ($rak_volume_maret == 0 || $rak_volume_maret === "" ? null : $rak_volume_maret),
+				'rak_jumlah_maret' 		=> ($rak_jumlah_maret == 0 || $rak_jumlah_maret === "" ? null : $rak_jumlah_maret),
+				'rak_volume_april' 		=> ($rak_volume_april == 0 || $rak_volume_april === "" ? null : $rak_volume_april),
+				'rak_jumlah_april' 		=> ($rak_jumlah_april == 0 || $rak_jumlah_april === "" ? null : $rak_jumlah_april),
+				'rak_volume_mei' 		=> ($rak_volume_mei == 0 || $rak_volume_mei === "" ? null : $rak_volume_mei),
+				'rak_jumlah_mei' 		=> ($rak_jumlah_mei == 0 || $rak_jumlah_mei === "" ? null : $rak_jumlah_mei),
+				'rak_volume_juni' 		=> ($rak_volume_juni == 0 || $rak_volume_juni === "" ? null : $rak_volume_juni),
+				'rak_jumlah_juni' 		=> ($rak_jumlah_juni == 0 || $rak_jumlah_juni === "" ? null : $rak_jumlah_juni),
+				'rak_volume_juli' 		=> ($rak_volume_juli == 0 || $rak_volume_juli === "" ? null : $rak_volume_juli),
+				'rak_jumlah_juli' 		=> ($rak_jumlah_juli == 0 || $rak_jumlah_juli === "" ? null : $rak_jumlah_juli),
+				'rak_volume_agustus' 	=> ($rak_volume_agustus == 0 || $rak_volume_agustus === "" ? null : $rak_volume_agustus),
+				'rak_jumlah_agustus' 	=> ($rak_jumlah_agustus == 0 || $rak_jumlah_agustus === "" ? null : $rak_jumlah_agustus),
+				'rak_volume_september' => ($rak_volume_september == 0 || $rak_volume_september === "" ? null : $rak_volume_september),
+				'rak_jumlah_september' => ($rak_jumlah_september == 0 || $rak_jumlah_september === "" ? null : $rak_jumlah_september),
+				'rak_volume_oktober' 	=> ($rak_volume_oktober == 0 || $rak_volume_oktober === "" ? null : $rak_volume_oktober),
+				'rak_jumlah_oktober' 	=> ($rak_jumlah_oktober == 0 || $rak_jumlah_oktober === "" ? null : $rak_jumlah_oktober),
+				'rak_volume_november' 	=> ($rak_volume_november == 0 || $rak_volume_november === "" ? null : $rak_volume_november),
+				'rak_jumlah_november' 	=> ($rak_jumlah_november == 0 || $rak_jumlah_november === "" ? null : $rak_jumlah_november),
+				'rak_volume_desember' 	=> ($rak_volume_desember == 0 || $rak_volume_desember === "" ? null : $rak_volume_desember),
+				'rak_jumlah_desember' 	=> ($rak_jumlah_desember == 0 || $rak_jumlah_desember === "" ? null : $rak_jumlah_desember),
 			);
 			// echo "<pre>"; print_r($arr_pb_detail_sub);die;
 
@@ -389,9 +489,16 @@ class Master_paket_belanja extends CI_Controller {
 
 			// get idpaket_belanja
 			$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
-			$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-			$this->db->select('paket_belanja_detail.idpaket_belanja');
+			$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
+			$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
 			$paket_belanja = $this->db->get('paket_belanja_detail_sub');
+
+			if (strlen($paket_belanja->row()->idpaket_belanja) == 0) {
+				$this->db->where('idpaket_belanja_detail_sub', $paket_belanja->row()->is_idpaket_belanja_detail_sub);
+				$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+				$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+				$paket_belanja = $this->db->get('paket_belanja_detail_sub');
+			}
 
 			$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
 
