@@ -276,6 +276,7 @@ class Realisasi_anggaran extends CI_Controller {
 	 	$idtransaction = $this->input->post('idtransaction');
 	 	$idtransaction_detail = $this->input->post('idtransaction_detail');
 		$idpaket_belanja = $this->input->post('idpaket_belanja');
+	 	$penyedia = $this->input->post('penyedia');
 	 	$iduraian = $this->input->post('iduraian');
 		$volume = az_crud_number($this->input->post('volume'));	
 		$laki = az_crud_number($this->input->post('laki'));
@@ -284,6 +285,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$ppn = az_crud_number($this->input->post('ppn'));
 		$pph = az_crud_number($this->input->post('pph'));
         $transaction_description = $this->input->post('transaction_description');
+        $transaction_date = az_crud_date($this->input->post('transaction_date'));
 
 		$total = (floatval($volume) * floatval($harga_satuan)) + floatval($ppn) - floatval($pph);
 
@@ -296,6 +298,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 
 		$this->form_validation->set_rules('idpaket_belanja', 'Paket Belanja', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('penyedia', 'Penyedia', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('iduraian', 'Uraian', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('volume', 'Volume', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('harga_satuan', 'Harga Satuan', 'required|trim|max_length[200]');
@@ -366,12 +369,45 @@ class Realisasi_anggaran extends CI_Controller {
 
 		// validasi volume total volume yang sudah terealisasi tidak boleh lebih dari volume yang sudah ditentukan
 		if ($err_code == 0) {
-			// code
+			$the_filter = array(
+				'iduraian' => $iduraian,
+				'idpaket_belanja' => $idpaket_belanja,
+				'transaction_date' => $transaction_date,
+			);
+
+			// ambil data utama uraian
+			$data_utama = $this->get_data_utama($the_filter);
+			// echo "<pre>"; print_r($this->db->last_query()); die;
+
+			// ambil data Rencana Anggaran Kegiatan (RAK) sebagai acuan realisasi
+			$data_rak = $this->get_data_rak($the_filter);
+			// echo "<pre>"; print_r($this->db->last_query()); die;
+
+			// ambil data realisasi yang sudah ada
+			$data_realisasi = $this->get_data_realisasi($the_filter);
+			// echo "<pre>"; print_r($this->db->last_query()); die;
 		}
 
-		// validasi bulan realisasi tidak boleh mendahului bulan serapan
+		// validasi
 		if ($err_code == 0) {
-			// code
+		
+			// validasi apakah volume yang sudah direalisasikan melebihi volume yang sudah ditentukan
+			if ($data_utama->row()->volume < (floatval($data_realisasi->row()->total_volume) + floatval($volume))) {
+				$err_code++;
+				$err_message = "Volume yang sudah direalisasikan melebihi volume yang sudah ditentukan.";
+			}
+
+			// validasi apakah jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan
+			if ($data_utama->row()->jumlah < (floatval($data_realisasi->row()->total_realisasi) + floatval($total))) {
+				$err_code++;
+				$err_message = "Jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan.";
+			}
+
+			// // validasi apakah total realisasi melebihi total rencana anggaran kegiatan (RAK) pada bulan yang dipilih
+			// if ($data_rak->row()->total_rak_jumlah < floatval($total)) {
+			// 	$err_code++;
+			// 	$err_message = "Total realisasi melebihi total rencana anggaran kegiatan (RAK) pada bulan yang dipilih.";
+			// }
 		}
 
 		if ($err_code == 0) {
@@ -416,26 +452,29 @@ class Realisasi_anggaran extends CI_Controller {
 				}
 			}
             
-			//transaction detail
-			$arr_transaction_detail = array(
-				'idtransaction' => $idtransaction,
-				'idpaket_belanja' => $idpaket_belanja,
-				'iduraian' => $iduraian,
-				'volume' => $volume,
-				'laki' => $laki,
-				'perempuan' => $perempuan,
-				'harga_satuan' => $harga_satuan,
-				'ppn' => $ppn,
-				'pph' => $pph,
-				'total' => $total,
-				'transaction_description' => $transaction_description,
-			);
-			
-			$td = az_crud_save($idtransaction_detail, 'transaction_detail', $arr_transaction_detail);
-			$idtransaction_detail = azarr($td, 'insert_id');
+			if ($err_code == 0) {
+				//transaction detail
+				$arr_transaction_detail = array(
+					'idtransaction' => $idtransaction,
+					'idpaket_belanja' => $idpaket_belanja,
+					'penyedia' => $penyedia,
+					'iduraian' => $iduraian,
+					'volume' => $volume,
+					'laki' => $laki,
+					'perempuan' => $perempuan,
+					'harga_satuan' => $harga_satuan,
+					'ppn' => $ppn,
+					'pph' => $pph,
+					'total' => $total,
+					'transaction_description' => $transaction_description,
+				);
+				
+				$td = az_crud_save($idtransaction_detail, 'transaction_detail', $arr_transaction_detail);
+				$idtransaction_detail = azarr($td, 'insert_id');
 
-			// hitung total transaksi
-			$this->calculate_total_realisasi($idtransaction);
+				// hitung total transaksi
+				$this->calculate_total_realisasi($idtransaction);	
+			}
 		}
 
 		$return = array(
@@ -541,7 +580,7 @@ class Realisasi_anggaran extends CI_Controller {
 		
 		$this->db->where('idtransaction_detail', $id);
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-		$this->db->select('transaction_detail.idpaket_belanja, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, transaction_detail.volume, transaction_detail.harga_satuan, transaction_detail.ppn, transaction_detail.pph, transaction_detail.total, transaction_detail.transaction_description, transaction_detail.laki, transaction_detail.perempuan');
+		$this->db->select('transaction_detail.idpaket_belanja, transaction_detail.penyedia, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, transaction_detail.volume, transaction_detail.harga_satuan, transaction_detail.ppn, transaction_detail.pph, transaction_detail.total, transaction_detail.transaction_description, transaction_detail.laki, transaction_detail.perempuan');
 		$trxd = $this->db->get('transaction_detail')->result_array();
 
 		$ret = array(
@@ -598,6 +637,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$this->db->where('transaction.idtransaction', $id);
 		$this->db->join('user', 'user.iduser = transaction.iduser_created');
 		$this->db->select('date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, user.name as user_created, transaction.iduser_created');
+		$this->db->order_by('transaction_date', 'desc');
 		$transaction = $this->db->get('transaction')->result_array();
 
 		$this->db->where('idtransaction', $id);
@@ -642,6 +682,152 @@ class Realisasi_anggaran extends CI_Controller {
 		$is_gender = $sub_kategori->row()->is_gender;
 		
 		echo json_encode($is_gender);
+	}
+
+	function get_data_utama($the_data) {
+		$iduraian = azarr($the_data, 'iduraian', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$add_select = azarr($the_data, 'add_select', '');
+
+		// menampilkan data utama dari paket belanja
+		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
+		$this->db->where('(pbds_child.idsub_kategori = "'.$iduraian.'" OR pbds_parent.idsub_kategori = "'.$iduraian.'")');
+		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+		$this->db->select('pb.idpaket_belanja,
+			pb.nama_paket_belanja,
+			pbd.idpaket_belanja_detail,
+			COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id,
+			COALESCE(pbds_child.idsub_kategori, pbds_parent.idsub_kategori) AS idsub_kategori,
+			COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
+			COALESCE(pbds_child.idsatuan, pbds_parent.idsatuan) AS idsatuan,
+			COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan,
+			COALESCE(pbds_child.jumlah, pbds_parent.jumlah) AS jumlah'.$add_select);
+		$pb = $this->db->get('paket_belanja pb');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		return $pb;
+	}
+
+	function get_data_rak($the_data) {
+		$iduraian = azarr($the_data, 'iduraian', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$transaction_date = azarr($the_data, 'transaction_date', '');
+
+		$format_date = date("n", strtotime($transaction_date));
+
+		$add_query_volume = '';
+		$add_query_jumlah = '';
+		for ($i = 0; $i < $format_date; $i++) { 
+			if ($i == 0) {
+				// untuk bulan Januari
+				$add_query_volume .= 'COALESCE(pbds_child.rak_volume_januari, pbds_parent.rak_volume_januari, 0)';
+				$add_query_jumlah .= 'COALESCE(pbds_child.rak_jumlah_januari, pbds_parent.rak_jumlah_januari, 0)';
+			}
+			else if ($i == 1) {
+				// untuk bulan Februari
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_februari, pbds_parent.rak_volume_februari, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_februari, pbds_parent.rak_jumlah_februari, 0)';
+			}
+			else if ($i == 2) {
+				// untuk bulan Maret
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_maret, pbds_parent.rak_volume_maret, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_maret, pbds_parent.rak_jumlah_maret, 0)';
+			}
+			else if ($i == 3) {
+				// untuk bulan April
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_april, pbds_parent.rak_volume_april, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_april, pbds_parent.rak_jumlah_april, 0)';
+			}
+			else if ($i == 4) {
+				// untuk bulan Mei
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_mei, pbds_parent.rak_volume_mei, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_mei, pbds_parent.rak_jumlah_mei, 0)';
+			}
+			else if ($i == 5) {
+				// untuk bulan Juni
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_juni, pbds_parent.rak_volume_juni, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_juni, pbds_parent.rak_jumlah_juni, 0)';
+			}
+			else if ($i == 6) {
+				// untuk bulan Juli
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_juli, pbds_parent.rak_volume_juli, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_juli, pbds_parent.rak_jumlah_juli, 0)';
+			}
+			else if ($i == 7) {
+				// untuk bulan Agustus
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_agustus, pbds_parent.rak_volume_agustus, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_agustus, pbds_parent.rak_jumlah_agustus, 0)';
+			}
+			else if ($i == 8) {
+				// untuk bulan September
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_september, pbds_parent.rak_volume_september, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_september, pbds_parent.rak_jumlah_september, 0)';
+			}
+			else if ($i == 9) {
+				// untuk bulan Oktober
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_oktober, pbds_parent.rak_volume_oktober, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_oktober, pbds_parent.rak_jumlah_oktober, 0)';
+			}
+			else if ($i == 10) {
+				// untuk bulan November
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_november, pbds_parent.rak_volume_november, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_november, pbds_parent.rak_jumlah_november, 0)';
+			}
+			else if ($i == 11) {
+				// untuk bulan Desember
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_desember, pbds_parent.rak_volume_desember, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_desember, pbds_parent.rak_jumlah_desember, 0)';
+			}
+		}
+
+		$add_query_volume = rtrim($add_query_volume, ', '); // Hilangkan koma dan spasi di akhir
+		$add_query_jumlah = rtrim($add_query_jumlah, ', '); // Hilangkan koma dan spasi di akhir
+		
+		$add_query_volume = 'SUM(' . rtrim($add_query_volume, ', ') . ') AS total_rak_volume';
+		$add_query_jumlah = 'SUM(' . rtrim($add_query_jumlah, ', ') . ') AS total_rak_jumlah';
+
+		// var_dump($add_query_volume); echo "<br><br>";
+		// var_dump($add_query_jumlah);
+		// die;
+
+		$the_filter = array(
+			'iduraian' => $iduraian,
+			'idpaket_belanja' => $idpaket_belanja,
+			'transaction_date' => $transaction_date,
+			'add_select' => ', ' .$add_query_volume . ', ' . $add_query_jumlah, // digunakan untuk menyisipkan query tambahan pada select di fungsi get_data_utama
+		);
+
+		// menampilkan data Rencana Anggaran Kegiatan (RAK) sampai dengan tanggal inputan
+		$db = $this->get_data_utama($the_filter);
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		return $db;
+	}
+
+	function get_data_realisasi($the_data) {
+		$iduraian = azarr($the_data, 'iduraian', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$transaction_date = azarr($the_data, 'transaction_date', '');
+
+		$format_year = date("Y", strtotime($transaction_date));
+		$format_month = date("m", strtotime($transaction_date));
+
+		// menampilkan data realisasi yang sudah ada sampai dengan tanggal inputan
+		$this->db->where('transaction.status', 1);
+		$this->db->where('transaction_detail.status', 1);
+		$this->db->where('transaction_detail.iduraian', $iduraian);
+		$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") >=', $format_year . '-01');
+		$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") <=', $format_year . '-' . $format_month);
+		$this->db->where('transaction.transaction_status !=', 'DRAFT');
+		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$this->db->select('count(transaction.idtransaction), sum(transaction_detail.volume) as total_volume, sum(transaction_detail.laki) as total_laki, sum(transaction_detail.perempuan) as total_perempuan, sum(transaction_detail.harga_satuan) as total_harga_satuan, sum(transaction_detail.ppn) as total_ppn, sum(transaction_detail.pph) as total_pph, sum(transaction_detail.total) as total_realisasi');
+		$trx = $this->db->get('transaction');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		return $trx;
 	}
 
     private function generate_transaction_code() {

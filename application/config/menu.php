@@ -100,6 +100,18 @@
             "url" => "realisasi_anggaran",
         ),
         array(
+            "name" => "verifikasi_dokumen",
+            "title" => "Verifikasi Dokumen",
+            "icon" => "user",
+            "url" => "verifikasi_dokumen",
+        ),
+        array(
+            "name" => "pembayaran",
+            "title" => "Pembayaran",
+            "icon" => "credit-card",
+            "url" => "pembayaran",
+        ),
+        array(
             "name" => "evaluasi_anggaran",
             "title" => "Evaluasi Anggaran",
             "icon" => "check-square",

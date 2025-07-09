@@ -48,6 +48,12 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="control-label col-md-3">Penyedia <red>*</red></label>
+            <div class="col-md-8">
+                <input type="text" class="form-control" id="penyedia" name="penyedia"/>
+            </div>
+        </div>
+        <div class="form-group">
             <label class="control-label col-md-3">Uraian <red>*</red></label>
             <div class="col-md-8">
                 <input type="hidden" id="helper_iduraian">

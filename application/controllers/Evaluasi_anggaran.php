@@ -449,6 +449,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$grand_sisa_vol = 0;
 		$grand_sisa_rp = 0;
 		$tanggal_bulan_ke_1 = 0;
+		$penyedia_bulan_ke_1 = 0;
 		$volume_bulan_ke_1 = 0;
 		$laki_bulan_ke_1 = 0;
 		$perempuan_bulan_ke_1 = 0;
@@ -457,6 +458,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$pph_bulan_ke_1 = 0;
 		$total_bulan_ke_1 = 0;
 		$tanggal_bulan_ke_2 = 0;
+		$penyedia_bulan_ke_2 = 0;
 		$volume_bulan_ke_2 = 0;
 		$laki_bulan_ke_2 = 0;
 		$perempuan_bulan_ke_2 = 0;
@@ -465,6 +467,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$pph_bulan_ke_2 = 0;
 		$total_bulan_ke_2 = 0;
 		$tanggal_bulan_ke_3 = 0;
+		$penyedia_bulan_ke_3 = 0;
 		$volume_bulan_ke_3 = 0;
 		$laki_bulan_ke_3 = 0;
 		$perempuan_bulan_ke_3 = 0;
@@ -504,19 +507,19 @@ class Evaluasi_anggaran extends CI_Controller {
 		foreach ($paket_belanja_detail->result() as $pbds_key => $ds_value) {
 
 			// cek apakah ada turunannya
-			$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
-			$this->db->where('paket_belanja_detail_sub.status', 1);
-			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-			$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-			$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-			$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
+			// $this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
+			// $this->db->where('paket_belanja_detail_sub.status', 1);
+			// $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+			// $this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
+			// $this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+			// $paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
 
-			if ($paket_belanja_detail_sub->num_rows() > 0) {
-				// jika ada turunannya, maka menampilkan datanya berdasarkan turunannya ini
-			}
-			else {
-				// jika tidak ada turunannya, maka langsung jalankan code dibawah 
-			}
+			// if ($paket_belanja_detail_sub->num_rows() > 0) {
+			// 	// jika ada turunannya, maka menampilkan datanya berdasarkan turunannya ini
+			// }
+			// else {
+			// 	// jika tidak ada turunannya, maka langsung jalankan code dibawah 
+			// }
 			
 			$realisasi_lk = 0;
 			$realisasi_pr = 0;
@@ -562,13 +565,14 @@ class Evaluasi_anggaran extends CI_Controller {
 				$this->db->where('transaction_detail.iduraian', $ds_value->idsub_kategori);
 				$this->db->where('transaction.transaction_status != "DRAFT" ');
 				$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-				$this->db->select('date_format(transaction_date, "%d-%m-%Y") as transaction_date, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
+				$this->db->select('date_format(transaction_date, "%d-%m-%Y") as transaction_date, penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
 				$trxd = $this->db->get('transaction_detail');
 				// echo "<pre>"; print_r($this->db->last_query());
 
 				if ($trxd->num_rows() > 0) {
 					if ($i == 0) {
 						$tanggal_bulan_ke_1 		= $trxd->row()->transaction_date;
+						$penyedia_bulan_ke_1 		= $trxd->row()->penyedia;
 						$volume_bulan_ke_1 			= $trxd->row()->volume;
 						$laki_bulan_ke_1 			= $trxd->row()->laki;
 						$perempuan_bulan_ke_1 		= $trxd->row()->perempuan;
@@ -585,6 +589,7 @@ class Evaluasi_anggaran extends CI_Controller {
 					}
 					else if ($i == 1) {
 						$tanggal_bulan_ke_2 		= $trxd->row()->transaction_date;
+						$penyedia_bulan_ke_2 		= $trxd->row()->penyedia;
 						$volume_bulan_ke_2 			= $trxd->row()->volume;
 						$laki_bulan_ke_2 			= $trxd->row()->laki;
 						$perempuan_bulan_ke_2 		= $trxd->row()->perempuan;
@@ -601,6 +606,7 @@ class Evaluasi_anggaran extends CI_Controller {
 					}
 					else if ($i == 2) {
 						$tanggal_bulan_ke_3 		= $trxd->row()->transaction_date;
+						$penyedia_bulan_ke_3 		= $trxd->row()->penyedia;
 						$volume_bulan_ke_3 			= $trxd->row()->volume;
 						$laki_bulan_ke_3 			= $trxd->row()->laki;
 						$perempuan_bulan_ke_3 		= $trxd->row()->perempuan;
@@ -667,6 +673,7 @@ class Evaluasi_anggaran extends CI_Controller {
 
 				// Bulan ke 1
 				'tanggal_bulan_ke_1'		=> $tanggal_bulan_ke_1,
+				'penyedia_bulan_ke_1'		=> $penyedia_bulan_ke_1,
 				'volume_bulan_ke_1'			=> $volume_bulan_ke_1,
 				'laki_bulan_ke_1'			=> $laki_bulan_ke_1,
 				'perempuan_bulan_ke_1'		=> $perempuan_bulan_ke_1,
@@ -677,6 +684,7 @@ class Evaluasi_anggaran extends CI_Controller {
 				
 				// Bulan ke 2
 				'tanggal_bulan_ke_2'		=> $tanggal_bulan_ke_2,
+				'penyedia_bulan_ke_2'		=> $penyedia_bulan_ke_2,
 				'volume_bulan_ke_2'			=> $volume_bulan_ke_2,
 				'laki_bulan_ke_2'			=> $laki_bulan_ke_2,
 				'perempuan_bulan_ke_2'		=> $perempuan_bulan_ke_2,
@@ -687,6 +695,7 @@ class Evaluasi_anggaran extends CI_Controller {
 
 				// Bulan ke 3
 				'tanggal_bulan_ke_3'		=> $tanggal_bulan_ke_3,
+				'penyedia_bulan_ke_3'		=> $penyedia_bulan_ke_3,
 				'volume_bulan_ke_3'			=> $volume_bulan_ke_3,
 				'laki_bulan_ke_3'			=> $laki_bulan_ke_3,
 				'perempuan_bulan_ke_3'		=> $perempuan_bulan_ke_3,

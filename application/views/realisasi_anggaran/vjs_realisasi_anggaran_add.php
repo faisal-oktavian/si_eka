@@ -184,28 +184,35 @@
 	});
 
 	jQuery('body').on('click', '.btn-action-save', function() {
-		// show_loading();
-		jQuery.ajax({
-			url: app_url + 'realisasi_anggaran/add_product',
-			type: 'POST',
-			dataType: 'JSON',
-			data: jQuery('#form_add').serialize(),
-			success: function(response) {
-				hide_loading();
-				if (response.err_code > 0) {
-					bootbox.alert(response.err_message);
-				}
-				else {
-					hide_modal('add');
+		var transaction_date = jQuery('#transaction_date').val();
 
-					jQuery('#idtransaction').val(response.idtransaction);
-					jQuery('#hd_idtransaction').val(response.idtransaction);
+		if (transaction_date == '' || transaction_date == null) {
+			bootbox.alert('Tanggal realisasi harus diisi.');
+		}
+		else {
+			// show_loading();
+			jQuery.ajax({
+				url: app_url + 'realisasi_anggaran/add_product',
+				type: 'POST',
+				dataType: 'JSON',
+				data: jQuery('#form_add').serialize() + '&transaction_date=' + transaction_date,
+				success: function(response) {
+					hide_loading();
+					if (response.err_code > 0) {
+						bootbox.alert(response.err_message);
+					}
+					else {
+						hide_modal('add');
 
-					generate_transaction(response.idtransaction);
-				}
-			},
-			error: function(response) {}
-		});
+						jQuery('#idtransaction').val(response.idtransaction);
+						jQuery('#hd_idtransaction').val(response.idtransaction);
+
+						generate_transaction(response.idtransaction);
+					}
+				},
+				error: function(response) {}
+			});
+		}
 	});
 	
 	// generate_transaction(6);
@@ -269,6 +276,7 @@
 				seach_paket_belanja(response.data.idpaket_belanja);
 				
 				setTimeout(function() {
+					jQuery('#penyedia').val(response.data.penyedia);
 					jQuery('#iduraian').val(response.data.iduraian);
 					jQuery('#volume').val(response.data.volume);
 					jQuery('#harga_satuan').val(thousand_separator(response.data.harga_satuan));

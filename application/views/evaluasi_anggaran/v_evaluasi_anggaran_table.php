@@ -28,7 +28,8 @@
     th.col-vol, td.col-vol { width: 60px; min-width: 60px; }
     th.col-vol-sampai-tw, td.col-vol-sampai-tw { width: 100px; min-width: 100px; }
     th.col-rp, td.col-rp { width: 120px; min-width: 120px; }
-    th.col-tanggal, td.col-tanggal { width: 110px; min-width: 110px; }
+    th.col-tanggal, td.col-tanggal,
+    th.col-penyedia, td.col-penyedia { width: 110px; min-width: 110px; }
     th.col-lk, td.col-lk,
     th.col-pr, td.col-pr {
         width: 45px !important;
@@ -99,34 +100,35 @@
             
             <!-- realisasi tw sebelumnya -->
             <th colspan="2" class="col-gender <?php echo $hide_col_realisasi_sebelumnya; ?>">Realisasi Gender TW Sebelumnya</th>
-            <th rowspan="2" class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>">Realisasi TW Sebelumnya (Volume)</th>
-            <th rowspan="2" class="col-rp <?php echo $hide_col_realisasi_sebelumnya; ?>">Realisasi TW Sebelumnya (Rp)</th>
+            <th colspan="2" class="<?php echo $hide_col_realisasi_sebelumnya; ?>">Realisasi TW Sebelumnya</th>
             
             <!-- realisasi tw saat ini -->
-            <th colspan="8" class="bulan1"><?php echo $data['nama_bulan_ke_1']; ?></th>
-            <th colspan="8" class="bulan2"><?php echo $data['nama_bulan_ke_2']; ?></th>
-            <th colspan="8" class="bulan3"><?php echo $data['nama_bulan_ke_3']; ?></th>
+            <th colspan="9" class="bulan1"><?php echo $data['nama_bulan_ke_1']; ?></th>
+            <th colspan="9" class="bulan2"><?php echo $data['nama_bulan_ke_2']; ?></th>
+            <th colspan="9" class="bulan3"><?php echo $data['nama_bulan_ke_3']; ?></th>
             <th colspan="2" class="col-gender">Realisasi Gender TW <?php echo $data['tw']; ?></th>
-            <th rowspan="2" class="col-vol">Realisasi TW <?php echo $data['tw']; ?> (Volume)</th>
-            <th rowspan="2" class="col-rp">Realisasi TW <?php echo $data['tw']; ?> (Rp)</th>
+            <th colspan="2" class="">Realisasi TW <?php echo $data['tw']; ?></th>
 
             <!-- total realisasi sampai tw saat ini -->
             <th colspan="2" class="col-gender <?php echo $hide_col_realisasi_sampai_tw; ?>">Realisasi Gender Sampai dengan TW <?php echo $data['tw']; ?></th>
-            <th rowspan="2" class="col-vol-sampai-tw <?php echo $hide_col_realisasi_sampai_tw; ?>">Realisasi Sampai dengan TW <?php echo $data['tw']; ?> (Volume)</th>
-            <th rowspan="2" class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>">Realisasi Sampai dengan TW <?php echo $data['tw']; ?> (Rp)</th>
+            <th colspan="2" class="<?php echo $hide_col_realisasi_sampai_tw; ?>">Realisasi Sampai dengan TW <?php echo $data['tw']; ?></th>
+            <!-- <th rowspan="2" class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>">Realisasi Sampai dengan TW <?php echo $data['tw']; ?> (Rp)</th> -->
 
             <!-- sisa realisasi -->
             <th rowspan="2" class="col-persentase">Capaian <?php echo $label_capaian; ?> (%)</th>
-            <th rowspan="2" class="col-sisa-vol">Sisa TW <?php echo $data['tw']; ?> (Volume)</th>
-            <th rowspan="2" class="col-sisa-rp">Sisa TW <?php echo $data['tw']; ?> (Rp)</th>
+            <th colspan="2" class="">Sisa TW <?php echo $data['tw']; ?></th>
+            <!-- <th rowspan="2" class="col-sisa-rp">Sisa TW <?php echo $data['tw']; ?> (Rp)</th> -->
         </tr>
         <tr>
             <!-- realisasi tw sebelumnya -->
             <th class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>">LK</th>
             <th class="col-pr <?php echo $hide_col_realisasi_sebelumnya; ?>">PR</th>
+            <th class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>">Volume</th>
+            <th class="col-rp <?php echo $hide_col_realisasi_sebelumnya; ?>">Rp</th>
 
             <!-- Bulan ke 1 -->
             <th class="bulan1 col-tanggal">Tanggal</th>
+            <th class="bulan1 col-penyedia">Penyedia</th>
             <th class="bulan1 col-vol">Volume</th>
             <th class="bulan1 col-lk">LK</th>
             <th class="bulan1 col-pr">PR</th>
@@ -137,6 +139,7 @@
 
             <!-- Bulan ke 2 -->
             <th class="bulan2 col-tanggal">Tanggal</th>
+            <th class="bulan2 col-penyedia">Penyedia</th>
             <th class="bulan2 col-vol">Volume</th>
             <th class="bulan2 col-lk">LK</th>
             <th class="bulan2 col-pr">PR</th>
@@ -147,6 +150,7 @@
 
             <!-- Bulan ke 3 -->
             <th class="bulan3 col-tanggal">Tanggal</th>
+            <th class="bulan3 col-penyedia">Penyedia</th>
             <th class="bulan3 col-vol">Volume</th>
             <th class="bulan3 col-lk">LK</th>
             <th class="bulan3 col-pr">PR</th>
@@ -158,10 +162,18 @@
             <!-- realisasi tw saat ini -->
             <th class="col-lk">LK</th>
             <th class="col-pr">PR</th>
+            <th class="col-vol">Volume</th>
+            <th class="col-rp">Rp</th>
 
             <!-- total realisasi sampai tw saat ini -->
             <th class="col-lk <?php echo $hide_col_realisasi_sampai_tw; ?>">LK</th>
             <th class="col-pr <?php echo $hide_col_realisasi_sampai_tw; ?>">PR</th>
+            <th class="col-vol-sampai-tw <?php echo $hide_col_realisasi_sampai_tw; ?>">Volume</th>
+            <th class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>">Rp</th>
+
+            <!-- sisa realisasi -->
+            <th class="col-sisa-vol">Volume</th>
+            <th class="col-sisa-rp">Rp</th>
         </tr>
     </thead>
     <tbody>
@@ -174,6 +186,7 @@
             
             <!-- Bulan ke 1 -->
             <td class="bulan1 col-tanggal" align="left"></td>
+            <td class="bulan1 col-penyedia" align="left"></td>
             <td class="bulan1 col-vol" align="center"></td>
             <td class="bulan1 col-lk" align="center"></td>
             <td class="bulan1 col-pr" align="center"></td>
@@ -184,6 +197,7 @@
             
             <!-- Bulan ke 2 -->
             <td class="bulan1 col-tanggal" align="left"></td>
+            <td class="bulan1 col-penyedia" align="left"></td>
             <td class="bulan1 col-vol" align="center"></td>
             <td class="bulan1 col-lk" align="center"></td>
             <td class="bulan1 col-pr" align="center"></td>
@@ -194,6 +208,7 @@
 
             <!-- Bulan ke 3 -->
             <td class="bulan1 col-tanggal" align="left"></td>
+            <td class="bulan1 col-penyedia" align="left"></td>
             <td class="bulan1 col-vol" align="center"></td>
             <td class="bulan1 col-lk" align="center"></td>
             <td class="bulan1 col-pr" align="center"></td>
@@ -234,6 +249,7 @@
                     
                     <!-- Bulan ke 1 -->
                     <td class="bulan1 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_1']; ?></td>
+                    <td class="bulan1 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_1']; ?></td>
                     <td class="bulan1 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_1']); ?></td>
                     <td class="bulan1 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_1']); ?></td>
                     <td class="bulan1 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_1']); ?></td>
@@ -244,6 +260,7 @@
                     
                     <!-- Bulan ke 2 -->
                     <td class="bulan2 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_2']; ?></td>
+                    <td class="bulan2 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_2']; ?></td>
                     <td class="bulan2 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_2']); ?></td>
                     <td class="bulan2 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_2']); ?></td>
                     <td class="bulan2 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_2']); ?></td>
@@ -254,6 +271,7 @@
 
                     <!-- Bulan ke 3 -->
                     <td class="bulan3 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_3']; ?></td>
+                    <td class="bulan3 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_3']; ?></td>
                     <td class="bulan3 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_3']); ?></td>
                     <td class="bulan3 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_3']); ?></td>
                     <td class="bulan3 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_3']); ?></td>
