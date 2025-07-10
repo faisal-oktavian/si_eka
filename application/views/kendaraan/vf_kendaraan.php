@@ -7,7 +7,7 @@
 	</div>
 	<div class="form-group">
 		<label class="control-label col-sm-2">Status</label>
-		<div class="col-sm-4">
+		<div class="col-md-4 col-sm-6">
 			<select class="form-control" name="vf_is_active" id="vf_is_active">
 				<option value="">Semua</option>
 				<option value="1">Aktif</option>
