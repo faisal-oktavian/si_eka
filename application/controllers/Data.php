@@ -17,10 +17,7 @@ class Data extends CI_Controller {
 		// var_dump($parent);die();
 		$this->db->order_by("nama_urusan");
 		if (strlen($q) > 0) {
-			$this->db->group_start();
 			$this->db->like("nama_urusan", $q);
-			$this->db->or_like("no_rekening_urusan", $q);
-			$this->db->group_end();
 		}
 		$this->db->where('is_active','1');
 		$this->db->select("idurusan_pemerintah as id, concat(no_rekening_urusan, ' - ', nama_urusan, ' (Tahun Anggaran ', tahun_anggaran_urusan, ')') as text");
@@ -485,10 +482,7 @@ class Data extends CI_Controller {
 		// var_dump($parent);die();
 		$this->db->order_by("nama_kategori");
 		if (strlen($q) > 0) {
-			$this->db->group_start();
 			$this->db->like("nama_kategori", $q);
-			$this->db->or_like("no_rekening_kategori", $q);
-			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('is_active','1');
@@ -498,10 +492,7 @@ class Data extends CI_Controller {
 		$data = $this->db->get("kategori", $limit, $offset);
 		
 		if (strlen($q) > 0) {
-			$this->db->group_start();
 			$this->db->like("nama_kategori", $q);
-			$this->db->or_like("no_rekening_kategori", $q);
-			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('is_active','1');
@@ -532,10 +523,7 @@ class Data extends CI_Controller {
 		// var_dump($parent);die();
 		$this->db->order_by("nama_sub_kategori");
 		if (strlen($q) > 0) {
-			$this->db->group_start();
 			$this->db->like("nama_sub_kategori", $q);
-			$this->db->or_like("no_rekening_subkategori", $q);
-			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('is_active','1');
@@ -545,10 +533,7 @@ class Data extends CI_Controller {
 		$data = $this->db->get("sub_kategori", $limit, $offset);
 		
 		if (strlen($q) > 0) {
-			$this->db->group_start();
 			$this->db->like("nama_sub_kategori", $q);
-			$this->db->or_like("no_rekening_subkategori", $q);
-			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('is_active','1');

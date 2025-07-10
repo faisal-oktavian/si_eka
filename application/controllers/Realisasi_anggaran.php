@@ -27,6 +27,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
 		$date1->set_value('01-'.Date('m-Y'));
+		// $date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
@@ -77,7 +78,8 @@ class Realisasi_anggaran extends CI_Controller {
         $crud->add_join_manual('user', 'transaction.iduser_created = user.iduser');
         $crud->add_join_manual('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
         $crud->add_join_manual('paket_belanja', 'transaction_detail.idpaket_belanja = paket_belanja.idpaket_belanja');
-		$crud->set_group_by('transaction.idtransaction');
+		// $crud->set_group_by('transaction.idtransaction');
+		$crud->set_group_by('transaction.idtransaction, transaction.transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name');
         
         if (strlen($date1) > 0 && strlen($date2) > 0) {
             $crud->add_where('date(transaction.transaction_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
@@ -367,7 +369,15 @@ class Realisasi_anggaran extends CI_Controller {
 			}
 		}
 
-		// validasi volume total volume yang sudah terealisasi tidak boleh lebih dari volume yang sudah ditentukan
+		// validasi tanggal realisasi tidak boleh melebihi tanggal hari ini
+		if ($err_code == 0) {
+			if (strtotime($transaction_date) > strtotime(date('Y-m-d'))) {
+				// $err_code++;
+				// $err_message = "Tanggal realisasi tidak boleh melebihi tanggal hari ini.";
+			}
+		}
+
+		// validasi
 		if ($err_code == 0) {
 			$the_filter = array(
 				'iduraian' => $iduraian,
@@ -375,40 +385,59 @@ class Realisasi_anggaran extends CI_Controller {
 				'transaction_date' => $transaction_date,
 			);
 
-			// ambil data utama uraian
+			// ambil data DPA
 			$data_utama = $this->get_data_utama($the_filter);
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 
-			// ambil data Rencana Anggaran Kegiatan (RAK) sebagai acuan realisasi
+			// ambil data Rencana Anggaran Kegiatan (RAK) sampai bulan yang dipilih
 			$data_rak = $this->get_data_rak($the_filter);
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 
-			// ambil data realisasi yang sudah ada
+			// ambil data uraian belanja yang sudah direalisasikan
 			$data_realisasi = $this->get_data_realisasi($the_filter);
 			// echo "<pre>"; print_r($this->db->last_query()); die;
-		}
+			
 
-		// validasi
-		if ($err_code == 0) {
+			// jika dicentang maka pengecekannya inputannya langsung dibandingkan dengan total keseluruhan volume dan total anggaran
+			if (!aznav('role_bypass')) {
+
+				// validasi apakah volume inputan + volume yang sudah direalisasikan melebihi volume RAK
+				if ( (floatval($volume) + floatval($data_realisasi->row()->total_volume)) > floatval($data_rak->row()->total_rak_volume) ) {
+					$err_code++;
+					$err_message = "Volume yang diinputkan melebihi volume Rencana Anggaran Kegiatan (RAK) pada bulan yang dipilih.";
+				}
+				// var_dump('('.floatval($volume).' + '.floatval($data_realisasi->row()->total_volume).') > '.floatval($data_rak->row()->total_rak_volume)); echo "<br><br>";
+				
+
+				// validasi apakah jumlah inputan + jumlah yang sudah direalisasikan melebihi jumlah RAK
+				if ( (floatval($total) + floatval($data_realisasi->row()->total_realisasi)) > floatval($data_rak->row()->total_rak_jumlah) ) {
+					$err_code++;
+					$err_message = "Total yang diinputkan melebihi jumlah Rencana Anggaran Kegiatan (RAK) pada bulan yang dipilih.";
+				}
+				// var_dump( '('.floatval($total).' + '.floatval($data_realisasi->row()->total_realisasi).') > '.floatval($data_rak->row()->total_rak_jumlah) ); echo "<br><br>";
+
+			}
+
 		
-			// validasi apakah volume yang sudah direalisasikan melebihi volume yang sudah ditentukan
-			if ($data_utama->row()->volume < (floatval($data_realisasi->row()->total_volume) + floatval($volume))) {
-				$err_code++;
-				$err_message = "Volume yang sudah direalisasikan melebihi volume yang sudah ditentukan.";
-			}
+			if ($err_code == 0) {
+				// validasi apakah volume yang sudah direalisasikan melebihi volume yang sudah ditentukan
+				if ($data_utama->row()->volume < (floatval($data_realisasi->row()->total_volume) + floatval($volume))) {
+					$err_code++;
+					$err_message = "Volume yang direalisasikan melebihi volume dari DPA.";
+				}
+				// var_dump($data_utama->row()->volume.' < ('.floatval($data_realisasi->row()->total_volume).' + '.floatval($volume).')'); echo "<br><br>";
 
-			// validasi apakah jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan
-			if ($data_utama->row()->jumlah < (floatval($data_realisasi->row()->total_realisasi) + floatval($total))) {
-				$err_code++;
-				$err_message = "Jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan.";
-			}
 
-			// // validasi apakah total realisasi melebihi total rencana anggaran kegiatan (RAK) pada bulan yang dipilih
-			// if ($data_rak->row()->total_rak_jumlah < floatval($total)) {
-			// 	$err_code++;
-			// 	$err_message = "Total realisasi melebihi total rencana anggaran kegiatan (RAK) pada bulan yang dipilih.";
-			// }
+				// validasi apakah jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan
+				if ($data_utama->row()->jumlah < (floatval($data_realisasi->row()->total_realisasi) + floatval($total))) {
+					$err_code++;
+					$err_message = "Jumlah yang direalisasikan melebihi jumlah dari DPA.";
+				}
+				// var_dump($data_utama->row()->jumlah.' < ('.floatval($data_realisasi->row()->total_realisasi).' + '.floatval($total).')'); echo "<br><br>";
+
+			}
 		}
+		// var_dump($err_message);die;
 
 		if ($err_code == 0) {
 			$this->db->where('idtransaction',$idtransaction);
@@ -695,6 +724,11 @@ class Realisasi_anggaran extends CI_Controller {
 		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+
+		if (strlen($add_select) > 0) {
+			$this->db->group_by('pb.idpaket_belanja, pb.nama_paket_belanja, pbd.idpaket_belanja_detail, detail_sub_id, idsub_kategori, volume, idsatuan, harga_satuan, jumlah');
+		}
+
 		$this->db->select('pb.idpaket_belanja,
 			pb.nama_paket_belanja,
 			pbd.idpaket_belanja_detail,

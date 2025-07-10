@@ -83,7 +83,7 @@
                         <tr>
                             <td>
                                 <div style="padding-left: 80px;">
-                                    <?php echo $ss_value['no_rekening_subkategori'].' - '.$ss_value['nama_subkategori'];?>
+                                    <?php echo $ss_value['nama_subkategori'];?>
                                 </div>
                             </td>
                             <td align="center"><?php echo $ss_value['volume'];?></td>

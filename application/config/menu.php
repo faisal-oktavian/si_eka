@@ -98,6 +98,12 @@
             "title" => "Realisasi Anggaran",
             "icon" => "shopping-cart",
             "url" => "realisasi_anggaran",
+            'role' => array(
+                array(
+                    'role_name' => 'role_bypass',
+                    'role_title' => 'Bisa realisasi anggaran sebelum bulan RAK'
+                ),
+            ),
         ),
         array(
             "name" => "verifikasi_dokumen",
