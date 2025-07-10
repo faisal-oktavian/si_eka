@@ -1,5 +1,4 @@
 <script>
-
 	jQuery('body').on('click', '.btn-copy', function() {
 		setTimeout(function() {
 			jQuery('.az-modal-master_urusan_pemerintah').find('#is_copy').val('1');
