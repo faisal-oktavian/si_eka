@@ -23,7 +23,6 @@ class Master_kategori extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		// $crud->add_aodata('vf_no_rekening_kategori', 'vf_no_rekening_kategori');
 		$crud->add_aodata('vf_nama_kategori', 'vf_nama_kategori');
 		$crud->add_aodata('vf_is_active', 'vf_is_active');
 
@@ -58,7 +57,6 @@ class Master_kategori extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
-		// $no_rekening_kategori = $this->input->get('vf_no_rekening_kategori');
 		$nama_kategori = $this->input->get('vf_nama_kategori');
 		$is_active = $this->input->get('vf_is_active');
 
@@ -69,9 +67,6 @@ class Master_kategori extends CI_Controller {
 		$crud->set_select_align(', center');
 		$crud->set_id($this->controller);
 		$crud->add_where('kategori.status = "1" ');
-		// if (strlen($no_rekening_kategori) > 0) {
-		// 	$crud->add_where('kategori.no_rekening_kategori = "' . $no_rekening_kategori . '"');
-		// }
 		if (strlen($nama_kategori) > 0) {
 			$crud->add_where('kategori.nama_kategori = "' . $nama_kategori . '"');
 		}
@@ -116,7 +111,6 @@ class Master_kategori extends CI_Controller {
 		$this->load->library('form_validation');
 		$this->form_validation->set_error_delimiters('', '');
 
-		// $this->form_validation->set_rules('no_rekening_kategori', 'No Rekening', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('nama_kategori', 'Nama Kategori', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
 		
@@ -126,7 +120,6 @@ class Master_kategori extends CI_Controller {
 		if($this->form_validation->run() == TRUE){
 
 			$data_save = array(
-				// 'no_rekening_kategori' => azarr($data_post, 'no_rekening_kategori'), 
 				'nama_kategori' => azarr($data_post, 'nama_kategori'), 
 				'is_active' => azarr($data_post, 'is_active'),
 			);
@@ -146,7 +139,7 @@ class Master_kategori extends CI_Controller {
 	}
 
 	public function edit() {
-		az_crud_edit('idkategori, no_rekening_kategori, nama_kategori, kategori.is_active');
+		az_crud_edit('idkategori, nama_kategori, kategori.is_active');
 	}
 
 	public function delete() {
