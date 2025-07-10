@@ -212,6 +212,22 @@
 					}
 				}
 			});
+
+			// Tambahkan event click pada chart Realisasi Anggaran
+			document.getElementById('pieAnggaranChart').onclick = function(evt) {
+				var activePoints = pieAnggaranChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+				if (activePoints.length > 0) {
+					var idx = activePoints[0].index;
+					// Tentukan link berdasarkan index
+					if (idx === 0) {
+						window.open('<?= site_url("realisasi-anggaran-detail/sudah-dibayar") ?>', '_blank');
+					} else if (idx === 1) {
+						window.open('<?= site_url("realisasi-anggaran-detail/belum-dibayar") ?>', '_blank');
+					} else if (idx === 2) {
+						window.open('<?= site_url("realisasi-anggaran-detail/belum-direalisasi") ?>', '_blank');
+					}
+				}
+			};
 		</script>
 
 		<!-- grafik potensi sisa anggaran -->
@@ -275,6 +291,20 @@
 					}
 				}
 			});
+
+			// Tambahkan event click pada chart Potensi Sisa Anggaran
+			document.getElementById('piePotensiSisaChart').onclick = function(evt) {
+				var activePoints = piePotensiSisaChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+				if (activePoints.length > 0) {
+					var idx = activePoints[0].index;
+					// Tentukan link berdasarkan index
+					if (idx === 0) {
+						window.open('<?= site_url("potensi-sisa-anggaran-detail/realisasi") ?>', '_blank');
+					} else if (idx === 1) {
+						window.open('<?= site_url("potensi-sisa-anggaran-detail/sisa") ?>', '_blank');
+					}
+				}
+			};
 		</script>
 
 		<div class="row" style="margin-top:30px;">
@@ -282,7 +312,7 @@
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
 					<div class="d-flex align-items-center" style="margin-bottom:18px;">
 						<i class="fa fa-bar-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Perbandingan Target & Realisasi Anggaran per Bulan (<?php echo date('Y'); ?>)</span>
+						<span class="title-chart" style="font-size:20px;">Perbandingan Target & Realisasi Anggaran per Bulan (Tahun <?php echo date('Y'); ?>)</span>
 					</div>
 					<div class="row">
 						<div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
@@ -358,6 +388,8 @@
 				}
 			});
 		</script>
+
+		<!-- Grafik Bar Target & Realisasi dalam beberapa Tahun -->
 
 		<!-- Tabel Paket Belanja Belum Terealisasi -->
 		<div class="row" style="margin-top:24px;">
