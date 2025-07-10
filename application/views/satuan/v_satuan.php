@@ -1,16 +1,3 @@
-<style type="text/css">
-.container-map {
-	margin-top: 30px;
-	height: 300px;
-}
-#xmap {
-height: 400px;
-width: 100%;
-}
-.pac-logo{
-	z-index: 10000;
-}
-</style>
 <form class="form-horizontal az-form" id="form" name="form" method="POST">
 	<input type="hidden" name="idsatuan" id="idsatuan">
 	<input type="hidden" name="is_copy" id="is_copy">
