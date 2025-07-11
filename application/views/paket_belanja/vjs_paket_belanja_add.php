@@ -213,9 +213,6 @@
 					hide_modal('add_kategori');
 					
 					location.reload();
-                    // jQuery('#idpaket_belanja').val(response.idpaket_belanja);
-                    // jQuery('#hd_idpaket_belanja').val(response.idpaket_belanja);
-					// generate_detail_paket_belanja(response.idpaket_belanja);
 				}
 			},
 			error: function(response) {}
@@ -262,9 +259,6 @@
 					hide_modal('add_subkategori');
 					
 					location.reload();
-                    // jQuery('#idpaket_belanja').val(response.idpaket_belanja);
-                    // jQuery('#hd_idpaket_belanja').val(response.idpaket_belanja);
-					// generate_detail_paket_belanja(response.idpaket_belanja);
 				}
 			},
 			error: function(response) {}
@@ -365,7 +359,6 @@
                         hide_loading();
 
                         if (response.err_code == 0) {
-                            // generate_detail_paket_belanja(response.idpaket_belanja);
 							location.reload();
                         } 
                         else {

@@ -167,7 +167,6 @@ class Evaluasi_anggaran extends CI_Controller {
 												'idpaket_belanja_detail' => $dss_value->idpaket_belanja_detail,
 												'idsub_kategori' => $dss_value->idsub_kategori,
 												'nama_subkategori' => $dss_value->nama_sub_kategori,
-												'no_rekening_subkategori' => $dss_value->no_rekening_subkategori,
 												'is_kategori' => $dss_value->is_kategori,
 												'is_subkategori' => $dss_value->is_subkategori,
 												'volume' => $dss_value->volume,
@@ -208,10 +207,8 @@ class Evaluasi_anggaran extends CI_Controller {
 											'idpaket_belanja_detail' => $ds_value->idpaket_belanja_detail,
 											'idkategori' => $ds_value->idkategori,
 											'nama_kategori' => $ds_value->nama_kategori,
-											'no_rekening_kategori' => $ds_value->no_rekening_kategori,
 											'idsub_kategori' => $ds_value->idsub_kategori,
 											'nama_subkategori' => $ds_value->nama_sub_kategori,
-											'no_rekening_subkategori' => $ds_value->no_rekening_subkategori,
 											'is_kategori' => $ds_value->is_kategori,
 											'is_subkategori' => $ds_value->is_subkategori,
 											'no_rekening_akunbelanja' => $ds_value->no_rekening_akunbelanja,
@@ -378,7 +375,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
 		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, kategori.no_rekening_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
 		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
 
 		return $paket_belanja_detail;
@@ -389,7 +386,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->where('paket_belanja_detail_sub.status', 1);
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.no_rekening_subkategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
 		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
 
 		return $paket_belanja_detail_sub;
