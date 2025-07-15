@@ -76,7 +76,7 @@
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
 					<div class="d-flex align-items-center" style="margin-bottom:18px;">
 						<i class="fa fa-pie-chart" style="font-size:26px;color:#4caf50;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Grafik Realisasi Anggaran Tahun <?php echo date('Y'); ?></span>
+						<span class="title-chart" style="font-size:20px;">Grafik Realisasi Anggaran Tahun <?php echo $tahun_ini; ?></span>
 					</div>
 					<div class="row">
 						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
@@ -111,7 +111,7 @@
 			<div class="col-md-6 col-xs-12" style="margin:auto;">
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
 					<div class="d-flex align-items-center" style="margin-bottom:18px;">
-						<span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Potensi Sisa Anggaran Tahun <?php echo date('Y'); ?></span>
+						<span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Potensi Sisa Anggaran Tahun <?php echo $tahun_ini; ?></span>
 					</div>
 					<div class="row">
 						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
@@ -233,8 +233,9 @@
 		<!-- grafik potensi sisa anggaran -->
 		<script>
 			// Data dummy, silakan ganti dengan data backend jika perlu
-			var total_anggaran_tahun_ini = 100000000;
-			var realisasi_anggaran_tahun_ini = 70000000;
+			var total_anggaran_tahun_ini = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
+			// var realisasi_anggaran_tahun_ini = <?php echo isset($total_realisasi_tahun_ini) ? $total_realisasi_tahun_ini : 0; ?>;
+			var realisasi_anggaran_tahun_ini = 20000000000; // TODO: ganti dengan data realisasi dari backend jika perlu
 			var sisa_anggaran_tahun_ini = total_anggaran_tahun_ini - realisasi_anggaran_tahun_ini;
 
 			var persen_realisasi = total_anggaran_tahun_ini ? Math.round(realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 100) : 0;
@@ -312,7 +313,7 @@
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
 					<div class="d-flex align-items-center" style="margin-bottom:18px;">
 						<i class="fa fa-bar-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Perbandingan Target & Realisasi Anggaran per Bulan (Tahun <?php echo date('Y'); ?>)</span>
+						<span class="title-chart" style="font-size:20px;">Perbandingan Target & Realisasi Anggaran per Bulan (Tahun <?php echo $tahun_ini; ?>)</span>
 					</div>
 					<div class="row">
 						<div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
@@ -397,7 +398,7 @@
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:18px 0 18px 0; background:#fff;">
 					<div class="d-flex align-items-center" style="margin-bottom:18px;">
 						<i class="fa fa-bar-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Data Paket Belanja Yang Belum Terealisasi Pada Tahun (<?php echo date('Y'); ?>)</span>
+						<span class="title-chart" style="font-size:20px;">Data Paket Belanja Yang Belum Terealisasi Pada Tahun (<?php echo $tahun_ini; ?>)</span>
 					</div>
 					<div class="table-responsive" style="padding:0 18px;">
 						<table id="tabel-belanja-belum-realisasi" class="table table-bordered table-striped" style="width:100%;margin-bottom:0;">
