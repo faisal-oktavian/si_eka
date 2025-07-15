@@ -90,6 +90,7 @@ class Realisasi_anggaran extends CI_Controller {
 		}
 
 		$crud->add_where("transaction.status = 1");
+		$crud->add_where("transaction_detail.status = 1");
 		$crud->add_where("transaction.transaction_status != 'DRAFT' ");
 
 		$crud->set_table($this->table);
@@ -371,7 +372,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 		// validasi tanggal realisasi tidak boleh melebihi tanggal hari ini
 		if ($err_code == 0) {
-			if (strtotime($transaction_date) > strtotime(date('Y-m-d'))) {
+			if (strtotime($transaction_date) > strtotime(date('Y-m-d H:i:s'))) {
 				$err_code++;
 				$err_message = "Tanggal realisasi tidak boleh melebihi tanggal hari ini.";
 			}
@@ -875,6 +876,30 @@ class Realisasi_anggaran extends CI_Controller {
 			$numb = '0001';
 
 			$transaction_code = 'ON'.Date('Ymd').$numb;
+
+			$this->db->where('transaction_code', $transaction_code);
+			$this->db->select('transaction_code');
+			$check = $this->db->get('transaction');
+			$ok = 0;
+			if($check->num_rows() == 0) {
+				$ok = 1;
+			}
+
+			while($ok == 0) {
+				$last = substr($transaction_code, 10);
+				$numb = $last + 1;
+				$numb = sprintf("%04d", $numb);
+
+				$transaction_code = 'ON'.Date('Ymd').$numb;
+
+				$this->db->where('transaction_code', $transaction_code);
+				$this->db->select('transaction_code');
+				$check = $this->db->get('transaction');
+				$ok = 0;
+				if($check->num_rows() == 0) {
+					$ok = 1;
+				}
+			}
 		}
 		else {
 			$last = $data->row()->transaction_code;
