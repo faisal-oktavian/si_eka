@@ -869,7 +869,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$this->db->where('day(transaction_date)', Date('d'));
 		$this->db->where('month(transaction_date)', Date('m'));
 		$this->db->where('year(transaction_date)', Date('Y'));
-		$this->db->where('transaction_code != "NULL" ');
+		$this->db->where('transaction_code IS NOT NULL ');
 		$this->db->order_by('transaction_code desc');
 		$data = $this->db->get('transaction', 1);
 		if ($data->num_rows() == 0) {

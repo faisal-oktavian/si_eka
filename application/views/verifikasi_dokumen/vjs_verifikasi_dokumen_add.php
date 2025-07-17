@@ -30,9 +30,9 @@
 		
 		show_modal('add');
 
-		// jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
+		jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
 		// jQuery('#idtransaction_detail').val('');
-		// jQuery('#form_add input, #form_add select, #form_add textarea').not('.x-hidden').val('').trigger('change.select2');	
+		jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
 	});
 
 	jQuery("#search_realisasi_anggaran").select2({
@@ -59,13 +59,13 @@
 		search_realisasi_anggaran(id);
 	});
 
-	function search_realisasi_anggaran(idpaket_belanja) {
+	function search_realisasi_anggaran(idtransaction) {
 		jQuery.ajax({
 			url: app_url + 'verifikasi_dokumen/select_paket_belanja',
 			type: 'POST', 
 			dataType: 'JSON',
 			data: {
-				id: idpaket_belanja
+				id: idtransaction
 			},
 			success: function(response) {
 				jQuery('#form_add').find('.detail-paket-belanja').removeClass('hide');
@@ -106,7 +106,7 @@
 		});
 	});
 	
-	generate_transaction(17);
+	// generate_transaction(17);
 	function generate_transaction(idverification) {
 		jQuery.ajax({
 			url: app_url+'verifikasi_dokumen/get_list_order/',
@@ -165,7 +165,7 @@
 				jQuery('#idverification').val(response.data.idverification);
 				jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');
 
-				search_realisasi_anggaran(response.data.idpaket_belanja);
+				search_realisasi_anggaran(response.data.idtransaction);
 			},
 			error: function(response) {}
 		});

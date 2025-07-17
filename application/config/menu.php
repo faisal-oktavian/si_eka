@@ -110,6 +110,16 @@
             "title" => "Verifikasi Dokumen",
             "icon" => "user",
             "url" => "verifikasi_dokumen",
+            'role' => array(
+                array(
+                    'role_name' => 'role_crud',
+                    'role_title' => 'Bisa tambah, edit, hapus data'
+                ),
+                array(
+                    'role_name' => 'role_verificator',
+                    'role_title' => 'Bisa verifikasi dokumen'
+                ),
+            ),
         ),
         array(
             "name" => "pembayaran",
