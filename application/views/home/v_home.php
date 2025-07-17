@@ -104,7 +104,7 @@
 									<div id="label-belum-direalisasi" style="font-size:15px;"></div>
 								</div>
 							</div>
-						</div>
+						</div>	
 					</div>
 				</div>
 			</div>
@@ -235,7 +235,7 @@
 			// Data dummy, silakan ganti dengan data backend jika perlu
 			var total_anggaran_tahun_ini = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 			// var realisasi_anggaran_tahun_ini = <?php echo isset($total_realisasi_tahun_ini) ? $total_realisasi_tahun_ini : 0; ?>;
-			var realisasi_anggaran_tahun_ini = 20000000000; // TODO: ganti dengan data realisasi dari backend jika perlu
+			var realisasi_anggaran_tahun_ini = 10000000000; // TODO: ganti dengan data realisasi dari backend jika perlu
 			var sisa_anggaran_tahun_ini = total_anggaran_tahun_ini - realisasi_anggaran_tahun_ini;
 
 			var persen_realisasi = total_anggaran_tahun_ini ? Math.round(realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 100) : 0;

@@ -6,6 +6,7 @@
 	jQuery('body').on('click', '.btn-edit-master_paket_belanja', function() {
 		var id = jQuery(this).attr('data_id');
 		location.href = app_url + 'master_paket_belanja/edit/' + id;
+        // window.open(app_url + 'master_paket_belanja/edit/' + id, '_blank');
 	});
 
 	jQuery('body').on('click','.btn-delete-master-paket-belanja', function() {

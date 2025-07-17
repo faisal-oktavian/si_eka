@@ -42,6 +42,12 @@ class Home extends AZ_Controller {
 
 		
 		// // Hitung total anggaran yang sudah terealisasi pada tahun ini
+		// paket belanja detail acuan di kolom idsub kategori
+
+
+		// transaction detail kolom iduraian
+
+
 		// $this->db->where('transaction.status', 1);
 		// $this->db->where('transaction.transaction_status != "DRAFT" ');
 		// $this->db->where('transaction_detail.status', 1);
