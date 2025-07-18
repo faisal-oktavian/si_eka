@@ -20,13 +20,13 @@
 			success : function(res){
 				hide_loading();
 				show_modal('payment');
-
-				jQuery('#idverification').val(res.idverification);
-				jQuery('.utang-component').show();
+				
+				jQuery('#idverification').val(id);
+				// jQuery('.utang-component').show();
 				
 				jQuery('#total_transaction').val(thousand_separator(res.total_anggaran));
-				jQuery('#total_cicilan').val(thousand_separator(res.total_cicilan));
-				jQuery('#total_debt').val(thousand_separator(res.total_lack));
+				// jQuery('#total_cicilan').val(thousand_separator(res.total_cicilan));
+				// jQuery('#total_debt').val(thousand_separator(res.total_lack));
 				jQuery('#lack').val(thousand_separator(res.total_lack));
 				// jQuery('#total_return').val(thousand_separator(res.total_return));
 			}
@@ -51,25 +51,6 @@
 		}
     });
 
-	jQuery('body').on('click','.btn-debt-log', function(){
-		var id = jQuery(this).attr('data-id');
-
-		jQuery.ajax({
-			url : app_url + 'workflow_debt/debt_log?id='+id,
-			method : 'get',
-			dataType : 'json',
-			success : function(res) {
-				if (res.success) {
-					show_modal('debt-log-payment');
-					jQuery('.container-debt-log').html(res.view);
-				}
-				else{
-					bootbox.alert(res.message);
-				}
-			}
-		})
-	});
-
 	jQuery('body').on('keyup','.calc',function(){
 		calculate();
 	});
@@ -80,7 +61,6 @@
 		var total_credit =  jQuery('#total_credit').val() || 0;
 		var total_transfer = jQuery('#total_transfer').val() || 0;
 		var total_transaction = jQuery('#total_transaction').val() || 0;
-		var total_marketplace = jQuery('#total_marketplace').val() || 0;
 		var total_dp = jQuery('#total_dp').val() || 0;
 		var total_cicilan = jQuery('#total_cicilan').val() || 0;
 		var total_return = jQuery('#total_return').val() || 0;
@@ -90,12 +70,11 @@
 		total_credit = remove_separator(total_credit);
 		total_transfer = remove_separator(total_transfer);
 		total_transaction = remove_separator(total_transaction);
-		total_marketplace = remove_separator(total_marketplace);
 		total_dp = remove_separator(total_dp);
 		total_cicilan = remove_separator(total_cicilan);
 		total_return = remove_separator(total_return);
 
-		var total_pay = parseInt(total_cash) + parseInt(total_debet) + parseInt(total_credit) + parseInt(total_transfer) + parseInt(total_marketplace);
+		var total_pay = parseInt(total_cash) + parseInt(total_debet) + parseInt(total_credit) + parseInt(total_transfer);
 		total_transaction = parseInt(total_transaction) - (parseInt(total_dp) + parseInt(total_cicilan));
 		console.log(total_transaction);
 		var lack = total_pay - total_transaction;
@@ -116,22 +95,48 @@
 	jQuery('body').on('click', '.btn-action-save-payment', function() {
 		show_loading();
 		jQuery.ajax({
-			url: app_url + 'workflow_debt/save',
+			url: app_url + 'pembayaran/save',
 			type: 'POST',
 			dataType: 'JSON',
 			data: jQuery('.form-payment').serialize(),
 			success: function(response) {
 				hide_loading();
 				
-				var debt = jQuery('#workflow_debt').dataTable({bRetrieve:true});
-				debt.fnDraw(false);	
+				// var debt = jQuery('#workflow_debt').dataTable({bRetrieve:true});
+				// debt.fnDraw(false);	
+
+				// if (response.err_code == 0) {
+				// 	hide_modal('payment');
+				// }
+				// bootbox.alert(response.err_message);
 
 				if (response.err_code == 0) {
-					hide_modal('payment');
+					location.href = app_url + 'pembayaran';
 				}
-				bootbox.alert(response.err_message);
+				else {
+					bootbox.alert(response.err_message);
+				}
 
 			},
 			errors: function(response) {}
 		});
+	});
+
+	jQuery('body').on('click','.btn-payment-log', function(){
+		var id = jQuery(this).attr('data_id');
+
+		jQuery.ajax({
+			url : app_url + 'pembayaran/debt_log?id='+id,
+			method : 'get',
+			dataType : 'json',
+			success : function(res) {
+				if (res.success) {
+					show_modal('debt-log-payment');
+					jQuery('.container-debt-log').html(res.view);
+				}
+				else{
+					bootbox.alert(res.message);
+				}
+			}
+		})
 	});

@@ -75,8 +75,8 @@
 			<input type="text" class="form-control" readonly="" id="total_transaction" name="total_transaction">
 		</div>
 	</div>
-	<div class="utang-component">
-		<!-- <input type="hidden" name="total_return" class="form-control" readonly="" id="total_return" style="text-align: right;"> -->
+	<!-- <div class="utang-component">
+		<input type="hidden" name="total_return" class="form-control" readonly="" id="total_return" style="text-align: right;">
 		<div class="form-group">
 			<label class="control-label col-sm-2 label-bold">
 				TOTAL CICILAN
@@ -93,7 +93,7 @@
 				<input type="text" name="total_debt" class="form-control" readonly="" id="total_debt" style="text-align: right;">
 			</div>
 		</div>
-	</div>
+	</div> -->
 	<div class="form-group">
 		<label class="control-label col-sm-2">
 			TUNAI
@@ -110,10 +110,20 @@
 			KARTU DEBIT
 		</label>
 		<div class="col-sm-10">
-            <div class="input-group">
-                <span class="input-group-addon">Rp</span>
-                <input type="text" class="form-control not-marketplace format-number calc" id="total_debet" name="total_debet">
-            </div>
+			<table width="100%">
+				<tbody>
+					<tr>
+						<td>
+							<div class="input-group">
+								<span class="input-group-addon">Rp</span>
+								<input type="text" class="form-control not-marketplace format-number calc" id="total_debet" name="total_debet">
+							</div>
+						</td>
+						<td>&nbsp;</td>
+						<td><input type="text" class="form-control not-marketplace" id="debet_number" name="debet_number" placeholder="Nomor Kartu"></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 	<div class="form-group">
@@ -121,10 +131,20 @@
 			KARTU KREDIT
 		</label>
 		<div class="col-sm-10">
-            <div class="input-group">
-                <span class="input-group-addon">Rp</span>
-                <input type="text" class="form-control not-marketplace format-number calc" id="total_credit" name="total_credit">
-            </div>
+			<table width="100%">
+				<tbody>
+					<tr>
+						<td>
+							<div class="input-group">
+								<span class="input-group-addon">Rp</span>
+								<input type="text" class="form-control not-marketplace format-number calc" id="total_credit" name="total_credit">
+							</div>
+						</td>
+						<td>&nbsp;</td>
+						<td><input type="text" class="form-control not-marketplace" id="credit_number" name="credit_number" placeholder="Nomor Kartu"></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 	<div class="form-group">
@@ -132,10 +152,20 @@
 			TRANSFER
 		</label>
 		<div class="col-sm-10">
-            <div class="input-group">
-                <span class="input-group-addon">Rp</span>
-                <input type="text" class="form-control not-marketplace format-number calc" id="total_transfer" name="total_transfer">
-            </div>
+			<table width="100%">
+				<tbody>
+					<tr>
+						<td>
+							<div class="input-group">
+								<span class="input-group-addon">Rp</span>
+								<input type="text" class="form-control not-marketplace format-number calc" id="total_transfer" name="total_transfer">
+							</div>
+						</td>
+						<td>&nbsp;</td>
+						<td><input type="text" class="form-control not-marketplace" id="no_transfer" name="no_transfer" placeholder="Nomor Kartu"></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 	<div class="form-group">
@@ -159,7 +189,7 @@
 			<span id="description">KETERANGAN</span>
 		</label>
 		<div class="col-sm-10">
-			<textarea class="form-control" id="description" name="description"></textarea>
+			<textarea class="form-control" id="payment_description" name="payment_description"></textarea>
 		</div>
 	</div>
 	<div class="form-group">
