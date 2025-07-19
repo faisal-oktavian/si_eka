@@ -286,55 +286,6 @@ class Verifikasi_dokumen extends CI_Controller {
 		echo json_encode($ret);
 	}
 
-    public function get_paket_belanja_detail_sub_parent(){
-		$idpaket_belanja = $this->input->post("idpaket_belanja");
-		
-		// var_dump($parent);die();
-		$this->db->where('paket_belanja_detail.status', 1);
-		$this->db->where('paket_belanja_detail_sub.status', 1);
-		$this->db->where('idpaket_belanja', $idpaket_belanja);
-		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-		$pb_detail = $this->db->get('paket_belanja_detail');
-        // echo "<pre>"; print_r($this->db->last_query()); die;
-
-		$arr_data = array();
-		foreach ($pb_detail->result() as $key => $value) {
-			
-			// cek apakah ada detailnya
-			$this->db->where('paket_belanja_detail_sub.status', 1);
-			$this->db->where('is_idpaket_belanja_detail_sub', $value->idpaket_belanja_detail_sub);
-			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-			$dss = $this->db->get('paket_belanja_detail_sub');
-
-			if ($dss->num_rows() == 0) {
-				$arr_data[] = array(
-					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
-					'iduraian' => $value->idsub_kategori,
-					'nama_uraian' => $value->nama_sub_kategori,
-					'is_gender' =>$value->is_gender,
-				);
-			}
-			else {
-				foreach ($dss->result() as $dss_key => $dss_value) {
-					$arr_data[] = array(
-						'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
-						'iduraian' => $dss_value->idsub_kategori,
-						'nama_uraian' => $dss_value->nama_sub_kategori,
-						'is_gender' =>$dss_value->is_gender,
-					);
-				}
-			}
-		}
-
-		$results = array(
-		  "results" => $arr_data,
-		);
-        // echo "<pre>"; print_r($results);die;
-
-		echo json_encode($results);
-	}
-
     function add_product() {
 		$err_code = 0;
 		$err_message = '';
