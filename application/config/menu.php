@@ -53,13 +53,19 @@
                     "name" => "master_paket_belanja",
                     "title" => "Paket Belanja",
                     "url" => "master_paket_belanja",
-                    "submenu" => array()
+                    "submenu" => array(),
+                    'role' => array(
+                        array(
+                            'role_name' => 'role_view_paket_belanja',
+                            'role_title' => 'Hanya lihat data'
+                        ),
+                    ),
                 ),
                 array(
                     "name" => "master_akun_belanja",
                     "title" => "Akun Belanja",
                     "url" => "master_akun_belanja",
-                    "submenu" => array()
+                    "submenu" => array(),
                 ),
                 array(
                     "name" => "master_kategori",
@@ -102,6 +108,10 @@
                 array(
                     'role_name' => 'role_bypass',
                     'role_title' => 'Bisa realisasi anggaran sebelum bulan RAK'
+                ),
+                array(
+                    'role_name' => 'role_view_realisasi_anggaran',
+                    'role_title' => 'Hanya lihat data'
                 ),
             ),
         ),

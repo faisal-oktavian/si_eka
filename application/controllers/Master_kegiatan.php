@@ -202,7 +202,7 @@ class Master_kegiatan extends CI_Controller {
 		if ($sk->num_rows() > 0) {
 			$data_return = array(
                 'err_code' => 1,
-                'err_message' => "Nama Kegiatan tidak bisa dihapus karena sudah digunakan pada Sub Kegiatan."
+                'err_message' => "Data tidak bisa dihapus karena sudah digunakan pada menu Sub Kegiatan."
             );
 
 			echo json_encode($data_return);

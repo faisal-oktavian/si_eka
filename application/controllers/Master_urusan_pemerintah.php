@@ -177,7 +177,7 @@ class Master_urusan_pemerintah extends CI_Controller {
 		if ($bu->num_rows() > 0) {
 			$data_return = array(
                 'err_code' => 1,
-                'err_message' => "Nama Urusan tidak bisa dihapus karena sudah digunakan pada Bidang Urusan."
+                'err_message' => "Data tidak bisa dihapus karena sudah digunakan pada menu Bidang Urusan."
             );
 
 			echo json_encode($data_return);

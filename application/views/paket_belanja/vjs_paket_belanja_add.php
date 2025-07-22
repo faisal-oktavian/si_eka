@@ -1,4 +1,22 @@
 <script>
+	var is_viewonly = <?php if ($this->uri->segment(4)) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
+	jQuery(document).ready(function() {
+		if (is_viewonly == true) {
+
+			jQuery('#form_paket_belanja').find('input, select').prop('disabled', true);
+            jQuery('.btn-add_paket_belanja, #btn_add_akun_belanja, #btn_save_paket_belanja').hide();
+
+			setTimeout(function() {
+				jQuery('#table_onthespot').find('button').hide();
+			}, 500);		
+		}
+	});
+
     jQuery('body').on('click', '#btn_add_akun_belanja', function() {
 		var idprogram = jQuery('#idprogram').val();
 		var idkegiatan = jQuery('#idkegiatan').val();

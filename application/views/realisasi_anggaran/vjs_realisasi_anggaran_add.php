@@ -7,18 +7,13 @@
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
-			jQuery('.form-control, .btn-primary').attr('readonly', true);
-			// jQuery('#btn_preview').attr('disabled', false);
-			// jQuery('#btn_save_onthespot').attr('disabled', true);
-			// jQuery('#btn_add_product').attr('disabled', true);
-			// jQuery('#idoutlet').attr('disabled', true);
-			// jQuery('#taken_sent').attr('disabled', true);
-			// jQuery('#customer_type').attr('disabled', true);
-			// jQuery('#transaction_type').attr('disabled', true);
-			// jQuery('#cs_no').attr('disabled', true);
-			// jQuery('#search_member').attr('disabled', true);
-			// jQuery('#idacc_term_payment').prop('disabled', true);
-			// jQuery('#idacc_tax_pph').prop('disabled', true);
+
+			jQuery('#form_realisasi').find('input, select').prop('disabled', true);
+            jQuery('#btn_add_paket_belanja, #btn_save_realisasi').hide();
+
+			setTimeout(function() {
+				jQuery('#table_realisasi').find('button').hide();
+			}, 500);		
 		}
 	});
 

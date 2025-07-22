@@ -211,7 +211,7 @@ class Master_sub_kegiatan extends CI_Controller {
 		if ($pb->num_rows() > 0) {
 			$data_return = array(
                 'err_code' => 1,
-                'err_message' => "Nama Sub Kegiatan tidak bisa dihapus karena sudah digunakan pada Paket Belanja."
+                'err_message' => "Data tidak bisa dihapus karena sudah digunakan pada menu Paket Belanja."
             );
 
 			echo json_encode($data_return);

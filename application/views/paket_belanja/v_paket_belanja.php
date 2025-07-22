@@ -1,6 +1,6 @@
 
 <div  style="margin-top:10px;">
-	<a href="<?php echo app_url();?>master_paket_belanja/add"><button class="btn btn-default" type="button"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button></a>
+	<a href="<?php echo app_url();?>master_paket_belanja/add" class="btn-add_paket_belanja"><button class="btn btn-default" type="button"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button></a>
 </div>
 
 <hr>

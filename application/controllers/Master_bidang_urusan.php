@@ -187,7 +187,7 @@ class Master_bidang_urusan extends CI_Controller {
 		if ($p->num_rows() > 0) {
 			$data_return = array(
                 'err_code' => 1,
-                'err_message' => "Nama Bidang Urusan tidak bisa dihapus karena sudah digunakan pada Program."
+                'err_message' => "Data tidak bisa dihapus karena sudah digunakan pada menu Program."
             );
 
 			echo json_encode($data_return);

@@ -23,6 +23,10 @@ class Master_paket_belanja extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		if (aznav('role_view_paket_belanja')) {
+			$crud->set_btn_add(false);
+		}
+
 		$tahun_anggaran = $azapp->add_datetime();
 		$tahun_anggaran->set_id('vf_tahun_anggaran');
 		$tahun_anggaran->set_name('vf_tahun_anggaran');
@@ -111,8 +115,14 @@ class Master_paket_belanja extends CI_Controller {
 		if ($key == 'action') {
 			$idpaket_belanja = azarr($data, 'idpaket_belanja');
 
-			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
-			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+			$btn = '';
+			if (aznav('role_view_paket_belanja')) {
+				$btn .= '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
+			}
+			else {
+				$btn .= '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+				$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+			}
 
 			return $btn;
 		}
@@ -723,51 +733,58 @@ class Master_paket_belanja extends CI_Controller {
 		$err_message = '';
 
 		$id = $this->input->post('id');
-		
-		// cek apakah ada detailnya?
-		$this->db->where('idpaket_belanja', $id);
-		$this->db->where('status', 1);
-		$ds = $this->db->get('paket_belanja_detail');
-		// echo "<pre>"; print_r($this->db->last_query());die;
-		
-		foreach ($ds->result() as $key => $value) {
-			// kategori / sub kategori
-			$idpaket_belanja_detail = $value->idpaket_belanja_detail;
 
-			$data_delete = az_crud_delete('paket_belanja_detail', $idpaket_belanja_detail, true);
-			$err_code = $data_delete['err_code'];
-			$err_message = $data_delete['err_message'];
+		$data_validasi = $this->validasi_realisasi($id); 
 
-			// detail
-			$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
+		$err_code = $data_validasi['err_code'];
+		$err_message = $data_validasi['err_message'];
+		
+		if ($err_code == 0) {
+			// cek apakah ada detailnya?
+			$this->db->where('idpaket_belanja', $id);
 			$this->db->where('status', 1);
-			$dss = $this->db->get('paket_belanja_detail_sub');
+			$ds = $this->db->get('paket_belanja_detail');
 			// echo "<pre>"; print_r($this->db->last_query());die;
+			
+			foreach ($ds->result() as $key => $value) {
+				// kategori / sub kategori
+				$idpaket_belanja_detail = $value->idpaket_belanja_detail;
 
-			foreach ($dss->result() as $dss_key => $dss_value) {
-				$idpaket_belanja_detail_sub = $dss_value->idpaket_belanja_detail_sub;
-
-				$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
+				$data_delete = az_crud_delete('paket_belanja_detail', $idpaket_belanja_detail, true);
 				$err_code = $data_delete['err_code'];
 				$err_message = $data_delete['err_message'];
 
-				$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+				// detail
+				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
 				$this->db->where('status', 1);
-				$dsss = $this->db->get('paket_belanja_detail_sub');
+				$dss = $this->db->get('paket_belanja_detail_sub');
 				// echo "<pre>"; print_r($this->db->last_query());die;
-				
-				foreach ($dsss->result() as $dsss_key => $dsss_value) {
 
-					$data_delete_sub = az_crud_delete('paket_belanja_detail_sub', $dsss_value->idpaket_belanja_detail_sub, true);
-					$err_code = $data_delete_sub['err_code'];
-					$err_message = $data_delete_sub['err_message'];
+				foreach ($dss->result() as $dss_key => $dss_value) {
+					$idpaket_belanja_detail_sub = $dss_value->idpaket_belanja_detail_sub;
+
+					$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
+					$err_code = $data_delete['err_code'];
+					$err_message = $data_delete['err_message'];
+
+					$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+					$this->db->where('status', 1);
+					$dsss = $this->db->get('paket_belanja_detail_sub');
+					// echo "<pre>"; print_r($this->db->last_query());die;
+					
+					foreach ($dsss->result() as $dsss_key => $dsss_value) {
+
+						$data_delete_sub = az_crud_delete('paket_belanja_detail_sub', $dsss_value->idpaket_belanja_detail_sub, true);
+						$err_code = $data_delete_sub['err_code'];
+						$err_message = $data_delete_sub['err_message'];
+					}
 				}
 			}
-		}
 
-		$data_delete = az_crud_delete('paket_belanja', $id, true);
-		$err_code = $data_delete['err_code'];
-		$err_message = $data_delete['err_message'];
+			$data_delete = az_crud_delete('paket_belanja', $id, true);
+			$err_code = $data_delete['err_code'];
+			$err_message = $data_delete['err_message'];
+		}
 		
 		$return = array(
 			'err_code' => $err_code,
@@ -787,36 +804,44 @@ class Master_paket_belanja extends CI_Controller {
 		$pb = $this->db->get('paket_belanja_detail');
 		
 		$idpaket_belanja = $pb->row()->idpaket_belanja;
-		
-		// cek apakah ada detail dari akun belanja ini?
-		$this->db->where('idpaket_belanja_detail', $id);
-		$this->db->where('status', 1);
-		$ds = $this->db->get('paket_belanja_detail_sub');
-		
-		foreach ($ds->result() as $key => $value) {
-			// kategori / sub kategori
-			$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
 
-			$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
-			$err_code = $data_delete['err_code'];
-			$err_message = $data_delete['err_message'];
 
-			// sub detail
+		$data_validasi = $this->validasi_realisasi($idpaket_belanja); 
+
+		$err_code = $data_validasi['err_code'];
+		$err_message = $data_validasi['err_message'];
+
+		if ($err_code == 0) {
+			// cek apakah ada detail dari akun belanja ini?
+			$this->db->where('idpaket_belanja_detail', $id);
 			$this->db->where('status', 1);
-			$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-			$dss = $this->db->get('paket_belanja_detail_sub');
+			$ds = $this->db->get('paket_belanja_detail_sub');
+			
+			foreach ($ds->result() as $key => $value) {
+				// kategori / sub kategori
+				$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
 
-			foreach ($dss->result() as $dss_key => $dss_value) {
-
-				$data_delete = az_crud_delete('paket_belanja_detail_sub', $dss_value->idpaket_belanja_detail_sub, true);
+				$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
 				$err_code = $data_delete['err_code'];
 				$err_message = $data_delete['err_message'];
-			}
-		}
 
-		$data_delete = az_crud_delete('paket_belanja_detail', $id, true);
-		$err_code = $data_delete['err_code'];
-		$err_message = $data_delete['err_message'];
+				// sub detail
+				$this->db->where('status', 1);
+				$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+				$dss = $this->db->get('paket_belanja_detail_sub');
+
+				foreach ($dss->result() as $dss_key => $dss_value) {
+
+					$data_delete = az_crud_delete('paket_belanja_detail_sub', $dss_value->idpaket_belanja_detail_sub, true);
+					$err_code = $data_delete['err_code'];
+					$err_message = $data_delete['err_message'];
+				}
+			}
+
+			$data_delete = az_crud_delete('paket_belanja_detail', $id, true);
+			$err_code = $data_delete['err_code'];
+			$err_message = $data_delete['err_message'];
+		}
 		
 		$return = array(
 			'err_code' => $err_code,
@@ -847,27 +872,33 @@ class Master_paket_belanja extends CI_Controller {
 		// echo "<pre>"; print_r($this->db->last_query());die;
 		
 		$idpaket_belanja = $pb->row()->idpaket_belanja;
-		
 
-		// cek apakah ada detail dari akun belanja ini?
-		$this->db->where('is_idpaket_belanja_detail_sub', $id);
-		$this->db->where('status', 1);
-		$ds = $this->db->get('paket_belanja_detail_sub');
-		
-		foreach ($ds->result() as $key => $value) {
-			// kategori / sub kategori
-			$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
+		$data_validasi = $this->validasi_realisasi($idpaket_belanja); 
 
-			$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
+		$err_code = $data_validasi['err_code'];
+		$err_message = $data_validasi['err_message'];
+		
+		if ($err_code == 0) {
+			// cek apakah ada detail dari akun belanja ini?
+			$this->db->where('is_idpaket_belanja_detail_sub', $id);
+			$this->db->where('status', 1);
+			$ds = $this->db->get('paket_belanja_detail_sub');
+			
+			foreach ($ds->result() as $key => $value) {
+				// kategori / sub kategori
+				$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
+
+				$data_delete = az_crud_delete('paket_belanja_detail_sub', $idpaket_belanja_detail_sub, true);
+				$err_code = $data_delete['err_code'];
+				$err_message = $data_delete['err_message'];
+			}
+
+			$data_delete = az_crud_delete('paket_belanja_detail_sub', $id, true);
 			$err_code = $data_delete['err_code'];
 			$err_message = $data_delete['err_message'];
+
+			$this->calculate_nilai_anggaran($idpaket_belanja);	
 		}
-
-		$data_delete = az_crud_delete('paket_belanja_detail_sub', $id, true);
-		$err_code = $data_delete['err_code'];
-		$err_message = $data_delete['err_message'];
-
-		$this->calculate_nilai_anggaran($idpaket_belanja);
 		
 		$return = array(
 			'err_code' => $err_code,
@@ -877,6 +908,30 @@ class Master_paket_belanja extends CI_Controller {
 		echo json_encode($return);
 	}
 
+	function validasi_realisasi($idpaket_belanja) {
+		$err_code = 0;
+		$err_message = '';
+
+		// cek apakah paket belanja ini sudah ada realisasinya
+		$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('transaction_detail.status', 1);
+		$this->db->where('transaction.status', 1);
+		$this->db->where('transaction.transaction_status != "DRAFT" ');
+		$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
+		$trx = $this->db->get('transaction_detail');
+
+		if ($trx->num_rows() > 0) {
+			$err_code++;
+			$err_message = 'Paket belanja ini tidak bisa dihapus karena sudah ada realisasinya';
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+
+		return $return;
+	}
 
 	function recalculate_total_anggaran() {
 

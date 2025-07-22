@@ -22,6 +22,10 @@ class Realisasi_anggaran extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		if (aznav('role_view_realisasi_anggaran')) {
+			$crud->set_btn_add(false);
+		}
+
 		$date1 = $azapp->add_datetime();
 		$date1->set_id('date1');
 		$date1->set_name('date1');
@@ -109,6 +113,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 		if ($key == 'action') {
             $idtransaction = azarr($data, 'idtransaction');
+			$is_view_only = false;
 
             $btn = '<button class="btn btn-default btn-xs btn-edit-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
             $btn .= '<button class="btn btn-danger btn-xs btn-delete-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
@@ -121,8 +126,16 @@ class Realisasi_anggaran extends CI_Controller {
             // USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
             // USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIBAYAR BENDAHARA
             if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIVERIFIKASI BENDAHARA'))) {
-                $btn = '<button class="btn btn-info btn-xs btn-view-only-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
+                $is_view_only = true;
             }
+
+			if (aznav('role_view_realisasi_anggaran')) {
+				$is_view_only = true;
+			}
+
+			if ($is_view_only) {
+				$btn = '<button class="btn btn-info btn-xs btn-view-only-realisasi-anggaran" data_id="'.$idtransaction.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
+			}
 
 			return $btn;
 		}
