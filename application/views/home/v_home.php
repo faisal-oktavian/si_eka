@@ -151,9 +151,13 @@
 		<!-- grafik realisasi anggaran -->
 		<script>
 			// Contoh data, silakan ganti dengan data dari backend PHP
-			var nominal_sudah_dibayar = 50000000;
-			var nominal_belum_dibayar = 30000000;
-			var nominal_belum_direalisasi = 20000000;
+			// var nominal_sudah_dibayar = 50000000;
+			// var nominal_belum_dibayar = 30000000;
+			// var nominal_belum_direalisasi = 20000000;
+			var nominal_sudah_dibayar = <?php echo isset($sudah_dibayar) ? $sudah_dibayar : 0; ?>;
+			var nominal_belum_dibayar = <?php echo isset($belum_dibayar) ? $belum_dibayar : 0; ?>;
+			var nominal_belum_direalisasi = <?php echo isset($belum_direalisasi) ? $belum_direalisasi : 0; ?>;
+
 			var total = nominal_sudah_dibayar + nominal_belum_dibayar + nominal_belum_direalisasi;
 
 			var persen_sudah_dibayar = total ? Math.round(nominal_sudah_dibayar / total * 100) : 0;
@@ -233,9 +237,11 @@
 		<!-- grafik potensi sisa anggaran -->
 		<script>
 			// Data dummy, silakan ganti dengan data backend jika perlu
-			var total_anggaran_tahun_ini = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 			// var realisasi_anggaran_tahun_ini = <?php echo isset($total_realisasi_tahun_ini) ? $total_realisasi_tahun_ini : 0; ?>;
-			var realisasi_anggaran_tahun_ini = 10000000000; // TODO: ganti dengan data realisasi dari backend jika perlu
+			// var realisasi_anggaran_tahun_ini = 10000000000; // TODO: ganti dengan data realisasi dari backend jika perlu
+			var total_anggaran_tahun_ini = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
+			var realisasi_anggaran_tahun_ini = <?php echo isset($sudah_dibayar) ? $sudah_dibayar : 0; ?>;
+			
 			var sisa_anggaran_tahun_ini = total_anggaran_tahun_ini - realisasi_anggaran_tahun_ini;
 
 			var persen_realisasi = total_anggaran_tahun_ini ? Math.round(realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 100) : 0;
@@ -326,14 +332,14 @@
 
 		<!-- grafik Perbandingan Target & Realisasi Anggaran per Bulan -->
 		<script>
-			// Contoh data, silakan ganti dengan data dari backend PHP
 			var bulanLabels = [
 				'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
 				'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
 			];
-			// Data dummy, ganti dengan data asli
-			var targetPerBulan = [10000000, 12000000, 9000000, 11000000, 13000000, 10000000, 12000000, 9000000, 11000000, 13000000, 10000000, 12000000];
-			var realisasiPerBulan = [8000000, 10000000, 7000000, 9000000, 12000000, 9000000, 11000000, 8000000, 10000000, 12000000, 9000000, 11000000];
+			// Data dari backend PHP
+			var targetPerBulan = <?php echo json_encode($target_per_bulan); ?>;
+			var realisasiPerBulan = <?php echo json_encode($realisasi_per_bulan); ?>;
+			var tahunGrafik = <?php echo isset($tahun_ini) ? $tahun_ini : date('Y'); ?>;
 
 			var ctxBar = document.getElementById('barAnggaranChart').getContext('2d');
 			var barAnggaranChart = new Chart(ctxBar, {

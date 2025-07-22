@@ -1,5 +1,5 @@
 <form class="form-horizontal" id="form_approval">
-	<input type="text" id="idverification" name="idverification" class="x-hidden">
+	<input type="hidden" id="idverification" name="idverification" class="x-hidden">
     
 	<div class="form-group">
 		<label class="control-label col-md-3">Status Verifikasi <red>*</red></label>

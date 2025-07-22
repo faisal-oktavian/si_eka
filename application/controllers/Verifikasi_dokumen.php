@@ -177,7 +177,7 @@ class Verifikasi_dokumen extends CI_Controller {
 				// USER INPUT => statusnya INPUT DATA
 				// USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
 				// USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIBAYAR BENDAHARA
-				if ($verif_status == "SUDAH DIVERIFIKASI") {
+				if (in_array($verif_status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
 					$btn = '<button class="btn btn-info btn-xs btn-view-only-verifikasi-dokumen" data_id="'.$idverification.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 				}
 			}
@@ -535,6 +535,8 @@ class Verifikasi_dokumen extends CI_Controller {
 			$verification = $this->db->get('verification');
 
 			if ($verification->num_rows() > 0) {
+				$total_anggaran = $this->calculate_total_anggaran($idverification);
+
 				$status = $verification->row()->verification_status;
 				if ($status == "SUDAH DIBAYAR BENDAHARA") {
 					$err_code++;
@@ -550,6 +552,7 @@ class Verifikasi_dokumen extends CI_Controller {
 	    		'status_approve' => $status_approve,
 	    		'verification_description' => $verification_description,
 	    		'iduser_verification' => $iduser_verification,
+	    		'total_anggaran' => $total_anggaran,
 	    	);
 
 	    	az_crud_save($idverification, 'verification', $arr_data);
@@ -693,5 +696,22 @@ class Verifikasi_dokumen extends CI_Controller {
 		);
 
 		az_crud_save($idtransaction, 'transaction', $arr_update);
+	}
+
+	function calculate_total_anggaran($idverification) {
+		$this->db->where('verification.idverification', $idverification);
+		$this->db->where('verification.status', 1);
+		$this->db->where('transaction.transaction_status != "DRAFT" ');
+		$this->db->where('verification_detail.status', 1);
+
+		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
+		$this->db->select('sum(total_realisasi) as total_anggaran');
+		$verif = $this->db->get('verification');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		$total_anggaran = azobj($verif->row(), 'total_anggaran', 0);
+
+		return $total_anggaran;
 	}
 }

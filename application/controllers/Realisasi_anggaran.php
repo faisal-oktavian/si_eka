@@ -26,8 +26,8 @@ class Realisasi_anggaran extends CI_Controller {
 		$date1->set_id('date1');
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
-		$date1->set_value('01-'.Date('m-Y'));
-		// $date1->set_value('01-01-'.Date('Y'));
+		// $date1->set_value('01-'.Date('m-Y'));
+		$date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
