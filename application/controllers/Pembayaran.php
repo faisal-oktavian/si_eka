@@ -277,6 +277,7 @@ class Pembayaran extends CI_Controller {
 
 		// validasi
 		$this->db->where('idverification', $idverification);
+		$this->db->where('status', 1);
 		$verification_data = $this->db->get('verification');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -285,14 +286,22 @@ class Pembayaran extends CI_Controller {
 			$err_message = "Transaksi tidak ditemukan";
 		} 
 		else {
-			$total_anggaran = $this->calculate_total_anggaran($idverification);
 
-			$verification_data = $verification_data->row();
-			$total_pay = $verification_data->total_pay + $total_pay;
-			$lack = $total_pay - $total_anggaran;
+			if ($verification_data->row()->verification_status == 'SUDAH DIBAYAR BENDAHARA') {
+				$err_code++;
+				$err_message = "Transaksi sudah dibayar";
+			}
 
-			if ($lack >= 0) {
-				$total_cash = $lack;
+			if ($err_code == 0) {
+				$total_anggaran = $this->calculate_total_anggaran($idverification);
+
+				$verification_data = $verification_data->row();
+				$total_pay = $verification_data->total_pay + $total_pay;
+				$lack = $total_pay - $total_anggaran;
+
+				if ($lack >= 0) {
+					$total_cash = $lack;
+				}
 			}
 		}
 

@@ -10,6 +10,7 @@ class Verifikasi_dokumen extends CI_Controller {
         $this->table = 'verification';
         $this->controller = 'verifikasi_dokumen';
         $this->load->helper('az_crud');
+		$this->load->helper('transaction_status_helper');
     }
 
 	public function index() {		
@@ -231,7 +232,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			$status = $check->row()->verification_status;
-			if ($status == "SUDAH DIVERIFIKASI") {
+			if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
 				redirect(app_url().'verifikasi_dokumen');
 			}
 		}
@@ -291,6 +292,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$err_message = '';
 
 	 	$idverification = $this->input->post('idverification');
+	 	$_idverification = $this->input->post('idverification');
 	 	$idverification_detail = $this->input->post('idverification_detail');
 		$idtransaction = $this->input->post('idtransaction');
 
@@ -308,7 +310,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 			if ($verification->num_rows() > 0) {
 				$status = $verification->row()->verification_status;
-				if ($status == "SUDAH DIVERIFIKASI") {
+				if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -336,7 +338,20 @@ class Verifikasi_dokumen extends CI_Controller {
 			);
 			
 			$td = az_crud_save($idverification_detail, 'verification_detail', $arr_verification_detail);
-			$idverification_detail = azarr($td, 'insert_id');	
+			$idverification_detail = azarr($td, 'insert_id');
+			
+
+			// cek apakah datanya baru diinput / edit data
+			$this->db->where('idverification', $idverification);
+			$check = $this->db->get('verification');
+
+			if ($check->row()->verification_status != "DRAFT") {
+				$the_filter = array(
+					'idverification' => $idverification,
+					'type' => 'MENUNGGU VERIFIKASI'
+				);
+				$update_status = update_status_pake_belanja($the_filter);
+			}
 		}
 
 		$return = array(
@@ -377,7 +392,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 			if ($verification->num_rows() > 0) {
 				$status = $verification->row()->verification_status;
-				if ($status == "SUDAH DIVERIFIKASI") {
+				if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -387,14 +402,19 @@ class Verifikasi_dokumen extends CI_Controller {
 		if ($err_code == 0) {
 	    	$arr_data = array(
 	    		'verification_date_created' => $verification_date_created,
-	    		'verification_status' => "OK",
+	    		'verification_status' => "MENUNGGU VERIFIKASI",
 	    		'iduser_created' => $iduser_created,
 	    	);
 
 	    	az_crud_save($idverification, 'verification', $arr_data);
 
-			// hitung total transaksi
-			// $this->calculate_total_realisasi($idverification);
+			// update status realisasi anggaran
+			$the_filter = array(
+				'idverification' => $idverification,
+				'type' => 'MENUNGGU VERIFIKASI'
+			);
+			$update_status = update_status_pake_belanja($the_filter);
+
 		}
 
 		$return = array(
@@ -415,15 +435,30 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		if ($verification->num_rows() > 0) {
 			$status = $verification->row()->verification_status;
-			if ($status == "SUDAH DIVERIFIKASI") {
+			if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
 		}
 
 		if($err_code == 0) {
-			az_crud_delete($this->table, $id);
+			// kembalikan status realisasi anggaran
+			$this->db->where('idverification', $id);
+			$verif_detail = $this->db->get('verification_detail');
 
+			foreach ($verif_detail->result() as $key => $value) {
+				$idtransaction = $value->idtransaction;
+
+				$update_data = array(
+					'transaction_status' => 'INPUT DATA',
+					'updated_status' => date('Y-m-d H:i:s'),
+				);
+				
+				$this->db->where('idtransaction', $idtransaction);
+				$this->db->update('transaction', $update_data);
+			}
+
+			az_crud_delete($this->table, $id);
 		} 
 		else{
 			$ret = array(
@@ -467,7 +502,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		$status = $verification->row()->verification_status;
 		$idverification = $verification->row()->idverification;
-		if ($status == "SUDAH DIVERIFIKASI") {
+		if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
 			$is_delete = false;
 		}
 
@@ -478,8 +513,13 @@ class Verifikasi_dokumen extends CI_Controller {
 			$err_message = $delete['err_message'];
 
 			if ($err_code == 0) {
-				// hitung total transaksi
-				// $this->calculate_total_realisasi($idverification);
+				// update status realisasi anggaran
+				$the_filter = array(
+					'idverification' => $idverification,
+					'idverification_detail' => $id,
+					'type' => 'INPUT DATA'
+				);
+				$update_status = update_status_pake_belanja($the_filter);	
 			}
 		}
 		else{
@@ -509,9 +549,11 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		if ($status_approve == "DISETUJUI") {
 			$verification_status = "SUDAH DIVERIFIKASI";
+			$type = 'SUDAH DIVERIFIKASI';
 		}
 		else if ($status_approve == "DITOLAK") {
 			$verification_status = "DITOLAK VERIFIKATOR";
+			$type = 'DITOLAK VERIFIKATOR';
 		}
 
 		$this->load->library('form_validation');
@@ -535,8 +577,6 @@ class Verifikasi_dokumen extends CI_Controller {
 			$verification = $this->db->get('verification');
 
 			if ($verification->num_rows() > 0) {
-				$total_anggaran = $this->calculate_total_anggaran($idverification);
-
 				$status = $verification->row()->verification_status;
 				if ($status == "SUDAH DIBAYAR BENDAHARA") {
 					$err_code++;
@@ -546,6 +586,8 @@ class Verifikasi_dokumen extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+			$total_anggaran = $this->calculate_total_anggaran($idverification);
+
 	    	$arr_data = array(
 	    		'confirm_verification_date' => $confirm_verification_date,
 	    		'verification_status' => $verification_status,
@@ -556,6 +598,13 @@ class Verifikasi_dokumen extends CI_Controller {
 	    	);
 
 	    	az_crud_save($idverification, 'verification', $arr_data);
+
+			// update status realisasi anggaran
+			$the_filter = array(
+				'idverification' => $idverification,
+				'type' => $type,
+			);
+			$update_status = update_status_pake_belanja($the_filter);
 		}
 
 		$return = array(

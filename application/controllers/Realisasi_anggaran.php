@@ -18,7 +18,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Paket Belanja', 'Total Realisasi', 'Admin', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Paket Belanja', 'Total Realisasi', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -72,12 +72,12 @@ class Realisasi_anggaran extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$transaction_code = $this->input->get('transaction_code');
 
-        $crud->set_select('transaction.idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name as user_created');
-        $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, nama_paket_belanja, total_realisasi, user_created');
+        $crud->set_select('transaction.idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, transaction_status, user.name as user_created');
+        $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status, user_created');
         $crud->set_sorting('transaction_date, transaction_code, nama_paket_belanja, total_realisasi');
         $crud->set_filter('transaction_date, transaction_code, nama_paket_belanja, total_realisasi');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(' , , , right');
+		$crud->set_select_align(' , , , right, center');
 
         $crud->add_join_manual('user', 'transaction.iduser_created = user.iduser');
         $crud->add_join_manual('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
@@ -109,6 +109,33 @@ class Realisasi_anggaran extends CI_Controller {
 			$total_realisasi = az_thousand_separator($value);
 
 			return $total_realisasi;
+		}
+
+		if ($key == 'transaction_status') {
+			$lbl = 'default';
+			$tlbl = '-';
+			if ($value == "INPUT DATA") {
+				$lbl = 'warning';
+				$tlbl = 'Input Data';
+			}
+			else if ($value == "MENUNGGU VERIFIKASI") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Verifikasi';
+			}
+			else if ($value == "SUDAH DIVERIFIKASI") {
+				$lbl = 'default';
+				$tlbl = 'Sudah Diverifikasi';
+			}
+			else if ($value == "DITOLAK VERIFIKATOR") {
+				$lbl = 'danger';
+				$tlbl = 'Ditolak Verifikator';
+			}
+			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
+				$lbl = 'success';
+				$tlbl = 'Sudah Dibayar Bendahara';
+			}
+
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
 		}
 
 		if ($key == 'action') {
