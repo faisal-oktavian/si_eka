@@ -66,6 +66,27 @@ class CI_AZAppCRUD extends CI_AZ {
 	protected $aodata = array();
 	protected $idtable = '';
 
+	protected $custom_first_column = false;
+	protected $last_column_sorting = false;
+
+	// select union
+	protected $select_union = "";
+	protected $union = '';
+	protected $select_id = '';
+	// end select union
+	protected $manual_query = "";
+	//last query
+	protected $last_query = "";
+
+	//additional response
+	protected $additional_response = null;
+
+	protected $edit_type = "1";
+
+	//close modal on save 
+	protected $close_modal_on_save = true;
+	protected $before_save = "";
+
 	public function __construct() {
 		$this->ci =& get_instance();
 		// $this->ci->load->helper("az_crud");
@@ -91,6 +112,20 @@ class CI_AZAppCRUD extends CI_AZ {
 
 	public function set_select($data) {
 		return $this->select = $data;
+	}
+
+	// select union
+	public function set_select_union($data) {
+		return $this->select_union = $data;
+	}
+
+	public function set_select_id($data) {
+		return $this->select_id = $data;
+	}
+	// end select union
+
+	public function set_manual_query($data) {
+		return $this->manual_query = $data;
 	}
 
 	public function set_select_table($data) {
@@ -127,6 +162,10 @@ class CI_AZAppCRUD extends CI_AZ {
 
 	public function set_top_filter($data) {
 		return $this->top_filter = $data;
+	}
+
+	public function set_close_modal_on_save($data) {
+		return $this->close_modal_on_save = $data;
 	}
 
 	public function add_join($data, $type = "", $other = "", $join_x = "") {
@@ -224,6 +263,14 @@ class CI_AZAppCRUD extends CI_AZ {
 		return $this->delete = $data;
 	}
 
+	public function set_custom_first_column($data) {
+		return $this->custom_first_column = $data;
+	}
+
+	public function set_last_column_sorting($data) {
+		return $this->last_column_sorting = $data;
+	}
+
 	public function set_btn_add($data) {
 		return $this->btn_add = $data;
 	}
@@ -242,6 +289,10 @@ class CI_AZAppCRUD extends CI_AZ {
 
 	public function set_default_url($data) {
 		return $this->default_url = $data;
+	}
+	
+	public function set_before_save($data){
+		$this->before_save = $data;
 	}
 
 	public function set_callback_save($data) {
@@ -305,6 +356,25 @@ class CI_AZAppCRUD extends CI_AZ {
 	}
 	public function set_idtable($data) {
 		return $this->idtable = $data;
+	}
+
+	public function set_current_last_query($data)
+	{
+		return $this->last_query = $data;
+	}
+
+	public function get_last_query()
+	{
+		return $this->last_query;
+	}
+
+	public function set_additional_response($data)
+	{
+		return $this->additional_response = $data;
+	}
+
+	public function set_edit_type($data) {
+		return $this->edit_type = $data;
 	}
 
 	public function render() {
@@ -385,7 +455,14 @@ class CI_AZAppCRUD extends CI_AZ {
 
 		$table .= "</div>";
 
-		$table .= "<table class='".$this->class." az-table table table-bordered table-striped table-condensed table-hover dt-responsive display nowrap' id='".$this->id."'>";
+		$table_class = " table-bordered table-condensed ";
+
+		$app_version = $ci->config->item('app_version');
+		if ($app_version == '3') {
+			$table_class = '';
+		}
+
+		$table .= "<table class='".$this->class." az-table table table-striped ".$table_class." table-hover dt-responsive display nowrap' id='".$this->id."'>";
 		$table .= "	<thead>";
 
 		$table .= "<tr role='row' class='heading'>";
@@ -401,7 +478,9 @@ class CI_AZAppCRUD extends CI_AZ {
 
 		if (count($th_class) == 0) {
 			$th_class[0] = 'no-sort';
-			$th_class[$last_col] = 'no-sort';
+			if($this->last_column_sorting == false) {
+				$th_class[$last_col] = 'no-sort';
+			}
 		}
 
 		$i = 0;
@@ -483,6 +562,7 @@ class CI_AZAppCRUD extends CI_AZ {
 
 
 		$js_table = '
+				var request_ajax_table_'.$this->id.' = null;
 				generate_table_'.$this->id.'();
 				function generate_table_'.$this->id.'(){
 				    var total_column = [];
@@ -558,9 +638,34 @@ class CI_AZAppCRUD extends CI_AZ {
 		                    	aoData.push({"name": "cfilter["+clear_id_filter+"]", "value": jQuery(this).val()});
 						    });
 		                },
-		                "drawCallback": function( settings ) {
-					        var api = this.api();
-					        var json = api.ajax.json();
+						fnServerData: function (sSource, aoData, fnCallback, oSettings) {
+							if (request_ajax_table_'.$this->id.' !== null) {
+								request_ajax_table_'.$this->id.'.abort();
+							}
+
+							request_ajax_table_'.$this->id.' = $.ajax({
+								dataType: "json",
+								type: "GET",
+								url: sSource,
+								data: aoData,
+								success: function (data) {
+									// console.log(data);
+									oSettings.json = data;
+									fnCallback(data);
+								},
+								complete: function () {
+									request_ajax_table_'.$this->id.' = null;
+								}
+							});
+						},
+
+		                "drawCallback": function(settings) {
+					        // var api = this.api();
+					        // var json = api.ajax.json();
+
+					        var json = settings.json;
+							// console.log(json);
+
 					        callback_table_complete_'.$this->id.'(json);
 					    },
 					    "language":{
@@ -593,7 +698,8 @@ class CI_AZAppCRUD extends CI_AZ {
 
 				jQuery("body").on("click", ".btn-edit-'.$this->id.'", function(){
 			        var id = jQuery(this).attr("data_id");
-			        edit('.$this->url_edit.', id, "'.$this->form.'", "'.$this->id.'", callback_edit_'.$this->id.');
+
+			        edit('.$this->url_edit.', id, "'.$this->form.'", "'.$this->id.'", callback_edit_'.$this->id.', '.$this->edit_type.');
 			    });
 
 			    var callback_delete_'.$this->id.' = function(response) {
@@ -615,8 +721,9 @@ class CI_AZAppCRUD extends CI_AZ {
 
 			    var data_save_'.$this->id.' = '.$data_save_js.';
 
-			    jQuery("body").on("click", ".btn-save-'.$this->id.'", function(){	
-			        save('.$this->url_save.', "'.$this->form.'", "'.$this->id.'", callback_save_'.$this->id.', data_save_'.$this->id.');
+			    jQuery("body").on("click", ".btn-save-'.$this->id.'", async function(){
+					'.$this->before_save.'
+					save('.$this->url_save.', "'.$this->form.'", "'.$this->id.'", callback_save_'.$this->id.', data_save_'.$this->id.', '.($this->close_modal_on_save ? 'true' : 'false').');
 			    });
 
 			    jQuery("body").on("click", ".btn-add-'.$this->id.'", function(){
@@ -734,6 +841,8 @@ class CI_AZAppCRUD extends CI_AZ {
 		$records["sMessage"] = "";
 
 		$select = $this->select;
+		$select_union = $this->select_union; // select union
+		$select_id = $this->select_id;
 		$select_align = azarr_explode($this->select_align);
 		$select_number = azarr_explode($this->select_number);
 		$select_decimal = azarr_explode($this->select_decimal);
@@ -767,13 +876,66 @@ class CI_AZAppCRUD extends CI_AZ {
 		if(strlen($select) > 0){
 			$column_show = azarr_explode($select);
 		}
-		
+
+		// jika menggunakan select_union
+		if (strlen($select_union) > 0) {
+
+			// ambil apa yang diselect di query pertamanya saja dan teks "SELECT".
+			$column_show = str_replace("SELECT", "", $select);
+			$column_show = explode(" ",$column_show);
+			$column_show = str_replace(",", "", $column_show);
+
+			$arr_arr_column_show = array();
+			$loop = true;
+			foreach ($column_show as $key => $value) {
+				// ambil data yang ada nilainya dari query select saja
+				if (strlen($value) > 0 && $loop == true) {
+
+					// jika nilai mengandung kata "FROM", lalu kata "FROM" dihapus dari nilainya
+					if(preg_match("/FROM/i", $value)) {
+					  $loop = false;
+					  $value = preg_replace("/FROM/i", "", $value);
+					  $value = preg_replace('/\s+/', '', $value);
+					}
+					// jika nilai mengandung simbol `, maka dihilangkan
+					$value = preg_replace("/`/i", "", $value);
+					$arr_column_show[] = $value;
+				}
+			}
+
+			$column_show = $arr_column_show;
+			// ambil apa yang diselect di query kedua saja dan teks "SELECT".
+			$column_show_union = str_replace("SELECT", "", $select_union);
+			$column_show_union = explode(" ",$column_show_union);
+
+			$arr_arr_column_show_union = array();
+			$loop = true;
+			foreach ($column_show_union as $key => $value) {
+				// ambil data yang ada nilainya dari query select saja
+				if (strlen($value) > 0 && $loop == true) {
+
+					// jika nilai mengandung kata "FROM", lalu kata "FROM" dihapus dari nilainya
+					if(preg_match("/FROM/i", $value)) {
+					  $loop = false;
+					  $value = preg_replace("/FROM/i", "", $value);
+					  $value = preg_replace('/\s+/', '', $value);
+					  $value = preg_replace("/`/i", "", $value);
+					}
+					// jika nilai mengandung simbol `, maka dihilangkan
+					$value = preg_replace("/`/i", "", $value);
+					$arr_column_show_union[] = $value;
+				}
+			}
+			$column_show_union = $arr_column_show_union;
+		}
+
 		if(strlen($select_table) > 0){
 			$column_show = azarr_explode($select_table);
 		}
 
 		$iTotalRecords = 0;
 		
+		$data_filter = ''; //filter untuk select union
 		if($filter != ''){
 			if (strlen(azarr($_REQUEST, 'sSearch')) > 0) {
 				$arr_filter = explode(',', $filter);
@@ -782,12 +944,18 @@ class CI_AZAppCRUD extends CI_AZ {
 					if ($key == 0) {
 						$this->ci->db->group_start();
 						$this->ci->db->like($value, $_REQUEST["sSearch"]);
+
+						$data_filter = " (".$value." LIKE '%".$_REQUEST["sSearch"]."%' ESCAPE '!'";
 					}
 					else {
 						$this->ci->db->or_like($value, $_REQUEST["sSearch"]);
+
+						$data_filter .= " OR ".$value." LIKE '%".$_REQUEST["sSearch"]."%' ESCAPE '!'";
 					}
 					if (($key + 1) == count($arr_filter)) {
 						$this->ci->db->group_end();
+
+						$data_filter .= ")";
 					}
 				}
 			}
@@ -822,7 +990,12 @@ class CI_AZAppCRUD extends CI_AZ {
 				}
 				else {
 					if (strlen($value) > 0) {
-						$this->ci->db->like($key, $value);
+						$is_id = '.id';
+						if (strpos($key, $is_id) !== false) {
+							$this->ci->db->where($key, $value);
+						} else {
+							$this->ci->db->like($key, $value);
+						}
 					}
 				}
 			}
@@ -872,17 +1045,50 @@ class CI_AZAppCRUD extends CI_AZ {
 					$this->ci->db->like($pcf_k, $pcf_v);
 				}
 			}
-		}	
+		}
 
-		$this->ci->db->select($select);
 		if(strlen($this->group_by) > 0){
 			$this->ci->db->group_by($this->group_by);
 		}  
-		
-		$iTotalRecords = $this->ci->db->get($table)->num_rows();
+
+		if (strlen($select_union) > 0) {
+			$link = '';
+			// cek apakah ada filter search
+			if ($data_filter != '') {
+				if(preg_match("/WHERE/i", $select.' UNION '.$select_union)) {
+		            $link = ' AND ';
+		        }
+		        else {
+		        	$link = ' WHERE ';
+		        }
+			}
+			// $query_union = $this->ci->db->query($select.' UNION '.$select_union.$link.$data_filter);
+			$query_union = $this->ci->db->query('select * from ('.$select.' UNION '.$select_union.') as new_query '.$link.$data_filter);
+			$last_query_union = $this->ci->db->last_query();
+			$iTotalRecords = $query_union->num_rows();
+		}
+
+		if(strlen($this->manual_query) > 0) {
+			// var_dump($this->manual_query);
+			$manuq = $this->manual_query;
+
+			if(strlen($this->group_by) > 0){
+				$manuq = $manuq.' GROUP BY '.$this->group_by;
+			}
+
+			$iTotalRecords = $this->ci->db->query($manuq)->num_rows();
+		}
+
+		// jika tidak menggunakan select_union
+		if (strlen($select_union) == 0 && strlen($this->manual_query) == 0) {
+			$this->ci->db->select($select);
+			$iTotalRecords = $this->ci->db->get($table)->num_rows();
+		}
+		// var_dump($iTotalRecords);
+
+		$iTotalDisplayRecords = $iTotalRecords;
 
 		$iDisplayLength = intval(azarr($_REQUEST, 'iDisplayLength'));
-			
 		$iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength; 
 		$iDisplayStart = intval(azarr($_REQUEST, 'iDisplayStart'));
 		$sEcho = intval($_REQUEST['sEcho']);
@@ -909,10 +1115,12 @@ class CI_AZAppCRUD extends CI_AZ {
 			}
 		}
 		
-		$iSortCol_0 = azarr($_REQUEST, "iSortCol_0"); 
+		$data_order_by = ''; // order by select_union
+		$iSortCol_0 = azarr($_REQUEST, "iSortCol_0");
 		foreach($sorting as $ps_k => $ps_v){
 	        if($iSortCol_0 == ($ps_k + 1)) {          
 	            $this->ci->db->order_by($ps_v, $_REQUEST["sSortDir_0"]);
+	            $data_order_by = ' ORDER BY '.$ps_v.' '.$_REQUEST["sSortDir_0"];
 	        }
 		}
 
@@ -923,7 +1131,9 @@ class CI_AZAppCRUD extends CI_AZ {
 		}       
 
 		// $select = implode(", ", $select);
-		$this->ci->db->select(array($select), false);
+		if (strlen($select_union) == 0) {
+			$this->ci->db->select(array($select), false);
+		}
 
 		if (count($join) > 0) {
 			foreach ($join as $key => $value) {
@@ -993,7 +1203,12 @@ class CI_AZAppCRUD extends CI_AZ {
 				}
 				else {
 					if (strlen($value) > 0) {
-						$this->ci->db->like($key, $value);
+						$is_id = '.id';
+						if (strpos($key, $is_id) !== false) {
+							$this->ci->db->where($key, $value);
+						} else {
+							$this->ci->db->like($key, $value);
+						}
 					}
 				}
 			}
@@ -1007,14 +1222,79 @@ class CI_AZAppCRUD extends CI_AZ {
 			$this->ci->db->group_by($this->group_by);
 		}  
 
-		$ambil = $this->ci->db->get($table);
+		if(strlen($select_union) > 0) {
+			$limit = '';
+			if (strlen($iDisplayLength) > 0) {
+				$limit = 'LIMIT '.$iDisplayLength;
+
+				$offset = '';
+				if (strlen($iDisplayStart) > 0) {
+					$offset = 'OFFSET '.$iDisplayStart;
+				}
+			}
+			
+			$query_union = $this->ci->db->query($last_query_union.' '.$data_order_by.' '.$limit.' '.$offset);
+			$ambil = $query_union;
+
+			$idtable = $select_id;
+		}
+
+		if(strlen($this->manual_query) > 0) {
+			$this->ci->db->reset_query();
+			// echo $this->manual_query;die;
+
+			// manual order by
+			$manual_po = '';
+			if(count($order_by) > 0) {
+				$m_po = '';
+				foreach($order_by as $po_k => $po_v){
+					if($po_k == 0) {
+						$m_po .= $po_v;
+					} else {
+						$m_po .= ', '.$po_v;
+					}
+				}
+
+				$manual_po = ' ORDER BY '.$m_po;
+			}
+
+			// manual group by
+			$manual_group = '';
+			if(strlen($this->group_by) > 0){
+				$manual_group = ' GROUP BY '.$this->group_by;
+			}
+
+			// manual filter
+			$manual_filter = '';
+			if(strlen($data_filter) > 0) {
+				$manual_filter = ' WHERE '.$data_filter;
+			}
+
+			$manual_query = $this->manual_query.$manual_filter.$manual_group.$manual_po.' LIMIT '.$iDisplayStart.', '.$iDisplayLength;
+			// echo $manual_query;die;
+			$ambil = $this->ci->db->query($manual_query);
+
+			if(strlen($data_filter) > 0) {
+				$iTotalDisplayRecords = $ambil->num_rows();
+			}
+		}
+
+		if(strlen($select_union) == 0 && strlen($this->manual_query) == 0) {
+			$ambil = $this->ci->db->get($table);
+		}
 
 		$idtable = 'id'.$table;
 		if (strlen($this->idtable) > 0) {
 			$idtable = $this->idtable;
 		}
 
-// echo $this->ci->db->last_query();die;
+
+		$current_last_query = $this->ci->db->last_query();
+		$current_last_query = str_replace(" LIMIT ".$iDisplayStart.', '.$iDisplayLength,'',$current_last_query);
+		$current_last_query = str_replace(" LIMIT ".$iDisplayLength,'',$current_last_query);
+		$this->last_query = $current_last_query;
+
+// echo"<pre>";print_r($this->ci->db->last_query());die;
 		$arr_column_show = array();
 		foreach($column_show as $ps_value){
 			$xvalue = explode(".", $ps_value);
@@ -1025,13 +1305,15 @@ class CI_AZAppCRUD extends CI_AZ {
 				$arr_column_show[] = $ps_value;
 			}
 		}
-
 		$i = 0;
 		foreach ($ambil->result_array() as $value) {
 			$i++;
 			$no = $iDisplayStart + $i;
 
 			$arr_get = array("no" => $no);
+			if ($this->custom_first_column) {
+				$arr_get = array();
+			}
 			foreach ($arr_column_show as $acs_value) {
 				// $arr_get[$acs_value] = $value[$acs_value];
 				$arr_get[$acs_value] = azarr($value, $acs_value);
@@ -1111,7 +1393,10 @@ class CI_AZAppCRUD extends CI_AZ {
 		}
 		$records["sEcho"] = $sEcho;
 		$records["iTotalRecords"] = $iTotalRecords;
-		$records["iTotalDisplayRecords"] = $iTotalRecords;
+		$records["iTotalDisplayRecords"] = $iTotalDisplayRecords;
+		if($this->additional_response != null){
+			$records["additional_response"] = $this->additional_response;
+		}
 
 		return json_encode($records);
 	}

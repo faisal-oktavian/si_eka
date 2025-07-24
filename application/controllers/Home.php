@@ -6,6 +6,9 @@ class Home extends AZ_Controller {
         parent::__construct();
         $this->load->helper('az_auth');
         az_check_auth('dashboard');
+		$this->load->helper('az_crud');
+		$this->load->helper('az_config');
+		$this->load->helper('az_core');
     }
 
 	public function index(){
@@ -14,8 +17,6 @@ class Home extends AZ_Controller {
 		$data_header['title'] = azlang('Dashboard');
 		$data_header['breadcrumb'] = array('dashboard');
 		$app->set_data_header($data_header);
-		$this->load->helper('az_config');
-		$this->load->helper('az_core');
 
 		$total_anggaran = 0;
 		$total_realisasi = 0;
@@ -25,25 +26,21 @@ class Home extends AZ_Controller {
 		$tahun_ini = date('Y');
 		// $tahun_ini = "2024";
 
-		// Hitung total anggaran pada tahun ini
-		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
-        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
-        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
-        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
-		$this->db->where('paket_belanja.status', 1);
-		$this->db->where('paket_belanja.is_active', 1);
-		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
-		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.$tahun_ini.'" ');
-		$this->db->select_sum('paket_belanja.nilai_anggaran');
-		$total_anggaran = $this->db->get('paket_belanja');
-		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		if ($total_anggaran->num_rows() > 0) {
-			$total_anggaran = $total_anggaran->row()->nilai_anggaran;
-		}
+		// GRAFIK REALISASI ANGGARAN
+		$grafik_realisasi_anggaran = $this->grafik_realisasi_anggaran($tahun_ini);
+		$sudah_dibayar = $grafik_realisasi_anggaran['sudah_dibayar'];
+		$belum_dibayar = $grafik_realisasi_anggaran['belum_dibayar'];
+		$belum_direalisasi = $grafik_realisasi_anggaran['belum_direalisasi'];
 
-		// Ambil data target dan realisasi per bulan tahun 2025
+
+		// GRAFIK POTENSI SISA ANGGARAN
+		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
+		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
+		$realisasi_anggaran = $sudah_dibayar;
+
+
+		// GRAFIK PERBANDINGAN TARGET & REALISASI PER BULAN
 		$target_per_bulan = [];
 		$realisasi_per_bulan = [];
 
@@ -129,6 +126,49 @@ class Home extends AZ_Controller {
 		}
 
 
+		// TABLE PAKET BELANJA YANG BELUM TEREALISASI
+		$crud_table = $app->add_crud();
+		$crud_table->set_column(array('#', "Program", "Paket Belanja", "Nilai Anggaran"));
+		$crud_table->set_th_class(array('', '', '', ''));
+		$crud_table->set_id('idpaket_belanja');
+		$crud_table->set_default_url(false);
+		$crud_table->set_btn_add(false);
+
+		$crud_table->set_url("app_url+'home/get_paket_belanja/".$tahun_ini."'");
+		$crud_table->set_url_edit("app_url+'home/edit_paket_belanja'");
+		$crud_table->set_url_delete("app_url+'home/delete_paket_belanja'");
+		$crud_table->set_url_save("app_url+'home/save_paket_belanja'");
+		// $crud_table->set_callback_table_complete('callback_check_request_table();');
+		$belum_terealisasi = $crud_table->render();
+
+		
+		$data = array(
+			'tahun_ini' => $tahun_ini,
+			'total_anggaran_tahun_ini' => floatval($total_anggaran),
+			'realisasi_anggaran_tahun_ini' => floatval($realisasi_anggaran),
+			'sudah_dibayar' => floatval($sudah_dibayar),
+			'belum_dibayar' => floatval($belum_dibayar),
+			'belum_direalisasi' => floatval($belum_direalisasi),
+			'target_per_bulan' => $target_per_bulan,
+			'realisasi_per_bulan' => $realisasi_per_bulan,
+			'belum_terealisasi' => $belum_terealisasi,
+		);
+		// echo "<pre>"; print_r($data); die;
+
+		$view = $this->load->view('home/v_home', $data, true);
+		$app->add_content($view);
+
+		// $js = az_add_js('home/vjs_home');
+		// $app->add_js($js);
+
+		echo $app->render();	
+	}
+
+	function grafik_realisasi_anggaran($tahun_ini) {
+		$sudah_dibayar = 0;
+		$belum_dibayar = 0;
+		$belum_direalisasi = 0;
+
 		// sudah dibayar
 		$this->db->where('verification.status', 1);
 		$this->db->where('verification.verification_status = "SUDAH DIBAYAR BENDAHARA" ');
@@ -158,7 +198,6 @@ class Home extends AZ_Controller {
 
 
 		// belum direalisasi
-
 		// ambil data paket belanja yang sudah di realisasi
 		$this->db->where('transaction.status', 1);
 		$this->db->where('transaction.transaction_status != "DRAFT" ');
@@ -190,86 +229,195 @@ class Home extends AZ_Controller {
 		if ($paket_belanja->num_rows() > 0) {
 			$belum_direalisasi = $paket_belanja->row()->total_yang_belum_direalisasi;
 		}
-		
-		$data = array(
-			'tahun_ini' => $tahun_ini,
-			'total_anggaran_tahun_ini' => floatval($total_anggaran),
+
+		$return = array(
 			'sudah_dibayar' => floatval($sudah_dibayar),
 			'belum_dibayar' => floatval($belum_dibayar),
 			'belum_direalisasi' => floatval($belum_direalisasi),
-			'target_per_bulan' => $target_per_bulan,
-			'realisasi_per_bulan' => $realisasi_per_bulan,
 		);
 
-		$view = $this->load->view('home/v_home', $data, true);
-		$app->add_content($view);
-
-		// $js = az_add_js('home/vjs_home');
-		// $app->add_js($js);
-
-		echo $app->render();	
+		return $return;
 	}
 
-	function calculate_nilai_anggaran($idpaket_belanja) {
+	function grafik_potensi_sisa_anggaran($tahun_ini) {
+		$total_anggaran = 0;
 
-		$this->db->where('paket_belanja_detail.status', 1);
-		$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
-		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-		$this->db->order_by('paket_belanja_detail.idpaket_belanja_detail ASC');
-		$this->db->select('paket_belanja_detail.idpaket_belanja_detail, akun_belanja.idakun_belanja, akun_belanja.no_rekening_akunbelanja, akun_belanja.nama_akun_belanja');
-		$akun_belanja = $this->db->get('paket_belanja_detail');
-		// echo "<pre>"; print_r($this->db->last_query());
+		// Hitung total anggaran pada tahun ini
+		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->where('paket_belanja.status', 1);
+		$this->db->where('paket_belanja.is_active', 1);
+		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.$tahun_ini.'" ');
+		$this->db->select_sum('paket_belanja.nilai_anggaran');
+		$pb = $this->db->get('paket_belanja');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		$total_jumlah = 0;
-		foreach ($akun_belanja->result() as $pbd_key => $pbd_value) {
-			$idpaket_belanja_detail = $pbd_value->idpaket_belanja_detail;
-
-			// Kategori / Sub Kategori
-			$paket_belanja_detail = $this->query_paket_belanja_detail($idpaket_belanja_detail);
-			// echo "<pre>"; print_r($this->db->last_query());
-
-			foreach ($paket_belanja_detail->result() as $pbds_key => $ds_value) {
-				$total_jumlah += $ds_value->jumlah;
-
-				// get sub sub detail
-				$paket_belanja_detail_sub = $this->query_paket_belanja_detail_sub($ds_value->idpaket_belanja_detail_sub);
-				// echo "<pre>"; print_r($this->db->last_query());die;
-
-				foreach ($paket_belanja_detail_sub->result() as $dss_key => $dss_value) {
-					$total_jumlah += $dss_value->jumlah;
-				}
-			}
+		if ($pb->num_rows() > 0) {
+			$total_anggaran = $pb->row()->nilai_anggaran;
 		}
 
-		$arr_update = array(
-			'nilai_anggaran' => $total_jumlah,
+		$return = array(
+			'total_anggaran_tahun_ini' => floatval($total_anggaran),
 		);
 
-		az_crud_save($idpaket_belanja, 'paket_belanja', $arr_update);
+		return $return;
 	}
 
-	function query_paket_belanja_detail($idpaket_belanja_detail) {
-		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
-		$this->db->where('paket_belanja_detail_sub.status', 1);
-		$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
+	function get_paket_belanja($tahun_ini) {
 
-		return $paket_belanja_detail;
+		$this->load->library('AZApp');
+		$crud_table = $this->azapp->add_crud();
+
+		// query utama
+		$this->db->select('pb.idpaket_belanja, p.nama_program, pb.nama_paket_belanja, pb.nilai_anggaran');
+		
+		$this->db->join('sub_kegiatan sk', 'sk.idsub_kegiatan = pb.idsub_kegiatan');
+		$this->db->join('kegiatan k', 'k.idkegiatan = sk.idkegiatan');
+		$this->db->join('program p', 'p.idprogram = k.idprogram');
+		$this->db->join('paket_belanja_detail pbd', 'pbd.idpaket_belanja = pb.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds', 'pbds.idpaket_belanja_detail = pbd.idpaket_belanja_detail');
+
+		$this->db->where('YEAR(pb.created) = "'.$tahun_ini.'" ');
+		$this->db->where('pb.status_paket_belanja', 'OK');
+		$this->db->where('pb.is_active', 1);
+		$this->db->where('pb.status', 1);
+		$this->db->where('pbd.status', 1);
+		$this->db->where('pbds.status', 1);
+		$this->db->where('pbds.volume IS NOT NULL', null, false);
+		$this->db->where('pbds.idsatuan IS NOT NULL', null, false);
+		$this->db->where('pbds.harga_satuan IS NOT NULL', null, false);
+		$this->db->where('pbds.jumlah IS NOT NULL', null, false);
+
+		$this->db->group_by([
+			'pb.idpaket_belanja',
+			'p.nama_program',
+			'pb.nama_paket_belanja',
+			'pb.nilai_anggaran'
+		]);
+
+		$this->db->get('paket_belanja pb');
+		$last_query1 = $this->db->last_query();
+		// echo "<pre>"; print_r($last_query1); die;
+
+		// query turunan
+		$this->db->select('pb.idpaket_belanja, p.nama_program, pb.nama_paket_belanja, pb.nilai_anggaran');
+		
+		$this->db->join('sub_kegiatan sk', 'sk.idsub_kegiatan = pb.idsub_kegiatan');
+		$this->db->join('kegiatan k', 'k.idkegiatan = sk.idkegiatan');
+		$this->db->join('program p', 'p.idprogram = k.idprogram');
+		$this->db->join('paket_belanja_detail pbd', 'pbd.idpaket_belanja = pb.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbds_parent.idpaket_belanja_detail = pbd.idpaket_belanja_detail');
+		$this->db->join('paket_belanja_detail_sub pbds', 'pbds.is_idpaket_belanja_detail_sub = pbds_parent.idpaket_belanja_detail_sub');
+
+		$this->db->where('YEAR(pb.created) = "'.$tahun_ini.'" ');
+		$this->db->where('pb.status_paket_belanja', 'OK');
+		$this->db->where('pb.is_active', 1);
+		$this->db->where('pb.status', 1);
+		$this->db->where('pbd.status', 1);
+		$this->db->where('pbds.status', 1);
+		$this->db->where('pbds.volume IS NOT NULL', null, false);
+		$this->db->where('pbds.idsatuan IS NOT NULL', null, false);
+		$this->db->where('pbds.harga_satuan IS NOT NULL', null, false);
+		$this->db->where('pbds.jumlah IS NOT NULL', null, false);
+
+		$this->db->group_by([
+			'pb.idpaket_belanja',
+			'p.nama_program',
+			'pb.nama_paket_belanja',
+			'pb.nilai_anggaran'
+		]);
+
+		$this->db->get('paket_belanja pb');
+		$last_query2 = $this->db->last_query();
+		// echo "<pre>"; print_r($last_query2); die;
+
+
+		// query realisasi
+		$this->db->where('transaction.status', 1);
+		$this->db->where('transaction.transaction_status != "DRAFT" ');
+		$this->db->where('transaction_detail.status', 1);
+		$this->db->where('YEAR(transaction.transaction_date)', $tahun_ini);
+		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$this->db->group_by('idpaket_belanja');
+		$this->db->select('idpaket_belanja');
+		$this->db->get('transaction');
+		$last_query_where = $this->db->last_query();
+		// echo "<pre>"; print_r($last_query_where); die;
+		
+
+		// $query = array_merge($last_query1, $last_query2);
+		$query = 'select * from (' . $last_query1 . ' UNION ' . $last_query2 . ') new_query WHERE idpaket_belanja NOT IN (' . $last_query_where . ')';
+		// echo "<pre>"; print_r($query); die;
+
+		$crud_table->set_manual_query($query);
+
+		$crud_table->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud_table->set_filter('nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud_table->set_sorting('nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud_table->set_select_align(' , , right');
+		$crud_table->set_edit(false);
+		$crud_table->set_delete(false);
+		$crud_table->set_id('paket_belanja');
+		// $crud_table->set_custom_first_column(true);
+		
+		$crud_table->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud_table->set_custom_style('custom_style');
+		$crud_table->set_table('paket_belanja');
+		echo $crud_table->get_table();
+
+		// SELECT 
+		// pb.idpaket_belanja,
+		// p.nama_program,
+		// pb.nama_paket_belanja,
+		// pb.nilai_anggaran
+
+		// FROM paket_belanja pb
+		// JOIN sub_kegiatan sk ON sk.idsub_kegiatan = pb.idsub_kegiatan
+		// JOIN kegiatan k ON k.idkegiatan = sk.idkegiatan
+		// JOIN program p ON p.idprogram = k.idprogram
+		// JOIN paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja
+		// JOIN paket_belanja_detail_sub pbds
+		// ON (
+		// 	-- Ambil yang langsung dari detail (bukan anak dari kategori)
+		// 	pbds.idpaket_belanja_detail = pbd.idpaket_belanja_detail
+		// 	OR pbds.is_idpaket_belanja_detail_sub IN (
+		// 		-- Ambil anak-anak dari sub-detail lain yang berelasi dengan detail
+		// 		SELECT sub.idpaket_belanja_detail_sub
+		// 		FROM paket_belanja_detail_sub sub
+		// 		WHERE sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail
+		// 	)
+		// )
+
+		// -- WHERE: Semua kondisi penyaringan
+		// WHERE 
+		// YEAR(pb.created) = 2025
+		// AND pb.status_paket_belanja = 'OK'
+		// AND pb.is_active = 1
+		// AND pb.status = 1
+		// AND pbd.status = 1
+		// AND `pbds`.`status` = 1
+		// AND pbds.volume IS NOT NULL
+		// AND pbds.idsatuan IS NOT NULL
+		// AND pbds.harga_satuan IS NOT NULL
+		// AND pbds.jumlah IS NOT NULL
+		// GROUP BY pb.idpaket_belanja,
+		// p.nama_program,
+		// pb.nama_paket_belanja,
+		// pb.nilai_anggaran
+
+		// return $paket_belanja;
 	}
 
-	function query_paket_belanja_detail_sub($idpaket_belanja_detail_sub) {
-		$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-		$this->db->where('paket_belanja_detail_sub.status', 1);
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
+	function custom_style($key, $value, $data) {
+		
+		if ($key == 'nilai_anggaran') {
+			return az_thousand_separator($value);
+		}
 
-		return $paket_belanja_detail_sub;
+		return $value;
 	}
 }

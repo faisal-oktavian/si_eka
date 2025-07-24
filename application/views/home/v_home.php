@@ -240,7 +240,7 @@
 			// var realisasi_anggaran_tahun_ini = <?php echo isset($total_realisasi_tahun_ini) ? $total_realisasi_tahun_ini : 0; ?>;
 			// var realisasi_anggaran_tahun_ini = 10000000000; // TODO: ganti dengan data realisasi dari backend jika perlu
 			var total_anggaran_tahun_ini = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
-			var realisasi_anggaran_tahun_ini = <?php echo isset($sudah_dibayar) ? $sudah_dibayar : 0; ?>;
+			var realisasi_anggaran_tahun_ini = <?php echo isset($realisasi_anggaran_tahun_ini) ? $realisasi_anggaran_tahun_ini : 0; ?>;
 			
 			var sisa_anggaran_tahun_ini = total_anggaran_tahun_ini - realisasi_anggaran_tahun_ini;
 
@@ -317,13 +317,13 @@
 		<div class="row" style="margin-top:30px;">
 			<div class="col-md-12 col-xs-12" style="margin:auto;">
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-					<div class="d-flex align-items-center" style="margin-bottom:18px;">
+					<!-- <div class="d-flex align-items-center" style="margin-bottom:18px;">
 						<i class="fa fa-bar-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
 						<span class="title-chart" style="font-size:20px;">Perbandingan Target & Realisasi Anggaran per Bulan (Tahun <?php echo $tahun_ini; ?>)</span>
-					</div>
+					</div> -->
 					<div class="row">
 						<div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
-							<canvas id="barAnggaranChart" height="180"></canvas>
+							<canvas id="perbandingan" height="120"></canvas>
 						</div>
 					</div>
 				</div>
@@ -341,172 +341,91 @@
 			var realisasiPerBulan = <?php echo json_encode($realisasi_per_bulan); ?>;
 			var tahunGrafik = <?php echo isset($tahun_ini) ? $tahun_ini : date('Y'); ?>;
 
-			var ctxBar = document.getElementById('barAnggaranChart').getContext('2d');
-			var barAnggaranChart = new Chart(ctxBar, {
+			var ctx2 = document.getElementById("perbandingan").getContext('2d');
+			var perbandingan = new Chart(ctx2, {
 				type: 'bar',
 				data: {
 					labels: bulanLabels,
 					datasets: [
 						{
 							label: 'Target',
-							data: targetPerBulan,
-							backgroundColor: 'rgba(33, 150, 243, 0.6)',
-							borderColor: '#2196f3',
-							borderWidth: 2
+							backgroundColor: 'rgba(220, 0, 48, 0.85)',
+							data: <?= json_encode($target_per_bulan) ?>
 						},
 						{
 							label: 'Realisasi',
-							data: realisasiPerBulan,
-							backgroundColor: 'rgba(76, 175, 80, 0.6)',
-							borderColor: '#4caf50',
-							borderWidth: 2
+							backgroundColor: 'rgba(54, 163, 235, 0.87)',
+							data: <?= json_encode($realisasi_per_bulan) ?>
 						}
 					]
 				},
 				options: {
 					responsive: true,
-					maintainAspectRatio: false,
-					scales: {
-						x: {
-							stacked: true
-						},
-						y: {
-							stacked: true,
-							beginAtZero: true
-						}
-					},
 					plugins: {
-						legend: {
-							position: 'top',
-							labels: {
-								boxWidth: 12
+						title: {
+							display: true,
+							text: 'Perbandingan Target & Realisasi Anggaran per Bulan (Tahun ' + tahunGrafik + ')',
+							font: {
+								size: 18
 							}
 						},
 						tooltip: {
-							callbacks: {
-								label: function(context) {
-									var label = context.dataset.label || '';
-									var value = context.raw || 0;
-									return label + ': ' + formatRupiah(value);
+							mode: 'index',
+							intersect: false
+						},
+						legend: {
+							position: 'bottom'
+						}
+					},
+					interaction: {
+						mode: 'nearest',
+						axis: 'x',
+						intersect: false
+					},
+					scales: {
+						x: {
+							title: {
+								display: true,
+								text: 'Bulan'
+							},
+							ticks: {
+								font: {
+									weight: 'bold'
+								}
+							}
+						},
+						y: {
+							title: {
+								display: true,
+								text: 'Nilai Anggaran'
+							},
+							beginAtZero: true,
+							ticks: {
+								callback: function(value) {
+									return 'Rp ' + new Intl.NumberFormat().format(value);
 								}
 							}
 						}
 					}
 				}
 			});
+
 		</script>
 
 		<!-- Grafik Bar Target & Realisasi dalam beberapa Tahun -->
-
-		<!-- Tabel Paket Belanja Belum Terealisasi -->
-		<div class="row" style="margin-top:24px;">
+		 <div class="row" style="margin-top:24px;">
 			<div class="col-md-12">
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:18px 0 18px 0; background:#fff;">
-					<div class="d-flex align-items-center" style="margin-bottom:18px;">
+					<div class="d-flex align-items-center" style="margin-bottom:10px; text-align:center;">
 						<i class="fa fa-bar-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Data Paket Belanja Yang Belum Terealisasi Pada Tahun (<?php echo $tahun_ini; ?>)</span>
+						<span class="title-chart" style="font-size:20px;">Data Paket Belanja Yang Belum Terealisasi Pada Tahun <?php echo $tahun_ini; ?></span>
 					</div>
 					<div class="table-responsive" style="padding:0 18px;">
-						<table id="tabel-belanja-belum-realisasi" class="table table-bordered table-striped" style="width:100%;margin-bottom:0;">
-							<thead>
-								<tr>
-									<th style="width:40px;">#</th>
-									<th>Program</th>
-									<th>Paket Belanja</th>
-									<th style="width:140px;">Anggaran</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Pemeliharaan arsitektur gedung dan bangunan pelayanan</td>
-									<td>449.500.000</td>
-								</tr>
-								<tr>
-									<td>2</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Pemeliharaan Sipil, Arsitektur Gedung dan Bangunan Pelayanan</td>
-									<td>237.800.000</td>
-								</tr>
-								<tr>
-									<td>3</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Rehap Gedung Rawat Inap Anggrek Tahap II</td>
-									<td>1.732.405.000</td>
-								</tr>
-								<tr>
-									<td>4</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Pelatihan Manajemen SPI Rumah Sakit</td>
-									<td>10.000.000</td>
-								</tr>
-								<tr>
-									<td>5</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Pembuatan Pondasi Penahan Tanah Depan Gedung UKM</td>
-									<td>119.129.000</td>
-								</tr>
-								<tr>
-									<td>6</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Rehab Ruang Rapat Poli Lantai II Menjadi Ruang Komite</td>
-									<td>103.299.000</td>
-								</tr>
-								<tr>
-									<td>7</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Sosialisasi Perpajakan (SPT Pajak Tahunan)</td>
-									<td>13.250.000</td>
-								</tr>
-								<tr>
-									<td>8</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Audit Umum atas Laporan Keuangan RSUD Sumberglagah Tahun 2024</td>
-									<td>85.000.000</td>
-								</tr>
-								<tr>
-									<td>9</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Kegiatan RS Pendidikan</td>
-									<td>55.000.000</td>
-								</tr>
-								<tr>
-									<td>10</td>
-									<td>PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH PROVINSI</td>
-									<td>Perubahan Dinding Partisi Ruang Fisioterapi</td>
-									<td>34.172.000</td>
-								</tr>
-								<!-- Tambahkan data dummy jika diperlukan -->
-							</tbody>
-						</table>
+						<?php echo $belum_terealisasi;?>
 					</div>
 				</div>
 			</div>
 		</div>
-
-		<!-- DataTables CDN -->
-		<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"> -->
-		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-		<!-- <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script> -->
-		<script>
-			$(document).ready(function() {
-				$('#tabel-belanja-belum-realisasi').DataTable({
-					"language": {
-						"search": "Search:",
-						"lengthMenu": "Show _MENU_ entries",
-						"info": "Showing _START_ to _END_ of _TOTAL_ entries",
-						"paginate": {
-							"first": "First",
-							"last": "Last",
-							"next": "Next",
-							"previous": "Previous"
-						},
-						"zeroRecords": "No data found"
-					}
-				});
-			});
-		</script>
 <?php
 	} 
 ?>
