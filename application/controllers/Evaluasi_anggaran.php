@@ -378,15 +378,28 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
 		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
 
+		if ($paket_belanja_detail->num_rows() > 0) {
+			$idkategori = $paket_belanja_detail->row()->idkategori;
+			$idpaket_belanja_detail_sub = $paket_belanja_detail->row()->idpaket_belanja_detail_sub;
+			if (strlen($idkategori) > 0) {
+				$paket_belanja_detail = $this->query_paket_belanja_detail_sub($idpaket_belanja_detail_sub, true);
+			}
+		}
+
 		return $paket_belanja_detail;
 	}
 
-	function query_paket_belanja_detail_sub($idpaket_belanja_detail_sub) {
+	function query_paket_belanja_detail_sub($idpaket_belanja_detail_sub, $join_kategori = false) {
+		$query_category = '';
+		if ($join_kategori) {
+			$query_category = ', "" as nama_kategori, "" as no_rekening_akunbelanja';
+		}
+
 		$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$this->db->where('paket_belanja_detail_sub.status', 1);
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah'.$query_category);
 		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
 
 		return $paket_belanja_detail_sub;
@@ -720,9 +733,11 @@ class Evaluasi_anggaran extends CI_Controller {
 				'sisa_rp'					=> $sisa_rp,
 			);
 		}
-		 
-		$grand_capaian_sampai = ($grand_realisasi_rp_sampai / $grand_total_anggaran) * 100;
-		$grand_capaian_sampai = round($grand_capaian_sampai);
+	
+		if ($paket_belanja_detail->num_rows() > 0) {
+			$grand_capaian_sampai = ($grand_realisasi_rp_sampai / $grand_total_anggaran) * 100;
+			$grand_capaian_sampai = round($grand_capaian_sampai);	
+		}
 
 		$arr_data['data'] = array(
 			'idpaket_belanja_detail' 		=> $idpaket_belanja_detail,
