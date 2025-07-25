@@ -375,3 +375,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $select->render();
         }
     }
+
+    if(!function_exists('az_select_nama_ruang')){
+        function az_select_nama_ruang($id = 'ruang', $class='', $attr='ruang') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            // $select->set_select_parent($parent);
+            $select->set_url('data/get_room');
+            $select->set_placeholder('Pilih Ruang');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idruang'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }

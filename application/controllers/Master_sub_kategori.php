@@ -19,7 +19,7 @@ class Master_sub_kategori extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Nama Sub Kategori', 'Wajib isi jenis kelamin', 'Status', azlang('Action')));
+		$crud->set_column(array('#', 'Nama Sub Kategori', 'Wajib Isi Jenis Kelamin', 'Wajib Isi Keterangan', 'Wajib Isi Ruang', 'Wajib Isi Nama Diklat', 'Status', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -60,11 +60,11 @@ class Master_sub_kategori extends CI_Controller {
 		$nama_sub_kategori = $this->input->get('vf_nama_sub_kategori');
 		$is_active = $this->input->get('vf_is_active');
 
-		$crud->set_select('idsub_kategori, nama_sub_kategori, is_gender, is_active');
-		$crud->set_select_table('idsub_kategori, nama_sub_kategori, is_gender, is_active');
-		$crud->set_filter('nama_sub_kategori, is_gender');
-		$crud->set_sorting('nama_sub_kategori, is_gender');
-		$crud->set_select_align(' ,center, center');
+		$crud->set_select('idsub_kategori, nama_sub_kategori, is_gender, is_description, is_room, is_name_training, is_active');
+		$crud->set_select_table('idsub_kategori, nama_sub_kategori, is_gender, is_description, is_room, is_name_training, is_active');
+		$crud->set_filter('nama_sub_kategori, is_gender, is_description, is_room, is_name_training');
+		$crud->set_sorting('nama_sub_kategori, is_gender, is_description, is_room, is_name_training');
+		$crud->set_select_align(' ,center, center, center, center, center');
 		$crud->set_id($this->controller);
 		$crud->add_where('status = "1" ');
 		if (strlen($nama_sub_kategori) > 0) {
@@ -105,6 +105,48 @@ class Master_sub_kategori extends CI_Controller {
 			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
 		}
 
+		if ($key == 'is_description') {
+			$lbl = 'info';
+			$tlbl = '-';
+			if ($value == "1") {
+				$lbl = 'default';
+				$tlbl = 'Ya';
+			}
+			else if ($value == "0") {
+				$lbl = 'warning';
+				$tlbl = 'Tidak';
+			}
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
+		if ($key == 'is_room') {
+			$lbl = 'info';
+			$tlbl = '-';
+			if ($value == "1") {
+				$lbl = 'default';
+				$tlbl = 'Ya';
+			}
+			else if ($value == "0") {
+				$lbl = 'warning';
+				$tlbl = 'Tidak';
+			}
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
+		if ($key == 'is_name_training') {
+			$lbl = 'info';
+			$tlbl = '-';
+			if ($value == "1") {
+				$lbl = 'default';
+				$tlbl = 'Ya';
+			}
+			else if ($value == "0") {
+				$lbl = 'warning';
+				$tlbl = 'Tidak';
+			}
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
 		if ($key == 'action') {
 			$idsub_kategori = azarr($data, 'idsub_kategori');
 			$btn = $value;
@@ -128,6 +170,9 @@ class Master_sub_kategori extends CI_Controller {
 		$this->form_validation->set_rules('nama_sub_kategori', 'Nama Sub Kategori', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_gender', 'Jenis Kelamin', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_description', 'Keterangan', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_room', 'Ruang', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_name_training', 'Nama Diklat', 'required|trim|max_length[200]');
 		
 		$err_code = 0;
 		$err_message = '';
@@ -138,6 +183,9 @@ class Master_sub_kategori extends CI_Controller {
 				'nama_sub_kategori' => azarr($data_post, 'nama_sub_kategori'), 
 				'is_active' => azarr($data_post, 'is_active'),
 				'is_gender' => azarr($data_post, 'is_gender'),
+				'is_description' => azarr($data_post, 'is_description'),
+				'is_room' => azarr($data_post, 'is_room'),
+				'is_name_training' => azarr($data_post, 'is_name_training'),
 			);
 
 			$response_save = az_crud_save($idpost, $this->table, $data_save);
@@ -155,7 +203,7 @@ class Master_sub_kategori extends CI_Controller {
 	}
 
 	public function edit() {
-		az_crud_edit('idsub_kategori, nama_sub_kategori, is_active, is_gender');
+		az_crud_edit('idsub_kategori, nama_sub_kategori, is_active, is_gender, is_description, is_room, is_name_training');
 	}
 
 	public function delete() {

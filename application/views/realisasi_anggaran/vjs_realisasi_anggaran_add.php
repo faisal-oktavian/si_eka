@@ -122,6 +122,9 @@
 
 					if (iduraian != "") {
 						get_validate_gender(iduraian);
+						get_validate_description(iduraian);
+						get_validate_room(iduraian);
+						get_validate_name_training(iduraian);
 					}
 				},
 				error: function(response) {}
@@ -156,6 +159,66 @@
 				}
 				else {
 					jQuery('.gender').addClass('hide');
+				}
+			}
+		});
+	}
+
+	function get_validate_description(iduraian) {
+		jQuery.ajax({
+			url : app_url + 'realisasi_anggaran/get_validate_description?id='+iduraian,
+			method : 'get',
+			dataType : 'json',
+			success : function(res){
+				console.log(res);
+
+				jQuery('#transaction_description').val('');
+				
+				if (res == 1) {
+					jQuery('.description').removeClass('hide');
+				}
+				else {
+					jQuery('.description').addClass('hide');
+				}
+			}
+		});
+	}
+
+	function get_validate_room(iduraian) {
+		jQuery.ajax({
+			url : app_url + 'realisasi_anggaran/get_validate_room?id='+iduraian,
+			method : 'get',
+			dataType : 'json',
+			success : function(res){
+				console.log(res);
+
+				jQuery('#idruang').val('').trigger('change.select2');
+				
+				if (res == 1) {
+					jQuery('.room').removeClass('hide');
+				}
+				else {
+					jQuery('.room').addClass('hide');
+				}
+			}
+		});
+	}
+
+	function get_validate_name_training(iduraian) {
+		jQuery.ajax({
+			url : app_url + 'realisasi_anggaran/get_validate_training?id='+iduraian,
+			method : 'get',
+			dataType : 'json',
+			success : function(res){
+				console.log(res);
+
+				jQuery('#name_training').val('');
+				
+				if (res == 1) {
+					jQuery('.training').removeClass('hide');
+				}
+				else {
+					jQuery('.training').addClass('hide');
 				}
 			}
 		});
@@ -278,13 +341,18 @@
 					jQuery('#ppn').val(thousand_separator(response.data.ppn));
 					jQuery('#pph').val(thousand_separator(response.data.pph));
 					jQuery('#total').val(thousand_separator(response.data.total));
-					jQuery('#transaction_description').val(response.data.transaction_description);
-
+					
 					get_validate_gender(response.data.iduraian);
+					get_validate_description(response.data.iduraian);
+					get_validate_room(response.data.iduraian);
+					get_validate_name_training(response.data.iduraian);
 
 					setTimeout(function() {
 						jQuery('#laki').val(response.data.laki);
 						jQuery('#perempuan').val(response.data.perempuan);
+						jQuery('#transaction_description').val(response.data.transaction_description);
+						jQuery('#idruang').val(response.data.idruang);
+						jQuery('#name_training').val(response.data.name_training);
 					}, 500);
 				}, 1000);
 			},

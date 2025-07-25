@@ -60,8 +60,20 @@
                 <select class="form-control" name="iduraian" id="iduraian"></select>
             </div>
         </div>
+        <div class="form-group room">
+            <label class="control-label col-md-3">Nama Ruang <red>*</red></label>
+            <div class="col-md-8">
+                <?php echo az_select_nama_ruang('ruang');?>
+            </div>
+        </div>
+        <div class="form-group training">
+            <label class="control-label col-md-3">Nama Diklat <red>*</red></label>
+            <div class="col-md-8">
+                <input type="text" class="form-control" id="name_training" name="name_training"/>
+            </div>
+        </div>
         <div class="form-group">
-            <label class="control-label col-md-3">Volume</label>
+            <label class="control-label col-md-3">Volume <red>*</red></label>
             <div class="col-md-8">
                 <input type="text" class="form-control format-number txt-right volume" id="volume" name="volume"/>
             </div>
@@ -117,7 +129,7 @@
             </div>
         </div>
     </div>
-	<div class="form-group non-desain">
+	<div class="form-group description">
 		<label class="control-label col-md-3">Keterangan</label>
 		<div class="col-md-8">
 			<textarea class="form-control" name="transaction_description" id="transaction_description" rows="5"></textarea>

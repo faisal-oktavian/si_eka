@@ -30,8 +30,8 @@ class Realisasi_anggaran extends CI_Controller {
 		$date1->set_id('date1');
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
-		// $date1->set_value('01-'.Date('m-Y'));
-		$date1->set_value('01-01-'.Date('Y'));
+		$date1->set_value('01-'.Date('m-Y'));
+		// $date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
@@ -321,6 +321,8 @@ class Realisasi_anggaran extends CI_Controller {
 		$idpaket_belanja = $this->input->post('idpaket_belanja');
 	 	$penyedia = $this->input->post('penyedia');
 	 	$iduraian = $this->input->post('iduraian');
+	 	$idruang = $this->input->post('idruang');
+	 	$name_training = $this->input->post('name_training');
 		$volume = az_crud_number($this->input->post('volume'));	
 		$laki = az_crud_number($this->input->post('laki'));
 		$perempuan = az_crud_number($this->input->post('perempuan'));
@@ -334,12 +336,6 @@ class Realisasi_anggaran extends CI_Controller {
 
 
 		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idpaket_belanja', 'Paket Belanja', 'required');
-		$this->form_validation->set_rules('iduraian', 'Uraian', 'required');
-		$this->form_validation->set_rules('volume', 'Volume', 'required');
-		$this->form_validation->set_rules('volume', 'Volume', 'required');
-
-
 		$this->form_validation->set_rules('idpaket_belanja', 'Paket Belanja', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('penyedia', 'Penyedia', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('iduraian', 'Uraian', 'required|trim|max_length[200]');
@@ -389,10 +385,13 @@ class Realisasi_anggaran extends CI_Controller {
 			$this->form_validation->set_rules('perempuan', 'Perempuan', 'required|trim|max_length[200]');
 		}
 		if ($validate_description) {
+			$this->form_validation->set_rules('transaction_description', 'Keterangan', 'required');
 		}
 		if ($validate_room) {
+			$this->form_validation->set_rules('idruang', 'Nama Ruang', 'required|trim|max_length[200]');
 		}
 		if ($validate_name_training) {
+			$this->form_validation->set_rules('name_training', 'Nama Diklat', 'required|trim|max_length[200]');
 		}
 
 		if ($this->form_validation->run() == FALSE) {
@@ -529,6 +528,8 @@ class Realisasi_anggaran extends CI_Controller {
 					'idpaket_belanja' => $idpaket_belanja,
 					'penyedia' => $penyedia,
 					'iduraian' => $iduraian,
+					'idruang' => $idruang,
+					'name_training' => $name_training,
 					'volume' => $volume,
 					'laki' => $laki,
 					'perempuan' => $perempuan,
@@ -650,7 +651,7 @@ class Realisasi_anggaran extends CI_Controller {
 		
 		$this->db->where('idtransaction_detail', $id);
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-		$this->db->select('transaction_detail.idpaket_belanja, transaction_detail.penyedia, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, transaction_detail.volume, transaction_detail.harga_satuan, transaction_detail.ppn, transaction_detail.pph, transaction_detail.total, transaction_detail.transaction_description, transaction_detail.laki, transaction_detail.perempuan');
+		$this->db->select('transaction_detail.idpaket_belanja, transaction_detail.penyedia, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, transaction_detail.volume, transaction_detail.harga_satuan, transaction_detail.ppn, transaction_detail.pph, transaction_detail.total, transaction_detail.transaction_description, transaction_detail.laki, transaction_detail.perempuan, transaction_detail.idruang, transaction_detail.name_training');
 		$trxd = $this->db->get('transaction_detail')->result_array();
 
 		$ret = array(
@@ -752,6 +753,45 @@ class Realisasi_anggaran extends CI_Controller {
 		$is_gender = $sub_kategori->row()->is_gender;
 		
 		echo json_encode($is_gender);
+	}
+
+	public function get_validate_description() {
+
+		$id = $this->input->get('id');
+
+		$this->db->where('idsub_kategori', $id);
+		$this->db->select('is_description');
+		$sub_kategori = $this->db->get('sub_kategori');
+
+		$is_description = $sub_kategori->row()->is_description;
+		
+		echo json_encode($is_description);
+	}
+
+	public function get_validate_room() {
+
+		$id = $this->input->get('id');
+
+		$this->db->where('idsub_kategori', $id);
+		$this->db->select('is_room');
+		$sub_kategori = $this->db->get('sub_kategori');
+
+		$is_room = $sub_kategori->row()->is_room;
+		
+		echo json_encode($is_room);
+	}
+
+	public function get_validate_training() {
+
+		$id = $this->input->get('id');
+
+		$this->db->where('idsub_kategori', $id);
+		$this->db->select('is_name_training');
+		$sub_kategori = $this->db->get('sub_kategori');
+
+		$is_name_training = $sub_kategori->row()->is_name_training;
+		
+		echo json_encode($is_name_training);
 	}
 
 	function get_data_utama($the_data) {
