@@ -562,7 +562,8 @@ class Evaluasi_anggaran extends CI_Controller {
 				$this->db->where('transaction_detail.iduraian', $ds_value->idsub_kategori);
 				$this->db->where('transaction.transaction_status != "DRAFT" ');
 				$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-				$this->db->select('date_format(transaction_date, "%d-%m-%Y") as transaction_date, penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
+				$this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
+        		MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
 				$trxd = $this->db->get('transaction_detail');
 				// echo "<pre>"; print_r($this->db->last_query());
 
@@ -798,7 +799,8 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->where('transaction_detail.iduraian', $idsub_kategori);
 		$this->db->where('transaction.transaction_status != "DRAFT" ');
 		$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->select('date_format(transaction_date, "%d-%m-%Y") as transaction_date, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
+		$this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
+        MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
 		$trxd = $this->db->get('transaction_detail');
 		// echo "<pre>"; print_r($this->db->last_query());
 
