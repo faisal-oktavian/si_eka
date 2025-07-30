@@ -229,10 +229,20 @@
             <td class="col-vol bold <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($data['grand_realisasi_vol_sampai']); ?></td>
             <td class="col-rp bold <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right">Rp. <?php echo az_thousand_separator($data['grand_realisasi_rp_sampai']); ?></td>
             
+            <?php
+                $bg_color_rp = '';
+
+                if ($data['tw'] == 4) {
+                    if ($data['grand_sisa_vol'] == 0 && $data['grand_sisa_rp'] != 0) {
+                        $bg_color_rp = '#f0ed21';
+                    }
+                }
+            ?>
+            
             <!-- sisa realisasi -->
             <td class="col-persentase bold" align="right"><?php echo az_thousand_separator($data['grand_capaian_sampai']); ?> %</td>
             <td class="col-sisa-vol bold" align="center"><?php echo az_thousand_separator($data['grand_sisa_vol']); ?></td>
-            <td class="col-sisa-rp bold" align="right">Rp. <?php echo az_thousand_separator($data['grand_sisa_rp']); ?></td>
+            <td class="col-sisa-rp bold" align="right" style="background-color: <?php echo $bg_color_rp;?>;">Rp. <?php echo az_thousand_separator($data['grand_sisa_rp']); ?></td>
         </tr>
 
         <?php
@@ -292,10 +302,21 @@
                     <td class="col-vol <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sampai']); ?></td>
                     <td class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sampai']); ?></td>
 
+
+                    <?php
+                        $bg_color_rp = '';
+
+                        if ($data['tw'] == 4) {
+                            if ($value['sisa_vol'] == 0 && $value['sisa_rp'] != 0) {
+                                $bg_color_rp = '#f0ed21';
+                            }
+                        }
+                    ?>
+
                     <!-- sisa realisasi -->
                     <td class="col-persentase" align="right"><?php echo az_thousand_separator($value['capaian_sampai']); ?> %</td>
                     <td class="col-sisa-vol" align="center"><?php echo az_thousand_separator($value['sisa_vol']); ?></td>
-                    <td class="col-sisa-rp" align="right">Rp. <?php echo az_thousand_separator($value['sisa_rp']); ?></td>
+                    <td class="col-sisa-rp" align="right" style="background-color: <?php echo $bg_color_rp;?>;">Rp. <?php echo az_thousand_separator($value['sisa_rp']); ?></td>
                 </tr>
         <?php
             }

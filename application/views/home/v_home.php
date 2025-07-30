@@ -224,11 +224,11 @@
 					var idx = activePoints[0].index;
 					// Tentukan link berdasarkan index
 					if (idx === 0) {
-						window.open('<?= site_url("realisasi-anggaran-detail/sudah-dibayar") ?>', '_blank');
+						window.open('<?= site_url("realisasi_anggaran_detail/sudah_dibayar") ?>', '_blank');
 					} else if (idx === 1) {
-						window.open('<?= site_url("realisasi-anggaran-detail/belum-dibayar") ?>', '_blank');
+						window.open('<?= site_url("realisasi_anggaran_detail/belum_dibayar") ?>', '_blank');
 					} else if (idx === 2) {
-						window.open('<?= site_url("realisasi-anggaran-detail/belum-direalisasi") ?>', '_blank');
+						window.open('<?= site_url("realisasi_anggaran_detail/belum_direalisasi") ?>', '_blank');
 					}
 				}
 			};
@@ -272,7 +272,7 @@
 						],
 						backgroundColor: [
 							'#2196f3', // Biru untuk Realisasi Anggaran
-							'#c3c3c3'  // Oranye untuk Sisa Anggaran
+							'#c3c3c3'  // Abu-abu untuk Sisa Anggaran
 						],
 						borderWidth: 2,
 						borderColor: '#fff',
@@ -300,18 +300,18 @@
 			});
 
 			// Tambahkan event click pada chart Potensi Sisa Anggaran
-			document.getElementById('piePotensiSisaChart').onclick = function(evt) {
-				var activePoints = piePotensiSisaChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-				if (activePoints.length > 0) {
-					var idx = activePoints[0].index;
-					// Tentukan link berdasarkan index
-					if (idx === 0) {
-						window.open('<?= site_url("potensi-sisa-anggaran-detail/realisasi") ?>', '_blank');
-					} else if (idx === 1) {
-						window.open('<?= site_url("potensi-sisa-anggaran-detail/sisa") ?>', '_blank');
-					}
-				}
-			};
+			// document.getElementById('piePotensiSisaChart').onclick = function(evt) {
+			// 	var activePoints = piePotensiSisaChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+			// 	if (activePoints.length > 0) {
+			// 		var idx = activePoints[0].index;
+			// 		// Tentukan link berdasarkan index
+			// 		if (idx === 0) {
+			// 			window.open('<?= site_url("realisasi_anggaran_detail/sudah_dibayar") ?>', '_blank');
+			// 		} else if (idx === 1) {
+			// 			window.open('<?= site_url("realisasi_anggaran_detail/potensi_sisa_anggaran") ?>', '_blank');
+			// 		}
+			// 	}
+			// };
 		</script>
 
 		<div class="row" style="margin-top:30px;">
