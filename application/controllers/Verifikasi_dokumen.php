@@ -22,6 +22,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$crud->set_column(array('#', 'Tanggal Input Dokumen', 'Tanggal Verifikasi Dokumen', 'Nomor Dokumen', 'Detail', 'Status Verifikasi', 'Keterangan Verifikasi', 'User Input', 'User Verifikasi', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
+		$crud->set_btn_add(false);
 
 		$date1 = $azapp->add_datetime();
 		$date1->set_id('date1');
@@ -45,8 +46,9 @@ class Verifikasi_dokumen extends CI_Controller {
 		$vf = $this->load->view('verifikasi_dokumen/vf_verifikasi_dokumen', $data, true);
         $crud->set_top_filter($vf);
 
-		if (!aznav('role_crud')) {
-			$crud->set_btn_add(false);
+		if (aznav('role_crud')) {
+			$btn = "<button class='btn btn-primary az-btn-primary btn-add-verifikasi-dokumen' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
+			$crud->set_btn_top_custom($btn);
 		}
 
 		$v_modal = $this->load->view('verifikasi_dokumen/v_verifikasi_modal', '', true);

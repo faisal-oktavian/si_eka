@@ -1,5 +1,5 @@
 <script>
-	jQuery('body').on('click', '.btn-add-verifikasi_dokumen', function() {
+	jQuery('body').on('click', '.btn-add-verifikasi-dokumen', function() {
 		location.href = app_url + 'verifikasi_dokumen/add';
 	});
 
