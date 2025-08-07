@@ -93,7 +93,7 @@
 							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
 								<span style="display:inline-block;width:18px;height:18px;background:#ff9800;margin-right:10px;border-radius:4px;"></span>
 								<div>
-									<div style="font-weight:600;">Belum Dibayar</div>
+									<div style="font-weight:600;">Proses Verifikasi</div>
 									<div id="label-belum-dibayar" style="font-size:15px;"></div>
 								</div>
 							</div>
@@ -158,7 +158,8 @@
 			var nominal_belum_dibayar = <?php echo isset($belum_dibayar) ? $belum_dibayar : 0; ?>;
 			var nominal_belum_direalisasi = <?php echo isset($belum_direalisasi) ? $belum_direalisasi : 0; ?>;
 
-			var total = nominal_sudah_dibayar + nominal_belum_dibayar + nominal_belum_direalisasi;
+			// var total = nominal_sudah_dibayar + nominal_belum_dibayar + nominal_belum_direalisasi;
+			var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 
 			var persen_sudah_dibayar = total ? Math.round(nominal_sudah_dibayar / total * 100) : 0;
 			var persen_belum_dibayar = total ? Math.round(nominal_belum_dibayar / total * 100) : 0;

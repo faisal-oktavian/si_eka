@@ -458,6 +458,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$grand_capaian_sampai = 0;
 		$grand_sisa_vol = 0;
 		$grand_sisa_rp = 0;
+		$text_decoration_bulan_ke_1 = '';
 		$tanggal_bulan_ke_1 = 0;
 		$penyedia_bulan_ke_1 = 0;
 		$volume_bulan_ke_1 = 0;
@@ -467,6 +468,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$ppn_bulan_ke_1 = 0;
 		$pph_bulan_ke_1 = 0;
 		$total_bulan_ke_1 = 0;
+		$text_decoration_bulan_ke_2 = '';
 		$tanggal_bulan_ke_2 = 0;
 		$penyedia_bulan_ke_2 = 0;
 		$volume_bulan_ke_2 = 0;
@@ -476,6 +478,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$ppn_bulan_ke_2 = 0;
 		$pph_bulan_ke_2 = 0;
 		$total_bulan_ke_2 = 0;
+		$text_decoration_bulan_ke_3 = '';
 		$tanggal_bulan_ke_3 = 0;
 		$penyedia_bulan_ke_3 = 0;
 		$volume_bulan_ke_3 = 0;
@@ -670,67 +673,80 @@ class Evaluasi_anggaran extends CI_Controller {
 			$grand_sisa_vol += $sisa_vol;
 			$grand_sisa_rp += $sisa_rp;
 
+			if ($total_bulan_ke_1 == 0 || $total_bulan_ke_1 == '') {
+				$text_decoration_bulan_ke_1 = 'color: red;';
+			}
+			if ($total_bulan_ke_2 == 0 || $total_bulan_ke_2 == '') {
+				$text_decoration_bulan_ke_2 = 'color: red;';
+			}
+			if ($total_bulan_ke_3 == 0 || $total_bulan_ke_3 == '') {
+				$text_decoration_bulan_ke_3 = 'color: red;';
+			}
+
 			$arr_detail[] = array(
-				'idkategori' 				=> $ds_value->idkategori,
-				'nama_kategori' 			=> $ds_value->nama_kategori,
-				'idsub_kategori'	 		=> $ds_value->idsub_kategori,
-				'nama_subkategori' 			=> $ds_value->nama_sub_kategori,
+				'idkategori' 					=> $ds_value->idkategori,
+				'nama_kategori' 				=> $ds_value->nama_kategori,
+				'idsub_kategori'	 			=> $ds_value->idsub_kategori,
+				'nama_subkategori' 				=> $ds_value->nama_sub_kategori,
 
 				// realisasi tw sebelumnya
-				'realisasi_lk_sebelumnya'	=> $realisasi_lk_sebelumnya,
-				'realisasi_pr_sebelumnya'	=> $realisasi_pr_sebelumnya,
-				'realisasi_vol_sebelumnya'	=> $realisasi_vol_sebelumnya,
-				'realisasi_rp_sebelumnya'	=> $realisasi_rp_sebelumnya,
+				'realisasi_lk_sebelumnya'		=> $realisasi_lk_sebelumnya,
+				'realisasi_pr_sebelumnya'		=> $realisasi_pr_sebelumnya,
+				'realisasi_vol_sebelumnya'		=> $realisasi_vol_sebelumnya,
+				'realisasi_rp_sebelumnya'		=> $realisasi_rp_sebelumnya,
 
 				// Bulan ke 1
-				'tanggal_bulan_ke_1'		=> $tanggal_bulan_ke_1,
-				'penyedia_bulan_ke_1'		=> $penyedia_bulan_ke_1,
-				'volume_bulan_ke_1'			=> $volume_bulan_ke_1,
-				'laki_bulan_ke_1'			=> $laki_bulan_ke_1,
-				'perempuan_bulan_ke_1'		=> $perempuan_bulan_ke_1,
-				'harga_satuan_bulan_ke_1'	=> $harga_satuan_bulan_ke_1,
-				'ppn_bulan_ke_1'			=> $ppn_bulan_ke_1,
-				'pph_bulan_ke_1'			=> $pph_bulan_ke_1,
-				'total_bulan_ke_1'			=> $total_bulan_ke_1,
+				'tanggal_bulan_ke_1'			=> $tanggal_bulan_ke_1,
+				'penyedia_bulan_ke_1'			=> $penyedia_bulan_ke_1,
+				'volume_bulan_ke_1'				=> $volume_bulan_ke_1,
+				'laki_bulan_ke_1'				=> $laki_bulan_ke_1,
+				'perempuan_bulan_ke_1'			=> $perempuan_bulan_ke_1,
+				'harga_satuan_bulan_ke_1'		=> $harga_satuan_bulan_ke_1,
+				'ppn_bulan_ke_1'				=> $ppn_bulan_ke_1,
+				'pph_bulan_ke_1'				=> $pph_bulan_ke_1,
+				'total_bulan_ke_1'				=> $total_bulan_ke_1,
+				'text_decoration_bulan_ke_1'	=> $text_decoration_bulan_ke_1,
 				
 				// Bulan ke 2
-				'tanggal_bulan_ke_2'		=> $tanggal_bulan_ke_2,
-				'penyedia_bulan_ke_2'		=> $penyedia_bulan_ke_2,
-				'volume_bulan_ke_2'			=> $volume_bulan_ke_2,
-				'laki_bulan_ke_2'			=> $laki_bulan_ke_2,
-				'perempuan_bulan_ke_2'		=> $perempuan_bulan_ke_2,
-				'harga_satuan_bulan_ke_2'	=> $harga_satuan_bulan_ke_2,
-				'ppn_bulan_ke_2'			=> $ppn_bulan_ke_2,
-				'pph_bulan_ke_2'			=> $pph_bulan_ke_2,
-				'total_bulan_ke_2'			=> $total_bulan_ke_2,
+				'tanggal_bulan_ke_2'			=> $tanggal_bulan_ke_2,
+				'penyedia_bulan_ke_2'			=> $penyedia_bulan_ke_2,
+				'volume_bulan_ke_2'				=> $volume_bulan_ke_2,
+				'laki_bulan_ke_2'				=> $laki_bulan_ke_2,
+				'perempuan_bulan_ke_2'			=> $perempuan_bulan_ke_2,
+				'harga_satuan_bulan_ke_2'		=> $harga_satuan_bulan_ke_2,
+				'ppn_bulan_ke_2'				=> $ppn_bulan_ke_2,
+				'pph_bulan_ke_2'				=> $pph_bulan_ke_2,
+				'total_bulan_ke_2'				=> $total_bulan_ke_2,
+				'text_decoration_bulan_ke_2'	=> $text_decoration_bulan_ke_2,
 
 				// Bulan ke 3
-				'tanggal_bulan_ke_3'		=> $tanggal_bulan_ke_3,
-				'penyedia_bulan_ke_3'		=> $penyedia_bulan_ke_3,
-				'volume_bulan_ke_3'			=> $volume_bulan_ke_3,
-				'laki_bulan_ke_3'			=> $laki_bulan_ke_3,
-				'perempuan_bulan_ke_3'		=> $perempuan_bulan_ke_3,
-				'harga_satuan_bulan_ke_3'	=> $harga_satuan_bulan_ke_3,
-				'ppn_bulan_ke_3'			=> $ppn_bulan_ke_3,
-				'pph_bulan_ke_3'			=> $pph_bulan_ke_3,
-				'total_bulan_ke_3'			=> $total_bulan_ke_3,
+				'tanggal_bulan_ke_3'			=> $tanggal_bulan_ke_3,
+				'penyedia_bulan_ke_3'			=> $penyedia_bulan_ke_3,
+				'volume_bulan_ke_3'				=> $volume_bulan_ke_3,
+				'laki_bulan_ke_3'				=> $laki_bulan_ke_3,
+				'perempuan_bulan_ke_3'			=> $perempuan_bulan_ke_3,
+				'harga_satuan_bulan_ke_3'		=> $harga_satuan_bulan_ke_3,
+				'ppn_bulan_ke_3'				=> $ppn_bulan_ke_3,
+				'pph_bulan_ke_3'				=> $pph_bulan_ke_3,
+				'total_bulan_ke_3'				=> $total_bulan_ke_3,
+				'text_decoration_bulan_ke_3'	=> $text_decoration_bulan_ke_3,
 
 				// realisasi tw saat ini
-				'realisasi_lk'				=> $realisasi_lk,
-				'realisasi_pr'				=> $realisasi_pr,
-				'realisasi_vol'				=> $realisasi_vol,
-				'realisasi_rp'				=> $realisasi_rp,
+				'realisasi_lk'					=> $realisasi_lk,
+				'realisasi_pr'					=> $realisasi_pr,
+				'realisasi_vol'					=> $realisasi_vol,
+				'realisasi_rp'					=> $realisasi_rp,
 
 				// total realisasi sampai tw saat ini
-				'realisasi_lk_sampai'		=> $realisasi_lk_sampai,
-				'realisasi_pr_sampai'		=> $realisasi_pr_sampai,
-				'realisasi_vol_sampai'		=> $realisasi_vol_sampai,
-				'realisasi_rp_sampai'		=> $realisasi_rp_sampai,
+				'realisasi_lk_sampai'			=> $realisasi_lk_sampai,
+				'realisasi_pr_sampai'			=> $realisasi_pr_sampai,
+				'realisasi_vol_sampai'			=> $realisasi_vol_sampai,
+				'realisasi_rp_sampai'			=> $realisasi_rp_sampai,
 
 				// sisa realisasi
-				'capaian_sampai'			=> $capaian_sampai,
-				'sisa_vol'					=> $sisa_vol,
-				'sisa_rp'					=> $sisa_rp,
+				'capaian_sampai'				=> $capaian_sampai,
+				'sisa_vol'						=> $sisa_vol,
+				'sisa_rp'						=> $sisa_rp,
 			);
 		}
 	

@@ -289,10 +289,22 @@ class Realisasi_anggaran extends CI_Controller {
 			}
 			else {
 				foreach ($dss->result() as $dss_key => $dss_value) {
+
+					// get nama kategori
+					$this->db->where('idpaket_belanja_detail_sub', $dss_value->is_idpaket_belanja_detail_sub);
+					$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori');
+					$this->db->select('nama_kategori');
+					$pbds = $this->db->get('paket_belanja_detail_sub');
+
+					$nama_kategori = "";
+					if ($pbds->num_rows() > 0) {
+						$nama_kategori = '[Kategori: '.$pbds->row()->nama_kategori.'] ';
+					}
+
 					$arr_data[] = array(
 						'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
 						'iduraian' => $dss_value->idsub_kategori,
-						'nama_uraian' => $dss_value->nama_sub_kategori,
+						'nama_uraian' => $nama_kategori.$dss_value->nama_sub_kategori,
 						'is_gender' =>$dss_value->is_gender,
 					);
 				}
@@ -424,6 +436,7 @@ class Realisasi_anggaran extends CI_Controller {
 				'idpaket_belanja' => $idpaket_belanja,
 				'transaction_date' => $transaction_date,
 			);
+			// var_dump($the_filter);die;
 
 			// ambil data DPA
 			$data_utama = $this->get_data_utama($the_filter);
@@ -471,7 +484,7 @@ class Realisasi_anggaran extends CI_Controller {
 				// validasi apakah jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan
 				if ($data_utama->row()->jumlah < (floatval($data_realisasi->row()->total_realisasi) + floatval($total))) {
 					$err_code++;
-					$err_message = "Jumlah yang direalisasikan melebihi jumlah dari DPA.";
+					$err_message = "Total Biaya yang direalisasikan melebihi jumlah dari DPA.";
 				}
 				// var_dump($data_utama->row()->jumlah.' < ('.floatval($data_realisasi->row()->total_realisasi).' + '.floatval($total).')'); echo "<br><br>";
 

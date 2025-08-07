@@ -32,6 +32,7 @@
 
 			jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
 			jQuery('#idtransaction_detail').val('');
+			jQuery('#iduraian').html('').val('');
 			jQuery('#form_add input, #form_add select, #form_add textarea').not('.x-hidden').val('').trigger('change.select2');	
 		}
 	});
@@ -107,14 +108,17 @@
 				success: function(response) {
 					var helper_iduraian = jQuery('#helper_iduraian').val();
 
+					// Reset option sebelumnya
+					jQuery('#iduraian').html('<option value="">--Pilih Uraian--</option>');
+
 					jQuery(response.results).each(function(adata, bdata) {
 						console.log(bdata);
 						var opt = "<option value='"+bdata.iduraian+"' data-id='"+bdata.iduraian+"' class='input-gender'>"+bdata.nama_uraian+"</option>";
 
 						jQuery('#iduraian').append(opt);
 					});
-					if (helper_iduraian != undefined) {
-						// jQuery('#iduraian').val(helper_iduraian).trigger('change');
+					if (iduraian != undefined) {
+						jQuery('#iduraian').val(iduraian)
 					}
 					else {
 						console.log('jos');

@@ -249,7 +249,7 @@ class Pembayaran extends CI_Controller {
 		$total_debet = doubleval(az_crud_number($this->input->post('total_debet')));
 		$confirm_payment_date = $this->input->post('debt_payment_date');
 		$date_now = Date('Y-m-d H:i:s');
-		
+
 		if (strlen($confirm_payment_date) > 0) {
 			$confirm_payment_date = az_crud_date($confirm_payment_date);
 		}
@@ -299,11 +299,12 @@ class Pembayaran extends CI_Controller {
 				$total_pay = $verification_data->total_pay + $total_pay;
 				$lack = $total_pay - $total_anggaran;
 
-				if ($lack >= 0) {
+				if ($lack > 0) {
 					$total_cash = $lack;
 				}
 			}
 		}
+
 
 		// validasi pembayaran non tunai tidak boleh melebihi total anggaran
 		if ($err_code == 0) {

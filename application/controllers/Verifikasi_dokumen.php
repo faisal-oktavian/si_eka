@@ -244,7 +244,10 @@ class Verifikasi_dokumen extends CI_Controller {
     function search_realisasi_anggaran() {
 		$keyword = $this->input->get("term");
 
+		$this->db->group_start();
 		$this->db->like('nama_paket_belanja', $keyword);
+		$this->db->or_like('transaction.transaction_code', $keyword);
+		$this->db->group_end();
 		$this->db->where('transaction.status', 1);
 		$this->db->where('transaction.transaction_status = "INPUT DATA" ');
 		$this->db->where('transaction_detail.status', 1);
@@ -254,7 +257,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		
 		$this->db->group_by('transaction.idtransaction, transaction_detail.idpaket_belanja');
 		$this->db->order_by("transaction.idtransaction");
-		$this->db->select('transaction.idtransaction as id, transaction_detail.idpaket_belanja, concat(transaction.transaction_code, " - ", paket_belanja.nama_paket_belanja) as text');
+		$this->db->select('transaction.idtransaction as id, transaction_detail.idpaket_belanja, concat(transaction.transaction_code, " - ", paket_belanja.nama_paket_belanja, " - (", date_format(transaction.transaction_date, "%d-%m-%Y %H:%i:%s"), ")") as text');
 		$data = $this->db->get("transaction");
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
