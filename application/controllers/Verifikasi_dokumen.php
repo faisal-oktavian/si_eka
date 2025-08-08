@@ -335,6 +335,52 @@ class Verifikasi_dokumen extends CI_Controller {
 				$save_verification = az_crud_save($idverification, 'verification', $arr_verification);
 				$idverification = azarr($save_verification, 'insert_id');
 			}
+			else {
+				// validasi apakah paket belanja yang diinputkan sama?
+				// jika dalam 1 dokumen paket belanja yang diinputkan tidak sama, maka ditolak
+
+				// query untuk ambil paket belanja yang sudah tersimpan
+				$this->db->where('verification_detail.idverification', $idverification);
+				$this->db->where('verification_detail.status', 1);
+				$this->db->where('transaction.status', 1);
+				$this->db->where('transaction_detail.status', 1);
+				$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
+				$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+				$this->db->group_by('transaction_detail.idpaket_belanja');
+				$this->db->select('transaction_detail.idpaket_belanja');
+				$verif_detail = $this->db->get('verification_detail');
+
+				// query untuk ambil paket belanja dari idtransaksi yang diinputkan
+				$this->db->where('transaction_detail.idtransaction', $idtransaction);
+				$this->db->where('transaction_detail.status', 1);
+				$this->db->group_by('transaction_detail.idpaket_belanja');
+				$this->db->select('transaction_detail.idpaket_belanja');
+				$trxd = $this->db->get('transaction_detail');
+
+				// cek apakah paket belaja dari menu realisasi lebih dari 1 data
+				// jika lebih dari 1 data maka data realisasi anggarannya bermasalah
+				if ($trxd->num_rows() != 1) {
+					$err_code++;
+					$err_message = "Data paket belanja yang anda pilih bermasalah.";
+				}
+				else {
+					$idpaket_belanja_input = $trxd->row()->idpaket_belanja;
+				}
+
+				if ($err_code == 0) {
+					foreach ($verif_detail->result() as $key => $value) {
+						$idpaket_belanja = $value->idpaket_belanja;
+
+						if ($idpaket_belanja != $idpaket_belanja_input) {
+							$err_code++;
+							$err_message = "Paket Belanja yang anda inputkan berbeda dengan paket belanja yang telah diinputkan sebelumnya. <br>";
+							$err_message .= "Silahkan menginputkan data dengan paket belanja yang sama.";
+							
+							break;
+						}
+					}
+				}
+			}
             
 			//transaction detail
 			$arr_verification_detail = array(
