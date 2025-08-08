@@ -12,17 +12,17 @@
         <table class="table table-bordered">
             <tr>
                 <th width="auto">Tanggal Pembayaran</th>
-                <th width="140px">Tunai</th>
+                <!-- <th width="140px">Tunai</th>
                 <th width="140px">Kredit</th>
-                <th width="140px">Debet</th>
-                <th width="140px">Transfer</th>
-                <th width="140px">Total</th>
+                <th width="140px">Debet</th> -->
+                <th width="300px">Transfer</th>
+                <!-- <th width="140px">Total</th> -->
             </tr>
             <tr>
                 <td>
                     <?php echo $payment->row()->txt_confirm_payment_date; ?>
                 </td>
-                <td align="right">
+                <!-- <td align="right">
                     <?php echo "Rp. " . az_thousand_separator($payment->row()->total_cash) . ",-"; ?>
                 </td>
                 <td align="right">
@@ -30,13 +30,13 @@
                 </td>
                 <td align="right">
                     <?php echo "Rp. " . az_thousand_separator($payment->row()->total_debet) . ",-"; ?>
-                </td>
+                </td> -->
                 <td align="right">
                     <?php echo "Rp. " . az_thousand_separator($payment->row()->total_transfer) . ",-"; ?>
                 </td>
-                <td align="right">
+                <!-- <td align="right">
                     <?php echo "Rp. " . az_thousand_separator($payment->row()->total_pay) . ",-"; ?>
-                </td>
+                </td> -->
             </tr>
         </table>
     </div>

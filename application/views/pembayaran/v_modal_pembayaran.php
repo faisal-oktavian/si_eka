@@ -94,7 +94,7 @@
 			</div>
 		</div>
 	</div> -->
-	<div class="form-group">
+	<!-- <div class="form-group">
 		<label class="control-label col-sm-2">
 			TUNAI
 		</label>
@@ -104,8 +104,8 @@
                 <input type="text" class="form-control format-number not-marketplace calc" id="total_cash" name="total_cash">
             </div>
 		</div>
-	</div>
-	<div class="form-group">
+	</div> -->
+	<!-- <div class="form-group">
 		<label class="control-label col-sm-2">
 			KARTU DEBIT
 		</label>
@@ -125,8 +125,8 @@
 				</tbody>
 			</table>
 		</div>
-	</div>
-	<div class="form-group">
+	</div> -->
+	<!-- <div class="form-group">
 		<label class="control-label col-sm-2">
 			KARTU KREDIT
 		</label>
@@ -146,7 +146,7 @@
 				</tbody>
 			</table>
 		</div>
-	</div>
+	</div> -->
 	<div class="form-group">
 		<label class="control-label col-sm-2">
 			TRANSFER
