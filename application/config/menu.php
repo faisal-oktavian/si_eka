@@ -131,6 +131,12 @@
                 ),
             ),
         ),
+        // array(
+        //     "name" => "npd",
+        //     "title" => "Nota Pencairan Dana",
+        //     "icon" => "file",
+        //     "url" => "npd",
+        // ),
         array(
             "name" => "pembayaran",
             "title" => "Pembayaran",
@@ -159,6 +165,12 @@
                     'role_title' => 'Laporan Sisa Realisasi Anggaran',
                 ),
             ),
+        ),
+        array(
+            "name" => "information",
+            "title" => "Informasi",
+            "icon" => "bullhorn",
+            "url" => "information",
         ),
         array(
             "name" => "user",
