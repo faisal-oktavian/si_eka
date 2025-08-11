@@ -9,7 +9,7 @@
 <html>
     <head>
     	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <link rel="shortcut icon" href="<?php echo base_url().AZAPP_FRONT.'assets/logo/favicon.png';?>" />
+        <link rel="shortcut icon" href="<?php echo base_url().AZAPP_FRONT.'assets/logo/logo saja png - putih.png';?>" />
 
         <title>Admin - <?php echo az_get_config('app_name');?></title>
 
@@ -64,7 +64,7 @@
                 <div class="az-menu-trigger-mobile"></div>
                 <div class="az-ltheme-left" id="beautify-left">
                     <div class="az-menu-logo">
-                        <img src="<?php echo base_url().AZAPP_FRONT.'assets/logo/logo.png';?>"/>
+                        <img src="<?php echo base_url().AZAPP_FRONT.'assets/logo/logo saja png - putih.png';?>"/>
                     </div>
                     <?php
                         $outlet_name = $this->session->userdata('outlet_name');
@@ -74,7 +74,7 @@
                         if(strlen($outlet_name) > 0){ 
                     ?>
                         <div class="az-menu-outlet">
-                            <i class="fa fa-store"></i>&nbsp; <?php echo $outlet_name; ?>                                    
+                            <i class=""></i>&nbsp; <?php echo $outlet_name; ?>                                    
                         </div>
                     <?php } ?>
                     <div class="az-menu">

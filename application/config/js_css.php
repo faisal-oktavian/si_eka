@@ -35,7 +35,7 @@ $config['js'] = array(
 );
 
 $config['app_css'] = array(
-	"az_theme/az_theme.css?v1.4",
+	"az_theme/az_theme.css?v2",
 	"az_theme/az_theme_css.css?v1",
 	"az_theme/acc_theme.css?v1.2",
 	"az_theme/beautify.css?v1",

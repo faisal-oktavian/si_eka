@@ -5,7 +5,7 @@
 <html>
     <head>
     	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <link rel="shortcut icon" href="<?php echo base_url().AZAPP_FRONT.'assets/logo/favicon.png';?>" />
+        <link rel="shortcut icon" href="<?php echo base_url().AZAPP_FRONT.'assets/logo/logo saja png - putih.png';?>" />
         <title><?php echo az_get_config('app_name');?> - LOGIN</title>
         <link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/bootstrap/bootstrap.min.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/az-core/az-core.css" type="text/css" />
@@ -20,7 +20,7 @@
                 font-family: 'Rubik', sans-serif;
             }
             .login-container-content {
-                box-shadow: 0 5px 13px 3px rgba(166, 166, 166, 0.14);
+                box-shadow: 0 5px 13px 3px rgba(166, 166, 166, 0.4);
                 background: #fff;
             }
             .btn-three {
@@ -40,20 +40,41 @@
                 color: #6acbfc;
                 border-radius: 3px !important;
             }
-                .form-control:focus {
-                    border-color: #9bdeff;
-                    box-shadow: 0 0 8px rgb(156, 223, 252);
-                }
+            .form-control:focus {
+                border-color: #9bdeff;
+                box-shadow: 0 0 8px rgb(156, 223, 252);
+            }
+
+            body {
+                margin: 0;
+                background-image: url('application/assets/bg_login.jpg');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                position: relative;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(255, 255, 255, 0.9); /* 0.4 = 40% transparan → bg jadi 60% opacity */
+                pointer-events: none; /* supaya tidak mengganggu klik */
+            }
         </style>
 	</head>
-	<body style="background-color:#f9f9f9;width:100%;overflow-x:hidden;">
+	<!-- <body style="background-color:#f9f9f9;width:100%;overflow-x:hidden;"> -->
+    <body>
         <div class="row">
             <div class="col-md-4"></div>
             <div class="col-md-4">
                 <div class="login-container">
                     <div class="login-container-content">
                         <div class="login-logo">
-                            <img src="<?php echo base_url().AZAPP_FRONT;?>assets/logo/logo.png"/>
+                            <img src="<?php echo base_url().AZAPP_FRONT;?>assets/logo/logo full png.png"/>
                         </div>
                         <form method="POST" action="login/process">
                             <?php 
