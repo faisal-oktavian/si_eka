@@ -131,12 +131,12 @@
                 ),
             ),
         ),
-        // array(
-        //     "name" => "npd",
-        //     "title" => "Nota Pencairan Dana",
-        //     "icon" => "file",
-        //     "url" => "npd",
-        // ),
+        array(
+            "name" => "npd",
+            "title" => "Nota Pencairan Dana",
+            "icon" => "file",
+            "url" => "npd",
+        ),
         array(
             "name" => "pembayaran",
             "title" => "Pembayaran",
