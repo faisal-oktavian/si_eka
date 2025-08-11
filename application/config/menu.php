@@ -143,13 +143,23 @@
             "icon" => "check-square",
             "url" => "evaluasi_anggaran",
         ),
-        // array(
-        //     "name" => "acc_report",
-        //     "title" => "Laporan",
-        //     "url" => "acc_report",
-        //     "icon" => "file",
-        //     "submenu" => array(),
-        // ),
+        array(
+            "name" => "report",
+            "title" => "Laporan",
+            "url" => "report",
+            "icon" => "file",
+            "submenu" => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_report_realisasi_anggaran',
+                    'role_title' => 'Laporan Realisasi Anggaran',
+                ),
+                array(
+                    'role_name' => 'role_report_sisa_realisasi_anggaran',
+                    'role_title' => 'Laporan Sisa Realisasi Anggaran',
+                ),
+            ),
+        ),
         array(
             "name" => "user",
             "title" => azlang("User"),
