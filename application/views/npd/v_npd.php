@@ -1,4 +1,4 @@
-<form class="form-horizontal row" id="form_verifikasi" style="margin-top: 20px;">
+<form class="form-horizontal row" id="form_npd" style="margin-top: 20px;">
 	<div class="col-md-6">
 		<input type="hidden" id="hd_idnpd" name="hd_idnpd" value="<?php echo $id;?>">
 		
@@ -35,11 +35,10 @@
 		<div style="margin-bottom:10px;">
 			<button class="btn btn-primary btn-xs" type="button" id="btn_add_npd"><i class="fa fa-plus"></i> Tambah Dokumen</i></button>
 		</div>
-		<table class="table table-bordered table-condensed" id="table_realisasi">
+		<table class="table table-bordered table-condensed" id="table_dokumen">
 			<thead>
 				<tr>
 					<th>Nomor Dokumen</th>
-					<th>Nomor Invoice</th>
 					<th width="auto">Nama Paket Belanja</th>
 					<th width="130px">Aksi</th>
 				</tr>
@@ -50,7 +49,7 @@
 		<hr>
 		<div style="margin-bottom:10px;">
 			<a href="<?php echo app_url();?>npd"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a>
-			<button class="btn btn-primary" type="button" id="btn_save_verifikasi"><i class="fa fa-save"></i> Simpan</i></button>
+			<button class="btn btn-primary" type="button" id="btn_save_npd"><i class="fa fa-save"></i> Simpan</i></button>
 		</div>
 	</div>
 </form>

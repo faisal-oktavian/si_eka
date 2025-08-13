@@ -382,26 +382,28 @@ class Verifikasi_dokumen extends CI_Controller {
 				}
 			}
             
-			//transaction detail
-			$arr_verification_detail = array(
-				'idverification' => $idverification,
-				'idtransaction' => $idtransaction,
-			);
-			
-			$td = az_crud_save($idverification_detail, 'verification_detail', $arr_verification_detail);
-			$idverification_detail = azarr($td, 'insert_id');
-			
-
-			// cek apakah datanya baru diinput / edit data
-			$this->db->where('idverification', $idverification);
-			$check = $this->db->get('verification');
-
-			if ($check->row()->verification_status != "DRAFT") {
-				$the_filter = array(
+			if ($err_code == 0) {
+				//transaction detail
+				$arr_verification_detail = array(
 					'idverification' => $idverification,
-					'type' => 'MENUNGGU VERIFIKASI'
+					'idtransaction' => $idtransaction,
 				);
-				$update_status = update_status_pake_belanja($the_filter);
+				
+				$td = az_crud_save($idverification_detail, 'verification_detail', $arr_verification_detail);
+				$idverification_detail = azarr($td, 'insert_id');
+				
+
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('idverification', $idverification);
+				$check = $this->db->get('verification');
+
+				if ($check->row()->verification_status != "DRAFT") {
+					$the_filter = array(
+						'idverification' => $idverification,
+						'type' => 'MENUNGGU VERIFIKASI'
+					);
+					$update_status = update_status_pake_belanja($the_filter);
+				}
 			}
 		}
 

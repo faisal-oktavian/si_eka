@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Npd extends CI_Controller {
-	public function __construct() {
+	public function __construct() {	
         parent::__construct();
 
         $this->load->helper('az_auth');
@@ -10,6 +10,7 @@ class Npd extends CI_Controller {
         $this->table = 'npd';
         $this->controller = 'npd';
         $this->load->helper('az_crud');
+        $this->load->helper('az_config');
 		$this->load->helper('transaction_status_helper');
     }
 
@@ -81,7 +82,7 @@ class Npd extends CI_Controller {
         $crud->set_sorting('npd_code, detail, npd_status, user_input');
         $crud->set_filter('npd_code, detail, npd_status, user_input');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , , center');
+		$crud->set_select_align(', , , center, center');
 
         $crud->add_join_manual('user user_created', 'npd.iduser_created = user_created.iduser', 'left');
         
@@ -97,7 +98,7 @@ class Npd extends CI_Controller {
 		$crud->add_where("npd.npd_status != 'DRAFT' ");
 
 		$crud->set_table($this->table);
-		// $crud->set_custom_style('custom_style');
+		$crud->set_custom_style('custom_style');
 		$crud->set_order_by('npd_date_created desc');
 		echo $crud->get_table();
 	}
@@ -105,33 +106,35 @@ class Npd extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		
 		if ($key == 'detail') {
-			$idverification = azarr($data, 'idverification');
+			$idnpd = azarr($data, 'idnpd');
 			
-			$this->db->where('verification.idverification', $idverification);
-			$this->db->where('verification_detail.status', 1);
-			$this->db->where('transaction_detail.status', 1);
+			$this->db->where('npd_detail.idnpd', $idnpd);	
+			$this->db->where('npd_detail.status', 1);
 			
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 			$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
 			$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
 			$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
 			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
-			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-			$this->db->select('transaction.idtransaction, transaction.transaction_code, paket_belanja.nama_paket_belanja, verification.verification_status, verification.idverification, verification_detail.idverification_detail');
-			$this->db->group_by('transaction.idtransaction, transaction.transaction_code, paket_belanja.nama_paket_belanja, verification.verification_status, verification.idverification, verification_detail.idverification_detail');
-			$verif_detail = $this->db->get('verification');
 
-			$table = "<table class='table table-bordered table-condensed' id='table_realisasi'>";
+			$this->db->group_by('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja');
+
+			$this->db->select('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja');
+			$npd_detail = $this->db->get('npd');
+
+			$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
 			$table .=	"<thead>";
 			$table .=		"<tr>";
-			$table .=			"<th>Nomor Invoice</th>";
+			$table .=			"<th width='120px;'>Nomor Dokumen</th>";
 			$table .=			"<th width='auto'>Nama Paket Belanja</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
 			
-			foreach ((array) $verif_detail->result_array() as $key => $value) {
+			foreach ((array) $npd_detail->result_array() as $key => $value) {
 				$table .=	"<tr>";
-				$table .=		"<td>".$value['transaction_code']."</td>";
+				$table .=		"<td>".$value['verification_code']."</td>";
 				$table .=		"<td>".$value['nama_paket_belanja']."</td>";
 				$table .=	"</tr>";
 			}
@@ -142,42 +145,50 @@ class Npd extends CI_Controller {
 			return $table;
 		}
 
-		if ($key == 'status_approve') {
+		if ($key == 'npd_status') {
 			$lbl = 'default';
 			$tlbl = '-';
-			if ($value == "DISETUJUI") {
-				$lbl = 'success';
-				$tlbl = 'Disetujui';
+			if ($value == "INPUT DATA") {
+				$lbl = 'warning';
+				$tlbl = 'Input Data';
 			}
-			else if ($value == "DITOLAK") {
-				$lbl = 'danger';
-				$tlbl = 'Ditolak';
+			else if ($value == "MENUNGGU PEMBAYARAN") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Pembayaran';
+			}
+			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
+				$lbl = 'success';
+				$tlbl = 'Sudah Dibayar Bendahara';
 			}
 			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
 		}
 
 		if ($key == 'action') {
-            $idverification = azarr($data, 'idverification');
+            $idnpd = azarr($data, 'idnpd');
+			$is_viewonly = false;
 
 			$btn = '';
 			if (aznav('role_crud')) {
-				$btn .= '<button class="btn btn-default btn-xs btn-edit-verifikasi-dokumen" data_id="'.$idverification.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
-				$btn .= '<button class="btn btn-danger btn-xs btn-delete-verifikasi-dokumen" data_id="'.$idverification.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+				$btn .= '<button class="btn btn-default btn-xs btn-edit_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+				$btn .= '<button class="btn btn-danger btn-xs btn-delete_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
-				$this->db->where('idverification', $idverification);
-				$verif = $this->db->get('verification');
+				$this->db->where('idnpd', $idnpd);
+				$npd = $this->db->get('npd');
 
-				$verif_status = $verif->row()->verification_status;
-				// USER INPUT => statusnya INPUT DATA
-				// USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
-				// USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIBAYAR BENDAHARA
-				if (in_array($verif_status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
-					$btn = '<button class="btn btn-info btn-xs btn-view-only-verifikasi-dokumen" data_id="'.$idverification.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
+				$npd_status = $npd->row()->npd_status;
+				// INPUT DATA, MENUNGGU PEMBAYARAN, SUDAH DIBAYAR BENDAHARA
+				if (in_array($npd_status, array("MENUNGGU PEMBAYARAN", "SUDAH DIBAYAR BENDAHARA") ) ) {
+					$is_viewonly = true;
 				}
+
+				$btn .= '<button class="btn btn-info btn-xs btn-send_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-send"></span> Kirim ke bendahara</button>';
 			}
-			
-			if (aznav('role_verificator')) {
-				$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+			else {
+				$is_viewonly = true;	
+			}
+
+			if ($is_viewonly) {
+				$btn .= '<button class="btn btn-info btn-xs btn-view-only-npd" data_id="'.$idnpd.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 			}
 
 			return $btn;
@@ -218,15 +229,15 @@ class Npd extends CI_Controller {
 	}
 
 	function edit($id) {
-		$this->db->where('idverification', $id);
-		$check = $this->db->get('verification');
+		$this->db->where('idnpd', $id);
+		$check = $this->db->get('npd');
 		if ($check->num_rows() == 0) {
-			redirect(app_url().'verifikasi_dokumen');
+			redirect(app_url().'npd');
 		} 
 		else if($this->uri->segment(4) != "view_only") {
-			$status = $check->row()->verification_status;
-			if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
-				redirect(app_url().'verifikasi_dokumen');
+			$status = $check->row()->npd_status;
+			if ($status == "SUDAH DIBAYAR BENDAHARA") {
+				redirect(app_url().'npd');
 			}
 		}
 		$this->add($id);
@@ -244,13 +255,15 @@ class Npd extends CI_Controller {
 		$this->db->where('verification_detail.status', 1);
 		$this->db->where('transaction.status', 1);
 		$this->db->where('transaction_detail.status', 1);
+		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+		$this->db->where('verification.status_approve = "DISETUJUI" ');
 
 		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
 		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
 		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
 
-		$this->db->group_by('verification.idverification');
+		$this->db->group_by('verification.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
 		
 		$this->db->select('verification.idverification as id, concat(verification.verification_code, " - ", paket_belanja.nama_paket_belanja) as text');
 		$data = $this->db->get('verification');
@@ -262,26 +275,32 @@ class Npd extends CI_Controller {
 		echo json_encode($results);
 	}
 
-    function select_paket_belanja() {
+    function select_dokumen() {
 		$id = $this->input->post('id');
 
-		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->join('paket_belanja', 'transaction_detail.idpaket_belanja = paket_belanja.idpaket_belanja');
-		$this->db->where('transaction.idtransaction', $id);
+		$this->db->where('verification.idverification', $id);
+		$this->db->where('verification.status', 1);
+		$this->db->where('verification_detail.status', 1);
 		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction.transaction_status = "INPUT DATA" ');
 		$this->db->where('transaction_detail.status', 1);
-		$this->db->group_by('transaction.idtransaction, transaction_detail.idpaket_belanja, paket_belanja.nama_paket_belanja, transaction.transaction_code');
+		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+		$this->db->where('verification.status_approve = "DISETUJUI" ');
 
-		$this->db->select('transaction.idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi');
-		$trx = $this->db->get('transaction');
+		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
+		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+
+		$this->db->group_by('verification.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
+		
+		$this->db->select('verification.idverification as idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
+		$data = $this->db->get('verification');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		$ret = array(
-			'idtransaction' => $trx->row()->idtransaction,
-			'transaction_code' => $trx->row()->transaction_code,
-			'nama_paket_belanja' => $trx->row()->nama_paket_belanja,
-			'total_realisasi' => $trx->row()->total_realisasi,
+			'idverification' => $data->row()->idverification,
+			'verification_code' => $data->row()->verification_code,
+			'nama_paket_belanja' => $data->row()->nama_paket_belanja,
 		);
 
 		echo json_encode($ret);
@@ -291,13 +310,12 @@ class Npd extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-	 	$idverification = $this->input->post('idverification');
-	 	$_idverification = $this->input->post('idverification');
-	 	$idverification_detail = $this->input->post('idverification_detail');
-		$idtransaction = $this->input->post('idtransaction');
+	 	$idnpd = $this->input->post('idnpd');
+	 	$idnpd_detail = $this->input->post('idnpd_detail');
+		$idverification = $this->input->post('idverification');
 
 		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idtransaction', 'Paket Belanja', 'required');
+		$this->form_validation->set_rules('idverification', 'Dokumen', 'required');
 
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
@@ -305,12 +323,12 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$this->db->where('idverification',$idverification);
-			$verification = $this->db->get('verification');
+			$this->db->where('idnpd',$idnpd);
+			$npd = $this->db->get('npd');
 
-			if ($verification->num_rows() > 0) {
-				$status = $verification->row()->verification_status;
-				if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+			if ($npd->num_rows() > 0) {
+				$status = $npd->row()->npd_status;
+				if ($status == "SUDAH DIBAYAR BENDAHARA") {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -319,126 +337,100 @@ class Npd extends CI_Controller {
 
 		if ($err_code == 0) {
 
-			if (strlen($idverification) == 0) {
-				$arr_verification = array(
+			if (strlen($idnpd) == 0) {
+				$arr_npd = array(
 					'iduser_created' => $this->session->userdata('iduser'),
-					'verification_date_created' => Date('Y-m-d H:i:s'),
-					'verification_status' => 'DRAFT',
-					'verification_code' => $this->generate_transaction_code(),
+					'npd_date_created' => Date('Y-m-d H:i:s'),
+					'npd_status' => 'DRAFT',
+					'no_urut' => $this->generate_urutan(),
+					'npd_code' => $this->generate_transaction_code(),
 				);
 
-				$save_verification = az_crud_save($idverification, 'verification', $arr_verification);
-				$idverification = azarr($save_verification, 'insert_id');
+				$save_npd = az_crud_save($idnpd, 'npd', $arr_npd);
+				$idnpd = azarr($save_npd, 'insert_id');
 			}
 			else {
-				// validasi apakah paket belanja yang diinputkan sama?
-				// jika dalam 1 dokumen paket belanja yang diinputkan tidak sama, maka ditolak
-
-				// query untuk ambil paket belanja yang sudah tersimpan
-				$this->db->where('verification_detail.idverification', $idverification);
-				$this->db->where('verification_detail.status', 1);
-				$this->db->where('transaction.status', 1);
-				$this->db->where('transaction_detail.status', 1);
-				$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
-				$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
-				$this->db->group_by('transaction_detail.idpaket_belanja');
-				$this->db->select('transaction_detail.idpaket_belanja');
-				$verif_detail = $this->db->get('verification_detail');
-
-				// query untuk ambil paket belanja dari idtransaksi yang diinputkan
-				$this->db->where('transaction_detail.idtransaction', $idtransaction);
-				$this->db->where('transaction_detail.status', 1);
-				$this->db->group_by('transaction_detail.idpaket_belanja');
-				$this->db->select('transaction_detail.idpaket_belanja');
-				$trxd = $this->db->get('transaction_detail');
-
-				// cek apakah paket belaja dari menu realisasi lebih dari 1 data
-				// jika lebih dari 1 data maka data realisasi anggarannya bermasalah
-				if ($trxd->num_rows() != 1) {
-					$err_code++;
-					$err_message = "Data paket belanja yang anda pilih bermasalah.";
-				}
-				else {
-					$idpaket_belanja_input = $trxd->row()->idpaket_belanja;
-				}
-
-				if ($err_code == 0) {
-					foreach ($verif_detail->result() as $key => $value) {
-						$idpaket_belanja = $value->idpaket_belanja;
-
-						if ($idpaket_belanja != $idpaket_belanja_input) {
-							$err_code++;
-							$err_message = "Paket Belanja yang anda inputkan berbeda dengan paket belanja yang telah diinputkan sebelumnya. <br>";
-							$err_message .= "Silahkan menginputkan data dengan paket belanja yang sama.";
-							
-							break;
-						}
+				// validasi apakah sudah ada dokumen yang diinputkan
+				// dalam 1 transaksi hanya boleh ada 1 dokumen yang diinputkan
+				// validasi ini tidak berlaku jika edit dokumen
+				
+				if ($idnpd_detail == '') {
+					$this->db->where('idnpd', $idnpd);
+					$this->db->where('status', 1);
+					$npd_detail = $this->db->get('npd_detail');
+					// echo "<pre>"; print_r($this->db->last_query()); die;
+					
+					if ($npd_detail->num_rows() == 1) {
+						$err_code++;
+						$err_message = "Transaksi ini hanya diperbolehkan memiliki 1 dokumen saja.";
 					}
 				}
 			}
             
-			//transaction detail
-			$arr_verification_detail = array(
-				'idverification' => $idverification,
-				'idtransaction' => $idtransaction,
-			);
-			
-			$td = az_crud_save($idverification_detail, 'verification_detail', $arr_verification_detail);
-			$idverification_detail = azarr($td, 'insert_id');
-			
-
-			// cek apakah datanya baru diinput / edit data
-			$this->db->where('idverification', $idverification);
-			$check = $this->db->get('verification');
-
-			if ($check->row()->verification_status != "DRAFT") {
-				$the_filter = array(
+			if ($err_code == 0) {
+				//transaction detail
+				$arr_npd_detail = array(
+					'idnpd' => $idnpd,
 					'idverification' => $idverification,
-					'type' => 'MENUNGGU VERIFIKASI'
 				);
-				$update_status = update_status_pake_belanja($the_filter);
+				
+				$td = az_crud_save($idnpd_detail, 'npd_detail', $arr_npd_detail);
+				$idnpd_detail = azarr($td, 'insert_id');
+				
+
+				// // cek apakah datanya baru diinput / edit data
+				// $this->db->where('idverification', $idverification);
+				// $check = $this->db->get('verification');
+
+				// if ($check->row()->verification_status != "DRAFT") {
+				// 	$the_filter = array(
+				// 		'idverification' => $idverification,
+				// 		'type' => 'MENUNGGU VERIFIKASI'
+				// 	);
+				// 	$update_status = update_status_pake_belanja($the_filter);
+				// }
 			}
 		}
 
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
-			'idverification' => $idverification,
-			'idverification_detail' => $idverification_detail,
+			'idnpd' => $idnpd,
+			'idnpd_detail' => $idnpd_detail,
 		);
 		echo json_encode($return);
 	}
 
-	function save_verifikasi() {
+	function save_npd() {
 		$err_code = 0;
 		$err_message = '';
 
 		
-		$idverification = $this->input->post("hd_idverification");
-		$verification_date_created = az_crud_date($this->input->post("verification_date_created"));
+		$idnpd = $this->input->post("hd_idnpd");
+		$npd_date_created = az_crud_date($this->input->post("npd_date_created"));
 		$iduser_created = $this->input->post("iduser_created");
 
 		$this->load->library('form_validation');
-		$this->form_validation->set_rules('verification_date_created', 'Tanggal Input', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('npd_date_created', 'Tanggal NPD', 'required|trim|max_length[200]');
 
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
 			$err_message = validation_errors();
 		}
 		if ($err_code == 0) {
-			if (strlen($idverification) == 0) {
+			if (strlen($idnpd) == 0) {
 				$err_code++;
 				$err_message = 'Invalid ID';
 			}
 		}
 
 		if ($err_code == 0) {
-			$this->db->where('idverification',$idverification);
-			$verification = $this->db->get('verification');
+			$this->db->where('idnpd',$idnpd);
+			$npd = $this->db->get('npd');
 
-			if ($verification->num_rows() > 0) {
-				$status = $verification->row()->verification_status;
-				if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+			if ($npd->num_rows() > 0) {
+				$status = $npd->row()->npd_status;
+				if ($status == "SUDAH DIBAYAR BENDAHARA") {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -447,19 +439,19 @@ class Npd extends CI_Controller {
 
 		if ($err_code == 0) {
 	    	$arr_data = array(
-	    		'verification_date_created' => $verification_date_created,
-	    		'verification_status' => "MENUNGGU VERIFIKASI",
+	    		'npd_date_created' => $npd_date_created,
+	    		'npd_status' => "INPUT DATA",
 	    		'iduser_created' => $iduser_created,
 	    	);
 
-	    	az_crud_save($idverification, 'verification', $arr_data);
+	    	az_crud_save($idnpd, 'npd', $arr_data);
 
-			// update status realisasi anggaran
-			$the_filter = array(
-				'idverification' => $idverification,
-				'type' => 'MENUNGGU VERIFIKASI'
-			);
-			$update_status = update_status_pake_belanja($the_filter);
+			// // update status realisasi anggaran
+			// $the_filter = array(
+			// 	'idverification' => $idverification,
+			// 	'type' => 'MENUNGGU VERIFIKASI'
+			// );
+			// $update_status = update_status_pake_belanja($the_filter);
 
 		}
 
@@ -470,18 +462,18 @@ class Npd extends CI_Controller {
 		echo json_encode($return);
 	}
 
-	function delete_verifikasi_dokumen() {
+	function delete_npd() {
 		$id = $this->input->post('id');
 
 		$err_code = 0;
 		$err_message = '';
 
-		$this->db->where('idverification',$id);
-		$verification = $this->db->get('verification');
+		$this->db->where('idnpd',$id);
+		$npd = $this->db->get('npd');
 
-		if ($verification->num_rows() > 0) {
-			$status = $verification->row()->verification_status;
-			if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+		if ($npd->num_rows() > 0) {
+			$status = $npd->row()->npd_status;
+			if ($status == "SUDAH DIBAYAR BENDAHARA") {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
@@ -492,19 +484,72 @@ class Npd extends CI_Controller {
 			$this->db->where('idverification', $id);
 			$verif_detail = $this->db->get('verification_detail');
 
-			foreach ($verif_detail->result() as $key => $value) {
-				$idtransaction = $value->idtransaction;
+			// foreach ($verif_detail->result() as $key => $value) {
+			// 	$idtransaction = $value->idtransaction;
 
-				$update_data = array(
-					'transaction_status' => 'INPUT DATA',
-					'updated_status' => date('Y-m-d H:i:s'),
-				);
+			// 	$update_data = array(
+			// 		'transaction_status' => 'INPUT DATA',
+			// 		'updated_status' => date('Y-m-d H:i:s'),
+			// 	);
 				
-				$this->db->where('idtransaction', $idtransaction);
-				$this->db->update('transaction', $update_data);
-			}
+			// 	$this->db->where('idtransaction', $idtransaction);
+			// 	$this->db->update('transaction', $update_data);
+			// }
 
 			az_crud_delete($this->table, $id);
+		} 
+		else{
+			$ret = array(
+				'err_code' => $err_code,
+				'err_message' => $err_message
+			);
+			echo json_encode($ret);
+		}
+	}
+
+	function send_npd() {
+		$id = $this->input->post('id');
+
+		$err_code = 0;
+		$err_message = '';
+
+		$this->db->where('idnpd',$id);
+		$npd = $this->db->get('npd');
+
+		if ($npd->num_rows() > 0) {
+			$status = $npd->row()->npd_status;
+			if ($status == "SUDAH DIBAYAR BENDAHARA") {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
+
+		if($err_code == 0) {
+			// hitung total anggaran
+
+			
+			// update status npd
+			$arr_data = array(
+				'npd_status' => 'MENUNGGU PEMBAYARAN',
+				'updated' => Date('Y-m-d H:i:s'),
+				'updatedby' => $this->session->userdata('iduser'),
+			);
+			
+			$this->db->where('idnpd', $id);
+			$this->db->update('npd', $arr_data);
+
+			// update status realisasi anggaran
+			// $the_filter = array(
+			// 	'idverification' => $idverification,
+			// 	'type' => 'MENUNGGU PEMBAYARAN'
+			// );
+			// $update_status = update_status_pake_belanja($the_filter);
+
+			$ret = array(
+				'err_code' => $err_code,
+				'err_message' => $err_message
+			);
+			echo json_encode($ret);
 		} 
 		else{
 			$ret = array(
@@ -521,14 +566,13 @@ class Npd extends CI_Controller {
 		$err_code = 0;
 		$err_message = "";
 		
-		$this->db->where('idverification_detail', $id);
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->select('verification_detail.idverification_detail, verification_detail.idverification, verification_detail.idtransaction, transaction_detail.idpaket_belanja');
-		$verif_detail = $this->db->get('verification_detail')->result_array();
+		$this->db->where('idnpd_detail', $id);
+		
+		$this->db->select('npd_detail.idnpd_detail, npd_detail.idnpd, npd_detail.idverification');
+		$npd_detail = $this->db->get('npd_detail')->result_array();
 
 		$ret = array(
-			'data' => azarr($verif_detail, 0),
+			'data' => azarr($npd_detail, 0),
 			'err_code' => $err_code,
 			'err_message' => $err_message
 		);
@@ -542,30 +586,30 @@ class Npd extends CI_Controller {
 		$err_message = "";
 		$is_delete = true;
 
-		$this->db->where('idverification_detail',$id);
-		$this->db->join('verification', 'verification_detail.idverification = verification.idverification');
-		$verification = $this->db->get('verification_detail');
+		$this->db->where('idnpd_detail',$id);
+		$this->db->join('npd', 'npd_detail.idnpd = npd.idnpd');
+		$npd = $this->db->get('npd_detail');
 
-		$status = $verification->row()->verification_status;
-		$idverification = $verification->row()->idverification;
-		if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+		$status = $npd->row()->npd_status;
+		$idnpd = $npd->row()->idnpd;
+		if ($status == "SUDAH DIBAYAR BENDAHARA") {
 			$is_delete = false;
 		}
 
 		if ($is_delete) {
-			$delete = az_crud_delete('verification_detail', $id, true);
+			$delete = az_crud_delete('npd_detail', $id, true);
 
 			$err_code = $delete['err_code'];
 			$err_message = $delete['err_message'];
 
 			if ($err_code == 0) {
 				// update status realisasi anggaran
-				$the_filter = array(
-					'idverification' => $idverification,
-					'idverification_detail' => $id,
-					'type' => 'INPUT DATA'
-				);
-				$update_status = update_status_pake_belanja($the_filter);	
+				// $the_filter = array(
+				// 	'idverification' => $idverification,
+				// 	'idverification_detail' => $id,
+				// 	'type' => 'INPUT DATA'
+				// );
+				// $update_status = update_status_pake_belanja($the_filter);	
 			}
 		}
 		else{
@@ -632,7 +676,7 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$total_anggaran = $this->calculate_total_anggaran($idverification);
+			// $total_anggaran = $this->calculate_total_anggaran($idverification);
 
 	    	$arr_data = array(
 	    		'confirm_verification_date' => $confirm_verification_date,
@@ -640,7 +684,7 @@ class Npd extends CI_Controller {
 	    		'status_approve' => $status_approve,
 	    		'verification_description' => $verification_description,
 	    		'iduser_verification' => $iduser_verification,
-	    		'total_anggaran' => $total_anggaran,
+	    		// 'total_anggaran' => $total_anggaran,
 	    	);
 
 	    	az_crud_save($idverification, 'verification', $arr_data);
@@ -663,42 +707,44 @@ class Npd extends CI_Controller {
 	function get_data() {
 		$id = $this->input->post('id');
 
-		$this->db->where('verification.idverification', $id);
-		$this->db->join('user', 'user.iduser = verification.iduser_created');
-		$this->db->select('date_format(verification_date_created, "%d-%m-%Y %H:%i:%s") as txt_verification_date_created, verification_code, user.name as user_created, verification.iduser_created');
-		$this->db->order_by('verification_date_created', 'desc');
-		$verification = $this->db->get('verification')->result_array();
+		$this->db->where('npd.idnpd', $id);
+		$this->db->join('user', 'user.iduser = npd.iduser_created');
+		$this->db->select('date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, npd_code, user.name as user_created, npd.iduser_created');
+		$this->db->order_by('npd_date_created', 'desc');
+		$npd = $this->db->get('npd')->result_array();
 
-		$this->db->where('idverification', $id);
-		$verification_detail = $this->db->get('verification_detail')->result_array();
+		$this->db->where('idnpd', $id);
+		$npd_detail = $this->db->get('npd_detail')->result_array();
 
 		$return = array(
-			'verification' => azarr($verification, 0),
-			'verification_detail' => $verification_detail
+			'npd' => azarr($npd, 0),
+			'npd_detail' => $npd_detail
 		);
 		echo json_encode($return);
 	}
 
     function get_list_order() {
-		$idverification = $this->input->post("idverification");
+		$idnpd = $this->input->post("idnpd");
 
-		$this->db->where('verification.idverification', $idverification);
-		$this->db->where('verification_detail.status', 1);
-        $this->db->where('transaction_detail.status', 1);
+		$this->db->where('npd_detail.idnpd', $idnpd);	
+		$this->db->where('npd_detail.status', 1);
 		
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
 		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
 		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-		$this->db->select('transaction.idtransaction, transaction.transaction_code, paket_belanja.nama_paket_belanja, verification.verification_status, verification.idverification, verification_detail.idverification_detail');
-		$this->db->group_by('transaction.idtransaction, transaction.transaction_code, paket_belanja.nama_paket_belanja, verification.verification_status, verification.idverification, verification_detail.idverification_detail');
-        $verif_detail = $this->db->get('verification');
+
+		$this->db->group_by('npd.npd_status, npd_detail.idnpd_detail, verification_detail.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
+
+		$this->db->select('npd.npd_status, npd_detail.idnpd_detail, verification_detail.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
+		$npd_detail = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-        $data['detail'] = $verif_detail->result_array();
+        $data['detail'] = $npd_detail->result_array();
 
-		$view = $this->load->view('verifikasi_dokumen/v_verifikasi_dokumen_table', $data, true);
+		$view = $this->load->view('npd/v_npd_table', $data, true);
 		$arr = array(
 			'data' => $view
 		);
@@ -706,35 +752,37 @@ class Npd extends CI_Controller {
 	}
 
     private function generate_transaction_code() {
-		$this->db->where('day(verification_date_created)', Date('d'));
-		$this->db->where('month(verification_date_created)', Date('m'));
-		$this->db->where('year(verification_date_created)', Date('Y'));
-		$this->db->where('verification_status IS NOT NULL ');
-		$this->db->order_by('verification_code desc');
-		$data = $this->db->get('verification', 1);
+
+		$kode_surat_NPD = az_get_config('kode_surat_NPD', 'config'); 
+		$tahun_anggaran = az_get_config('tahun_anggaran', 'config'); 
+
+		$this->db->where('month(npd_date_created)', Date('m'));
+		$this->db->where('year(npd_date_created)', Date('Y'));
+		$this->db->where('npd_status IS NOT NULL ');
+		$this->db->order_by('no_urut desc');	
+		$data = $this->db->get('npd', 1);
 		if ($data->num_rows() == 0) {
-			$numb = '0001';
+			$numb = 1;
 
-			$verification_code = 'AP'.Date('Ymd').$numb;
+			// Format jadi 2 digit
+			$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
 
-			$this->db->where('verification_code', $verification_code);
-			$this->db->select('verification_code');
-			$check = $this->db->get('verification');
+			$this->db->where('npd_code', $npd_code);
+			$this->db->select('npd_code');
+			$check = $this->db->get('npd');
 			$ok = 0;
 			if($check->num_rows() == 0) {
 				$ok = 1;
 			}
 
 			while($ok == 0) {
-				$last = substr($verification_code, 10);
-				$numb = $last + 1;
-				$numb = sprintf("%04d", $numb);
+				$numb += 1;
 
-				$verification_code = 'AP'.Date('Ymd').$numb;
+				$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
 
-				$this->db->where('verification_code', $verification_code);
-				$this->db->select('verification_code');
-				$check = $this->db->get('verification');
+				$this->db->where('npd_code', $npd_code);
+				$this->db->select('npd_code');
+				$check = $this->db->get('npd');
 				$ok = 0;
 				if($check->num_rows() == 0) {
 					$ok = 1;
@@ -742,39 +790,53 @@ class Npd extends CI_Controller {
 			}
 		}
 		else {
-			$last = $data->row()->verification_code;
-			$last = substr($last, 10);
+			$last = $data->row()->no_urut;
 			$numb = $last + 1;
-			$numb = sprintf("%04d", $numb);
 
-			$verification_code = 'AP'.Date('Ymd').$numb;
+			$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
 
-			$this->db->where('verification_code', $verification_code);
-			$this->db->select('verification_code');
-			$check = $this->db->get('verification');
+			$this->db->where('npd_code', $npd_code);
+			$this->db->select('npd_code');
+			$check = $this->db->get('npd');
 			$ok = 0;
 			if($check->num_rows() == 0) {
 				$ok = 1;
 			}
 
 			while($ok == 0) {
-				$last = substr($verification_code, 10);
-				$numb = $last + 1;
-				$numb = sprintf("%04d", $numb);
+				$numb += 1;
 
-				$verification_code = 'AP'.Date('Ymd').$numb;
+				$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
 
-				$this->db->where('verification_code', $verification_code);
-				$this->db->select('verification_code');
-				$check = $this->db->get('verification');
+				$this->db->where('npd_code', $npd_code);
+				$this->db->select('npd_code');
+				$check = $this->db->get('npd');
 				$ok = 0;
 				if($check->num_rows() == 0) {
 					$ok = 1;
 				}
 			}
 		}
+		
+		return $npd_code;
+	}
 
-		return $verification_code;
+	private function generate_urutan() {
+
+		$this->db->where('month(npd_date_created)', Date('m'));
+		$this->db->where('year(npd_date_created)', Date('Y'));
+		$this->db->where('npd_status IS NOT NULL ');
+		$this->db->order_by('no_urut desc');	
+		$data = $this->db->get('npd', 1);
+		if ($data->num_rows() == 0) {
+			$numb = 1;
+		}
+		else {
+			$last = $data->row()->no_urut;
+			$numb = $last + 1;
+		}
+		
+		return $numb;
 	}
 
 	function calculate_total_realisasi($idtransaction) {

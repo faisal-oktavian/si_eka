@@ -1,6 +1,6 @@
 <form class="form-horizontal" id="form_add">
-	<input type="hidden" id="idverification" name="idverification" class="x-hidden" value="<?php echo $id;?>">
-	<input type="hidden" id="idverification_detail" name="idverification_detail" class="x-hidden">
+	<input type="hidden" id="idnpd" name="idnpd" class="x-hidden" value="<?php echo $id;?>">
+	<input type="hidden" id="idnpd_detail" name="idnpd_detail" class="x-hidden">
     
 	<div class="form-group">
 		<label class="control-label col-sm-3">Cari Dokumen</label>
@@ -9,12 +9,12 @@
 		</div>
 	</div>
 	<hr>
-    <div class="detail-paket-belanja hide">
+    <div class="detail-dokumen hide">
         <div class="form-group">
-            <label class="control-label col-sm-3">Nomor Invoice</label>
+            <label class="control-label col-sm-3">Nomor Dokumen</label>
             <div class="col-sm-8">
-                <input type="hidden" class="form-control" name="idtransaction" id="idtransaction" readonly>
-                <input type="text" class="form-control" name="transaction_code" id="transaction_code" readonly>
+                <input type="hidden" class="form-control" name="idverification" id="idverification" readonly>
+                <input type="text" class="form-control" name="verification_code" id="verification_code" readonly>
             </div>
         </div>
         <div class="form-group">

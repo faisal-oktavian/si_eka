@@ -30,7 +30,7 @@
 		
 		show_modal('add');
 
-		jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
+		jQuery('#form_add').find('.detail-dokumen').addClass('hide');
 		// jQuery('#idtransaction_detail').val('');
 		jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
 	});
@@ -56,26 +56,25 @@
 		var id = jQuery(this).val();
 		console.log('asdasda '+id);
 		
-		search_dokumen(id);
+		select_dokumen(id);
 	});
 
-	function search_dokumen(idtransaction) {
+	function select_dokumen(idverification) {
 		jQuery.ajax({
-			url: app_url + 'verifikasi_dokumen/select_paket_belanja',
+			url: app_url + 'npd/select_dokumen',
 			type: 'POST', 
 			dataType: 'JSON',
 			data: {
-				id: idtransaction
+				id: idverification
 			},
 			success: function(response) {
-				jQuery('#form_add').find('.detail-paket-belanja').removeClass('hide');
+				jQuery('#form_add').find('.detail-dokumen').removeClass('hide');
 				
-				jQuery('#idtransaction').val(response.idtransaction);
-				jQuery('#transaction_code').val(response.transaction_code);
+				jQuery('#idverification').val(response.idverification);
+				jQuery('#verification_code').val(response.verification_code);
 				jQuery('#nama_paket_belanja').val(response.nama_paket_belanja);
-				jQuery('#total_realisasi').val(thousand_separator(response.total_realisasi));
 
-				jQuery('#search_realisasi_anggaran').val('').trigger('change.select2');
+				jQuery('#search_dokumen').val('').trigger('change.select2');
 			},
 			error: function(response) {}
 		});
@@ -84,7 +83,7 @@
 	jQuery('body').on('click', '.btn-action-save', function() {
 		// show_loading();
 		jQuery.ajax({
-			url: app_url + 'verifikasi_dokumen/add_product',
+			url: app_url + 'npd/add_product',
 			type: 'POST',
 			dataType: 'JSON',
 			data: jQuery('#form_add').serialize(),
@@ -96,44 +95,44 @@
 				else {
 					hide_modal('add');
 
-					jQuery('#idverification').val(response.idverification);
-					jQuery('#hd_idverification').val(response.idverification);
+					jQuery('#idnpd').val(response.idnpd);
+					jQuery('#hd_idnpd').val(response.idnpd);
 
-					generate_transaction(response.idverification);
+					generate_transaction(response.idnpd);
 				}
 			},
 			error: function(response) {}
 		});
 	});
 	
-	// generate_transaction(17);
-	function generate_transaction(idverification) {
+	// generate_transaction(3);
+	function generate_transaction(idnpd) {
 		jQuery.ajax({
-			url: app_url+'verifikasi_dokumen/get_list_order/',
+			url: app_url+'npd/get_list_order/',
 			type: 'POST',
 			dataType: 'JSON',
 			data: {
-				idverification: idverification
+				idnpd: idnpd
 			},
 			success: function(response) {
-				jQuery('#table_realisasi tbody').html(response.data);
+				jQuery('#table_dokumen tbody').html(response.data);
 			},
 			error: function(response) {}
 		});
 	}
 
-	jQuery('body').on('click', '#btn_save_verifikasi', function() {
+	jQuery('body').on('click', '#btn_save_npd', function() {
 		// show_loading();
 
 		jQuery.ajax({
-			url: app_url + 'verifikasi_dokumen/save_verifikasi',
+			url: app_url + 'npd/save_npd',
 			type: 'POST',
 			dataType: 'JSON',
-			data: jQuery('#form_verifikasi').serialize(),
+			data: jQuery('#form_npd').serialize(),
 			success: function(response) {
 				hide_loading();
 				if (response.err_code == 0) {
-					location.href = app_url + 'verifikasi_dokumen';
+					location.href = app_url + 'npd';
 				}
 				else {
 					bootbox.alert(response.err_message);
@@ -143,12 +142,12 @@
 		});
 	});
 
-	jQuery('body').on('click','.btn-edit-paket-belanja', function() {
+	jQuery('body').on('click','.btn-edit-dokumen', function() {
 		var id = jQuery(this).attr('data-id');
 
 		show_loading();
 		jQuery.ajax({
-			url: app_url + 'verifikasi_dokumen/edit_order',
+			url: app_url + 'npd/edit_order',
 			type: 'POST',
 			dataType: 'JSON',
 			data: {
@@ -160,25 +159,25 @@
 
 				show_modal('add');
 
-				jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
-				jQuery('#idverification_detail').val(id);
-				jQuery('#idverification').val(response.data.idverification);
+				jQuery('#form_add').find('.detail-dokumen').addClass('hide');
+				jQuery('#idnpd_detail').val(id);
+				jQuery('#idnpd').val(response.data.idnpd);
 				jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');
 
-				search_realisasi_anggaran(response.data.idtransaction);
+				select_dokumen(response.data.idverification);
 			},
 			error: function(response) {}
 		});
 	});
 
-	jQuery('body').on('click','.btn-delete-paket-belanja', function() {
+	jQuery('body').on('click','.btn-delete-dokumen', function() {
 		var id = jQuery(this).attr('data-id');
 		
 		bootbox.confirm('Apakah anda yakin ingin menghapus data ini?', function(e) {
 			show_loading();
 			if (e) {
 				jQuery.ajax({
-					url: app_url + 'verifikasi_dokumen/delete_order',
+					url: app_url + 'npd/delete_order',
 					type: 'POST',
 					dataType: 'JSON',
 					data: {
@@ -187,7 +186,7 @@
 					success: function(response) {
 						hide_loading();
 						if(response.err_code == 0) {
-							generate_transaction(jQuery('#idtransaction').val(), true);
+							generate_transaction(jQuery('#idnpd').val(), true);
 						} else {
 							bootbox.alert(response.err_message);
 						}
@@ -207,17 +206,17 @@
 		generate_transaction(the_id);
 
 		jQuery.ajax({
-			url: app_url + 'verifikasi_dokumen/get_data',
+			url: app_url + 'npd/get_data',
 			type: 'POST',
 			dataType: 'JSON',
 			data: {
 				id: the_id
 			},
 			success: function(response) {
-				jQuery('#verification_code').val(response.verification.verification_code);
-				jQuery('#iduser_created').val(response.verification.iduser_created);
-				jQuery('#user_name').val(response.verification.user_created);
-				jQuery('#verification_date_created').val(response.verification.txt_verification_date_created);
+				jQuery('#npd_code').val(response.npd.npd_code);
+				jQuery('#iduser_created').val(response.npd.iduser_created);
+				jQuery('#user_name').val(response.npd.user_created);
+				jQuery('#npd_date_created').val(response.npd.txt_npd_date_created);
 			},
 			error: function(response) {}
 		});
