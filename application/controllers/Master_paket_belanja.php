@@ -871,6 +871,7 @@ class Master_paket_belanja extends CI_Controller {
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
+			'message' => $message,
 			'idpaket_belanja' => $idpaket_belanja,
 		);
 		echo json_encode($return);
