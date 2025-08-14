@@ -66,7 +66,7 @@
 	$is_comma = 'format-number';
 ?>
 <form class="form-horizontal form-payment">
-	<input type="hidden" class="form-control" name="idverification" id="idverification">
+	<input type="hidden" class="form-control" name="idnpd" id="idnpd">
 	<div class="form-group">
 		<label class="control-label col-sm-2 label-bold" style="padding-top:40px;">
 			TOTAL

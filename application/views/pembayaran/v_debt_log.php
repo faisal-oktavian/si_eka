@@ -2,9 +2,9 @@
     <div class="col-md-12">
         <table>
             <tr>
-                <td>Nomor Dokumen</td>
+                <td>Nomor NPD</td>
                 <td>&nbsp; : &nbsp;</td>
-                <td><?php echo $payment->row()->verification_code; ?></td>
+                <td><?php echo $payment->row()->npd_code; ?></td>
             </tr>
         </table>
     </div>

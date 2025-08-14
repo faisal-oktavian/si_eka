@@ -7,7 +7,7 @@ class Pembayaran extends CI_Controller {
 
         $this->load->helper('az_auth');
         az_check_auth('pembayaran');
-        $this->table = 'verification';
+        $this->table = 'npd';
         $this->controller = 'pembayaran';
         $this->load->helper('az_crud');
     }
@@ -18,7 +18,7 @@ class Pembayaran extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Input Dokumen', 'Tanggal Verifikasi Dokumen', 'Tanggal Pembayaran', 'Nomor Dokumen', 'Detail', 'Total Anggaran', 'Total Bayar', 'User Bendahara', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal NPD', 'Tanggal Pembayaran', 'Nomor NPD', 'Detail', 'Total Anggaran', 'Total Bayar', 'User Bendahara', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -40,7 +40,7 @@ class Pembayaran extends CI_Controller {
 
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
-		$crud->add_aodata('verification_code', 'verification_code');
+		$crud->add_aodata('npd_code', 'npd_code');
 
 		$vf = $this->load->view('pembayaran/vf_pembayaran', $data, true);
         $crud->set_top_filter($vf);
@@ -87,70 +87,67 @@ class Pembayaran extends CI_Controller {
 
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$verification_code = $this->input->get('verification_code');
+		$npd_code = $this->input->get('npd_code');
 
-        $crud->set_select('verification.idverification, date_format(verification_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, date_format(verification.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, verification_code, "" as detail,  "" as total_anggaran, total_pay, user_bendahara.name as user_bendahara');
+		$crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd.npd_code, "" as detail, npd.total_anggaran, npd.total_pay, user_bendahara.name as user_bendahara');
 
-        $crud->set_select_table('idverification, txt_date_input, txt_confirm_verification, txt_confirm_payment_date, verification_code, detail, total_anggaran, total_pay, user_bendahara');
-        $crud->set_sorting('verification_code, user_bendahara');
-        $crud->set_filter('verification_code, user_bendahara');
+        $crud->set_select_table('idnpd, txt_npd_date_created, txt_confirm_payment_date, npd_code, detail, total_anggaran, total_pay, user_bendahara');
+        $crud->set_sorting('npd_code, total_anggaran, total_pay, user_bendahara');
+        $crud->set_filter('npd_code, total_anggaran, total_pay, user_bendahara');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , , , right, right');
+		$crud->set_select_align(', , , , right, right');
 
-        // $crud->add_join_manual('user user_created', 'verification.iduser_created = user_created.iduser', 'left');
-        // $crud->add_join_manual('user user_confirm', 'verification.iduser_verification = user_confirm.iduser', 'left');
-        $crud->add_join_manual('user user_bendahara', 'verification.iduser_payment = user_bendahara.iduser', 'left');
+        $crud->add_join_manual('user user_bendahara', 'npd.iduser_payment = user_bendahara.iduser', 'left');
         
         if (strlen($date1) > 0 && strlen($date2) > 0) {
-            $crud->add_where('date(verification.verification_date_created) >= "'.Date('Y-m-d', strtotime($date1)).'"');
-            $crud->add_where('date(verification.verification_date_created) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+            $crud->add_where('date(npd.npd_date_created) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $crud->add_where('date(npd.npd_date_created) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
-        if (strlen($verification_code) > 0) {
-			$crud->add_where('verification.verification_code = "' . $verification_code . '"');
+        if (strlen($npd_code) > 0) {
+			$crud->add_where('npd.npd_code = "' . $npd_code . '"');
 		}
 
-		$crud->add_where("verification.status = 1");
-		$crud->add_where("verification.verification_status != 'DRAFT' ");
-		$crud->add_where("verification.status_approve = 'DISETUJUI' ");
+		$crud->add_where("npd.status = 1");
+		$crud->add_where("npd.npd_status IN ('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ");
 
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
-		$crud->set_order_by('verification_date_created desc');
+		$crud->set_order_by('npd_date_created desc');
 		echo $crud->get_table();
 	}
 
 	function custom_style($key, $value, $data) {
-		$idverification = azarr($data, 'idverification');
-		$total_anggaran = $this->calculate_total_anggaran($idverification);
 		
 		if ($key == 'detail') {
-			$idverification = azarr($data, 'idverification');
+			$idnpd = azarr($data, 'idnpd');
 			
-			$this->db->where('verification.idverification', $idverification);
-			$this->db->where('verification_detail.status', 1);
-			$this->db->where('transaction_detail.status', 1);
+			$this->db->where('npd_detail.idnpd', $idnpd);	
+			$this->db->where('npd_detail.status', 1);
 			
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 			$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
 			$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
 			$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
 			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
-			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-			$this->db->select('transaction.idtransaction, transaction.transaction_code, paket_belanja.nama_paket_belanja, verification.verification_status, verification.idverification, verification_detail.idverification_detail');
-			$this->db->group_by('transaction.idtransaction, transaction.transaction_code, paket_belanja.nama_paket_belanja, verification.verification_status, verification.idverification, verification_detail.idverification_detail');
-			$verif_detail = $this->db->get('verification');
 
-			$table = "<table class='table table-bordered table-condensed' id='table_realisasi'>";
+			$this->db->group_by('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja');
+
+			$this->db->select('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja');
+			$npd_detail = $this->db->get('npd');
+
+			$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
 			$table .=	"<thead>";
 			$table .=		"<tr>";
-			$table .=			"<th>Nomor Invoice</th>";
+			$table .=			"<th width='120px;'>Nomor Dokumen</th>";
 			$table .=			"<th width='auto'>Nama Paket Belanja</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
 			
-			foreach ((array) $verif_detail->result_array() as $key => $value) {
+			foreach ((array) $npd_detail->result_array() as $key => $value) {
 				$table .=	"<tr>";
-				$table .=		"<td>".$value['transaction_code']."</td>";
+				$table .=		"<td>".$value['verification_code']."</td>";
 				$table .=		"<td>".$value['nama_paket_belanja']."</td>";
 				$table .=	"</tr>";
 			}
@@ -163,7 +160,7 @@ class Pembayaran extends CI_Controller {
 
 		if ($key == 'total_anggaran') {
 			// $total_anggaran = 0;
-			$total_anggaran = az_thousand_separator($total_anggaran);
+			$total_anggaran = az_thousand_separator($value);
 
 			return $total_anggaran;
 		}
@@ -181,14 +178,16 @@ class Pembayaran extends CI_Controller {
 		}
 
 		if ($key == 'action') {
-            $idverification = azarr($data, 'idverification');
+            $idnpd = azarr($data, 'idnpd');
             $total_pay = azarr($data, 'total_pay');
+			$total_anggaran = azarr($data, 'total_anggaran');
+			
 			$btn = '';
 			
 			if ( ($total_anggaran != $total_pay) OR (strlen($total_pay) == 0 || $total_pay == 0) ) {
-				$btn .= '<button class="btn btn-success btn-xs btn-payment" data_id="'.$idverification.'"><span class="fas fa-money-bill-wave"></span> Bayar</button>';
+				$btn .= '<button class="btn btn-success btn-xs btn-payment" data_id="'.$idnpd.'"><span class="fas fa-money-bill-wave"></span> Bayar</button>';
 			}
-			$btn .= '<button type="button" class="btn btn-xs btn-primary btn-payment-log" data_id="' . $idverification . '">Riwayat Pembayaran</button>';
+			$btn .= '<button type="button" class="btn btn-xs btn-primary btn-payment-log" data_id="' . $idnpd . '">Riwayat Pembayaran</button>';
 
 			return $btn;
 		}
@@ -202,8 +201,19 @@ class Pembayaran extends CI_Controller {
 
 		$total_cicilan = 0;
 		$total_lack = 0;
+		$total_anggaran = 0;
 
-		$total_anggaran = $this->calculate_total_anggaran($id);
+		$this->db->where('idnpd', $id);
+		$this->db->select('total_anggaran');
+		$npd = $this->db->get('npd');
+		
+		if ($npd->num_rows() > 0) {
+			$total_anggaran = $npd->row()->total_anggaran;
+		} 
+		else {
+			$total_anggaran = 0;
+		}
+
 		$total_lack = floatval($total_anggaran) - floatval($total_cicilan);
 		$total_lack = $total_lack * -1;
 
@@ -216,23 +226,6 @@ class Pembayaran extends CI_Controller {
 		echo json_encode($data);
 	}
 
-	function calculate_total_anggaran($idverification) {
-		$this->db->where('verification.idverification', $idverification);
-		$this->db->where('verification.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
-		$this->db->where('verification_detail.status', 1);
-
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->select('sum(total_realisasi) as total_anggaran');
-		$verif = $this->db->get('verification');
-		// echo "<pre>"; print_r($this->db->last_query()); die;
-
-		$total_anggaran = azobj($verif->row(), 'total_anggaran', 0);
-
-		return $total_anggaran;
-	}
-
 	public function save()
 	{
 		$err_code = 0;
@@ -241,7 +234,7 @@ class Pembayaran extends CI_Controller {
 		$this->db->trans_begin();
 
 		// input payment
-		$idverification = $this->input->post('idverification');
+		$idnpd = $this->input->post('idnpd');
 		$payment_description = $this->input->post('payment_description');
 		$total_cash = doubleval(az_crud_number($this->input->post('total_cash')));
 		$total_transfer = doubleval(az_crud_number($this->input->post('total_transfer')));
@@ -276,27 +269,27 @@ class Pembayaran extends CI_Controller {
 		}
 
 		// validasi
-		$this->db->where('idverification', $idverification);
+		$this->db->where('idnpd', $idnpd);
 		$this->db->where('status', 1);
-		$verification_data = $this->db->get('verification');
+		$npd_data = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		if ($verification_data->num_rows() == 0) {
+		if ($npd_data->num_rows() == 0) {
 			$err_code++;
 			$err_message = "Transaksi tidak ditemukan";
 		} 
 		else {
 
-			if ($verification_data->row()->verification_status == 'SUDAH DIBAYAR BENDAHARA') {
+			if ($npd_data->row()->npd_status == 'SUDAH DIBAYAR BENDAHARA') {
 				$err_code++;
 				$err_message = "Transaksi sudah dibayar";
 			}
 
 			if ($err_code == 0) {
-				$total_anggaran = $this->calculate_total_anggaran($idverification);
+				$total_anggaran = $npd_data->row()->total_anggaran;
 
-				$verification_data = $verification_data->row();
-				$total_pay = $verification_data->total_pay + $total_pay;
+				$npd_data = $npd_data->row();
+				$total_pay = $npd_data->total_pay + $total_pay;
 				$lack = $total_pay - $total_anggaran;
 
 				if ($lack > 0) {
@@ -308,10 +301,10 @@ class Pembayaran extends CI_Controller {
 
 		// validasi pembayaran non tunai tidak boleh melebihi total anggaran
 		if ($err_code == 0) {
-			$data_payment = $verification_data->total_pay;
+			$data_payment = $npd_data->total_pay;
 			if (strlen($data_payment) > 0 || $data_payment > 0) {
 				$err_code++;
-				$err_message = "Dokumen <b>" . $verification_data->row()->verification_code . "</b> sudah dibayar";
+				$err_message = "Dokumen <b>" . $npd_data->row()->verification_code . "</b> sudah dibayar";
 			}
 			else if ($total_transfer > $total_anggaran) {
 				$err_code++;
@@ -346,7 +339,7 @@ class Pembayaran extends CI_Controller {
 				'debet_number' => $debet_number,
 				'credit_number' => $credit_number,
 				'transfer_number' => $transfer_number,
-				'verification_status' => 'SUDAH DIBAYAR BENDAHARA',
+				'npd_status' => 'SUDAH DIBAYAR BENDAHARA',
 				'confirm_payment_date' => $confirm_payment_date,
 				'payment_description' => $payment_description,
 			);
@@ -359,7 +352,7 @@ class Pembayaran extends CI_Controller {
 			}
 			// echo "<pre>"; print_r($data_pembayaran); die;
 			
-			az_crud_save($idverification, 'verification', $data_pembayaran);
+			az_crud_save($idnpd, 'npd', $data_pembayaran);
 		}
 
 		if ($err_code == 0) {
@@ -384,12 +377,11 @@ class Pembayaran extends CI_Controller {
 	{
 		$id = $this->input->get('id');
 
-		$this->db->where('idverification', $id);
+		$this->db->where('idnpd', $id);
 		$this->db->where('status', 1);
-		$this->db->where('verification_status != "DRAFT" ');
-		$this->db->where('status_approve = "DISETUJUI" ');
-		$this->db->select('date_format(confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, verification_code, total_cash, total_debet, total_credit, total_transfer, total_pay');
-		$payment = $this->db->get('verification');
+		$this->db->where('npd_status != "DRAFT" ');
+		$this->db->select('date_format(confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd_code, total_cash, total_debet, total_credit, total_transfer, total_pay');
+		$payment = $this->db->get('npd');
 
 		if ($payment->num_rows() > 0) {
 			$data['payment'] = $payment;

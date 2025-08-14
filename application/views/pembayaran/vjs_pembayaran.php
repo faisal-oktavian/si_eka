@@ -21,7 +21,7 @@
 				hide_loading();
 				show_modal('payment');
 				
-				jQuery('#idverification').val(id);
+				jQuery('#idnpd').val(id);
 				// jQuery('.utang-component').show();
 				
 				jQuery('#total_transaction').val(thousand_separator(res.total_anggaran));

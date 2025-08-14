@@ -530,6 +530,7 @@ class Npd extends CI_Controller {
 
 		if($err_code == 0) {
 			// hitung total anggaran
+			$total_anggaran = $this->calculate_total_anggaran($id);
 
 			
 			// update status npd
@@ -537,6 +538,7 @@ class Npd extends CI_Controller {
 				'npd_status' => 'MENUNGGU PEMBAYARAN',
 				'updated' => Date('Y-m-d H:i:s'),
 				'updatedby' => $this->session->userdata('username'),
+				'total_anggaran' => $total_anggaran,
 			);
 			
 			$this->db->where('idnpd', $id);
@@ -626,85 +628,6 @@ class Npd extends CI_Controller {
 			'err_message' => $err_message,
 		);
 
-		echo json_encode($return);
-	}
-
-	function approval() {
-		$err_code = 0;
-		$err_message = '';
-
-		
-		$idverification = $this->input->post("idverification");
-		$status_approve = $this->input->post("status_approve");
-		$verification_description = $this->input->post("verification_description");
-		$confirm_verification_date = Date('Y-m-d H:i:s');
-		$iduser_verification = $this->session->userdata('iduser');
-		$verification_status = '';
-
-		if ($status_approve == "DISETUJUI") {
-			$verification_status = "SUDAH DIVERIFIKASI";
-			$type = 'SUDAH DIVERIFIKASI';
-		}
-		else if ($status_approve == "DITOLAK") {
-			$verification_status = "DITOLAK VERIFIKATOR";
-			$type = 'DITOLAK VERIFIKATOR';
-		}
-
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('status_approve', 'Status Verifikasi', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('verification_description', 'Keterangan', 'required');
-
-		if ($this->form_validation->run() == FALSE) {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-
-		if ($err_code == 0) {
-			if (strlen($idverification) == 0) {
-				$err_code++;
-				$err_message = 'Invalid ID';
-			}
-		}
-
-		if ($err_code == 0) {
-			$this->db->where('idverification',$idverification);
-			$verification = $this->db->get('verification');
-
-			if ($verification->num_rows() > 0) {
-				$status = $verification->row()->verification_status;
-				if ($status == "SUDAH DIBAYAR BENDAHARA") {
-					$err_code++;
-					$err_message = "Data tidak bisa diedit atau dihapus.";
-				}
-			}	
-		}
-
-		if ($err_code == 0) {
-			// $total_anggaran = $this->calculate_total_anggaran($idverification);
-
-	    	$arr_data = array(
-	    		'confirm_verification_date' => $confirm_verification_date,
-	    		'verification_status' => $verification_status,
-	    		'status_approve' => $status_approve,
-	    		'verification_description' => $verification_description,
-	    		'iduser_verification' => $iduser_verification,
-	    		// 'total_anggaran' => $total_anggaran,
-	    	);
-
-	    	az_crud_save($idverification, 'verification', $arr_data);
-
-			// update status realisasi anggaran
-			$the_filter = array(
-				'idverification' => $idverification,
-				'type' => $type,
-			);
-			$update_status = update_status_pake_belanja($the_filter);
-		}
-
-		$return = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
 		echo json_encode($return);
 	}
 
@@ -843,35 +766,24 @@ class Npd extends CI_Controller {
 		return $numb;
 	}
 
-	function calculate_total_realisasi($idtransaction) {
-
-		$this->db->where('status', 1);
-		$this->db->where('idtransaction', $idtransaction);
-		$this->db->select('sum(total) as total_realisasi');
-		$trxd = $this->db->get('transaction_detail');
-
-		$total_realisasi = azobj($trxd->row(), 'total_realisasi', 0);
-
-		$arr_update = array(
-			'total_realisasi' => $total_realisasi,
-		);
-
-		az_crud_save($idtransaction, 'transaction', $arr_update);
-	}
-
-	function calculate_total_anggaran($idverification) {
-		$this->db->where('verification.idverification', $idverification);
+	function calculate_total_anggaran($idnpd) {
+		$this->db->where('npd_detail.idnpd', $idnpd);
+		$this->db->where('npd_detail.status', 1);
 		$this->db->where('verification.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
 		$this->db->where('verification_detail.status', 1);
+		$this->db->where('transaction.status', 1);
+		$this->db->where('transaction.transaction_status != "DRAFT" ');
+		$this->db->where('verification.verification_status != "DRAFT" ');
 
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->select('sum(total_realisasi) as total_anggaran');
-		$verif = $this->db->get('verification');
+		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
+
+		$this->db->select('sum(transaction.total_realisasi) as total_anggaran');
+		$npd_detail = $this->db->get('npd_detail');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		$total_anggaran = azobj($verif->row(), 'total_anggaran', 0);
+		$total_anggaran = azobj($npd_detail->row(), 'total_anggaran', 0);
 
 		return $total_anggaran;
 	}
