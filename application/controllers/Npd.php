@@ -590,6 +590,7 @@ class Npd extends CI_Controller {
 
 		$err_code = 0;
 		$err_message = "";
+		$message = "";
 		$is_delete = true;
 
 		$this->db->where('idnpd_detail',$id);
@@ -623,9 +624,27 @@ class Npd extends CI_Controller {
 			$err_message = "Data tidak bisa diedit atau dihapus.";
 		}
 
+		// cek apakah masih ada dokumen/detail transaksi di npd ini?
+		if ($err_code == 0) {
+			$this->db->where('idnpd', $idnpd);
+			$this->db->where('status', 1);
+			$npd_detail = $this->db->get('npd_detail');
+
+			if ($npd_detail->num_rows() == 0) {
+				$arr_update = array(
+					'npd_status' => 'DRAFT',
+				);
+				az_crud_save($idnpd, 'npd', $arr_update);
+
+				$message = 'Dokumen berhasil dihapus,';
+				$message .= '<br><span style="color:red; font_weight:bold;">jika anda ingin menambahkan dokumen baru, harap klik simpan transaksi NPD, agar datanya tidak hilang.</span>';
+			}
+		}
+
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
+			'message' => $message,
 		);
 
 		echo json_encode($return);
