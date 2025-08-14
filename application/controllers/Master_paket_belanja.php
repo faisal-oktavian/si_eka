@@ -311,6 +311,11 @@ class Master_paket_belanja extends CI_Controller {
 	 	$is_kategori = $this->input->post('is_kategori');
 	 	$is_subkategori = $this->input->post('is_subkategori');
 
+		$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
+		$this->db->select('idpaket_belanja');
+		$paket_belanja = $this->db->get('paket_belanja_detail');
+		$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
+		
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('idkategori', 'Kategori', 'required');
 
@@ -338,6 +343,7 @@ class Master_paket_belanja extends CI_Controller {
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
+			'idpaket_belanja' => $idpaket_belanja,
 		);
 		echo json_encode($return);
 	}
@@ -518,6 +524,7 @@ class Master_paket_belanja extends CI_Controller {
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
+			'idpaket_belanja' => $idpaket_belanja,
 		);
 		echo json_encode($return);
 	}
@@ -796,6 +803,7 @@ class Master_paket_belanja extends CI_Controller {
 	function delete_akun_belanja() {
 		$err_code = 0;
 		$err_message = '';
+		$message = '';
 
 		$id = $this->input->post('id');
 
@@ -841,6 +849,23 @@ class Master_paket_belanja extends CI_Controller {
 			$data_delete = az_crud_delete('paket_belanja_detail', $id, true);
 			$err_code = $data_delete['err_code'];
 			$err_message = $data_delete['err_message'];
+		}
+
+		// cek apakah masih ada akun belanja/detail transaksi di paket belanja ini?		
+		if ($err_code == 0) {
+			$this->db->where('idpaket_belanja', $idpaket_belanja);
+			$this->db->where('status', 1);
+			$paket_belanja_detail = $this->db->get('paket_belanja_detail');
+
+			if ($paket_belanja_detail->num_rows() == 0) {
+				$arr_update = array(
+					'status_paket_belanja' => 'DRAFT',
+				);
+				az_crud_save($idpaket_belanja, 'paket_belanja', $arr_update);
+
+				$message = 'Akun belanja berhasil dihapus,';
+				$message .= '<br><span style="color:red; font_weight:bold;">jika anda ingin menambahkan akun belanja baru, harap klik simpan transaksi paket belanja, agar datanya tidak hilang.</span>';
+			}
 		}
 		
 		$return = array(

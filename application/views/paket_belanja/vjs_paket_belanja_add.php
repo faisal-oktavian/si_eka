@@ -5,6 +5,12 @@
 							echo "false";
 						} ?>;
 
+	var is_add = <?php if ($this->uri->segment(2) == 'add') {
+						echo "true";
+					} else {
+						echo "false";
+					} ?>;					
+
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
 
@@ -229,8 +235,10 @@
 				}
 				else {
 					hide_modal('add_kategori');
+
+					generate_detail_paket_belanja(response.idpaket_belanja);
 					
-					location.reload();
+					// location.reload();
 				}
 			},
 			error: function(response) {}
@@ -278,7 +286,7 @@
 				else {
 					hide_modal('add_subkategori');
 					
-					location.reload();
+					generate_detail_paket_belanja(response.idpaket_belanja);
 				}
 			},
 			error: function(response) {}
