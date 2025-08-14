@@ -681,6 +681,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$err_code = 0;
 		$err_message = "";
 		$is_delete = true;
+		$message = '';
 
 		$this->db->where('idtransaction_detail',$id);
 		$this->db->join('transaction', 'transaction_detail.idtransaction = transaction.idtransaction');
@@ -708,9 +709,27 @@ class Realisasi_anggaran extends CI_Controller {
 			$err_message = "Data tidak bisa diedit atau dihapus.";
 		}
 
+		// cek apakah masih ada paket belanja/detail transaksi di realisasi anggaran ini?
+		if ($err_code == 0) {
+			$this->db->where('idtransaction', $idtransaction);
+			$this->db->where('status', 1);
+			$transaction_detail = $this->db->get('transaction_detail');
+
+			if ($transaction_detail->num_rows() == 0) {
+				$arr_update = array(
+					'transaction_status' => 'DRAFT',
+				);
+				az_crud_save($idtransaction, 'transaction', $arr_update);
+
+				$message = 'Paket Belanja berhasil dihapus,';
+				$message .= '<br><span style="color:red; font_weight:bold;">jika anda ingin menambahkan paket belanja baru, harap klik simpan transaksi realisasi anggaran, agar datanya tidak hilang.</span>';
+			}
+		}	
+
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
+			'message' => $message,
 		);
 
 		echo json_encode($return);

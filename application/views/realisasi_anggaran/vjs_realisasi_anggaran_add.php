@@ -380,6 +380,7 @@
 					success: function(response) {
 						hide_loading();
 						if(response.err_code == 0) {
+							bootbox.alert(response.message);
 							generate_transaction(jQuery('#idtransaction').val(), true);
 						} else {
 							bootbox.alert(response.err_message);
