@@ -7,8 +7,8 @@
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
-			jQuery('.form-control, .btn-primary').attr('readonly', true);
-			// jQuery('#btn_preview').attr('disabled', false);
+			// jQuery('.form-horizontal, .btn-primary').attr('readonly', true);
+			jQuery('#btn_add_npd, #btn_save_npd').hide();
 			// jQuery('#btn_save_onthespot').attr('disabled', true);
 			// jQuery('#btn_add_product').attr('disabled', true);
 			// jQuery('#idoutlet').attr('disabled', true);

@@ -181,15 +181,19 @@ class Npd extends CI_Controller {
 					$is_viewonly = true;
 				}
 
-				$btn .= '<button class="btn btn-info btn-xs btn-send_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-send"></span> Kirim ke bendahara</button>';
+				if ($npd_status == "INPUT DATA") {
+					$btn .= '<button class="btn btn-info btn-xs btn-send_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-send"></span> Kirim ke bendahara</button>';
+				}
 			}
 			else {
 				$is_viewonly = true;	
 			}
 
 			if ($is_viewonly) {
-				$btn .= '<button class="btn btn-info btn-xs btn-view-only-npd" data_id="'.$idnpd.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
+				$btn = '<button class="btn btn-info btn-xs btn-view-only-npd" data_id="'.$idnpd.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 			}
+
+			$btn .= '<button class="btn btn-success btn-xs btn-print_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-print"></span> Cetak</button>';
 
 			return $btn;
 		}
@@ -532,7 +536,7 @@ class Npd extends CI_Controller {
 			$arr_data = array(
 				'npd_status' => 'MENUNGGU PEMBAYARAN',
 				'updated' => Date('Y-m-d H:i:s'),
-				'updatedby' => $this->session->userdata('iduser'),
+				'updatedby' => $this->session->userdata('username'),
 			);
 			
 			$this->db->where('idnpd', $id);
