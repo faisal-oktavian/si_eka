@@ -547,6 +547,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		$err_code = 0;
 		$err_message = "";
+		$message = "";
 		$is_delete = true;
 
 		$this->db->where('idverification_detail',$id);
@@ -580,9 +581,27 @@ class Verifikasi_dokumen extends CI_Controller {
 			$err_message = "Data tidak bisa diedit atau dihapus.";
 		}
 
+		// cek apakah masih ada realisasi/detail transaksi di verif dokumen ini?
+		if ($err_code == 0) {
+			$this->db->where('idverification', $idverification);
+			$this->db->where('status', 1);
+			$verification_detail = $this->db->get('verification_detail');
+
+			if ($verification_detail->num_rows() == 0) {
+				$arr_update = array(
+					'verification_status' => 'DRAFT',
+				);
+				az_crud_save($idverification, 'verification', $arr_update);
+
+				$message = 'Realisasi anggaran berhasil dihapus,';
+				$message .= '<br><span style="color:red; font_weight:bold;">jika anda ingin menambahkan realisasi baru, harap klik simpan transaksi verifikasi dokumen, agar datanya tidak hilang.</span>';
+			}
+		}
+
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
+			'message' => $message,
 		);
 
 		echo json_encode($return);
@@ -639,7 +658,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$total_anggaran = $this->calculate_total_anggaran($idverification);
+			// $total_anggaran = $this->calculate_total_anggaran($idverification);
 
 	    	$arr_data = array(
 	    		'confirm_verification_date' => $confirm_verification_date,
@@ -647,7 +666,7 @@ class Verifikasi_dokumen extends CI_Controller {
 	    		'status_approve' => $status_approve,
 	    		'verification_description' => $verification_description,
 	    		'iduser_verification' => $iduser_verification,
-	    		'total_anggaran' => $total_anggaran,
+	    		// 'total_anggaran' => $total_anggaran,
 	    	);
 
 	    	az_crud_save($idverification, 'verification', $arr_data);
