@@ -74,8 +74,8 @@ class Realisasi_anggaran extends CI_Controller {
 
         $crud->set_select('transaction.idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, transaction_status, user.name as user_created');
         $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status, user_created');
-        $crud->set_sorting('transaction_date, transaction_code, nama_paket_belanja, total_realisasi');
-        $crud->set_filter('transaction_date, transaction_code, nama_paket_belanja, total_realisasi');
+        $crud->set_sorting('transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status');
+        $crud->set_filter('transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status');
 		$crud->set_id($this->controller);
 		$crud->set_select_align(' , , , right, center');
 

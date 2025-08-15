@@ -28,8 +28,8 @@ class Verifikasi_dokumen extends CI_Controller {
 		$date1->set_id('date1');
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
-		$date1->set_value('01-'.Date('m-Y'));
-		// $date1->set_value('01-01-'.Date('Y'));
+		// $date1->set_value('s01-'.Date('m-Y'));
+		$date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
@@ -402,7 +402,7 @@ class Verifikasi_dokumen extends CI_Controller {
 						'idverification' => $idverification,
 						'type' => 'MENUNGGU VERIFIKASI'
 					);
-					$update_status = update_status_pake_belanja($the_filter);
+					$update_status = update_status_realisasi_anggaran($the_filter);
 				}
 			}
 		}
@@ -466,7 +466,7 @@ class Verifikasi_dokumen extends CI_Controller {
 				'idverification' => $idverification,
 				'type' => 'MENUNGGU VERIFIKASI'
 			);
-			$update_status = update_status_pake_belanja($the_filter);
+			$update_status = update_status_realisasi_anggaran($the_filter);
 
 		}
 
@@ -495,21 +495,12 @@ class Verifikasi_dokumen extends CI_Controller {
 		}
 
 		if($err_code == 0) {
-			// kembalikan status realisasi anggaran
-			$this->db->where('idverification', $id);
-			$verif_detail = $this->db->get('verification_detail');
-
-			foreach ($verif_detail->result() as $key => $value) {
-				$idtransaction = $value->idtransaction;
-
-				$update_data = array(
-					'transaction_status' => 'INPUT DATA',
-					'updated_status' => date('Y-m-d H:i:s'),
-				);
-				
-				$this->db->where('idtransaction', $idtransaction);
-				$this->db->update('transaction', $update_data);
-			}
+			// update status realisasi anggaran
+			$the_filter = array(
+				'idverification' => $id,
+				'type' => 'INPUT DATA'
+			);
+			$update_status = update_status_realisasi_anggaran($the_filter);
 
 			az_crud_delete($this->table, $id);
 		} 
@@ -573,7 +564,7 @@ class Verifikasi_dokumen extends CI_Controller {
 					'idverification_detail' => $id,
 					'type' => 'INPUT DATA'
 				);
-				$update_status = update_status_pake_belanja($the_filter);	
+				$update_status = update_status_realisasi_anggaran($the_filter);	
 			}
 		}
 		else{
@@ -658,7 +649,6 @@ class Verifikasi_dokumen extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			// $total_anggaran = $this->calculate_total_anggaran($idverification);
 
 	    	$arr_data = array(
 	    		'confirm_verification_date' => $confirm_verification_date,
@@ -666,7 +656,6 @@ class Verifikasi_dokumen extends CI_Controller {
 	    		'status_approve' => $status_approve,
 	    		'verification_description' => $verification_description,
 	    		'iduser_verification' => $iduser_verification,
-	    		// 'total_anggaran' => $total_anggaran,
 	    	);
 
 	    	az_crud_save($idverification, 'verification', $arr_data);
@@ -676,7 +665,7 @@ class Verifikasi_dokumen extends CI_Controller {
 				'idverification' => $idverification,
 				'type' => $type,
 			);
-			$update_status = update_status_pake_belanja($the_filter);
+			$update_status = update_status_realisasi_anggaran($the_filter);
 		}
 
 		$return = array(
@@ -817,22 +806,5 @@ class Verifikasi_dokumen extends CI_Controller {
 		);
 
 		az_crud_save($idtransaction, 'transaction', $arr_update);
-	}
-
-	function calculate_total_anggaran($idverification) {
-		$this->db->where('verification.idverification', $idverification);
-		$this->db->where('verification.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
-		$this->db->where('verification_detail.status', 1);
-
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->select('sum(total_realisasi) as total_anggaran');
-		$verif = $this->db->get('verification');
-		// echo "<pre>"; print_r($this->db->last_query()); die;
-
-		$total_anggaran = azobj($verif->row(), 'total_anggaran', 0);
-
-		return $total_anggaran;
 	}
 }
