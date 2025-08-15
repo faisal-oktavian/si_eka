@@ -30,8 +30,8 @@ class Realisasi_anggaran extends CI_Controller {
 		$date1->set_id('date1');
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
-		$date1->set_value('01-'.Date('m-Y'));
-		// $date1->set_value('01-01-'.Date('Y'));
+		// $date1->set_value('01-'.Date('m-Y'));
+		$date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
@@ -112,6 +112,14 @@ class Realisasi_anggaran extends CI_Controller {
 		}
 
 		if ($key == 'transaction_status') {
+			// INPUT DATA 				-> data diinputkan dimenu realisasi anggaran (oleh user realisasi); 
+			// MENUNGGU VERIFIKASI 		-> data diinputkan di menu verifikasi dokumen (oleh user realisasi); 
+			// SUDAH DIVERIFIKASI 		-> data sudah diverifikasi (oleh user verifikator); 
+			// DITOLAK VERIFIKATOR 		-> data ditolak verifikator (oleh user verifikator);
+			// INPUT NPD				-> data diinputkan di menu npd (oleh user npd);
+			// MENUNGGU PEMBAYARAN		-> data sudah dikirim ke bendahara (oleh user npd);
+			// SUDAH DIBAYAR BENDAHARA 	-> data sudah dibayar bendahara (oleh user bendahara);
+
 			$lbl = 'default';
 			$tlbl = '-';
 			if ($value == "INPUT DATA") {
@@ -129,6 +137,14 @@ class Realisasi_anggaran extends CI_Controller {
 			else if ($value == "DITOLAK VERIFIKATOR") {
 				$lbl = 'danger';
 				$tlbl = 'Ditolak Verifikator';
+			}
+			if ($value == "INPUT NPD") {
+				$lbl = 'warning';
+				$tlbl = 'Input NPD';
+			}
+			else if ($value == "MENUNGGU PEMBAYARAN") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Pembayaran';
 			}
 			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
 				$lbl = 'success';
@@ -498,7 +514,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 			if ($transaction->num_rows() > 0) {
 				$status = $transaction->row()->transaction_status;
-				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -599,7 +615,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 			if ($transaction->num_rows() > 0) {
 				$status = $transaction->row()->transaction_status;
-				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -637,7 +653,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 		if ($transaction->num_rows() > 0) {
 			$status = $transaction->row()->transaction_status;
-			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
@@ -689,7 +705,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 		$status = $transaction->row()->transaction_status;
 		$idtransaction = $transaction->row()->idtransaction;
-		if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+		if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 			$is_delete = false;
 		}
 

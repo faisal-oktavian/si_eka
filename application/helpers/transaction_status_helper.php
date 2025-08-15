@@ -1,7 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed'); 
 
-    function update_status_pake_belanja($arr) {
+	// update status realisasi anggaran
+	// untuk mengakomodir add_product (tambah produk); save_verification (simpan transaksi verifikasi); delete_order (hapus detail transaksi verifikasi); delete_verifikasi_dokumen (hapus transaksi verifikasi); approval (persetujuan verifikasi)
+    function update_status_realisasi_anggaran($arr) {
 		$ci =& get_instance();
 
 		$err_code = 0;
@@ -39,5 +41,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		);
 		return $ret;
 	}
+
+
+
+	// update status verifikasi dokumen
+
+
+
+	// update status nota pencairan dana (NPD)
+
+
+
 
 
