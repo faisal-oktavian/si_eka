@@ -10,6 +10,7 @@ class Pembayaran extends CI_Controller {
         $this->table = 'npd';
         $this->controller = 'pembayaran';
         $this->load->helper('az_crud');
+		$this->load->helper('transaction_status_helper');
     }
 
 	public function index() {		
@@ -353,6 +354,15 @@ class Pembayaran extends CI_Controller {
 			// echo "<pre>"; print_r($data_pembayaran); die;
 			
 			az_crud_save($idnpd, 'npd', $data_pembayaran);
+
+
+
+			// update status npd
+			$the_filter = array(
+				'idnpd' => $idnpd,
+				'type' => 'SUDAH DIBAYAR BENDAHARA'
+			);
+			$update_status = update_status_npd($the_filter);
 		}
 
 		if ($err_code == 0) {

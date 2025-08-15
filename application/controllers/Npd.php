@@ -47,7 +47,7 @@ class Npd extends CI_Controller {
 		$vf = $this->load->view('npd/vf_npd', $data, true);
         $crud->set_top_filter($vf);
 
-		if (aznav('role_crud')) {
+		if (!aznav('role_view_npd')) {
 			$btn = "<button class='btn btn-primary az-btn-primary btn-add-npd' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
 			$crud->set_btn_top_custom($btn);
 		}
@@ -168,7 +168,7 @@ class Npd extends CI_Controller {
 			$is_viewonly = false;
 
 			$btn = '';
-			if (aznav('role_crud')) {
+			if (!aznav('role_view_npd')) {
 				$btn .= '<button class="btn btn-default btn-xs btn-edit_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
 				$btn .= '<button class="btn btn-danger btn-xs btn-delete_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
@@ -181,7 +181,7 @@ class Npd extends CI_Controller {
 					$is_viewonly = true;
 				}
 
-				if ($npd_status == "INPUT DATA") {
+				if ($npd_status == "INPUT NPD") {
 					$btn .= '<button class="btn btn-info btn-xs btn-send_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-send"></span> Kirim ke bendahara</button>';
 				}
 			}
@@ -193,7 +193,7 @@ class Npd extends CI_Controller {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-npd" data_id="'.$idnpd.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 			}
 
-			$btn .= '<button class="btn btn-success btn-xs btn-print_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-print"></span> Cetak</button>';
+			// $btn .= '<button class="btn btn-success btn-xs btn-print_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-print"></span> Cetak</button>';
 
 			return $btn;
 		}
@@ -240,7 +240,7 @@ class Npd extends CI_Controller {
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			$status = $check->row()->npd_status;
-			if ($status == "SUDAH DIBAYAR BENDAHARA") {
+			if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				redirect(app_url().'npd');
 			}
 		}
@@ -332,7 +332,7 @@ class Npd extends CI_Controller {
 
 			if ($npd->num_rows() > 0) {
 				$status = $npd->row()->npd_status;
-				if ($status == "SUDAH DIBAYAR BENDAHARA") {
+				if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -382,17 +382,17 @@ class Npd extends CI_Controller {
 				$idnpd_detail = azarr($td, 'insert_id');
 				
 
-				// // cek apakah datanya baru diinput / edit data
-				// $this->db->where('idverification', $idverification);
-				// $check = $this->db->get('verification');
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('idnpd', $idnpd);
+				$check = $this->db->get('npd');
 
-				// if ($check->row()->verification_status != "DRAFT") {
-				// 	$the_filter = array(
-				// 		'idverification' => $idverification,
-				// 		'type' => 'MENUNGGU VERIFIKASI'
-				// 	);
-				// 	$update_status = update_status_pake_belanja($the_filter);
-				// }
+				if ($check->row()->npd_status != "DRAFT") {
+					$the_filter = array(
+						'idnpd' => $idnpd,
+						'type' => 'INPUT NPD'
+					);
+					$update_status = update_status_verifikasi_dokumen($the_filter);
+				}
 			}
 		}
 
@@ -434,7 +434,7 @@ class Npd extends CI_Controller {
 
 			if ($npd->num_rows() > 0) {
 				$status = $npd->row()->npd_status;
-				if ($status == "SUDAH DIBAYAR BENDAHARA") {
+				if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -444,19 +444,19 @@ class Npd extends CI_Controller {
 		if ($err_code == 0) {
 	    	$arr_data = array(
 	    		'npd_date_created' => $npd_date_created,
-	    		'npd_status' => "INPUT DATA",
+	    		'npd_status' => "INPUT NPD",
 	    		'iduser_created' => $iduser_created,
 	    	);
 
 	    	az_crud_save($idnpd, 'npd', $arr_data);
 
-			// // update status realisasi anggaran
-			// $the_filter = array(
-			// 	'idverification' => $idverification,
-			// 	'type' => 'MENUNGGU VERIFIKASI'
-			// );
-			// $update_status = update_status_pake_belanja($the_filter);
 
+			// update status verifikasi dokumen
+			$the_filter = array(
+				'idnpd' => $idnpd,
+				'type' => 'INPUT NPD'
+			);
+			$update_status = update_status_verifikasi_dokumen($the_filter);
 		}
 
 		$return = array(
@@ -477,7 +477,7 @@ class Npd extends CI_Controller {
 
 		if ($npd->num_rows() > 0) {
 			$status = $npd->row()->npd_status;
-			if ($status == "SUDAH DIBAYAR BENDAHARA") {
+			if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
@@ -485,20 +485,11 @@ class Npd extends CI_Controller {
 
 		if($err_code == 0) {
 			// kembalikan status realisasi anggaran
-			$this->db->where('idverification', $id);
-			$verif_detail = $this->db->get('verification_detail');
-
-			// foreach ($verif_detail->result() as $key => $value) {
-			// 	$idtransaction = $value->idtransaction;
-
-			// 	$update_data = array(
-			// 		'transaction_status' => 'INPUT DATA',
-			// 		'updated_status' => date('Y-m-d H:i:s'),
-			// 	);
-				
-			// 	$this->db->where('idtransaction', $idtransaction);
-			// 	$this->db->update('transaction', $update_data);
-			// }
+			$the_filter = array(
+				'idnpd' => $id,
+				'type' => 'INPUT NPD'
+			);
+			$update_status = update_status_verifikasi_dokumen($the_filter);
 
 			az_crud_delete($this->table, $id);
 		} 
@@ -522,7 +513,7 @@ class Npd extends CI_Controller {
 
 		if ($npd->num_rows() > 0) {
 			$status = $npd->row()->npd_status;
-			if ($status == "SUDAH DIBAYAR BENDAHARA") {
+			if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
@@ -544,12 +535,12 @@ class Npd extends CI_Controller {
 			$this->db->where('idnpd', $id);
 			$this->db->update('npd', $arr_data);
 
-			// update status realisasi anggaran
-			// $the_filter = array(
-			// 	'idverification' => $idverification,
-			// 	'type' => 'MENUNGGU PEMBAYARAN'
-			// );
-			// $update_status = update_status_pake_belanja($the_filter);
+			// update status verifikasi dokumen
+			$the_filter = array(
+				'idnpd' => $id,
+				'type' => 'MENUNGGU PEMBAYARAN'
+			);
+			$update_status = update_status_verifikasi_dokumen($the_filter);
 
 			$ret = array(
 				'err_code' => $err_code,
@@ -599,7 +590,7 @@ class Npd extends CI_Controller {
 
 		$status = $npd->row()->npd_status;
 		$idnpd = $npd->row()->idnpd;
-		if ($status == "SUDAH DIBAYAR BENDAHARA") {
+		if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 			$is_delete = false;
 		}
 
@@ -610,13 +601,13 @@ class Npd extends CI_Controller {
 			$err_message = $delete['err_message'];
 
 			if ($err_code == 0) {
-				// update status realisasi anggaran
-				// $the_filter = array(
-				// 	'idverification' => $idverification,
-				// 	'idverification_detail' => $id,
-				// 	'type' => 'INPUT DATA'
-				// );
-				// $update_status = update_status_pake_belanja($the_filter);	
+				// update status verifikasi dokumen
+				$the_filter = array(
+					'idnpd' => $idnpd,
+					'idnpd_detail' => $id,
+					'type' => 'INPUT NPD'
+				);
+				$update_status = update_status_verifikasi_dokumen($the_filter);
 			}
 		}
 		else{

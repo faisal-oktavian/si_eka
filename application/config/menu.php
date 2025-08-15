@@ -136,6 +136,12 @@
             "title" => "Nota Pencairan Dana",
             "icon" => "file",
             "url" => "npd",
+            'role' => array(
+                array(
+                    'role_name' => 'role_view_npd',
+                    'role_title' => 'Hanya lihat data'
+                ),
+            ),
         ),
         array(
             "name" => "pembayaran",

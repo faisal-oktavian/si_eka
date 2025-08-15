@@ -19,7 +19,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Input Dokumen', 'Tanggal Verifikasi Dokumen', 'Nomor Dokumen', 'Detail', 'Status Verifikasi', 'Keterangan Verifikasi', 'User Input', 'User Verifikasi', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Input Dokumen', 'Tanggal Verifikasi Dokumen', 'Nomor Dokumen', 'Detail', 'Status', 'Status Verifikasi', 'Keterangan Verifikasi', 'User Input', 'User Verifikasi', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -83,13 +83,13 @@ class Verifikasi_dokumen extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$verification_code = $this->input->get('verification_code');
 
-        $crud->set_select('verification.idverification, date_format(verification_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, verification_code, "" as detail, status_approve, verification_description, user_created.name as user_input, user_confirm.name as user_verifikasi');
+        $crud->set_select('verification.idverification, date_format(verification_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, verification_code, "" as detail, verification_status, status_approve, verification_description, user_created.name as user_input, user_confirm.name as user_verifikasi');
 
-        $crud->set_select_table('idverification, txt_date_input, txt_confirm_verification, verification_code, detail, status_approve, verification_description, user_input, user_verifikasi');
-        $crud->set_sorting('verification_code, status_approve, verification_description, user_input, user_verifikasi');
-        $crud->set_filter('verification_code, status_approve, verification_description, user_input, user_verifikasi');
+        $crud->set_select_table('idverification, txt_date_input, txt_confirm_verification, verification_code, detail, verification_status, status_approve, verification_description, user_input, user_verifikasi');
+        $crud->set_sorting('verification_code, status_approve, verification_description, verification_status, user_input, user_verifikasi');
+        $crud->set_filter('verification_code, status_approve, verification_description, verification_status, user_input, user_verifikasi');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , , center');
+		$crud->set_select_align(', , , , center, center');
 
         $crud->add_join_manual('user user_created', 'verification.iduser_created = user_created.iduser', 'left');
         $crud->add_join_manual('user user_confirm', 'verification.iduser_verification = user_confirm.iduser', 'left');
@@ -165,6 +165,49 @@ class Verifikasi_dokumen extends CI_Controller {
 			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
 		}
 
+		if ($key == 'verification_status') {
+			// INPUT DATA 				-> data diinputkan dimenu realisasi anggaran (oleh user realisasi); 
+			// MENUNGGU VERIFIKASI 		-> data diinputkan di menu verifikasi dokumen (oleh user realisasi); 
+			// SUDAH DIVERIFIKASI 		-> data sudah diverifikasi (oleh user verifikator); 
+			// DITOLAK VERIFIKATOR 		-> data ditolak verifikator (oleh user verifikator);
+			// INPUT NPD				-> data diinputkan di menu npd (oleh user npd);
+			// MENUNGGU PEMBAYARAN		-> data sudah dikirim ke bendahara (oleh user npd);
+			// SUDAH DIBAYAR BENDAHARA 	-> data sudah dibayar bendahara (oleh user bendahara);
+
+			$lbl = 'default';
+			$tlbl = '-';
+			if ($value == "INPUT DATA") {
+				$lbl = 'warning';
+				$tlbl = 'Input Data';
+			}
+			else if ($value == "MENUNGGU VERIFIKASI") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Verifikasi';
+			}
+			else if ($value == "SUDAH DIVERIFIKASI") {
+				$lbl = 'default';
+				$tlbl = 'Sudah Diverifikasi';
+			}
+			else if ($value == "DITOLAK VERIFIKATOR") {
+				$lbl = 'danger';
+				$tlbl = 'Ditolak Verifikator';
+			}
+			if ($value == "INPUT NPD") {
+				$lbl = 'warning';
+				$tlbl = 'Input NPD';
+			}
+			else if ($value == "MENUNGGU PEMBAYARAN") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Pembayaran';
+			}
+			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
+				$lbl = 'success';
+				$tlbl = 'Sudah Dibayar Bendahara';
+			}
+
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
 		if ($key == 'action') {
             $idverification = azarr($data, 'idverification');
 
@@ -177,10 +220,7 @@ class Verifikasi_dokumen extends CI_Controller {
 				$verif = $this->db->get('verification');
 
 				$verif_status = $verif->row()->verification_status;
-				// USER INPUT => statusnya INPUT DATA
-				// USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
-				// USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIBAYAR BENDAHARA
-				if (in_array($verif_status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+				if (in_array($verif_status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$btn = '<button class="btn btn-info btn-xs btn-view-only-verifikasi-dokumen" data_id="'.$idverification.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 				}
 			}
@@ -234,7 +274,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			$status = $check->row()->verification_status;
-			if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+			if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				redirect(app_url().'verifikasi_dokumen');
 			}
 		}
@@ -315,7 +355,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 			if ($verification->num_rows() > 0) {
 				$status = $verification->row()->verification_status;
-				if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+				if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -445,7 +485,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 			if ($verification->num_rows() > 0) {
 				$status = $verification->row()->verification_status;
-				if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+				if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -488,7 +528,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		if ($verification->num_rows() > 0) {
 			$status = $verification->row()->verification_status;
-			if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+			if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
@@ -547,7 +587,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		$status = $verification->row()->verification_status;
 		$idverification = $verification->row()->idverification;
-		if (in_array($status, array("SUDAH DIVERIFIKASI", "SUDAH DIBAYAR BENDAHARA") ) ) {
+		if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 			$is_delete = false;
 		}
 
@@ -641,7 +681,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 			if ($verification->num_rows() > 0) {
 				$status = $verification->row()->verification_status;
-				if ($status == "SUDAH DIBAYAR BENDAHARA") {
+				if (in_array($status, array('INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}

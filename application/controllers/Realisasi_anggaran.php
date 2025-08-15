@@ -165,11 +165,8 @@ class Realisasi_anggaran extends CI_Controller {
             $trx = $this->db->get('transaction');
 
             $trx_status = $trx->row()->transaction_status;
-            // USER INPUT => statusnya INPUT DATA
-            // USER VERIFIKASI => statusnya MENUNGGU VERIFIKASI, SUDAH DIVERIFIKASI
-            // USER BENDAHARA => SUDAH DIVERIFIKASI, SUDAH DIBAYAR BENDAHARA
-            if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIVERIFIKASI BENDAHARA'))) {
-                $is_view_only = true;
+            if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+				$is_view_only = true;
             }
 
 			if (aznav('role_view_realisasi_anggaran')) {
@@ -225,7 +222,7 @@ class Realisasi_anggaran extends CI_Controller {
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			$status = $check->row()->transaction_status;
-			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'SUDAH DIBAYAR BENDAHARA'))) {
+			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				redirect(app_url().'realisasi_anggaran');
 			}
 		}
