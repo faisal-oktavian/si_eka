@@ -158,8 +158,8 @@
 			var nominal_belum_dibayar = <?php echo isset($belum_dibayar) ? $belum_dibayar : 0; ?>;
 			var nominal_belum_direalisasi = <?php echo isset($belum_direalisasi) ? $belum_direalisasi : 0; ?>;
 
-			// var total = nominal_sudah_dibayar + nominal_belum_dibayar + nominal_belum_direalisasi;
-			var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
+			var total = nominal_sudah_dibayar + nominal_belum_dibayar + nominal_belum_direalisasi;
+			// var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 
 			var persen_sudah_dibayar = total ? Math.round(nominal_sudah_dibayar / total * 100) : 0;
 			var persen_belum_dibayar = total ? Math.round(nominal_belum_dibayar / total * 100) : 0;

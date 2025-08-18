@@ -170,30 +170,28 @@ class Home extends AZ_Controller {
 		$belum_direalisasi = 0;
 
 		// sudah dibayar
-		$this->db->where('verification.status', 1);
-		$this->db->where('verification.verification_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('verification.status_approve = "DISETUJUI" ');
-		$this->db->where('YEAR(verification.confirm_payment_date) = "'.$tahun_ini.'" ');
+		$this->db->where('npd.status', 1);
+		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('YEAR(npd.confirm_payment_date) = "'.$tahun_ini.'" ');
 		$this->db->select('sum(total_pay) as total_yang_sudah_dibayar');
-		$verif = $this->db->get('verification');
+		$npd = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		if ($verif->num_rows() > 0) {
-			$sudah_dibayar = $verif->row()->total_yang_sudah_dibayar;
+		if ($npd->num_rows() > 0) {
+			$sudah_dibayar = $npd->row()->total_yang_sudah_dibayar;
 		}
 
 
 		// belum dibayar
-		$this->db->where('verification.status', 1);
-		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
-		$this->db->where('verification.status_approve = "DISETUJUI" ');
-		$this->db->where('YEAR(verification.confirm_verification_date) = "'.$tahun_ini.'" ');
+		$this->db->where('npd.status', 1);
+		$this->db->where('npd.npd_status = "MENUNGGU PEMBAYARAN" ');
+		$this->db->where('YEAR(npd.npd_date_created) = "'.$tahun_ini.'" ');
 		$this->db->select('sum(total_anggaran) as total_yang_belum_dibayar');
-		$verif_before_pay = $this->db->get('verification');
+		$npd_before_pay = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		if ($verif_before_pay->num_rows() > 0) {
-			$belum_dibayar = $verif_before_pay->row()->total_yang_belum_dibayar;
+		if ($npd_before_pay->num_rows() > 0) {
+			$belum_dibayar = $npd_before_pay->row()->total_yang_belum_dibayar;
 		}
 
 
