@@ -232,16 +232,16 @@ class Realisasi_anggaran_detail extends CI_Controller {
 
 		$crud->set_manual_query($query);
 
-		$crud->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, nilai_anggaran');
-		$crud->set_filter('nama_program, nama_paket_belanja, nilai_anggaran');
-		$crud->set_sorting('nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, total_anggaran');
+		$crud->set_filter('nama_program, nama_paket_belanja, total_anggaran');
+		$crud->set_sorting('nama_program, nama_paket_belanja, total_anggaran');
 		$crud->set_select_align(' , , right');
 		$crud->set_edit(false);
 		$crud->set_delete(false);
 		$crud->set_id('paket_belanja');
 		// $crud->set_custom_first_column(true);
 		
-		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, total_anggaran');
 		$crud->set_custom_style('custom_style_belum_dibayar');
 		$crud->set_table('paket_belanja');
 		echo $crud->get_table();
@@ -249,7 +249,7 @@ class Realisasi_anggaran_detail extends CI_Controller {
 
 	function custom_style_belum_dibayar($key, $value, $data) {
 		
-		if ($key == 'nilai_anggaran') {
+		if ($key == 'total_anggaran') {
 			return az_thousand_separator($value);
 		}
 
@@ -259,11 +259,19 @@ class Realisasi_anggaran_detail extends CI_Controller {
 	function get_query_belum_dibayar($tahun_ini, $query_total = false) {
 		$total_anggaran = 0;
 
+		$this->db->where('npd.status = 1');
+		$this->db->where('npd.npd_status = "MENUNGGU PEMBAYARAN" ');
+		$this->db->where('YEAR(npd.npd_date_created) = "'.$tahun_ini.'" ');
+		$this->db->where('npd_detail.status = 1');
 		$this->db->where('verification.status = 1');
-		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
 		$this->db->where('verification.status_approve = "DISETUJUI" ');
-		$this->db->where('YEAR(verification.confirm_verification_date) = "'.$tahun_ini.'" ');
+		$this->db->where('verification_detail.status = 1');
+		$this->db->where('transaction.status = 1');
+		$this->db->where('transaction_detail.status = 1');
+		$this->db->where('paket_belanja.status = 1');
 
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
 		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
 		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
@@ -271,17 +279,16 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
 		$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
 		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
-		
-		$this->db->group_by('verification.idverification, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, nilai_anggaran');
-		
-		$this->db->select('verification.idverification, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, verification.total_anggaran as nilai_anggaran');
-		
-		$query = $this->db->get('verification');
+
+		$this->db->group_by('npd.idnpd, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, npd.total_anggaran');
+		$this->db->select('npd.idnpd, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, npd.total_anggaran');
+		$query = $this->db->get('npd');
 		$last_query = $this->db->last_query();
+		// echo "<pre>"; print_r($last_query); die;
 		
 		if ($query_total) {
 			foreach ($query->result() as $key => $value) {
-				$total_anggaran += $value->nilai_anggaran;
+				$total_anggaran += $value->total_anggaran;
 			}
 
 			$query = $total_anggaran;
@@ -349,16 +356,16 @@ class Realisasi_anggaran_detail extends CI_Controller {
 
 		$crud->set_manual_query($query);
 
-		$crud->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, nilai_anggaran');
-		$crud->set_filter('nama_program, nama_paket_belanja, nilai_anggaran');
-		$crud->set_sorting('nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, total_pay');
+		$crud->set_filter('nama_program, nama_paket_belanja, total_pay');
+		$crud->set_sorting('nama_program, nama_paket_belanja, total_pay');
 		$crud->set_select_align(' , , right');
 		$crud->set_edit(false);
 		$crud->set_delete(false);
 		$crud->set_id('paket_belanja');
 		// $crud->set_custom_first_column(true);
 		
-		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, nilai_anggaran');
+		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, total_pay');
 		$crud->set_custom_style('custom_style_sudah_dibayar');
 		$crud->set_table('paket_belanja');
 		echo $crud->get_table();
@@ -366,7 +373,7 @@ class Realisasi_anggaran_detail extends CI_Controller {
 
 	function custom_style_sudah_dibayar($key, $value, $data) {
 		
-		if ($key == 'nilai_anggaran') {
+		if ($key == 'total_pay') {
 			return az_thousand_separator($value);
 		}
 
@@ -374,13 +381,21 @@ class Realisasi_anggaran_detail extends CI_Controller {
 	}
 
 	function get_query_sudah_dibayar($tahun_ini, $query_total = false) {
-		$total_anggaran = 0;
+		$total_pay = 0;
 
+		$this->db->where('npd.status = 1');
+		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('YEAR(npd.confirm_payment_date) = "'.$tahun_ini.'" ');
+		$this->db->where('npd_detail.status = 1');
 		$this->db->where('verification.status = 1');
-		$this->db->where('verification.verification_status = "SUDAH DIBAYAR BENDAHARA" ');
 		$this->db->where('verification.status_approve = "DISETUJUI" ');
-		$this->db->where('YEAR(verification.confirm_verification_date) = "'.$tahun_ini.'" ');
+		$this->db->where('verification_detail.status = 1');
+		$this->db->where('transaction.status = 1');
+		$this->db->where('transaction_detail.status = 1');
+		$this->db->where('paket_belanja.status = 1');
 
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
 		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
 		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
@@ -388,20 +403,19 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
 		$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
 		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
-		
-		$this->db->group_by('verification.idverification, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, nilai_anggaran');
-		
-		$this->db->select('verification.idverification, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, verification.total_anggaran as nilai_anggaran');
-		
-		$query = $this->db->get('verification');
+
+		$this->db->group_by('npd.idnpd, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, npd.total_pay');
+		$this->db->select('npd.idnpd, transaction_detail.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, npd.total_pay');
+		$query = $this->db->get('npd');
 		$last_query = $this->db->last_query();
+		// echo "<pre>"; print_r($last_query); die;
 		
 		if ($query_total) {
 			foreach ($query->result() as $key => $value) {
-				$total_anggaran += $value->nilai_anggaran;
+				$total_pay += $value->total_pay;
 			}
 
-			$query = $total_anggaran;
+			$query = $total_pay;
 		}
 		else {
 			
