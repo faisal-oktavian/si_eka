@@ -655,7 +655,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 		if ($transaction->num_rows() > 0) {
 			$status = $transaction->row()->transaction_status;
-			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
@@ -707,7 +707,7 @@ class Realisasi_anggaran extends CI_Controller {
 
 		$status = $transaction->row()->transaction_status;
 		$idtransaction = $transaction->row()->idtransaction;
-		if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 			$is_delete = false;
 		}
 

@@ -667,6 +667,16 @@ class Verifikasi_dokumen extends CI_Controller {
 		else if ($status_approve == "DITOLAK") {
 			$verification_status = "DITOLAK VERIFIKATOR";
 			$type = 'DITOLAK VERIFIKATOR';
+
+			$arr_filter = array(
+	    		'idverification' => $idverification,
+	    		'confirm_verification_date' => $confirm_verification_date,
+	    		'status_approve' => $status_approve,
+	    		'verification_description' => $verification_description,
+	    		'iduser_verification' => $iduser_verification,
+	    	);
+			
+			$this->insert_history($arr_filter);
 		}
 
 		$this->load->library('form_validation');
@@ -840,6 +850,24 @@ class Verifikasi_dokumen extends CI_Controller {
 		}
 
 		return $verification_code;
+	}
+
+	function insert_history($the_data) {
+		$idverification = azarr($the_data, 'idverification');
+		$confirm_verification_date = azarr($the_data, 'confirm_verification_date');
+		$status_approve = azarr($the_data, 'status_approve');
+		$verification_description = azarr($the_data, 'verification_description');
+		$iduser_verification = azarr($the_data, 'iduser_verification');
+
+		$arr_data = array(
+			'idverification' => $idverification,
+			'confirm_verification_date' => $confirm_verification_date,
+			'status_approve' => $status_approve,
+			'verification_description' => $verification_description,
+			'iduser_verification' => $iduser_verification,
+		);
+
+		az_crud_save('', 'verification_history', $arr_data);
 	}
 
 	function calculate_total_realisasi($idtransaction) {
