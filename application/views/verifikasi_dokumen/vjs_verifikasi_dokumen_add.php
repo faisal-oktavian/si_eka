@@ -7,7 +7,8 @@
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
-			jQuery('.form-control, .btn-primary').attr('readonly', true);
+			jQuery('#form_verifikasi').find('input, select').prop('disabled', true);
+			jQuery('#btn_add_realisasi_anggaran, #btn_save_verifikasi').hide();
 			// jQuery('#btn_preview').attr('disabled', false);
 			// jQuery('#btn_save_onthespot').attr('disabled', true);
 			// jQuery('#btn_add_product').attr('disabled', true);

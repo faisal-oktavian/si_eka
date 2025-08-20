@@ -30,8 +30,8 @@ class Realisasi_anggaran extends CI_Controller {
 		$date1->set_id('date1');
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
-		// $date1->set_value('01-'.Date('m-Y'));
-		$date1->set_value('01-01-'.Date('Y'));
+		$date1->set_value('01-'.Date('m-Y'));
+		// $date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
@@ -44,6 +44,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('transaction_code', 'transaction_code');
+		$crud->add_aodata('vf_transaction_status', 'vf_transaction_status');
 
 		$vf = $this->load->view('realisasi_anggaran/vf_realisasi_anggaran', $data, true);
         $crud->set_top_filter($vf);
@@ -71,6 +72,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
 		$transaction_code = $this->input->get('transaction_code');
+		$transaction_status = $this->input->get('vf_transaction_status');
 
         $crud->set_select('transaction.idtransaction, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, transaction_status, user.name as user_created');
         $crud->set_select_table('idtransaction, txt_transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status, user_created');
@@ -91,6 +93,9 @@ class Realisasi_anggaran extends CI_Controller {
         }
         if (strlen($transaction_code) > 0) {
 			$crud->add_where('transaction.transaction_code = "' . $transaction_code . '"');
+		}
+		if (strlen($transaction_status) > 0) {
+			$crud->add_where('transaction.transaction_status = "' . $transaction_status . '"');
 		}
 
 		$crud->add_where("transaction.status = 1");

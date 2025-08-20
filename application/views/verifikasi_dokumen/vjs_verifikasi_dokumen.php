@@ -39,13 +39,10 @@
 		})
 	});
 
-	jQuery('body').on('click', '.btn-view-only-pos', function() {
+	jQuery('body').on('click', '.btn-view-only-verifikasi-dokumen', function() {
 		var id = jQuery(this).attr('data_id');
-		var param = '/view_only';
-		if (jQuery(this).hasClass('btn-return')) {
-			param += '/return';
-		}
-		location.href = app_url + 'pos/edit/' + id + param;
+
+		location.href = app_url + 'verifikasi_dokumen/edit/' + id + '/view_only';
 	});
 
 	jQuery('body').on('click', '.btn-verifikasi-dokumen', function() {

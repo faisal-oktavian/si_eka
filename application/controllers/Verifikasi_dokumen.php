@@ -28,8 +28,8 @@ class Verifikasi_dokumen extends CI_Controller {
 		$date1->set_id('date1');
 		$date1->set_name('date1');
 		$date1->set_format('DD-MM-YYYY');
-		// $date1->set_value('s01-'.Date('m-Y'));
-		$date1->set_value('01-01-'.Date('Y'));
+		$date1->set_value('01-'.Date('m-Y'));
+		// $date1->set_value('01-01-'.Date('Y'));
 		$data['date1'] = $date1->render();
 
 		$date2 = $azapp->add_datetime();
@@ -42,6 +42,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('verification_code', 'verification_code');
+		$crud->add_aodata('vf_verification_status', 'vf_verification_status');
 
 		$vf = $this->load->view('verifikasi_dokumen/vf_verifikasi_dokumen', $data, true);
         $crud->set_top_filter($vf);
@@ -82,6 +83,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
 		$verification_code = $this->input->get('verification_code');
+		$verification_status = $this->input->get('vf_verification_status');
 
         $crud->set_select('verification.idverification, date_format(verification_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, verification_code, "" as detail, verification_status, status_approve, verification_description, user_created.name as user_input, user_confirm.name as user_verifikasi');
 
@@ -100,6 +102,9 @@ class Verifikasi_dokumen extends CI_Controller {
         }
         if (strlen($verification_code) > 0) {
 			$crud->add_where('verification.verification_code = "' . $verification_code . '"');
+		}
+		if (strlen($verification_status) > 0) {
+			$crud->add_where('verification.verification_status = "' . $verification_status . '"');
 		}
 
 		$crud->add_where("verification.status = 1");
@@ -226,7 +231,12 @@ class Verifikasi_dokumen extends CI_Controller {
 			}
 			
 			if (aznav('role_verificator')) {
-				$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+				if (in_array($verif_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) {
+					$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+				}
+				else {
+					$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idverification.'" disabled><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+				}
 			}
 
 			return $btn;

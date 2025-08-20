@@ -42,6 +42,7 @@ class Pembayaran extends CI_Controller {
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('npd_code', 'npd_code');
+		$crud->add_aodata('vf_npd_status', 'vf_npd_status');
 
 		$vf = $this->load->view('pembayaran/vf_pembayaran', $data, true);
         $crud->set_top_filter($vf);
@@ -89,6 +90,7 @@ class Pembayaran extends CI_Controller {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
 		$npd_code = $this->input->get('npd_code');
+		$npd_status = $this->input->get('vf_npd_status');
 
 		$crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd.npd_code, "" as detail, npd.total_anggaran, npd.total_pay, user_bendahara.name as user_bendahara');
 
@@ -106,6 +108,9 @@ class Pembayaran extends CI_Controller {
         }
         if (strlen($npd_code) > 0) {
 			$crud->add_where('npd.npd_code = "' . $npd_code . '"');
+		}
+		if (strlen($npd_status) > 0) {
+			$crud->add_where('npd.npd_status = "' . $npd_status . '"');
 		}
 
 		$crud->add_where("npd.status = 1");
