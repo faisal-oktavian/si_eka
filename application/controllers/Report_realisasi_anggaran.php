@@ -91,7 +91,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 		}
 		$crud->set_custom_style('custom_style');
 		$crud->set_table($this->table);
-		$crud->set_order_by('sub_kategori.nama_sub_kategori ASC, transaction.transaction_date ASC');
+		$crud->set_order_by('sub_kategori.nama_sub_kategori ASC, transaction_detail.idpaket_belanja ASC, transaction.transaction_date ASC');
 		echo $crud->get_table();
 	}
 
