@@ -33,7 +33,7 @@
                 <div class="col-md-6 report">
                     <h4>Laporan Realisasi Anggaran</h4>
                     <p>Menampilan data uraian yang telah di realisasi yang dikelompokkan per bulan dan per uraian.</p>
-                    <a href="<?php echo app_url().'acc_report_balance_sheet' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                    <a href="<?php echo app_url().'report_realisasi_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
                 </div>
         <?php
             }
