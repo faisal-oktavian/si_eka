@@ -17,7 +17,6 @@ class Login extends CI_Controller {
 	public function process() {
 		$this->load->helper("array");
 		$this->load->helper("az_core");
-		$app_sip = az_get_config('app_sip','config_app');
 		
 		$username = azarr($_POST, "username");
 		$password = azarr($_POST, "password");
@@ -25,9 +24,6 @@ class Login extends CI_Controller {
 		$this->db->select('username, iduser, user.name as user_name, user.idrole, role.name as role_name');
 		$this->db->where("username", $username);
 		$this->db->where("password", md5($password));
-		if($app_sip) {
-			$this->db->where('user.is_active', 1);
-		}
 		$this->db->where('user.status', 1);
 		$this->db->join('role', 'role.idrole = user.idrole', 'left');
 		$data = $this->db->get("user");
@@ -45,13 +41,6 @@ class Login extends CI_Controller {
 			$this->session->set_userdata('idrole', $data_idrole);
 			$this->session->set_userdata('role_name', $data_role_name);
 
-			$app_sipplus = az_get_config('app_sipplus','config_app');
-			if ($app_sipplus == 1) {
-				$prev_url = $this->session->userdata('prev_url');
-				if (strlen($prev_url) > 0) {
-					redirect($prev_url);
-				}
-			}
 			redirect(app_url()."home");
 
     } else {
