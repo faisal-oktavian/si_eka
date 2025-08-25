@@ -19,7 +19,7 @@ class Pembayaran extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal NPD', 'Tanggal Pembayaran', 'Nomor NPD', 'Detail', 'Total Anggaran', 'Total Bayar', 'User Bendahara', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal NPD', 'Tanggal Pembayaran', 'Nomor NPD', 'Detail', 'Status', 'Total Anggaran', 'Total Bayar', 'User Bendahara', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -92,13 +92,13 @@ class Pembayaran extends CI_Controller {
 		$npd_code = $this->input->get('npd_code');
 		$npd_status = $this->input->get('vf_npd_status');
 
-		$crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd.npd_code, "" as detail, npd.total_anggaran, npd.total_pay, user_bendahara.name as user_bendahara');
+		$crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd.npd_code, "" as detail, npd.npd_status, npd.total_anggaran, npd.total_pay, user_bendahara.name as user_bendahara');
 
-        $crud->set_select_table('idnpd, txt_npd_date_created, txt_confirm_payment_date, npd_code, detail, total_anggaran, total_pay, user_bendahara');
-        $crud->set_sorting('npd_code, total_anggaran, total_pay, user_bendahara');
-        $crud->set_filter('npd_code, total_anggaran, total_pay, user_bendahara');
+        $crud->set_select_table('idnpd, txt_npd_date_created, txt_confirm_payment_date, npd_code, detail, npd_status, total_anggaran, total_pay, user_bendahara');
+        $crud->set_sorting('npd_code, npd_status, total_anggaran, total_pay, user_bendahara');
+        $crud->set_filter('npd_code, npd_status, total_anggaran, total_pay, user_bendahara');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , , right, right');
+		$crud->set_select_align(', , , , center, right, right');
 
         $crud->add_join_manual('user user_bendahara', 'npd.iduser_payment = user_bendahara.iduser', 'left');
         
@@ -162,6 +162,20 @@ class Pembayaran extends CI_Controller {
 			$table .= "</table>";
 
 			return $table;
+		}
+
+		if ($key == 'npd_status') {
+			$lbl = 'default';
+			$tlbl = '-';
+			if ($value == "MENUNGGU PEMBAYARAN") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Pembayaran';
+			}
+			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
+				$lbl = 'success';
+				$tlbl = 'Sudah Dibayar Bendahara';
+			}
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
 		}
 
 		if ($key == 'total_anggaran') {
