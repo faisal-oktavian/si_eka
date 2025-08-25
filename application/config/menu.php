@@ -179,6 +179,12 @@
             "url" => "information",
         ),
         array(
+            "name" => "manual_book",
+            "title" => "Buku Petunjuk",
+            "icon" => "file",
+            "url" => "manual_book",
+        ),
+        array(
             "name" => "user",
             "title" => azlang("User"),
             "icon" => "user",
