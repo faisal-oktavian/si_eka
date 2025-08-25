@@ -518,13 +518,14 @@ class Master_paket_belanja extends CI_Controller {
 
 			$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
 
-			$this->calculate_nilai_anggaran($idpaket_belanja);
+			$total_jumlah = $this->calculate_nilai_anggaran($idpaket_belanja);
 		}
 
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
 			'idpaket_belanja' => $idpaket_belanja,
+			'total_jumlah' => $total_jumlah,
 		);
 		echo json_encode($return);
 	}
@@ -565,6 +566,8 @@ class Master_paket_belanja extends CI_Controller {
 		);
 
 		az_crud_save($idpaket_belanja, 'paket_belanja', $arr_update);
+
+		return $total_jumlah;
 	}
 
 	function query_paket_belanja_detail($idpaket_belanja_detail) {

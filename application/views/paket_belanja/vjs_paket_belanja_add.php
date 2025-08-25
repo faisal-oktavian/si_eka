@@ -287,6 +287,8 @@
 				else {
 					hide_modal('add_subkategori');
 					
+					jQuery('#nilai_anggaran').val(thousand_separator(response.total_jumlah));
+					
 					generate_detail_paket_belanja(response.idpaket_belanja);
 				}
 			},
