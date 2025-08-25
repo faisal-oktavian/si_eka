@@ -74,7 +74,7 @@
                         if(strlen($outlet_name) > 0){ 
                     ?>
                         <div class="az-menu-outlet">
-                            <i class=""></i>&nbsp; <?php echo $outlet_name; ?>                                    
+                            <i class=""></i><?php echo $outlet_name; ?>                                    
                         </div>
                     <?php } ?>
                     <div class="az-menu">

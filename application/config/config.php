@@ -29,7 +29,7 @@ $config['base_url']    = "http://" . $_SERVER['HTTP_HOST'];
 // $config['base_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/Pulsa/';
 $config['base_url'] .= preg_replace('@/+$@', '', dirname($_SERVER['SCRIPT_NAME'])) . '/';
 
-$config['app_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/si_eka'.'/';
+$config['app_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/noval'.'/';
 $config['theme'] = 'ltheme';
 
 $config['google_key'] = '6LdowLYUAAAAAHsQYD-61Pzg_560xW3Se3rEJzZJ';
