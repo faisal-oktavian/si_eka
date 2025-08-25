@@ -97,6 +97,12 @@
                     "url" => "master_satuan",
                     "submenu" => array()
                 ),
+                array(
+                    "name" => "master_sumber_dana",
+                    "title" => "Sumber Dana",
+                    "url" => "master_sumber_dana",
+                    "submenu" => array()
+                ),
             )
         ),
         array(
@@ -177,12 +183,6 @@
             "title" => "Informasi",
             "icon" => "bullhorn",
             "url" => "information",
-        ),
-        array(
-            "name" => "manual_book",
-            "title" => "Buku Petunjuk",
-            "icon" => "file",
-            "url" => "manual_book",
         ),
         array(
             "name" => "user",
