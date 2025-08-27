@@ -8,6 +8,12 @@
 		</div>
 	</div>
 	<div class="form-group">
+        <label class="control-label col-md-4">Sumber Dana <red>*</red></label>
+        <div class="col-md-5">
+        	<?php echo az_select_sumber_dana('sumber_dana');?>
+        </div>
+	</div>
+	<div class="form-group">
 		<label class="control-label col-md-4">Wajib Isi Jenis Kelamin <red>*</red></label>
 		<div class="col-md-5">
 			<select class="form-control" name="is_gender" id="is_gender">

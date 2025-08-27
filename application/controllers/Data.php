@@ -633,4 +633,42 @@ class Data extends CI_Controller {
 		);
 		echo json_encode($results);
 	}
+
+	public function get_sumber_dana(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("nama_sumber_dana");
+		if (strlen($q) > 0) {
+			$this->db->like("nama_sumber_dana", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->select("idsumber_dana as id, nama_sumber_dana as text");
+		$this->db->where('status', '1');
+
+		$data = $this->db->get("sumber_dana", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->like("nama_sumber_dana", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$cdata = $this->db->get("sumber_dana");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
 }	

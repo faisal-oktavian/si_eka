@@ -1889,3 +1889,23 @@ INSERT INTO `verification_history` (`idverification_history`, `idverification`, 
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+
+
+CREATE TABLE IF NOT EXISTS `sumber_dana` (
+  `idsumber_dana` int NOT NULL AUTO_INCREMENT,
+  `nama_sumber_dana` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `is_active` int DEFAULT '1',
+  `created` datetime DEFAULT NULL,
+  `createdby` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `updatedby` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `status` int DEFAULT '1',
+  PRIMARY KEY (`idsumber_dana`) USING BTREE,
+  KEY `is_active` (`is_active`) USING BTREE,
+  KEY `status` (`status`) USING BTREE,
+  KEY `nama_sumber_dana` (`nama_sumber_dana`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+ALTER TABLE `sub_kategori`
+	ADD COLUMN `idsumber_dana` INT NULL DEFAULT NULL AFTER `nama_sub_kategori`,
+	ADD INDEX `idsumber_dana` (`idsumber_dana`);
