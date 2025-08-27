@@ -753,30 +753,14 @@ class Npd extends CI_Controller {
 				$idpaket_belanja_detail = $value->idpaket_belanja_detail;
 
 				// get sub detail
-				$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
-				$this->db->where('paket_belanja_detail_sub.status', 1);
-				$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
-				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-				$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-				$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-				$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-				$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori,
-				paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-				$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
+				$pb_detail_sub = $this->query_paket_belanja_detail_sub($idpaket_belanja_detail);
 				// echo "<pre>"; print_r($this->db->last_query());die;
 
 				$arr_pd_detail_sub = array();
 				foreach ($pb_detail_sub->result() as $ds_key => $ds_value) {
 
-					$total_realisasi = $this->calculate_total_realisasi($idpaket_belanja, $ds_value->idsub_kategori);
-
 					// get sub sub detail
-					$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
-					$this->db->where('paket_belanja_detail_sub.status', 1);
-					$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-					$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-					$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-					$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
+					$pd_detail_sub_sub = $this->query_paket_belanja_detail_sub_sub($ds_value->idpaket_belanja_detail_sub);
 					// echo "<pre>"; print_r($this->db->last_query());die;
 
 					$arr_pd_detail_sub_sub = array();
@@ -795,7 +779,11 @@ class Npd extends CI_Controller {
 						);
 					}
 
-					$sisa_anggaran = $ds_value->jumlah - $total_realisasi;
+					// Total anggaran => Total pagu anggaran yang sudah ditentukan di menu paket belanja
+					// Sisa Anggaran => total anggaran - sisa anggaran sebelum ada pencairan dana ini
+					// Total Sekarang => total pencairan dana pada npd ini
+					// Sisa Akhir => sisa anggaran - total sekarang
+					$sisa_anggaran = 0;
 					$total_sekarang = 0;
 					$sisa_akhir = $sisa_anggaran - $total_sekarang;
 
@@ -848,6 +836,32 @@ class Npd extends CI_Controller {
 			// echo "<pre>"; print_r($the_data);die;
 			$this->load->view('npd/v_label', $the_data);
 		}
+	}
+
+	function query_paket_belanja_detail_sub($idpaket_belanja_detail) {
+		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
+		$this->db->where('paket_belanja_detail_sub.status', 1);
+		$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
+		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori,
+		paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
+
+		return $pb_detail_sub;
+	}
+
+	function query_paket_belanja_detail_sub_sub($idpaket_belanja_detail_sub) {
+		$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$this->db->where('paket_belanja_detail_sub.status', 1);
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
+
+		return $pd_detail_sub_sub;
 	}
 
 	// mapping bulan Indonesia
@@ -979,21 +993,5 @@ class Npd extends CI_Controller {
 		$total_anggaran = azobj($npd_detail->row(), 'total_anggaran', 0);
 
 		return $total_anggaran;
-	}
-
-	function calculate_total_realisasi($idpaket_belanja, $idsub_kategori) {
-		$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
-		$this->db->where('transaction_detail.iduraian', $idsub_kategori);
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
-		$this->db->where('transaction_detail.status', 1);
-		$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->select('sum(transaction_detail.total) as total_realisasi');
-		$data = $this->db->get('transaction_detail');
-		// echo "<pre>"; print_r($this->db->last_query()); die;
-
-		$total_realisasi = azobj($data->row(), 'total_realisasi', 0);
-
-		return $total_realisasi;
 	}
 }
