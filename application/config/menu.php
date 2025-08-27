@@ -103,6 +103,12 @@
                     "url" => "master_sumber_dana",
                     "submenu" => array()
                 ),
+                array(
+                    "name" => "master_kode_rekening",
+                    "title" => "Kode Rekening",
+                    "url" => "master_kode_rekening",
+                    "submenu" => array()
+                ),
             )
         ),
         array(
