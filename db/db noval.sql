@@ -1925,3 +1925,7 @@ CREATE TABLE IF NOT EXISTS `kode_rekening` (
   KEY `status` (`status`) USING BTREE,
   KEY `nama_sumber_dana` (`kode_rekening`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+ALTER TABLE `sub_kategori`
+	ADD COLUMN `idkode_rekening` INT(10) NULL DEFAULT NULL AFTER `idsumber_dana`,
+	ADD INDEX `idkode_rekening` (`idkode_rekening`);

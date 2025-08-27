@@ -671,4 +671,42 @@ class Data extends CI_Controller {
 		);
 		echo json_encode($results);
 	}
+
+	public function get_kode_rekening(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("kode_rekening");
+		if (strlen($q) > 0) {
+			$this->db->like("kode_rekening", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->select("idkode_rekening as id, kode_rekening as text");
+		$this->db->where('status', '1');
+
+		$data = $this->db->get("kode_rekening", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->like("kode_rekening", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$cdata = $this->db->get("kode_rekening");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
 }	

@@ -2,6 +2,12 @@
 	<input type="hidden" name="idsub_kategori" id="idsub_kategori">
 	<input type="hidden" name="is_copy" id="is_copy">
 	<div class="form-group">
+        <label class="control-label col-md-4">Kode Rekening</label>
+        <div class="col-md-5">
+        	<?php echo az_select_kode_rekening('kode_rekening');?>
+        </div>
+	</div>
+	<div class="form-group">
 		<label class="control-label col-md-4">Nama Sub Ketegori <red>*</red></label>
 		<div class="col-md-5">
 			<input type="text" class="form-control" id="nama_sub_kategori" name="nama_sub_kategori"/>

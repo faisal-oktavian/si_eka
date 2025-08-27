@@ -19,7 +19,7 @@ class Master_sub_kategori extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Nama Sub Kategori', 'Sumber Dana', 'Wajib Isi Jenis Kelamin', 'Wajib Isi Keterangan', 'Wajib Isi Ruang', 'Wajib Isi Nama Diklat', 'Status', azlang('Action')));
+		$crud->set_column(array('#', 'Kode Rekening', 'Nama Sub Kategori', 'Sumber Dana', 'Wajib Isi Jenis Kelamin', 'Wajib Isi Keterangan', 'Wajib Isi Ruang', 'Wajib Isi Nama Diklat', 'Status', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -60,13 +60,14 @@ class Master_sub_kategori extends CI_Controller {
 		$nama_sub_kategori = $this->input->get('vf_nama_sub_kategori');
 		$is_active = $this->input->get('vf_is_active');
 
-		$crud->set_select('sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sumber_dana.nama_sumber_dana, sub_kategori.is_gender, sub_kategori.is_description, sub_kategori.is_room, sub_kategori.is_name_training, sub_kategori.is_active');
-		$crud->set_select_table('idsub_kategori, nama_sub_kategori, nama_sumber_dana, is_gender, is_description, is_room, is_name_training, is_active');
-		$crud->set_filter('nama_sub_kategori, nama_sumber_dana, is_gender, is_description, is_room, is_name_training');
-		$crud->set_sorting('nama_sub_kategori, nama_sumber_dana, is_gender, is_description, is_room, is_name_training');
-		$crud->set_select_align(' , , center, center, center, center, center');
+		$crud->set_select('sub_kategori.idsub_kategori, kode_rekening, sub_kategori.nama_sub_kategori, sumber_dana.nama_sumber_dana, sub_kategori.is_gender, sub_kategori.is_description, sub_kategori.is_room, sub_kategori.is_name_training, sub_kategori.is_active');
+		$crud->set_select_table('idsub_kategori, kode_rekening, nama_sub_kategori, nama_sumber_dana, is_gender, is_description, is_room, is_name_training, is_active');
+		$crud->set_filter('kode_rekening, nama_sub_kategori, nama_sumber_dana, is_gender, is_description, is_room, is_name_training');
+		$crud->set_sorting('kode_rekening, nama_sub_kategori, nama_sumber_dana, is_gender, is_description, is_room, is_name_training');
+		$crud->set_select_align(' , , , center, center, center, center, center');
 		$crud->set_id($this->controller);
 		$crud->add_join_manual('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana', 'left');
+		$crud->add_join_manual('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 		$crud->add_where('sub_kategori.status = "1" ');
 		if (strlen($nama_sub_kategori) > 0) {
 			$crud->add_where('sub_kategori.nama_sub_kategori = "' . $nama_sub_kategori . '"');
@@ -183,6 +184,7 @@ class Master_sub_kategori extends CI_Controller {
 
 			$data_save = array(
 				'nama_sub_kategori' => azarr($data_post, 'nama_sub_kategori'),
+				'idkode_rekening' => azarr($data_post, 'idkode_rekening'),
 				'idsumber_dana' => azarr($data_post, 'idsumber_dana'),
 				'is_active' => azarr($data_post, 'is_active'),
 				'is_gender' => azarr($data_post, 'is_gender'),
@@ -207,7 +209,8 @@ class Master_sub_kategori extends CI_Controller {
 
 	public function edit() {
 		$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana', 'left');
-		az_crud_edit('sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, sub_kategori.idsumber_dana, sumber_dana.nama_sumber_dana as ajax_idsumber_dana, sub_kategori.is_active, sub_kategori.is_gender, sub_kategori.is_description, sub_kategori.is_room, sub_kategori.is_name_training');
+		$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
+		az_crud_edit('sub_kategori.idsub_kategori, sub_kategori.idkode_rekening, kode_rekening as ajax_idkode_rekening, sub_kategori.nama_sub_kategori, sub_kategori.idsumber_dana, sumber_dana.nama_sumber_dana as ajax_idsumber_dana, sub_kategori.is_active, sub_kategori.is_gender, sub_kategori.is_description, sub_kategori.is_room, sub_kategori.is_name_training');
 	}
 
 	public function delete() {

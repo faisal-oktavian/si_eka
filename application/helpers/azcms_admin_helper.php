@@ -418,3 +418,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $select->render();
         }
     }
+
+    if(!function_exists('az_select_kode_rekening')){
+        function az_select_kode_rekening($id = 'kode_rekening', $class='', $attr='kode_rekening') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_kode_rekening');
+            $select->set_placeholder('Pilih Kode Rekening');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idkode_rekening'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }
