@@ -264,77 +264,145 @@
                 if ($value['text_decoration_bulan_ke_3'] != "") {
                     $bulan3 = 'style="'.$value['text_decoration_bulan_ke_3'].'" ';
                 }
+
+                if (strlen($value['idkategori']) > 0) {
         ?>
-                <tr>
-                    <td class="col-uraian"><?php echo $value['nama_subkategori']; ?></td>
-                    
-                    <!-- realisasi tw sebelumnya -->
-                    <td class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sebelumnya']); ?></td>
-                    <td class="col-pr <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_pr_sebelumnya']); ?></td>
-                    <td class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sebelumnya']); ?></td>
-                    <td class="col-rp <?php echo $hide_col_realisasi_sebelumnya; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sebelumnya']); ?></td>
-                    
-                    <!-- Bulan ke 1 -->
-                    <td <?php echo $bulan1; ?> class="bulan1 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_1']; ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_1']; ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_1']); ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_1']); ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_1']); ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_1']); ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-ppn" align="right">Rp. <?php echo az_thousand_separator($value['ppn_bulan_ke_1']); ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-pph" align="right">Rp. <?php echo az_thousand_separator($value['pph_bulan_ke_1']); ?></td>
-                    <td <?php echo $bulan1; ?> class="bulan1 col-total" align="right">Rp. <?php echo az_thousand_separator($value['total_bulan_ke_1']); ?></td>
-                    
-                    <!-- Bulan ke 2 -->
-                    <td <?php echo $bulan2; ?> class="bulan2 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_2']; ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_2']; ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_2']); ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_2']); ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_2']); ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_2']); ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-ppn" align="right">Rp. <?php echo az_thousand_separator($value['ppn_bulan_ke_2']); ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-pph" align="right">Rp. <?php echo az_thousand_separator($value['pph_bulan_ke_2']); ?></td>
-                    <td <?php echo $bulan2; ?> class="bulan2 col-total" align="right">Rp. <?php echo az_thousand_separator($value['total_bulan_ke_2']); ?></td>
+                    <tr>
+                        <td class="col-uraian"><b><?php echo $value['nama_kategori']; ?></b></td>
+                        
+                        <!-- realisasi tw sebelumnya -->
+                        <td class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"></td>
+                        <td class="col-pr <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"></td>
+                        <td class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"></td>
+                        <td class="col-rp <?php echo $hide_col_realisasi_sebelumnya; ?>" align="right"></td>
+                        
+                        <!-- Bulan ke 1 -->
+                        <td <?php echo $bulan1; ?> class="bulan1 col-tanggal" align="left"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-penyedia" align="left"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-vol" align="center"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-lk" align="center"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-pr" align="center"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-harga" align="right"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-ppn" align="right"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-pph" align="right"></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-total" align="right"></td>
+                        
+                        <!-- Bulan ke 2 -->
+                        <td <?php echo $bulan2; ?> class="bulan2 col-tanggal" align="left"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-penyedia" align="left"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-vol" align="center"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-lk" align="center"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-pr" align="center"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-harga" align="right"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-ppn" align="right"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-pph" align="right"></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-total" align="right"></td>
 
-                    <!-- Bulan ke 3 -->
-                    <td <?php echo $bulan3; ?> class="bulan3 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_3']; ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_3']; ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_3']); ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_3']); ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_3']); ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_3']); ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-ppn" align="right">Rp. <?php echo az_thousand_separator($value['ppn_bulan_ke_3']); ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-pph" align="right">Rp. <?php echo az_thousand_separator($value['pph_bulan_ke_3']); ?></td>
-                    <td <?php echo $bulan3; ?> class="bulan3 col-total" align="right">Rp. <?php echo az_thousand_separator($value['total_bulan_ke_3']); ?></td>
+                        <!-- Bulan ke 3 -->
+                        <td <?php echo $bulan3; ?> class="bulan3 col-tanggal" align="left"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-penyedia" align="left"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-vol" align="center"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-lk" align="center"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-pr" align="center"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-harga" align="right"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-ppn" align="right"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-pph" align="right"></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-total" align="right"></td>
 
-                    <!-- realisasi tw saat ini -->
-                    <td class="col-lk abu_abu" align="center"><?php echo az_thousand_separator($value['realisasi_lk']); ?></td>
-                    <td class="col-pr abu_abu" align="center"><?php echo az_thousand_separator($value['realisasi_pr']); ?></td>
-                    <td class="col-vol" align="center"><?php echo az_thousand_separator($value['realisasi_vol']); ?></td>
-                    <td class="col-rp" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp']); ?></td>
+                        <!-- realisasi tw saat ini -->
+                        <td class="col-lk abu_abu" align="center"></td>
+                        <td class="col-pr abu_abu" align="center"></td>
+                        <td class="col-vol" align="center"></td>
+                        <td class="col-rp" align="right"></td>
 
-                    <!-- total realisasi sampai tw saat ini -->
-                    <td class="col-lk abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sampai']); ?></td>
-                    <td class="col-pr abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_pr_sampai']); ?></td>
-                    <td class="col-vol <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sampai']); ?></td>
-                    <td class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sampai']); ?></td>
+                        <!-- total realisasi sampai tw saat ini -->
+                        <td class="col-lk abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"></td>
+                        <td class="col-pr abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"></td>
+                        <td class="col-vol <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"></td>
+                        <td class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right"></td>
+
+                        <!-- sisa realisasi -->
+                        <td class="col-persentase abu_abu" align="right"></td>
+                        <td class="col-sisa-vol" align="center"></td>
+                        <td class="col-sisa-rp" align="right"></td>
+                    </tr>
+        <?php
+                }
+                else {
+        ?>  
+                    <tr>
+                        <td class="col-uraian"><?php echo $value['nama_subkategori']; ?></td>
+                        
+                        <!-- realisasi tw sebelumnya -->
+                        <td class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sebelumnya']); ?></td>
+                        <td class="col-pr <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_pr_sebelumnya']); ?></td>
+                        <td class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sebelumnya']); ?></td>
+                        <td class="col-rp <?php echo $hide_col_realisasi_sebelumnya; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sebelumnya']); ?></td>
+                        
+                        <!-- Bulan ke 1 -->
+                        <td <?php echo $bulan1; ?> class="bulan1 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_1']; ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_1']; ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-ppn" align="right">Rp. <?php echo az_thousand_separator($value['ppn_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-pph" align="right">Rp. <?php echo az_thousand_separator($value['pph_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-total" align="right">Rp. <?php echo az_thousand_separator($value['total_bulan_ke_1']); ?></td>
+                        
+                        <!-- Bulan ke 2 -->
+                        <td <?php echo $bulan2; ?> class="bulan2 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_2']; ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_2']; ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-ppn" align="right">Rp. <?php echo az_thousand_separator($value['ppn_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-pph" align="right">Rp. <?php echo az_thousand_separator($value['pph_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-total" align="right">Rp. <?php echo az_thousand_separator($value['total_bulan_ke_2']); ?></td>
+
+                        <!-- Bulan ke 3 -->
+                        <td <?php echo $bulan3; ?> class="bulan3 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_3']; ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_3']; ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-ppn" align="right">Rp. <?php echo az_thousand_separator($value['ppn_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-pph" align="right">Rp. <?php echo az_thousand_separator($value['pph_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-total" align="right">Rp. <?php echo az_thousand_separator($value['total_bulan_ke_3']); ?></td>
+
+                        <!-- realisasi tw saat ini -->
+                        <td class="col-lk abu_abu" align="center"><?php echo az_thousand_separator($value['realisasi_lk']); ?></td>
+                        <td class="col-pr abu_abu" align="center"><?php echo az_thousand_separator($value['realisasi_pr']); ?></td>
+                        <td class="col-vol" align="center"><?php echo az_thousand_separator($value['realisasi_vol']); ?></td>
+                        <td class="col-rp" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp']); ?></td>
+
+                        <!-- total realisasi sampai tw saat ini -->
+                        <td class="col-lk abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sampai']); ?></td>
+                        <td class="col-pr abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_pr_sampai']); ?></td>
+                        <td class="col-vol <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sampai']); ?></td>
+                        <td class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sampai']); ?></td>
 
 
-                    <?php
-                        $bg_color_rp = '';
+                        <?php
+                            $bg_color_rp = '';
 
-                        if ($data['tw'] == 4) {
-                            if ($value['sisa_vol'] == 0 && $value['sisa_rp'] != 0) {
-                                $bg_color_rp = '#f0ed21';
+                            if ($data['tw'] == 4) {
+                                if ($value['sisa_vol'] == 0 && $value['sisa_rp'] != 0) {
+                                    $bg_color_rp = '#f0ed21';
+                                }
                             }
-                        }
-                    ?>
+                        ?>
 
-                    <!-- sisa realisasi -->
-                    <td class="col-persentase abu_abu" align="right"><?php echo az_thousand_separator($value['capaian_sampai']); ?> %</td>
-                    <td class="col-sisa-vol" align="center"><?php echo az_thousand_separator($value['sisa_vol']); ?></td>
-                    <td class="col-sisa-rp" align="right" style="background-color: <?php echo $bg_color_rp;?>;">Rp. <?php echo az_thousand_separator($value['sisa_rp']); ?></td>
-                </tr>
+                        <!-- sisa realisasi -->
+                        <td class="col-persentase abu_abu" align="right"><?php echo az_thousand_separator($value['capaian_sampai']); ?> %</td>
+                        <td class="col-sisa-vol" align="center"><?php echo az_thousand_separator($value['sisa_vol']); ?></td>
+                        <td class="col-sisa-rp" align="right" style="background-color: <?php echo $bg_color_rp;?>;">Rp. <?php echo az_thousand_separator($value['sisa_rp']); ?></td>
+                    </tr>
+        <?php
+                }
+        ?>  
         <?php
             }
         ?>

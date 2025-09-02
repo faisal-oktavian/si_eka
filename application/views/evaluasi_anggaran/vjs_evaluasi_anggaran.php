@@ -43,5 +43,9 @@
 	jQuery('body').on('click', '.btn-print-evaluasi', function() {
 		var tahun_anggaran = jQuery('#tahun_anggaran').val();
 
-		location.href = app_url + 'evaluasi_anggaran/print_report/'+tahun_anggaran;
+		// location.href = app_url + 'evaluasi_anggaran/print_report/'+tahun_anggaran;
+		window.open(
+			app_url + 'evaluasi_anggaran/print_report/' + tahun_anggaran,
+			'_blank'
+		);
 	});

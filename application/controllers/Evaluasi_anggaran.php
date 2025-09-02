@@ -396,13 +396,13 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
 		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
 
-		if ($paket_belanja_detail->num_rows() > 0) {
-			$idkategori = $paket_belanja_detail->row()->idkategori;
-			$idpaket_belanja_detail_sub = $paket_belanja_detail->row()->idpaket_belanja_detail_sub;
-			if (strlen($idkategori) > 0) {
-				$paket_belanja_detail = $this->query_paket_belanja_detail_sub($idpaket_belanja_detail_sub, true);
-			}
-		}
+		// if ($paket_belanja_detail->num_rows() > 0) {
+		// 	$idkategori = $paket_belanja_detail->row()->idkategori;
+		// 	$idpaket_belanja_detail_sub = $paket_belanja_detail->row()->idpaket_belanja_detail_sub;
+		// 	if (strlen($idkategori) > 0) {
+		// 		$paket_belanja_detail = $this->query_paket_belanja_detail_sub($idpaket_belanja_detail_sub, true);
+		// 	}
+		// }
 
 		return $paket_belanja_detail;
 	}
@@ -476,7 +476,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$grand_capaian_sampai = 0;
 		$grand_sisa_vol = 0;
 		$grand_sisa_rp = 0;
-		$text_decoration_bulan_ke_1 = '';
+		// $text_decoration_bulan_ke_1 = '';
 		$tanggal_bulan_ke_1 = 0;
 		$penyedia_bulan_ke_1 = 0;
 		$volume_bulan_ke_1 = 0;
@@ -486,7 +486,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$ppn_bulan_ke_1 = 0;
 		$pph_bulan_ke_1 = 0;
 		$total_bulan_ke_1 = 0;
-		$text_decoration_bulan_ke_2 = '';
+		// $text_decoration_bulan_ke_2 = '';
 		$tanggal_bulan_ke_2 = 0;
 		$penyedia_bulan_ke_2 = 0;
 		$volume_bulan_ke_2 = 0;
@@ -496,7 +496,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$ppn_bulan_ke_2 = 0;
 		$pph_bulan_ke_2 = 0;
 		$total_bulan_ke_2 = 0;
-		$text_decoration_bulan_ke_3 = '';
+		// $text_decoration_bulan_ke_3 = '';
 		$tanggal_bulan_ke_3 = 0;
 		$penyedia_bulan_ke_3 = 0;
 		$volume_bulan_ke_3 = 0;
@@ -556,6 +556,9 @@ class Evaluasi_anggaran extends CI_Controller {
 			$realisasi_pr = 0;
 			$realisasi_vol = 0;
 			$realisasi_rp = 0;
+			$text_decoration_bulan_ke_1 = '';
+			$text_decoration_bulan_ke_2 = '';
+			$text_decoration_bulan_ke_3 = '';
 
 			if ($tw == 1) {
 				$mulai_bulan = 1;
@@ -682,8 +685,13 @@ class Evaluasi_anggaran extends CI_Controller {
 			$grand_realisasi_vol_sampai += $realisasi_vol_sampai;
 			$grand_realisasi_rp_sampai += $realisasi_rp_sampai;
 
-			$capaian_sampai = ($realisasi_rp_sampai / $jumlah_anggaran) * 100;
-			$capaian_sampai = round($capaian_sampai);
+			if (strlen($ds_value->idkategori) == 0) {
+				$capaian_sampai = ($realisasi_rp_sampai / $jumlah_anggaran) * 100;
+				$capaian_sampai = round($capaian_sampai);
+			}
+			else {
+				$capaian_sampai = 0;
+			}
 
 			$sisa_vol = $volume_anggaran - $realisasi_vol_sampai;
 			$sisa_rp = $jumlah_anggaran - $realisasi_rp_sampai;
@@ -766,6 +774,237 @@ class Evaluasi_anggaran extends CI_Controller {
 				'sisa_vol'						=> $sisa_vol,
 				'sisa_rp'						=> $sisa_rp,
 			);
+
+
+
+			// jika ada sub kategorinya
+			$paket_belanja_detail_sub = $this->query_paket_belanja_detail_sub($ds_value->idpaket_belanja_detail_sub);
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			foreach ($paket_belanja_detail_sub->result() as $dss_key => $dss_value) {
+				$realisasi_lk = 0;
+				$realisasi_pr = 0;
+				$realisasi_vol = 0;
+				$realisasi_rp = 0;
+				$text_decoration_bulan_ke_1 = '';
+				$text_decoration_bulan_ke_2 = '';
+				$text_decoration_bulan_ke_3 = '';
+
+				if ($tw == 1) {
+					$mulai_bulan = 1;
+				}
+				else if ($tw == 2) {
+					$mulai_bulan = 4;
+				}
+				else if ($tw == 3) {
+					$mulai_bulan = 7;
+				}
+				else if ($tw == 4) {
+					$mulai_bulan = 10;
+				}
+
+				if ($tw > 1) {
+					$arr_tw_sebelumnya = array(
+						'tw_sebelumnya' => $tw - 1,
+						'tahun_anggaran' => $tahun_anggaran,
+						'idpaket_belanja' => $idpaket_belanja,
+						'idsub_kategori' => $dss_value->idsub_kategori,
+					);
+
+					$get_tw_sebelumnya = $this->get_tw_sebelumnya($arr_tw_sebelumnya);
+
+					$realisasi_lk_sebelumnya = $get_tw_sebelumnya['realisasi_lk_sebelumnya'];
+					$realisasi_pr_sebelumnya = $get_tw_sebelumnya['realisasi_pr_sebelumnya'];
+					$realisasi_vol_sebelumnya = $get_tw_sebelumnya['realisasi_vol_sebelumnya'];
+					$realisasi_rp_sebelumnya = $get_tw_sebelumnya['realisasi_rp_sebelumnya'];
+				}
+				
+				for ($i=0; $i < 3; $i++) {
+					$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
+
+					$this->db->where('transaction.status', 1);
+					$this->db->where('transaction_detail.status', 1);
+					$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
+					$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+					$this->db->where('transaction_detail.iduraian', $dss_value->idsub_kategori);
+					$this->db->where('transaction.transaction_status != "DRAFT" ');
+					$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
+					$this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
+					MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
+					$trxd = $this->db->get('transaction_detail');
+					// echo "<pre>"; print_r($this->db->last_query());
+
+					if ($trxd->num_rows() > 0) {
+						if ($i == 0) {
+							$tanggal_bulan_ke_1 		= $trxd->row()->transaction_date;
+							$penyedia_bulan_ke_1 		= $trxd->row()->penyedia;
+							$volume_bulan_ke_1 			= $trxd->row()->volume;
+							$laki_bulan_ke_1 			= $trxd->row()->laki;
+							$perempuan_bulan_ke_1 		= $trxd->row()->perempuan;
+							$harga_satuan_bulan_ke_1 	= $trxd->row()->harga_satuan;
+							$ppn_bulan_ke_1 			= $trxd->row()->ppn;
+							$pph_bulan_ke_1 			= $trxd->row()->pph;
+							$total_bulan_ke_1 			= $trxd->row()->total;
+
+							$grand_bulan_ke_1 += $total_bulan_ke_1;
+							$realisasi_lk += $laki_bulan_ke_1;
+							$realisasi_pr += $perempuan_bulan_ke_1;
+							$realisasi_vol += $volume_bulan_ke_1;
+							$realisasi_rp += $total_bulan_ke_1;
+						}
+						else if ($i == 1) {
+							$tanggal_bulan_ke_2 		= $trxd->row()->transaction_date;
+							$penyedia_bulan_ke_2 		= $trxd->row()->penyedia;
+							$volume_bulan_ke_2 			= $trxd->row()->volume;
+							$laki_bulan_ke_2 			= $trxd->row()->laki;
+							$perempuan_bulan_ke_2 		= $trxd->row()->perempuan;
+							$harga_satuan_bulan_ke_2 	= $trxd->row()->harga_satuan;
+							$ppn_bulan_ke_2 			= $trxd->row()->ppn;
+							$pph_bulan_ke_2 			= $trxd->row()->pph;
+							$total_bulan_ke_2 			= $trxd->row()->total;
+
+							$grand_bulan_ke_2 += $total_bulan_ke_2;
+							$realisasi_lk += $laki_bulan_ke_2;
+							$realisasi_pr += $perempuan_bulan_ke_2;
+							$realisasi_vol += $volume_bulan_ke_2;
+							$realisasi_rp += $total_bulan_ke_2;
+						}
+						else if ($i == 2) {
+							$tanggal_bulan_ke_3 		= $trxd->row()->transaction_date;
+							$penyedia_bulan_ke_3 		= $trxd->row()->penyedia;
+							$volume_bulan_ke_3 			= $trxd->row()->volume;
+							$laki_bulan_ke_3 			= $trxd->row()->laki;
+							$perempuan_bulan_ke_3 		= $trxd->row()->perempuan;
+							$harga_satuan_bulan_ke_3 	= $trxd->row()->harga_satuan;
+							$ppn_bulan_ke_3 			= $trxd->row()->ppn;
+							$pph_bulan_ke_3 			= $trxd->row()->pph;
+							$total_bulan_ke_3 			= $trxd->row()->total;
+
+							$grand_bulan_ke_3 += $total_bulan_ke_3;
+							$realisasi_lk += $laki_bulan_ke_3;
+							$realisasi_pr += $perempuan_bulan_ke_3;
+							$realisasi_vol += $volume_bulan_ke_3;
+							$realisasi_rp += $total_bulan_ke_3;
+						}
+					}
+
+					$mulai_bulan++;
+				}
+
+				$jumlah_anggaran = $dss_value->jumlah;
+				$volume_anggaran = $dss_value->volume;
+				$grand_total_anggaran += $jumlah_anggaran;
+
+				$grand_realisasi_lk += $realisasi_lk;
+				$grand_realisasi_pr += $realisasi_pr;
+				$grand_realisasi_vol += $realisasi_vol;
+				$grand_realisasi_rp += $realisasi_rp;
+
+				$grand_realisasi_lk_sebelumnya += $realisasi_lk_sebelumnya;
+				$grand_realisasi_pr_sebelumnya += $realisasi_pr_sebelumnya;
+				$grand_realisasi_vol_sebelumnya += $realisasi_vol_sebelumnya;
+				$grand_realisasi_rp_sebelumnya += $realisasi_rp_sebelumnya;
+
+				$realisasi_lk_sampai = $realisasi_lk + $realisasi_lk_sebelumnya;
+				$realisasi_pr_sampai = $realisasi_pr + $realisasi_pr_sebelumnya;
+				$realisasi_vol_sampai = $realisasi_vol + $realisasi_vol_sebelumnya;
+				$realisasi_rp_sampai = $realisasi_rp + $realisasi_rp_sebelumnya;
+
+				$grand_realisasi_lk_sampai += $realisasi_lk_sampai;
+				$grand_realisasi_pr_sampai += $realisasi_pr_sampai;
+				$grand_realisasi_vol_sampai += $realisasi_vol_sampai;
+				$grand_realisasi_rp_sampai += $realisasi_rp_sampai;
+
+				if (strlen($dss_value->idkategori) == 0) {
+					$capaian_sampai = ($realisasi_rp_sampai / $jumlah_anggaran) * 100;
+					$capaian_sampai = round($capaian_sampai);
+				}
+				else {
+					$capaian_sampai = 0;
+				}
+
+				$sisa_vol = $volume_anggaran - $realisasi_vol_sampai;
+				$sisa_rp = $jumlah_anggaran - $realisasi_rp_sampai;
+
+				$grand_sisa_vol += $sisa_vol;
+				$grand_sisa_rp += $sisa_rp;
+
+				if ($total_bulan_ke_1 == 0 || $total_bulan_ke_1 == '') {
+					$text_decoration_bulan_ke_1 = 'color: red;';
+				}
+				if ($total_bulan_ke_2 == 0 || $total_bulan_ke_2 == '') {
+					$text_decoration_bulan_ke_2 = 'color: red;';
+				}
+				if ($total_bulan_ke_3 == 0 || $total_bulan_ke_3 == '') {
+					$text_decoration_bulan_ke_3 = 'color: red;';
+				}
+
+				$arr_detail[] = array(
+					'idkategori' 					=> '',
+					'nama_kategori' 				=> '',
+					'idsub_kategori'	 			=> $dss_value->idsub_kategori,
+					'nama_subkategori' 				=> $dss_value->nama_sub_kategori,
+
+					// realisasi tw sebelumnya
+					'realisasi_lk_sebelumnya'		=> $realisasi_lk_sebelumnya,
+					'realisasi_pr_sebelumnya'		=> $realisasi_pr_sebelumnya,
+					'realisasi_vol_sebelumnya'		=> $realisasi_vol_sebelumnya,
+					'realisasi_rp_sebelumnya'		=> $realisasi_rp_sebelumnya,
+
+					// Bulan ke 1
+					'tanggal_bulan_ke_1'			=> $tanggal_bulan_ke_1,
+					'penyedia_bulan_ke_1'			=> $penyedia_bulan_ke_1,
+					'volume_bulan_ke_1'				=> $volume_bulan_ke_1,
+					'laki_bulan_ke_1'				=> $laki_bulan_ke_1,
+					'perempuan_bulan_ke_1'			=> $perempuan_bulan_ke_1,
+					'harga_satuan_bulan_ke_1'		=> $harga_satuan_bulan_ke_1,
+					'ppn_bulan_ke_1'				=> $ppn_bulan_ke_1,
+					'pph_bulan_ke_1'				=> $pph_bulan_ke_1,
+					'total_bulan_ke_1'				=> $total_bulan_ke_1,
+					'text_decoration_bulan_ke_1'	=> $text_decoration_bulan_ke_1,
+					
+					// Bulan ke 2
+					'tanggal_bulan_ke_2'			=> $tanggal_bulan_ke_2,
+					'penyedia_bulan_ke_2'			=> $penyedia_bulan_ke_2,
+					'volume_bulan_ke_2'				=> $volume_bulan_ke_2,
+					'laki_bulan_ke_2'				=> $laki_bulan_ke_2,
+					'perempuan_bulan_ke_2'			=> $perempuan_bulan_ke_2,
+					'harga_satuan_bulan_ke_2'		=> $harga_satuan_bulan_ke_2,
+					'ppn_bulan_ke_2'				=> $ppn_bulan_ke_2,
+					'pph_bulan_ke_2'				=> $pph_bulan_ke_2,
+					'total_bulan_ke_2'				=> $total_bulan_ke_2,
+					'text_decoration_bulan_ke_2'	=> $text_decoration_bulan_ke_2,
+
+					// Bulan ke 3
+					'tanggal_bulan_ke_3'			=> $tanggal_bulan_ke_3,
+					'penyedia_bulan_ke_3'			=> $penyedia_bulan_ke_3,
+					'volume_bulan_ke_3'				=> $volume_bulan_ke_3,
+					'laki_bulan_ke_3'				=> $laki_bulan_ke_3,
+					'perempuan_bulan_ke_3'			=> $perempuan_bulan_ke_3,
+					'harga_satuan_bulan_ke_3'		=> $harga_satuan_bulan_ke_3,
+					'ppn_bulan_ke_3'				=> $ppn_bulan_ke_3,
+					'pph_bulan_ke_3'				=> $pph_bulan_ke_3,
+					'total_bulan_ke_3'				=> $total_bulan_ke_3,
+					'text_decoration_bulan_ke_3'	=> $text_decoration_bulan_ke_3,
+
+					// realisasi tw saat ini
+					'realisasi_lk'					=> $realisasi_lk,
+					'realisasi_pr'					=> $realisasi_pr,
+					'realisasi_vol'					=> $realisasi_vol,
+					'realisasi_rp'					=> $realisasi_rp,
+
+					// total realisasi sampai tw saat ini
+					'realisasi_lk_sampai'			=> $realisasi_lk_sampai,
+					'realisasi_pr_sampai'			=> $realisasi_pr_sampai,
+					'realisasi_vol_sampai'			=> $realisasi_vol_sampai,
+					'realisasi_rp_sampai'			=> $realisasi_rp_sampai,
+
+					// sisa realisasi
+					'capaian_sampai'				=> $capaian_sampai,
+					'sisa_vol'						=> $sisa_vol,
+					'sisa_rp'						=> $sisa_rp,
+				);
+			}
 		}
 	
 		if ($paket_belanja_detail->num_rows() > 0) {
@@ -807,7 +1046,7 @@ class Evaluasi_anggaran extends CI_Controller {
 			
 			'arr_detail' 					=> $arr_detail,
 		);
-		// echo "<pre>"; print_r($arr_data);die;
+		// echo "<pre>"; print_r($arr_data);die();
 
 		$view = $this->load->view('evaluasi_anggaran/v_evaluasi_anggaran_table', $arr_data, true);
 		$arr = array(
