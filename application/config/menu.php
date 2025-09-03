@@ -109,13 +109,14 @@
                     "url" => "master_kode_rekening",
                     "submenu" => array()
                 ),
-            )
+            ),
         ),
         array(
             "name" => "realisasi_anggaran",
             "title" => "Realisasi Anggaran",
             "icon" => "shopping-cart",
             "url" => "realisasi_anggaran",
+            'submenu' => array(),
             'role' => array(
                 array(
                     'role_name' => 'role_bypass',
@@ -132,6 +133,7 @@
             "title" => "Verifikasi Dokumen",
             "icon" => "user",
             "url" => "verifikasi_dokumen",
+            'submenu' => array(),
             'role' => array(
                 array(
                     'role_name' => 'role_crud',
@@ -148,6 +150,7 @@
             "title" => "Nota Pencairan Dana",
             "icon" => "file",
             "url" => "npd",
+            'submenu' => array(),
             'role' => array(
                 array(
                     'role_name' => 'role_view_npd',
@@ -160,12 +163,14 @@
             "title" => "Pembayaran",
             "icon" => "credit-card",
             "url" => "pembayaran",
+            'submenu' => array(),
         ),
         array(
             "name" => "evaluasi_anggaran",
             "title" => "Evaluasi Anggaran",
             "icon" => "check-square",
             "url" => "evaluasi_anggaran",
+            'submenu' => array(),
         ),
         array(
             "name" => "report",
@@ -189,6 +194,14 @@
             "title" => "Informasi",
             "icon" => "bullhorn",
             "url" => "information",
+            'submenu' => array(),
+        ),
+        array(
+            "name" => "manual_book",
+            "title" => "Buku Petunjuk",
+            "icon" => "file-pdf",
+            "url" => "manual_book",
+            'submenu' => array(),
         ),
         array(
             "name" => "user",
