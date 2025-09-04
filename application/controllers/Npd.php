@@ -492,7 +492,7 @@ class Npd extends CI_Controller {
 			// kembalikan status realisasi anggaran
 			$the_filter = array(
 				'idnpd' => $id,
-				'type' => 'INPUT NPD'
+				'type' => 'SUDAH DIVERIFIKASI'
 			);
 			$update_status = update_status_verifikasi_dokumen($the_filter);
 

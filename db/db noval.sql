@@ -1929,3 +1929,7 @@ CREATE TABLE IF NOT EXISTS `kode_rekening` (
 ALTER TABLE `sub_kategori`
 	ADD COLUMN `idkode_rekening` INT(10) NULL DEFAULT NULL AFTER `idsumber_dana`,
 	ADD INDEX `idkode_rekening` (`idkode_rekening`);
+
+ALTER TABLE `verification_history`
+	ADD COLUMN `idtransaction` INT(10) NULL DEFAULT NULL AFTER `idverification`,
+	ADD INDEX `idtransaction` (`idtransaction`);

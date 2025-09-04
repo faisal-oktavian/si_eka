@@ -16,13 +16,13 @@
 	<div class="form-group">
 		<label class="control-label col-sm-2">Nomor Dokumen</label>
 		<div class="col-md-4 col-sm-6">
-			<input type="text" class="form-control" name="verification_code" id="verification_code" placeholder="Nomor Dokumen">
+			<input type="text" class="form-control" name="transaction_code" id="transaction_code" placeholder="Nomor Dokumen">
 		</div>
 	</div>
 	<div class="form-group">
 		<label class="control-label col-sm-2">Status</label>
 		<div class="col-md-4 col-sm-6">
-			<select class="form-control" name="vf_verification_status" id="vf_verification_status">
+			<select class="form-control" name="vf_transaction_status" id="vf_transaction_status">
 				<option value="">Semua</option>
 				<option value="MENUNGGU VERIFIKASI">Menunggu Verifikasi</option>
 				<option value="SUDAH DIVERIFIKASI">Sudah Diverifikasi</option>

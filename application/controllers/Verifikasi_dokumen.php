@@ -7,13 +7,341 @@ class Verifikasi_dokumen extends CI_Controller {
 
         $this->load->helper('az_auth');
         az_check_auth('verifikasi_dokumen');
-        $this->table = 'verification';
+        // $this->table = 'verification';
+        $this->table = 'transaction';
         $this->controller = 'verifikasi_dokumen';
         $this->load->helper('az_crud');
 		$this->load->helper('transaction_status_helper');
     }
 
 	public function index() {		
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$crud = $azapp->add_crud();
+		$this->load->helper('az_role');
+
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Tanggal Verifikasi Dokumen', 'Nomor Dokumen', 'Paket Belanja', 'Status', 'Status Verifikasi', 'Keterangan Verifikasi', 'User Realisasi', 'User Verifikasi', azlang('Action')));
+		$crud->set_id($this->controller);
+		$crud->set_default_url(true);
+		$crud->set_btn_add(false);
+
+		$date1 = $azapp->add_datetime();
+		$date1->set_id('date1');
+		$date1->set_name('date1');
+		$date1->set_format('DD-MM-YYYY');
+		$date1->set_value('01-'.Date('m-Y'));
+		// $date1->set_value('01-01-'.Date('Y'));
+		$data['date1'] = $date1->render();
+
+		$date2 = $azapp->add_datetime();
+		$date2->set_id('date2');
+		$date2->set_name('date2');
+		$date2->set_format('DD-MM-YYYY');
+		$date2->set_value(Date('t-m-Y'));
+		$data['date2'] = $date2->render();
+
+		$crud->add_aodata('date1', 'date1');
+		$crud->add_aodata('date2', 'date2');
+		$crud->add_aodata('transaction_code', 'transaction_code');
+		$crud->add_aodata('vf_transaction_status', 'vf_transaction_status');
+
+		$vf = $this->load->view('verifikasi_dokumen/vf_verifikasi_dokumen', $data, true);
+        $crud->set_top_filter($vf);
+
+		if (aznav('role_crud')) {
+			$btn = "<button class='btn btn-primary az-btn-primary btn-add-verifikasi-dokumen' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
+			$crud->set_btn_top_custom($btn);
+		}
+
+		$v_modal = $this->load->view('verifikasi_dokumen/v_verifikasi_modal', '', true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('verifikasi_dokumen');
+		$modal->set_modal_title('Verifikasi Dokumen');
+		$modal->set_modal($v_modal);
+		$modal->set_action_modal(array('save_approval'=>'Simpan'));
+		$azapp->add_content($modal->render());
+
+		$crud = $crud->render();
+		$data['crud'] = $crud;
+		$data['active'] = 'verifikasi_dokumen';
+		$view = $this->load->view('verifikasi_dokumen/v_format_verifikasi_dokumen', $data, true);
+		$azapp->add_content($view);
+
+		$js = az_add_js('verifikasi_dokumen/vjs_verifikasi_dokumen');
+		$azapp->add_js($js);
+
+		$data_header['title'] = 'Verifikasi Dokumen';
+		$data_header['breadcrumb'] = array('verifikasi_dokumen');
+		$azapp->set_data_header($data_header);
+
+		echo $azapp->render();
+	}
+
+	public function get() {
+		$this->load->library('AZApp');
+		$crud = $this->azapp->add_crud();
+
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$transaction_code = $this->input->get('transaction_code');
+		$transaction_status = $this->input->get('vf_transaction_status');		
+
+		$crud->set_select('transaction.idtransaction, verification.idverification, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_created.name as user_input, user_confirm.name as user_verifikasi');
+		$crud->set_select_table('idtransaction, txt_date_input, txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
+        $crud->set_sorting('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
+        $crud->set_filter('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
+		$crud->set_id($this->controller);
+		$crud->set_select_align(', , , , center, center');
+
+        $crud->add_join_manual('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+        $crud->add_join_manual('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+        $crud->add_join_manual('verification_detail', 'verification_detail.idtransaction = transaction.idtransaction', 'left');
+        $crud->add_join_manual('verification', 'verification.idverification = verification_detail.idverification', 'left');
+		$crud->add_join_manual('user user_created', 'transaction.iduser_created = user_created.iduser', 'left');
+        $crud->add_join_manual('user user_confirm', 'verification.iduser_verification = user_confirm.iduser', 'left');
+        
+        if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $crud->add_where('date(transaction.transaction_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $crud->add_where('date(transaction.transaction_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($transaction_code) > 0) {
+			$crud->add_where('transaction.transaction_code = "' . $transaction_code . '"');
+		}
+		if (strlen($transaction_status) > 0) {
+			$crud->add_where('transaction.transaction_status = "' . $transaction_status . '"');
+		}
+
+		$crud->add_where("transaction.status = 1");
+		$crud->add_where("transaction.transaction_status != 'DRAFT' ");
+
+		$crud->set_table($this->table);
+		$crud->set_custom_style('custom_style');
+		$crud->set_order_by('transaction_date desc');
+		echo $crud->get_table();
+	}
+
+	function custom_style($key, $value, $data) {
+
+		if ($key == 'status_approve') {
+			$lbl = 'default';
+			$tlbl = '-';
+			if ($value == "DISETUJUI") {
+				$lbl = 'success';
+				$tlbl = 'Disetujui';
+			}
+			else if ($value == "DITOLAK") {
+				$lbl = 'danger';
+				$tlbl = 'Ditolak';
+			}
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
+		if ($key == 'transaction_status') {
+			// INPUT DATA 				-> data diinputkan dimenu realisasi anggaran (oleh user realisasi); 
+			// MENUNGGU VERIFIKASI 		-> data diinputkan di menu verifikasi dokumen (oleh user realisasi); 
+			// SUDAH DIVERIFIKASI 		-> data sudah diverifikasi (oleh user verifikator); 
+			// DITOLAK VERIFIKATOR 		-> data ditolak verifikator (oleh user verifikator);
+			// INPUT NPD				-> data diinputkan di menu npd (oleh user npd);
+			// MENUNGGU PEMBAYARAN		-> data sudah dikirim ke bendahara (oleh user npd);
+			// SUDAH DIBAYAR BENDAHARA 	-> data sudah dibayar bendahara (oleh user bendahara);
+
+			$lbl = 'default';
+			$tlbl = '-';
+			if ($value == "INPUT DATA") {
+				$lbl = 'warning';
+				$tlbl = 'Input Data';
+			}
+			else if ($value == "MENUNGGU VERIFIKASI") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Verifikasi';
+			}
+			else if ($value == "SUDAH DIVERIFIKASI") {
+				$lbl = 'default';
+				$tlbl = 'Sudah Diverifikasi';
+			}
+			else if ($value == "DITOLAK VERIFIKATOR") {
+				$lbl = 'danger';
+				$tlbl = 'Ditolak Verifikator';
+			}
+			if ($value == "INPUT NPD") {
+				$lbl = 'warning';
+				$tlbl = 'Input NPD';
+			}
+			else if ($value == "MENUNGGU PEMBAYARAN") {
+				$lbl = 'info';
+				$tlbl = 'Menunggu Pembayaran';
+			}
+			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
+				$lbl = 'success';
+				$tlbl = 'Sudah Dibayar Bendahara';
+			}
+
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
+		if ($key == 'action') {
+            $idtransaction = azarr($data, 'idtransaction');
+            $idverification = azarr($data, 'idverification');
+            $transaction_status = azarr($data, 'transaction_status');
+
+			$btn = '';	
+			if (aznav('role_verificator')) {
+				if (in_array($transaction_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) {
+					$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+				}
+				else {
+					$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'" disabled><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+				}
+			}
+
+			return $btn;
+		}
+
+		return $value;
+	}
+
+	function approval() {
+		$err_code = 0;
+		$err_message = '';
+
+		
+		$idtransaction = $this->input->post("idtransaction");
+		$idverification = $this->input->post("idverification");
+		$status_approve = $this->input->post("status_approve");
+		$verification_description = $this->input->post("verification_description");
+		$confirm_verification_date = Date('Y-m-d H:i:s');
+		$iduser_verification = $this->session->userdata('iduser');
+		$transaction_status = '';
+
+		if ($status_approve == "DISETUJUI") {
+			$transaction_status = "SUDAH DIVERIFIKASI";
+			$type = 'SUDAH DIVERIFIKASI';
+		}
+		else if ($status_approve == "DITOLAK") {
+			$transaction_status = "DITOLAK VERIFIKATOR";
+			$type = 'DITOLAK VERIFIKATOR';
+
+			$arr_filter = array(
+	    		'idtransaction' => $idtransaction,
+	    		'idverification' => $idverification,
+	    		'confirm_verification_date' => $confirm_verification_date,
+	    		'status_approve' => $status_approve,
+	    		'verification_description' => $verification_description,
+	    		'iduser_verification' => $iduser_verification,
+	    	);
+			
+			$this->insert_history($arr_filter);
+		}
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('status_approve', 'Status Verifikasi', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('verification_description', 'Keterangan', 'required');
+
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (strlen($idtransaction) == 0) {
+				$err_code++;
+				$err_message = 'Invalid ID';
+			}
+		}
+
+		if ($err_code == 0) {
+			$this->db->where('idtransaction',$idtransaction);
+			$transaction = $this->db->get('transaction');
+
+			if ($transaction->num_rows() > 0) {
+				$status = $transaction->row()->transaction_status;
+				if (in_array($status, array('INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
+
+		if ($err_code == 0) {
+
+	    	$arr_data = array(
+	    		'transaction_status' => $transaction_status,
+				'updated_status' => date('Y-m-d H:i:s'),
+	    	);
+
+	    	az_crud_save($idtransaction, 'transaction', $arr_data);
+
+
+			// cek apakah datanya sudah ada di tabel verification
+			$this->db->where('verification.status', 1);
+			$this->db->where('verification_detail.status', 1);
+			$this->db->where('verification_detail.idtransaction', $idtransaction);
+			$this->db->where('verification.verification_status != "DRAFT" ');
+			$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+			$verif = $this->db->get('verification');
+
+			if ($verif->num_rows() > 0) {
+				// jika sudah ada datanya maka update datanya
+				$arr_data = array(
+					'confirm_verification_date' => $confirm_verification_date,
+					'verification_status' => $transaction_status,
+					'updated_status' => date('Y-m-d H:i:s'),
+					'status_approve' => $status_approve,
+					'verification_description' => $verification_description,
+					'iduser_verification' => $iduser_verification
+				);
+
+				az_crud_save($idverification, 'verification', $arr_data);
+			}
+			else {
+				// jika belum ada datanya maka simpan datanya
+				$arr_data = array(
+					'verification_date_created' => $transaction->row()->transaction_date,
+					'confirm_verification_date' => $confirm_verification_date,
+					'verification_code' => $transaction->row()->transaction_code,
+					'verification_status' => $transaction_status,
+					'updated_status' => date('Y-m-d H:i:s'),
+					'status_approve' => $status_approve,
+					'verification_description' => $verification_description,
+					'iduser_created' => $transaction->row()->iduser_created,
+					'iduser_verification' => $iduser_verification
+				);
+
+				$save_verification = az_crud_save('', 'verification', $arr_data);
+				$idverification = azarr($save_verification, 'insert_id');
+
+
+				$arr_data_detail = array(
+					'idverification' => $idverification,
+					'idtransaction' => $idtransaction,
+				);
+
+				$save_verification_detail = az_crud_save('', 'verification_detail', $arr_data_detail);
+				$idverification_detail = azarr($save_verification_detail, 'insert_id');
+			}
+
+			// // update status realisasi anggaran
+			// $the_filter = array(
+			// 	'idverification' => $idverification,
+			// 	'type' => $type,
+			// );
+			// $update_status = update_status_realisasi_anggaran($the_filter);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idverification' => $idverification,
+		);
+		echo json_encode($return);
+	}
+
+
+	// fungsi dibawah sudah tidak digunakan
+	//////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////
+
+	public function index_xxx() {		
 		$this->load->library('AZApp');
 		$azapp = $this->azapp;
 		$crud = $azapp->add_crud();
@@ -76,7 +404,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		echo $azapp->render();
 	}
 
-	public function get() {
+	public function get_xxx() {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
@@ -116,7 +444,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		echo $crud->get_table();
 	}
 
-	function custom_style($key, $value, $data) {
+	function custom_style_xxx($key, $value, $data) {
 		
 		if ($key == 'detail') {
 			$idverification = azarr($data, 'idverification');
@@ -648,7 +976,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		echo json_encode($return);
 	}
 
-	function approval() {
+	function approval_xxx() {
 		$err_code = 0;
 		$err_message = '';
 
@@ -853,6 +1181,7 @@ class Verifikasi_dokumen extends CI_Controller {
 	}
 
 	function insert_history($the_data) {
+		$idtransaction = azarr($the_data, 'idtransaction');
 		$idverification = azarr($the_data, 'idverification');
 		$confirm_verification_date = azarr($the_data, 'confirm_verification_date');
 		$status_approve = azarr($the_data, 'status_approve');
@@ -860,6 +1189,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$iduser_verification = azarr($the_data, 'iduser_verification');
 
 		$arr_data = array(
+			'idtransaction' => $idtransaction,
 			'idverification' => $idverification,
 			'confirm_verification_date' => $confirm_verification_date,
 			'status_approve' => $status_approve,

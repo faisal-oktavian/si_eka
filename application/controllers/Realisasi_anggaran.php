@@ -170,7 +170,8 @@ class Realisasi_anggaran extends CI_Controller {
             $trx = $this->db->get('transaction');
 
             $trx_status = $trx->row()->transaction_status;
-            if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+            // if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+            if (in_array($trx_status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$is_view_only = true;
             }
 
@@ -227,7 +228,8 @@ class Realisasi_anggaran extends CI_Controller {
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			$status = $check->row()->transaction_status;
-			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				redirect(app_url().'realisasi_anggaran');
 			}
 		}
@@ -516,7 +518,8 @@ class Realisasi_anggaran extends CI_Controller {
 
 			if ($transaction->num_rows() > 0) {
 				$status = $transaction->row()->transaction_status;
-				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+				// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+				if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -617,7 +620,8 @@ class Realisasi_anggaran extends CI_Controller {
 
 			if ($transaction->num_rows() > 0) {
 				$status = $transaction->row()->transaction_status;
-				if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+				// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+				if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -627,7 +631,8 @@ class Realisasi_anggaran extends CI_Controller {
 		if ($err_code == 0) {
 	    	$arr_data = array(
 	    		'transaction_date' => $transaction_date,
-	    		'transaction_status' => "INPUT DATA",
+	    		// 'transaction_status' => "INPUT DATA",
+	    		'transaction_status' => "MENUNGGU VERIFIKASI",
 	    		'iduser_created' => $iduser_created,
 	    	);
 
@@ -655,9 +660,21 @@ class Realisasi_anggaran extends CI_Controller {
 
 		if ($transaction->num_rows() > 0) {
 			$status = $transaction->row()->transaction_status;
-			if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			if (in_array($status, array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
+
+		// cek apakah sudah ada data di tabel verification & detail
+		if ($err_code == 0) {
+			$this->db->where('verification_detail.idtransaction', $id);
+			$verif_detail = $this->db->get('verification_detail');
+
+			if ($verif_detail->num_rows() > 0) {
+				$idverification = $verif_detail->row()->idverification;
+				az_crud_delete('verification', $idverification);
 			}
 		}
 
@@ -707,7 +724,8 @@ class Realisasi_anggaran extends CI_Controller {
 
 		$status = $transaction->row()->transaction_status;
 		$idtransaction = $transaction->row()->idtransaction;
-		if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		if (in_array($status, array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
 			$is_delete = false;
 		}
 
@@ -1005,7 +1023,7 @@ class Realisasi_anggaran extends CI_Controller {
 		if ($data->num_rows() == 0) {
 			$numb = '0001';
 
-			$transaction_code = 'ON'.Date('Ymd').$numb;
+			$transaction_code = 'AP'.Date('Ymd').$numb;
 
 			$this->db->where('transaction_code', $transaction_code);
 			$this->db->select('transaction_code');
@@ -1020,7 +1038,7 @@ class Realisasi_anggaran extends CI_Controller {
 				$numb = $last + 1;
 				$numb = sprintf("%04d", $numb);
 
-				$transaction_code = 'ON'.Date('Ymd').$numb;
+				$transaction_code = 'AP'.Date('Ymd').$numb;
 
 				$this->db->where('transaction_code', $transaction_code);
 				$this->db->select('transaction_code');
@@ -1037,7 +1055,7 @@ class Realisasi_anggaran extends CI_Controller {
 			$numb = $last + 1;
 			$numb = sprintf("%04d", $numb);
 
-			$transaction_code = 'ON'.Date('Ymd').$numb;
+			$transaction_code = 'AP'.Date('Ymd').$numb;
 
 			$this->db->where('transaction_code', $transaction_code);
 			$this->db->select('transaction_code');
@@ -1052,7 +1070,7 @@ class Realisasi_anggaran extends CI_Controller {
 				$numb = $last + 1;
 				$numb = sprintf("%04d", $numb);
 
-				$transaction_code = 'ON'.Date('Ymd').$numb;
+				$transaction_code = 'AP'.Date('Ymd').$numb;
 
 				$this->db->where('transaction_code', $transaction_code);
 				$this->db->select('transaction_code');

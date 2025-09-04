@@ -1,4 +1,6 @@
 <form class="form-horizontal" id="form_approval">
+	<!-- id yang dipakai yaotu idtransaction -->
+	<input type="hidden" id="idtransaction" name="idtransaction" class="x-hidden">
 	<input type="hidden" id="idverification" name="idverification" class="x-hidden">
     
 	<div class="form-group">
