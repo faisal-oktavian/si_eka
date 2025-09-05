@@ -14,9 +14,9 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="control-label col-sm-2">Nomor Dokumen</label>
+		<label class="control-label col-sm-2">Nomor NPD</label>
 		<div class="col-md-4 col-sm-6">
-			<input type="text" class="form-control" name="verification_code" id="verification_code" placeholder="Nomor Dokumen">
+			<input type="text" class="form-control" name="npd_code" id="npd_code" placeholder="Nomor NPD">
 		</div>
 	</div>
 	<div class="form-group">

@@ -48,10 +48,10 @@ class Verifikasi_dokumen extends CI_Controller {
 		$vf = $this->load->view('verifikasi_dokumen/vf_verifikasi_dokumen', $data, true);
         $crud->set_top_filter($vf);
 
-		if (aznav('role_crud')) {
-			$btn = "<button class='btn btn-primary az-btn-primary btn-add-verifikasi-dokumen' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
-			$crud->set_btn_top_custom($btn);
-		}
+		// if (aznav('role_crud')) {
+		// 	$btn = "<button class='btn btn-primary az-btn-primary btn-add-verifikasi-dokumen' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
+		// 	$crud->set_btn_top_custom($btn);
+		// }
 
 		$v_modal = $this->load->view('verifikasi_dokumen/v_verifikasi_modal', '', true);
 		$modal = $azapp->add_modal();
@@ -88,8 +88,8 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		$crud->set_select('transaction.idtransaction, verification.idverification, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_created.name as user_input, user_confirm.name as user_verifikasi');
 		$crud->set_select_table('idtransaction, txt_date_input, txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
-        $crud->set_sorting('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
-        $crud->set_filter('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
+        $crud->set_sorting('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description');
+        $crud->set_filter('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description');
 		$crud->set_id($this->controller);
 		$crud->set_select_align(', , , , center, center');
 
@@ -116,6 +116,7 @@ class Verifikasi_dokumen extends CI_Controller {
 
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
+		$crud->set_group_by('transaction.idtransaction, verification.idverification, transaction_date, confirm_verification_date, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_created.name, user_confirm.name');
 		$crud->set_order_by('transaction_date desc');
 		echo $crud->get_table();
 	}
@@ -185,13 +186,11 @@ class Verifikasi_dokumen extends CI_Controller {
             $transaction_status = azarr($data, 'transaction_status');
 
 			$btn = '';	
-			if (aznav('role_verificator')) {
-				if (in_array($transaction_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) {
-					$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
-				}
-				else {
-					$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'" disabled><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
-				}
+			if (in_array($transaction_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) {
+				$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+			}
+			else {
+				$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'" disabled><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
 			}
 
 			return $btn;
@@ -220,17 +219,6 @@ class Verifikasi_dokumen extends CI_Controller {
 		else if ($status_approve == "DITOLAK") {
 			$transaction_status = "DITOLAK VERIFIKATOR";
 			$type = 'DITOLAK VERIFIKATOR';
-
-			$arr_filter = array(
-	    		'idtransaction' => $idtransaction,
-	    		'idverification' => $idverification,
-	    		'confirm_verification_date' => $confirm_verification_date,
-	    		'status_approve' => $status_approve,
-	    		'verification_description' => $verification_description,
-	    		'iduser_verification' => $iduser_verification,
-	    	);
-			
-			$this->insert_history($arr_filter);
 		}
 
 		$this->load->library('form_validation');
@@ -320,6 +308,19 @@ class Verifikasi_dokumen extends CI_Controller {
 				$idverification_detail = azarr($save_verification_detail, 'insert_id');
 			}
 
+			if ($status_approve == "DITOLAK") {
+				$arr_filter = array(
+					'idtransaction' => $idtransaction,
+					'idverification' => $idverification,
+					'confirm_verification_date' => $confirm_verification_date,
+					'status_approve' => $status_approve,
+					'verification_description' => $verification_description,
+					'iduser_verification' => $iduser_verification,
+				);
+				
+				$this->insert_history($arr_filter);
+			}
+
 			// // update status realisasi anggaran
 			// $the_filter = array(
 			// 	'idverification' => $idverification,
@@ -334,6 +335,26 @@ class Verifikasi_dokumen extends CI_Controller {
 			'idverification' => $idverification,
 		);
 		echo json_encode($return);
+	}
+
+	function insert_history($the_data) {
+		$idtransaction = azarr($the_data, 'idtransaction');
+		$idverification = azarr($the_data, 'idverification');
+		$confirm_verification_date = azarr($the_data, 'confirm_verification_date');
+		$status_approve = azarr($the_data, 'status_approve');
+		$verification_description = azarr($the_data, 'verification_description');
+		$iduser_verification = azarr($the_data, 'iduser_verification');
+
+		$arr_data = array(
+			'idtransaction' => $idtransaction,
+			'idverification' => $idverification,
+			'confirm_verification_date' => $confirm_verification_date,
+			'status_approve' => $status_approve,
+			'verification_description' => $verification_description,
+			'iduser_verification' => $iduser_verification,
+		);
+
+		az_crud_save('', 'verification_history', $arr_data);
 	}
 
 
@@ -1178,26 +1199,6 @@ class Verifikasi_dokumen extends CI_Controller {
 		}
 
 		return $verification_code;
-	}
-
-	function insert_history($the_data) {
-		$idtransaction = azarr($the_data, 'idtransaction');
-		$idverification = azarr($the_data, 'idverification');
-		$confirm_verification_date = azarr($the_data, 'confirm_verification_date');
-		$status_approve = azarr($the_data, 'status_approve');
-		$verification_description = azarr($the_data, 'verification_description');
-		$iduser_verification = azarr($the_data, 'iduser_verification');
-
-		$arr_data = array(
-			'idtransaction' => $idtransaction,
-			'idverification' => $idverification,
-			'confirm_verification_date' => $confirm_verification_date,
-			'status_approve' => $status_approve,
-			'verification_description' => $verification_description,
-			'iduser_verification' => $iduser_verification,
-		);
-
-		az_crud_save('', 'verification_history', $arr_data);
 	}
 
 	function calculate_total_realisasi($idtransaction) {

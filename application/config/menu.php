@@ -134,16 +134,7 @@
             "icon" => "user",
             "url" => "verifikasi_dokumen",
             'submenu' => array(),
-            'role' => array(
-                array(
-                    'role_name' => 'role_crud',
-                    'role_title' => 'Bisa tambah, edit, hapus data'
-                ),
-                array(
-                    'role_name' => 'role_verificator',
-                    'role_title' => 'Bisa verifikasi dokumen'
-                ),
-            ),
+            'role' => array(),
         ),
         array(
             "name" => "npd",

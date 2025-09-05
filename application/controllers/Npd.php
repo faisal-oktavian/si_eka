@@ -81,8 +81,8 @@ class Npd extends CI_Controller {
         $crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, npd_code, "" as detail, npd_status, user_created.name as user_input');
 
         $crud->set_select_table('idnpd, txt_date_input, npd_code, detail, npd_status, user_input');
-        $crud->set_sorting('npd_code, detail, npd_status, user_input');
-        $crud->set_filter('npd_code, detail, npd_status, user_input');
+        $crud->set_sorting('npd_code, npd_status, user_input');
+        $crud->set_filter('npd_code, npd_status, user_input');
 		$crud->set_id($this->controller);
 		$crud->set_select_align(', , , center, center');
 
@@ -198,7 +198,7 @@ class Npd extends CI_Controller {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-npd" data_id="'.$idnpd.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 			}
 
-			$btn .= '<a href="' . app_url() . 'npd/print_npd/' . $idnpd . '" class="btn btn-xs btn-default btn-print" target="_blank"><i class="fa fa-print"></i> Cetak</a> ';
+			// $btn .= '<a href="' . app_url() . 'npd/print_npd/' . $idnpd . '" class="btn btn-xs btn-default btn-print" target="_blank"><i class="fa fa-print"></i> Cetak</a> ';
 
 			return $btn;
 		}
