@@ -18,12 +18,13 @@ class Master_paket_belanja extends CI_Controller {
 		$azapp = $this->azapp;
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
+		$idrole = $this->session->userdata('role_name');
 
 		$crud->set_column(array('#', 'Program', 'Kegiatan', 'Sub Kegiatan', 'Paket Belanja', 'Anggaran', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		if (aznav('role_view_paket_belanja')) {
+		if (aznav('role_view_paket_belanja') && strlen($idrole) > 0) {
 			$crud->set_btn_add(false);
 		}
 
@@ -107,6 +108,7 @@ class Master_paket_belanja extends CI_Controller {
 	}
 
 	function custom_style($key, $value, $data) {
+		$idrole = $this->session->userdata('role_name');
 		
 		if ($key == 'nilai_anggaran') {
 			return az_thousand_separator($value);
@@ -116,7 +118,7 @@ class Master_paket_belanja extends CI_Controller {
 			$idpaket_belanja = azarr($data, 'idpaket_belanja');
 
 			$btn = '';
-			if (aznav('role_view_paket_belanja')) {
+			if (aznav('role_view_paket_belanja') && strlen($idrole) > 0) {
 				$btn .= '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
 			else {

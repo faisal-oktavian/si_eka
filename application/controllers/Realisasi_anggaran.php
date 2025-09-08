@@ -17,12 +17,13 @@ class Realisasi_anggaran extends CI_Controller {
 		$azapp = $this->azapp;
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
+		$idrole = $this->session->userdata('role_name');
 
 		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Paket Belanja', 'Total Realisasi', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		if (aznav('role_view_realisasi_anggaran')) {
+		if (aznav('role_view_realisasi_anggaran') && strlen($idrole) > 0) {
 			$crud->set_btn_add(false);
 		}
 
@@ -109,6 +110,7 @@ class Realisasi_anggaran extends CI_Controller {
 	}
 
 	function custom_style($key, $value, $data) {
+		$idrole = $this->session->userdata('role_name');
 		
 		if ($key == 'total_realisasi') {
 			$total_realisasi = az_thousand_separator($value);
@@ -175,7 +177,7 @@ class Realisasi_anggaran extends CI_Controller {
 				$is_view_only = true;
             }
 
-			if (aznav('role_view_realisasi_anggaran')) {
+			if (aznav('role_view_realisasi_anggaran') && strlen($idrole) > 0) {
 				$is_view_only = true;
 			}
 
