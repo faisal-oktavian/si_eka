@@ -312,6 +312,10 @@
 			success: function(response) {
 				hide_loading();
 
+				setTimeout(function() {
+					jQuery('.kode-rekening').val(response.data.kode_rekening);
+				}, 1000);
+
 				if (response.data.idkategori !== null) {
 					show_modal('add_kategori');
 
@@ -490,4 +494,26 @@
 		if (rak_volume_desember != '' && rak_volume_desember != null) {
 			jQuery('#rak_jumlah_desember').val(thousand_separator(rak_jumlah_desember));
 		}
+	});
+
+	jQuery('body').on('change', '#idsub_kategori', function() {
+		var id = jQuery(this).val();
+		console.log('asdasda '+id);
+		
+		// setTimeout(function() {
+		if (id != '') {
+			jQuery.ajax({
+				url: app_url + 'master_paket_belanja/select_kode_rekening',
+				type: 'POST', 
+				dataType: 'JSON',
+				data: {
+					id: id
+				},
+				success: function(response) {
+					jQuery('.kode-rekening').val(response.kode_rekening);
+				},
+				error: function(response) {}
+			});
+		}
+		// }, 500);
 	});

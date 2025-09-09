@@ -29,6 +29,8 @@
                         <td>
                             <div style="padding-left: 50px;">
                                 <?php echo $sub_value['nama_subkategori'];?>
+                                <br>
+                                <?php echo $sub_value['kode_rekening'];?>
                             </div>
                         </td>
                         <td align="center"><?php echo $sub_value['volume'];?></td>
@@ -76,6 +78,8 @@
                             <td>
                                 <div style="padding-left: 80px;">
                                     <?php echo $ss_value['nama_subkategori'];?>
+                                    <br>
+                                    <?php echo $ss_value['kode_rekening'];?>
                                 </div>
                             </td>
                             <td align="center"><?php echo $ss_value['volume'];?></td>

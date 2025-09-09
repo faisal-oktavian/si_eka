@@ -13,6 +13,12 @@
 		</div>
 	</div>
 	<div class="form-group">
+		<label class="control-label col-sm-3">Kode Rekening <red>*</red></label>
+		<div class="col-md-8">
+			<input type="text" class="form-control kode-rekening" name="kode_rekening" id="kode_rekening" readonly>
+		</div>
+	</div>
+	<div class="form-group">
 		<label class="control-label col-sm-3">Volume <red>*</red></label>
 		<div class="col-md-8">
 			<input type="text" class="form-control format-number volume" name="volume" id="volume" placeholder="Volume">
