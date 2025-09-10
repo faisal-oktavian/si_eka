@@ -1933,3 +1933,6 @@ ALTER TABLE `sub_kategori`
 ALTER TABLE `verification_history`
 	ADD COLUMN `idtransaction` INT(10) NULL DEFAULT NULL AFTER `idverification`,
 	ADD INDEX `idtransaction` (`idtransaction`);
+
+ALTER TABLE `transaction`
+	ADD COLUMN `transaction_description` TEXT NULL COMMENT 'untuk menyimpan deskripsi yang diinput sebelum verifikasi dokumen' AFTER `transaction_status`;

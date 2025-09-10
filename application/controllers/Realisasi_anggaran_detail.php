@@ -554,8 +554,9 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		$this->load->helper('az_role');
 
 		$tahun_ini = date('Y');
+		$sumber_dana = "Pendapatan dari BLUD";
 
-		$total_pendapatan_blud = $this->get_query_pendapatan_dari_blud($tahun_ini, true);
+		$total_pendapatan_blud = $this->get_query_sumber_dana($tahun_ini, $sumber_dana, true);
 
 		$crud->set_btn_top_custom("
 					<div class='btn btn-default' style='background-color:#ff5722; color:#FFF;'>Total Anggaran : Rp. ".az_thousand_separator($total_pendapatan_blud)."</div>
@@ -574,8 +575,9 @@ class Realisasi_anggaran_detail extends CI_Controller {
 
 		$data['crud'] = $crud;
 		$data['tahun_ini'] = $tahun_ini;
+		$data['sumber_dana'] = $sumber_dana;
 		
-		$view = $this->load->view('realisasi_anggaran_detail/v_format_pendapatan_blud', $data, true);
+		$view = $this->load->view('realisasi_anggaran_detail/v_format_sumber_dana', $data, true);
 		$azapp->add_content($view);
 
 		$data_header['title'] = azlang('Dashboard');
@@ -590,9 +592,9 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		$crud = $this->azapp->add_crud();
 
 		$tahun_ini = date('Y');
+		$sumber_dana = "Pendapatan dari BLUD";
 
-
-		$query = $this->get_query_pendapatan_dari_blud($tahun_ini);
+		$query = $this->get_query_sumber_dana($tahun_ini, $sumber_dana, false);
 		// echo "<pre>"; print_r($query); die;
 
 		$crud->set_manual_query($query);
@@ -607,12 +609,79 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		// $crud->set_custom_first_column(true);
 		
 		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, total_realisasi');
-		$crud->set_custom_style('custom_style_pendapatan_dari_blud');
+		$crud->set_custom_style('custom_style_sumber_dana');
 		$crud->set_table('paket_belanja');
 		echo $crud->get_table();
 	}
 
-	function custom_style_pendapatan_dari_blud($key, $value, $data) {
+	public function dbh() {		
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$crud = $azapp->add_crud();
+		$this->load->helper('az_role');
+
+		$tahun_ini = date('Y');
+		$sumber_dana = "DBH Cukai Hasil Tembakau (CHT)";
+
+		$total_pendapatan_blud = $this->get_query_sumber_dana($tahun_ini, $sumber_dana, true);
+
+		$crud->set_btn_top_custom("
+					<div class='btn btn-default' style='background-color:#ff5722; color:#FFF;'>Total Anggaran : Rp. ".az_thousand_separator($total_pendapatan_blud)."</div>
+			");
+
+		$crud->set_column(array('#', "Program", "Paket Belanja", "Nilai Realisasi"));
+		$crud->set_id($this->controller);
+		// $crud->set_default_url(true);
+		$crud->set_default_url(false);
+		$crud->set_btn_add(false);
+		$crud->set_url("app_url+'realisasi_anggaran_detail/get_dbh'");
+		$crud->set_url_edit("app_url+'realisasi_anggaran_detail/edit_dbh'");
+		$crud->set_url_delete("app_url+'realisasi_anggaran_detail/delete_dbh'");
+		$crud->set_url_save("app_url+'realisasi_anggaran_detail/save_dbh'");
+		$crud = $crud->render();
+
+		$data['crud'] = $crud;
+		$data['tahun_ini'] = $tahun_ini;
+		$data['sumber_dana'] = $sumber_dana;
+		
+		$view = $this->load->view('realisasi_anggaran_detail/v_format_sumber_dana', $data, true);
+		$azapp->add_content($view);
+
+		$data_header['title'] = azlang('Dashboard');
+		$data_header['breadcrumb'] = array('dashboard');
+		$azapp->set_data_header($data_header);
+
+		echo $azapp->render();
+	}
+
+	public function get_dbh() {
+		$this->load->library('AZApp');
+		$crud = $this->azapp->add_crud();
+
+		$tahun_ini = date('Y');
+		$sumber_dana = "DBH Cukai Hasil Tembakau (CHT)";
+
+		$query = $this->get_query_sumber_dana($tahun_ini, $sumber_dana, false);
+		// echo "<pre>"; print_r($query); die;
+
+		$crud->set_manual_query($query);
+
+		$crud->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_filter('nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_sorting('nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_select_align(' , , right');
+		$crud->set_edit(false);
+		$crud->set_delete(false);
+		$crud->set_id('paket_belanja');
+		// $crud->set_custom_first_column(true);
+		
+		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_custom_style('custom_style_sumber_dana');
+		$crud->set_table('paket_belanja');
+		echo $crud->get_table();
+	}
+
+	function custom_style_sumber_dana($key, $value, $data) {
 		
 		if ($key == 'total_realisasi') {
 			return az_thousand_separator($value);
@@ -621,9 +690,10 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		return $value;
 	}
 
-	function get_query_pendapatan_dari_blud($tahun_ini, $query_total = false) {
+	function get_query_sumber_dana($tahun_ini, $sumber_dana, $query_total = false) {
 		$total_realisasi = 0;		
 
+		$this->db->where('sumber_dana.nama_sumber_dana = "'.$sumber_dana.'" ');
 		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
 		$this->db->where('npd.status = 1 ');
 		$this->db->where('npd_detail.status = 1 ');
@@ -650,8 +720,8 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
 		$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
 
-		$this->db->group_by('paket_belanja.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja');
-		$this->db->select('paket_belanja.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, SUM(total) AS total_realisasi');
+		// $this->db->group_by('paket_belanja.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja');
+		$this->db->select('paket_belanja.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, total AS total_realisasi');
 		$query = $this->db->get('npd');
 		$last_query = $this->db->last_query();
 		// echo "<pre>"; print_r($last_query); die;

@@ -392,6 +392,16 @@ class Npd extends CI_Controller {
 				$check = $this->db->get('npd');
 
 				if ($check->row()->npd_status != "DRAFT") {
+
+					// hitung total anggaran
+					$total_anggaran = $this->calculate_total_anggaran($idnpd);
+					
+					$arr_npd = array(
+						'total_anggaran' => $total_anggaran,
+					);
+
+					$save_npd = az_crud_save($idnpd, 'npd', $arr_npd);
+
 					$the_filter = array(
 						'idnpd' => $idnpd,
 						'type' => 'INPUT NPD'
@@ -447,10 +457,15 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+
+			// hitung total anggaran
+			$total_anggaran = $this->calculate_total_anggaran($idnpd);
+
 	    	$arr_data = array(
 	    		'npd_date_created' => $npd_date_created,
 	    		'npd_status' => "INPUT NPD",
 	    		'iduser_created' => $iduser_created,
+	    		'total_anggaran' => $total_anggaran,
 	    	);
 
 	    	az_crud_save($idnpd, 'npd', $arr_data);
@@ -606,6 +621,16 @@ class Npd extends CI_Controller {
 			$err_message = $delete['err_message'];
 
 			if ($err_code == 0) {
+
+				// hitung total anggaran
+				$total_anggaran = $this->calculate_total_anggaran($id);
+				
+				$arr_npd = array(
+					'total_anggaran' => $total_anggaran,
+				);
+
+				$save_npd = az_crud_save($id, 'npd', $arr_npd);
+				
 				// update status verifikasi dokumen
 				$the_filter = array(
 					'idnpd' => $idnpd,

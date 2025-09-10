@@ -61,6 +61,14 @@ class Verifikasi_dokumen extends CI_Controller {
 		$modal->set_action_modal(array('save_approval'=>'Simpan'));
 		$azapp->add_content($modal->render());
 
+		$v_modal = $this->load->view('verifikasi_dokumen/v_description_modal', '', true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('description');
+		$modal->set_modal_title('Keterangan Dokumen');
+		$modal->set_modal($v_modal);
+		$modal->set_action_modal(array('save_description'=>'Simpan'));
+		$azapp->add_content($modal->render());
+
 		$crud = $crud->render();
 		$data['crud'] = $crud;
 		$data['active'] = 'verifikasi_dokumen';
@@ -86,7 +94,7 @@ class Verifikasi_dokumen extends CI_Controller {
 		$transaction_code = $this->input->get('transaction_code');
 		$transaction_status = $this->input->get('vf_transaction_status');		
 
-		$crud->set_select('transaction.idtransaction, verification.idverification, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_created.name as user_input, user_confirm.name as user_verifikasi');
+		$crud->set_select('transaction.idtransaction, verification.idverification, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_date_input, date_format(confirm_verification_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description,  user_created.name as user_input, user_confirm.name as user_verifikasi, transaction.transaction_description');
 		$crud->set_select_table('idtransaction, txt_date_input, txt_confirm_verification, transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description, user_input, user_verifikasi');
         $crud->set_sorting('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description');
         $crud->set_filter('transaction_code, nama_paket_belanja, transaction_status, status_approve, verification_description');
@@ -135,6 +143,21 @@ class Verifikasi_dokumen extends CI_Controller {
 				$tlbl = 'Ditolak';
 			}
 			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
+		if ($key == "verification_description") {
+			$transaction_description = azarr($data, 'transaction_description');
+			$verification_description = azarr($data, 'verification_description');
+			$status_approve = azarr($data, 'status_approve');
+
+			if (strlen($status_approve) == 0) {
+				$desc = $transaction_description;
+			}
+			else {
+				$desc = $verification_description;
+			}
+
+			return $desc;
 		}
 
 		if ($key == 'transaction_status') {
@@ -188,6 +211,10 @@ class Verifikasi_dokumen extends CI_Controller {
 			$btn = '';	
 			if (in_array($transaction_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) {
 				$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'"><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
+
+				if ($transaction_status == 'MENUNGGU VERIFIKASI') {
+					$btn .= '<button class="btn btn-default btn-xs btn-description-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'"><span class="glyphicon glyphicon-file"></span> Keterangan</button>';
+				}
 			}
 			else {
 				$btn .= '<button class="btn btn-success btn-xs btn-verifikasi-dokumen" data_id="'.$idtransaction.'" data_idverif="'.$idverification.'" disabled><span class="glyphicon glyphicon-check"></span> Verifikasi</button>';
@@ -327,6 +354,49 @@ class Verifikasi_dokumen extends CI_Controller {
 			// 	'type' => $type,
 			// );
 			// $update_status = update_status_realisasi_anggaran($the_filter);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idverification' => $idverification,
+		);
+		echo json_encode($return);
+	}
+
+	function save_description() {
+		$err_code = 0;
+		$err_message = '';
+
+		
+		$idtransaction = $this->input->post("idtransaction");
+		$idverification = $this->input->post("idverification");
+		$transaction_description = $this->input->post("transaction_description");
+
+		if (strlen($idtransaction) == 0) {
+			$err_code++;
+			$err_message = 'Invalid ID';
+		}
+
+		if ($err_code == 0) {
+			$this->db->where('idtransaction',$idtransaction);
+			$transaction = $this->db->get('transaction');
+
+			if ($transaction->num_rows() > 0) {
+				$status = $transaction->row()->transaction_status;
+				if (in_array($status, array('INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
+
+		if ($err_code == 0) {
+			$arr_data = array(
+				'transaction_description' => $transaction_description,
+			);
+
+			az_crud_save($idtransaction, 'transaction', $arr_data);
 		}
 
 		$return = array(
