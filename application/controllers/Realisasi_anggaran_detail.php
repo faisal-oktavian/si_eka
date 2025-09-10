@@ -544,4 +544,133 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		return $query;
 
 	}
+	
+
+	// PENDAPATAN DARI BLUD
+	public function blud() {		
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$crud = $azapp->add_crud();
+		$this->load->helper('az_role');
+
+		$tahun_ini = date('Y');
+
+		$total_pendapatan_blud = $this->get_query_pendapatan_dari_blud($tahun_ini, true);
+
+		$crud->set_btn_top_custom("
+					<div class='btn btn-default' style='background-color:#ff5722; color:#FFF;'>Total Anggaran : Rp. ".az_thousand_separator($total_pendapatan_blud)."</div>
+			");
+
+		$crud->set_column(array('#', "Program", "Paket Belanja", "Nilai Realisasi"));
+		$crud->set_id($this->controller);
+		// $crud->set_default_url(true);
+		$crud->set_default_url(false);
+		$crud->set_btn_add(false);
+		$crud->set_url("app_url+'realisasi_anggaran_detail/get_pendapatan_dari_blud'");
+		$crud->set_url_edit("app_url+'realisasi_anggaran_detail/edit_pendapatan_dari_blud'");
+		$crud->set_url_delete("app_url+'realisasi_anggaran_detail/delete_pendapatan_dari_blud'");
+		$crud->set_url_save("app_url+'realisasi_anggaran_detail/save_pendapatan_dari_blud'");
+		$crud = $crud->render();
+
+		$data['crud'] = $crud;
+		$data['tahun_ini'] = $tahun_ini;
+		
+		$view = $this->load->view('realisasi_anggaran_detail/v_format_pendapatan_blud', $data, true);
+		$azapp->add_content($view);
+
+		$data_header['title'] = azlang('Dashboard');
+		$data_header['breadcrumb'] = array('dashboard');
+		$azapp->set_data_header($data_header);
+
+		echo $azapp->render();
+	}
+
+	public function get_pendapatan_dari_blud() {
+		$this->load->library('AZApp');
+		$crud = $this->azapp->add_crud();
+
+		$tahun_ini = date('Y');
+
+
+		$query = $this->get_query_pendapatan_dari_blud($tahun_ini);
+		// echo "<pre>"; print_r($query); die;
+
+		$crud->set_manual_query($query);
+
+		$crud->set_select_table('idpaket_belanja, nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_filter('nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_sorting('nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_select_align(' , , right');
+		$crud->set_edit(false);
+		$crud->set_delete(false);
+		$crud->set_id('paket_belanja');
+		// $crud->set_custom_first_column(true);
+		
+		$crud->set_order_by('idpaket_belanja, nama_program, nama_paket_belanja, total_realisasi');
+		$crud->set_custom_style('custom_style_pendapatan_dari_blud');
+		$crud->set_table('paket_belanja');
+		echo $crud->get_table();
+	}
+
+	function custom_style_pendapatan_dari_blud($key, $value, $data) {
+		
+		if ($key == 'total_realisasi') {
+			return az_thousand_separator($value);
+		}
+
+		return $value;
+	}
+
+	function get_query_pendapatan_dari_blud($tahun_ini, $query_total = false) {
+		$total_realisasi = 0;		
+
+		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('npd.status = 1 ');
+		$this->db->where('npd_detail.status = 1 ');
+		$this->db->where('verification.status = 1 ');
+		$this->db->where('verification.verification_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('verification.status_approve = "DISETUJUI" ');
+		$this->db->where('verification_detail.status = 1 ');
+		$this->db->where('transaction.status = 1 ');
+		$this->db->where('transaction.transaction_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('transaction_detail.`status` = 1 ');
+		$this->db->where('YEAR(transaction_detail.created) = "'.$tahun_ini.'" ');
+
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
+		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+
+		
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
+		$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
+
+		$this->db->group_by('paket_belanja.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja');
+		$this->db->select('paket_belanja.idpaket_belanja, program.nama_program, paket_belanja.nama_paket_belanja, SUM(total) AS total_realisasi');
+		$query = $this->db->get('npd');
+		$last_query = $this->db->last_query();
+		// echo "<pre>"; print_r($last_query); die;
+		
+		if ($query_total) {
+			foreach ($query->result() as $key => $value) {
+				$total_realisasi += $value->total_realisasi;
+			}
+
+			$query = $total_realisasi;
+		}
+		else {
+			
+			$query = 'select * from (' . $last_query . ') new_query';
+		}
+
+		// echo "<pre>"; print_r($query);die;
+
+		return $query;
+
+	}
 }

@@ -40,6 +40,12 @@ class Home extends AZ_Controller {
 		$realisasi_anggaran = $sudah_dibayar;
 
 
+		// GRAFIK REALISASI ANGGARAN PER SUMBER DANA
+		$grafik_sumber_dana = $this->grafik_sumber_dana($tahun_ini);
+		$dbh = $grafik_sumber_dana['dbh'];
+		$blud = $grafik_sumber_dana['blud'];
+
+
 		// GRAFIK PERBANDINGAN TARGET & REALISASI PER BULAN
 		$target_per_bulan = [];
 		$realisasi_per_bulan = [];
@@ -149,6 +155,8 @@ class Home extends AZ_Controller {
 			'sudah_dibayar' => floatval($sudah_dibayar),
 			'belum_dibayar' => floatval($belum_dibayar),
 			'belum_direalisasi' => floatval($belum_direalisasi),
+			'dbh' => floatval($dbh),
+			'blud' => floatval($blud),
 			'target_per_bulan' => $target_per_bulan,
 			'realisasi_per_bulan' => $realisasi_per_bulan,
 			'belum_terealisasi' => $belum_terealisasi,
@@ -184,7 +192,7 @@ class Home extends AZ_Controller {
 
 		// belum dibayar
 		$this->db->where('npd.status', 1);
-		$this->db->where('npd.npd_status = "MENUNGGU PEMBAYARAN" ');
+		$this->db->where('npd.npd_status = "INPUT NPD" ');
 		$this->db->where('YEAR(npd.npd_date_created) = "'.$tahun_ini.'" ');
 		$this->db->select('sum(total_anggaran) as total_yang_belum_dibayar');
 		$npd_before_pay = $this->db->get('npd');
@@ -261,6 +269,57 @@ class Home extends AZ_Controller {
 		$return = array(
 			'total_anggaran_tahun_ini' => floatval($total_anggaran),
 		);
+
+		return $return;
+	}
+
+	function grafik_sumber_dana($tahun_ini) {
+		$dbh = 0;
+		$blud = 0;
+
+		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('npd.status = 1 ');
+		$this->db->where('npd_detail.status = 1 ');
+		$this->db->where('verification.status = 1 ');
+		$this->db->where('verification.verification_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('verification.status_approve = "DISETUJUI" ');
+		$this->db->where('verification_detail.status = 1 ');
+		$this->db->where('transaction.status = 1 ');
+		$this->db->where('transaction.transaction_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('transaction_detail.`status` = 1 ');
+		$this->db->where('YEAR(transaction_detail.created) = "'.$tahun_ini.'" ');
+
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
+		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
+		$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
+
+		$this->db->group_by('nama_sumber_dana');
+		$this->db->select('SUM(total) AS total_sumber_dana, nama_sumber_dana');
+		$npd = $this->db->get('npd');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+		foreach ($npd->result() as $key => $value) {
+			$sumber_dana = $value->nama_sumber_dana;
+			$total_sumber_dana = $value->total_sumber_dana;
+
+			if ($sumber_dana == "DBH Cukai Hasil Tembakau (CHT)") {
+				$dbh = $total_sumber_dana;
+			}
+			else if ($sumber_dana == "Pendapatan dari BLUD") {
+				$blud = $total_sumber_dana;
+			}
+		}
+
+		$return = array(
+			'dbh' => floatval($dbh),
+			'blud' => floatval($blud),
+		);
+
+		// echo "<pre>"; print_r($return);die;
 
 		return $return;
 	}
