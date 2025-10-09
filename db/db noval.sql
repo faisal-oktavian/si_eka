@@ -1936,3 +1936,7 @@ ALTER TABLE `verification_history`
 
 ALTER TABLE `transaction`
 	ADD COLUMN `transaction_description` TEXT NULL COMMENT 'untuk menyimpan deskripsi yang diinput sebelum verifikasi dokumen' AFTER `transaction_status`;
+
+ALTER TABLE `paket_belanja_detail_sub`
+	ADD COLUMN `idpaket_belanja` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja' AFTER `idsub_kategori`,
+	ADD INDEX `idpaket_belanja` (`idpaket_belanja`);
