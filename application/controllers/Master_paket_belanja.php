@@ -330,7 +330,7 @@ class Master_paket_belanja extends CI_Controller {
 		if ($err_code == 0) {
 			//detail
 			$arr_pb_detail_sub = array(
-				// 'idpaket_belanja' => $idpaket_belanja,
+				'idpaket_belanja' => $idpaket_belanja,
 				// 'idpaket_belanja_detail' => $idpaket_belanja_detail,
 				'idkategori' => $idkategori,
 				'idpaket_belanja_detail' => $idpaket_belanja_detail,
@@ -520,6 +520,12 @@ class Master_paket_belanja extends CI_Controller {
 			}
 
 			$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
+
+			$arr_update = array(
+				'idpaket_belanja' => $idpaket_belanja,
+			);
+
+			az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_update);
 
 			$total_jumlah = $this->calculate_nilai_anggaran($idpaket_belanja);
 		}
@@ -1082,5 +1088,27 @@ class Master_paket_belanja extends CI_Controller {
 			'data' => $view
 		);
 		echo json_encode($arr);
+	}
+
+
+	// untuk mengisi idpaket belanja di table paket belanja detail sub
+	function set_idpaket_belanja() {
+		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+		$this->db->select('idpaket_belanja_detail_sub, paket_belanja_detail.idpaket_belanja as txt_idpaket_belanja, paket_belanja_detail_sub.idpaket_belanja');
+		$sub = $this->db->get('paket_belanja_detail_sub');
+
+		$total_data = $sub->num_rows();
+
+		foreach ($sub->result() as $key => $value) {
+			$arr_update = array(
+				'idpaket_belanja' => $value->txt_idpaket_belanja,
+			);
+
+			$this->db->where('idpaket_belanja_detail_sub', $value->idpaket_belanja_detail_sub);
+			$this->db->update('paket_belanja_detail_sub', $arr_update);
+		}
+
+		echo "Done<br>";
+		echo $total_data." Data.";
 	}
 }

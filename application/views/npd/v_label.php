@@ -98,7 +98,7 @@
         <div class="title">NOTA PENCAIRAN DANA (NPD)</div>
         <div class="title-number">
             <p>Nomor: <?php echo $nomor_surat;?></p>
-            <p>Tanggal: <?php echo $format_npd_date_created;?></p>
+            <p>Tanggal: <?php echo $npd_date;?></p>
         </div>
 
         <table class="no-border">
@@ -148,30 +148,37 @@
                 
                 <tbody>
                     <?php 
-                        foreach ($npd_detail as $key => $value) {
-                            $rowspan = count($value['arr_pb_detail_sub']) + 1;
+                        foreach ($arr_data as $key => $value) {
                     ?>
                             <tr style="font-weight: bold;">
-                                <td rowspan="<?php echo $rowspan; ?>" style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
-                                <td><?php echo $value['nama_akun_belanja'];?></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td rowspan="<?php echo $value['total_data']; ?>" style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
+                                <td colspan="6"><?php echo $value['nama_akun_belanja'];?></td>
                             </tr>
-                    <?php
-                            foreach ($value['arr_pb_detail_sub'] as $key_sub => $value_sub) {
+                    <?php   
+                            $space = "padding-left:15px;";
+                            $space_detail = "padding-left:15px;";
+                            foreach ($value['arr_detail'] as $key_sub => $value_sub) {
+                                if ($value_sub['nama_kategori'] != "") {
+
+                                    $space_detail = "padding-left:30px;";
                     ?>
-                                <tr>
-                                    <td><?php echo $value_sub['nama_subkategori'];?></td>
-                                    <td style="text-align: right;"><?php echo az_thousand_separator($value_sub['jumlah']);?></td>
-                                    <td style="text-align: right;"><?php echo az_thousand_separator($value_sub['sisa_anggaran']);?></td>
-                                    <td style="text-align: right;"><?php echo az_thousand_separator($value_sub['total_sekarang']);?></td>
-                                    <td style="text-align: right;"><?php echo az_thousand_separator($value_sub['sisa_akhir']);?></td>
-                                    <td></td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="6" style="font-weight:bold; <?php echo $space; ?>"><?php echo $value_sub['nama_kategori'];?></td>
+                                    </tr>
                     <?php
+                                }
+                                foreach ($value_sub['arr_detail_sub'] as $key_ds => $value_ds) {
+                    ?>
+                                    <tr>
+                                        <td style="<?php echo $space_detail; ?>"><?php echo $value_ds['nama_sub_kategori'];?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_sekarang']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_akhir']);?></td>
+                                        <td></td>
+                                    </tr>
+                    <?php
+                                }
                             }
                         }
                     ?>

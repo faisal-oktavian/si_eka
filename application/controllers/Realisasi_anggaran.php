@@ -286,7 +286,7 @@ class Realisasi_anggaran extends CI_Controller {
 		// var_dump($parent);die();
 		$this->db->where('paket_belanja_detail.status', 1);
 		$this->db->where('paket_belanja_detail_sub.status', 1);
-		$this->db->where('idpaket_belanja', $idpaket_belanja);
+		$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
 		$pb_detail = $this->db->get('paket_belanja_detail');
