@@ -164,6 +164,19 @@
             'submenu' => array(),
         ),
         array(
+            "name" => "npd_panjer",
+            "title" => "NPD Panjer",
+            "icon" => "file",
+            "url" => "npd_panjer",
+            'submenu' => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_view_npd_panjer',
+                    'role_title' => 'Hanya lihat data'
+                ),
+            ),
+        ),
+        array(
             "name" => "report",
             "title" => "Laporan",
             "url" => "report",
@@ -178,6 +191,10 @@
                     'role_name' => 'role_report_sisa_realisasi_anggaran',
                     'role_title' => 'Laporan Sisa Realisasi Anggaran',
                 ),
+                // array(
+                //     'role_name' => 'role_report_evaluasi_anggaran',
+                //     'role_title' => 'Laporan Evaluasi Anggaran',
+                // ),
             ),
         ),
         array(

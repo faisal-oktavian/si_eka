@@ -1940,3 +1940,67 @@ ALTER TABLE `transaction`
 ALTER TABLE `paket_belanja_detail_sub`
 	ADD COLUMN `idpaket_belanja` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja' AFTER `idsub_kategori`,
 	ADD INDEX `idpaket_belanja` (`idpaket_belanja`);
+
+CREATE TABLE `npd_panjer` (
+	`idnpd_panjer` INT NOT NULL AUTO_INCREMENT,
+	`npd_panjer_date` DATETIME NULL COMMENT 'tanggal npd panjer',
+	`npd_panjer_code` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nomor invoice',
+	`npd_panjer_status` VARCHAR(50) NULL DEFAULT NULL COMMENT 'OK; DRAFT',
+	`total_realisasi` DOUBLE NULL DEFAULT NULL COMMENT 'total dalam 1 invoice',
+	`iduser_created` BIGINT NULL DEFAULT NULL COMMENT 'user yang membuat invoice',
+	`created` DATETIME NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idnpd_panjer`),
+	INDEX `npd_panjer_date` (`npd_panjer_date`),
+	INDEX `npd_panjer_code` (`npd_panjer_code`),
+	INDEX `npd_panjer_status` (`npd_panjer_status`),
+	INDEX `total_realisasi` (`total_realisasi`),
+	INDEX `iduser_created` (`iduser_created`),
+	INDEX `status` (`status`)
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+
+CREATE TABLE `npd_panjer_detail` (
+	`idnpd_panjer_detail` INT NOT NULL AUTO_INCREMENT,
+	`idnpd_panjer` INT NULL,
+	`idpaket_belanja` INT NULL,
+	`penyedia` VARCHAR(50) NULL DEFAULT NULL,
+	`iduraian` INT NULL,
+	`idruang` INT NULL,
+	`nama_training` VARCHAR(200) NULL DEFAULT NULL,
+	`volume` DOUBLE NULL DEFAULT NULL,
+	`laki` DOUBLE NULL DEFAULT NULL,
+	`perempuan` DOUBLE NULL DEFAULT NULL,
+	`harga_satuan` DOUBLE NULL DEFAULT NULL,
+	`ppn` DOUBLE NULL DEFAULT NULL,
+	`pph` DOUBLE NULL DEFAULT NULL,
+	`total` DOUBLE NULL DEFAULT NULL,
+	`npd_detail_description` TEXT NULL,
+	`created` DATETIME NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idnpd_panjer_detail`),
+	INDEX `idnpd_panjer` (`idnpd_panjer`),
+	INDEX `idpaket_belanja` (`idpaket_belanja`),
+	INDEX `penyedia` (`penyedia`),
+	INDEX `iduraian` (`iduraian`),
+	INDEX `idruang` (`idruang`),
+	INDEX `nama_training` (`nama_training`),
+	INDEX `volume` (`volume`),
+	INDEX `laki` (`laki`),
+	INDEX `perempuan` (`perempuan`),
+	INDEX `harga_satuan` (`harga_satuan`),
+	INDEX `ppn` (`ppn`),
+	INDEX `pph` (`pph`),
+	INDEX `total` (`total`),
+	INDEX `status` (`status`),
+	CONSTRAINT `FK__npd_panjer` FOREIGN KEY (`idnpd_panjer`) REFERENCES `npd_panjer` (`idnpd_panjer`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
