@@ -2004,3 +2004,7 @@ CREATE TABLE `npd_panjer_detail` (
 )
 COLLATE='utf8mb4_0900_ai_ci'
 ;
+
+ALTER TABLE `npd`
+	ADD COLUMN `is_print` INT NULL DEFAULT '0' COMMENT 'untuk menandakan sudah pernah print atau belum' AFTER `npd_status`,
+	ADD INDEX `is_print` (`is_print`);
