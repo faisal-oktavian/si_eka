@@ -191,10 +191,10 @@
                     'role_name' => 'role_report_sisa_realisasi_anggaran',
                     'role_title' => 'Laporan Sisa Realisasi Anggaran',
                 ),
-                // array(
-                //     'role_name' => 'role_report_evaluasi_anggaran',
-                //     'role_title' => 'Laporan Evaluasi Anggaran',
-                // ),
+                array(
+                    'role_name' => 'role_report_evaluasi_anggaran',
+                    'role_title' => 'Laporan Evaluasi Anggaran',
+                ),
             ),
         ),
         array(

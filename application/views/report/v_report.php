@@ -32,7 +32,7 @@
         ?>
                 <div class="col-md-6 report">
                     <h4>Laporan Realisasi Anggaran</h4>
-                    <p>Menampilan data uraian yang telah di realisasi yang dikelompokkan per bulan dan per uraian.</p>
+                    <p>Menampilkan data uraian yang telah di realisasi yang dikelompokkan per bulan dan per uraian.</p>
                     <a href="<?php echo app_url().'report_realisasi_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
                 </div>
         <?php
@@ -43,6 +43,15 @@
                     <h4>Laporan Sisa Anggaran</h4>
                     <p>Menampilkan semua uraian yang masih mempunyai sisa anggaran pada masing-masing paket belanja.</p>
                     <a href="<?php echo app_url().'report_sisa_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                </div>
+        <?php
+            }
+            if (aznav('role_report_evaluasi_anggaran')) {
+        ?>
+                <div class="col-md-6 report">
+                    <h4>Laporan Evaluasi Anggaran</h4>
+                    <p>Menampilkan data uraian yang telah di realisasi yang dikelompokkan per triwulan dan per uraian.</p>
+                    <a href="<?php echo app_url().'report_evaluasi_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
                 </div>
         <?php
             }
