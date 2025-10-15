@@ -183,12 +183,13 @@ class Npd extends CI_Controller {
 				$npd = $this->db->get('npd');
 
 				$npd_status = $npd->row()->npd_status;
+				$is_print = $npd->row()->is_print;
 				// INPUT DATA, MENUNGGU PEMBAYARAN, SUDAH DIBAYAR BENDAHARA
 				if (in_array($npd_status, array("MENUNGGU PEMBAYARAN", "SUDAH DIBAYAR BENDAHARA") ) ) {
 					$is_viewonly = true;
 				}
 
-				if ($npd_status == "INPUT NPD") {
+				if ($npd_status == "INPUT NPD" && $is_print == 1) {
 					$btn .= '<button class="btn btn-info btn-xs btn-send_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-send"></span> Kirim ke bendahara</button>';
 				}
 			}
@@ -742,6 +743,13 @@ class Npd extends CI_Controller {
 				$npd_code = $data->row()->npd_code;
 				$npd_date_created = $data->row()->npd_date_created;
 				$npd_date = $this->bulanIndo($data->row()->txt_npd_date_created);
+
+				$arr_update = array(
+					'is_print' => 1,
+				);
+
+				$this->db->where('npd.idnpd', $idnpd);
+				$this->db->update('npd', $arr_update);
 			}
 		}
 
