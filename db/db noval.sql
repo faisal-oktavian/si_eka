@@ -2008,3 +2008,15 @@ COLLATE='utf8mb4_0900_ai_ci'
 ALTER TABLE `npd`
 	ADD COLUMN `is_print` INT NULL DEFAULT '0' COMMENT 'untuk menandakan sudah pernah print atau belum' AFTER `npd_status`,
 	ADD INDEX `is_print` (`is_print`);
+
+ALTER TABLE `npd_detail`
+	DROP FOREIGN KEY `npd_detail_ibfk_1`;
+ALTER TABLE `npd_detail`
+	ADD CONSTRAINT `FK_npd_detail_npd` FOREIGN KEY (`idnpd`) REFERENCES `npd` (`idnpd`) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE `paket_belanja_detail`
+	ADD CONSTRAINT `FK_paket_belanja_detail_paket_belanja` FOREIGN KEY (`idpaket_belanja`) REFERENCES `paket_belanja` (`idpaket_belanja`) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE `verification_history`
+	ADD CONSTRAINT `FK_verification_history_verification` FOREIGN KEY (`idverification`) REFERENCES `verification` (`idverification`) ON UPDATE CASCADE ON DELETE CASCADE;
+

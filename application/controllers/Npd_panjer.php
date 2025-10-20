@@ -842,6 +842,9 @@ class Npd_panjer extends CI_Controller {
 		$add_select = azarr($the_data, 'add_select', '');
 
 		// menampilkan data utama dari paket belanja
+		$this->db->where('pb.status', 1);
+		$this->db->where('pb.status_paket_belanja = "OK" ');
+		$this->db->where('pbd.status', 1);
 		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
 		$this->db->where('(pbds_child.idsub_kategori = "'.$iduraian.'" OR pbds_parent.idsub_kategori = "'.$iduraian.'")');
 		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
