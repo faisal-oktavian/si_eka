@@ -205,7 +205,7 @@ class Home extends AZ_Controller {
 		}
 
 
-		// belum dibayar
+		// Proses Verifikasi
 		$this->db->where('npd.status', 1);
 		$this->db->where('npd.npd_status = "INPUT NPD" ');
 		$this->db->where('YEAR(npd.npd_date_created) = "'.$tahun_ini.'" ');

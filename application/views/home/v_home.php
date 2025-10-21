@@ -396,8 +396,18 @@
 			var realisasi_blud = <?php echo isset($blud) ? $blud : 0; ?>;
 			var total_realisasi = realisasi_dbh + realisasi_blud;
 
-			document.getElementById('label-realisasi-dbh').innerText = Math.round(realisasi_dbh / total_realisasi * 100) + '% (' + formatRupiah(realisasi_dbh) + ')';
-			document.getElementById('label-realisasi-blud').innerText = Math.round(realisasi_blud / total_realisasi * 100) + '% (' + formatRupiah(realisasi_blud) + ')';
+			var persen_realisasi_dbh = 0;
+			var persen_realisasi_blud = 0;
+
+			if (realisasi_dbh != 0) {
+				var persen_realisasi_dbh = Math.round(realisasi_dbh / total_realisasi * 100);
+			}
+			if (realisasi_blud != 0) {
+				var persen_realisasi_blud = Math.round(realisasi_blud / total_realisasi * 100);
+			}
+
+			document.getElementById('label-realisasi-dbh').innerText = persen_realisasi_dbh + '% (' + formatRupiah(realisasi_dbh) + ')';
+			document.getElementById('label-realisasi-blud').innerText = persen_realisasi_blud + '% (' + formatRupiah(realisasi_blud) + ')';
 
 			var ctxRealisasiSumberDana = document.getElementById('pieRealisasiSumberDanaChart').getContext('2d');
 			var pieRealisasiSumberDanaChart = new Chart(ctxRealisasiSumberDana, {
