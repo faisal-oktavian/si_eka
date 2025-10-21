@@ -155,6 +155,9 @@ class Evaluasi_anggaran extends CI_Controller {
 								// echo "<pre>"; print_r($this->db->last_query());
 
 								$arr_akun_belanja = array();
+								$total_data = 0;
+								$total_done = 0;
+								$total_potensi_sisa = 0;
 								foreach ($akun_belanja->result() as $pbd_key => $pbd_value) {
 									$idpaket_belanja_detail = $pbd_value->idpaket_belanja_detail;
 									$idakun_belanja = $pbd_value->idakun_belanja;
@@ -171,6 +174,7 @@ class Evaluasi_anggaran extends CI_Controller {
 									$total_persentase = 0;
 									foreach ($paket_belanja_detail->result() as $pbds_key => $ds_value) {
 										$total_jumlah += $ds_value->jumlah;
+										$total_data++;
 
 										// get sub sub detail
 										$paket_belanja_detail_sub = $this->query_paket_belanja_detail_sub($ds_value->idpaket_belanja_detail_sub);
@@ -179,10 +183,29 @@ class Evaluasi_anggaran extends CI_Controller {
 										$arr_pd_detail_sub_sub = array();
 										foreach ($paket_belanja_detail_sub->result() as $dss_key => $dss_value) {
 											$total_jumlah += $dss_value->jumlah;
+											$total_data++;
+
+											// ambil data yang sudah terealisasi
+											$this->db->where('transaction.status', 1);
+											$this->db->where('transaction_detail.status', 1);
+											$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+											$this->db->where('transaction_detail.iduraian', $dss_value->idsub_kategori);
+											$this->db->where('transaction.transaction_status != "DRAFT" ');
+											$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
+											$this->db->select('sum(total) as total, sum(volume) as volume');
+											$trxds = $this->db->get('transaction_detail');
+											// var_dump($this->db->last_query()); echo "<pre>";
+
+											if ($trxds->num_rows() > 0) {
+												if ($dss_value->jumlah == $trxds->row()->volume) {
+													$total_done++;
+												}
+											}
 
 											$arr_pd_detail_sub_sub[] = array(
 												'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
 												'idpaket_belanja_detail' => $dss_value->idpaket_belanja_detail,
+												'idpaket_belanja' => $dss_value->idpaket_belanja,
 												'idsub_kategori' => $dss_value->idsub_kategori,
 												'nama_subkategori' => $dss_value->nama_sub_kategori,
 												'kode_rekening' => $dss_value->kode_rekening,
@@ -202,7 +225,7 @@ class Evaluasi_anggaran extends CI_Controller {
 										$this->db->where('transaction_detail.iduraian', $ds_value->idsub_kategori);
 										$this->db->where('transaction.transaction_status != "DRAFT" ');
 										$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-										$this->db->select('sum(total) as total');
+										$this->db->select('sum(total) as total, sum(volume) as volume');
 										$trxd = $this->db->get('transaction_detail');
 										// var_dump($this->db->last_query()); echo "<pre>";
 										
@@ -217,6 +240,10 @@ class Evaluasi_anggaran extends CI_Controller {
 											if (strlen($nominal_realisasi) > 0 && $nominal_realisasi != 0) {
 												$persentase_realisasi = ($nominal_realisasi / $ds_value->jumlah) * 100;
 											}
+											
+											if ($ds_value->volume == $trxd->row()->volume) {
+												$total_done++;
+											}
 										}
 
 										$total_realisasi += $nominal_realisasi;
@@ -224,6 +251,7 @@ class Evaluasi_anggaran extends CI_Controller {
 										$arr_detail_sub[] = array(
 											'idpaket_belanja_detail_sub' => $ds_value->idpaket_belanja_detail_sub,
 											'idpaket_belanja_detail' => $ds_value->idpaket_belanja_detail,
+											'idpaket_belanja' => $ds_value->idpaket_belanja,
 											'idkategori' => $ds_value->idkategori,
 											'nama_kategori' => $ds_value->nama_kategori,
 											'idsub_kategori' => $ds_value->idsub_kategori,
@@ -242,8 +270,12 @@ class Evaluasi_anggaran extends CI_Controller {
 										);
 									}
 
+									
+									$total_sisa_anggaran = $total_jumlah - $total_realisasi;
+									$total_potensi_sisa += $total_sisa_anggaran;
+
 									if ( (strlen($total_realisasi) > 0 && $total_realisasi != 0) && (strlen($total_jumlah) > 0 && $total_jumlah != 0) ) {
-										$total_persentase = ($total_realisasi / $total_jumlah) * 100;
+										$total_persentase = ($total_sisa_anggaran / $total_jumlah) * 100;
 									}
 
 									$arr_akun_belanja[] = array(
@@ -252,16 +284,24 @@ class Evaluasi_anggaran extends CI_Controller {
 										'no_rekening_akunbelanja' => $no_rekening_akunbelanja,
 										'nama_akun_belanja' => $nama_akun_belanja,
 										'total_jumlah' => $total_jumlah,
-										'total_realisasi' => $total_realisasi,
+										'total_sisa_anggaran' => $total_sisa_anggaran,
 										'total_persentase' => $total_persentase,
 										'arr_detail_sub' => $arr_detail_sub,
 									);
+								}
+								
+								if ($total_data == $total_done) {
+									$potensi_sisa = az_thousand_separator_decimal($total_potensi_sisa);
+								}
+								else {
+									$potensi_sisa = '-';
 								}
 
 								$arr_paket_belanja[] = array(
 									'idpaket_belanja' => $idpaket_belanja,
 									'nama_paket_belanja' => $nama_paket_belanja,
 									'nilai_anggaran' => $nilai_anggaran,
+									'potensi_sisa' => $potensi_sisa,
 									'akun_belanja' => $arr_akun_belanja,
 								);
 							}						
@@ -366,6 +406,10 @@ class Evaluasi_anggaran extends CI_Controller {
 	}
 
 	function query_paket_belanja($idsub_kegiatan) {
+
+		// testing
+		// $this->db->where('paket_belanja.idpaket_belanja', 82);
+
 		$this->db->where('paket_belanja.status', 1);
 		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
 		$this->db->where('paket_belanja.idsub_kegiatan', $idsub_kegiatan);
@@ -396,7 +440,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
 		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
 		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
 
 		// if ($paket_belanja_detail->num_rows() > 0) {
@@ -421,7 +465,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 		$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah'.$query_category);
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah'.$query_category);
 		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
 
 		return $paket_belanja_detail_sub;

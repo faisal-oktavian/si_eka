@@ -106,6 +106,11 @@
                           <td class="titik-dua">:</td>
                           <td colspan="7">Rp. <?php echo az_thousand_separator_decimal($pb_value['nilai_anggaran']); ?></td>
                         </tr>
+                        <tr>
+                          <td>Potensi Sisa</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="7">Rp. <?php echo $pb_value['potensi_sisa']; ?></td>
+                        </tr>
 
                         <!-- Detail -->
                         <tr>
@@ -130,7 +135,7 @@
                               <td style="font-weight:bold;" colspan="2"><?php echo $ab_value['no_rekening_akunbelanja']; ?></td>
                               <td style="font-weight:bold;" colspan="4"><?php echo $ab_value['nama_akun_belanja']; ?></td>
                               <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_jumlah']); ?></td>
-                              <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_realisasi']); ?></td>
+                              <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_sisa_anggaran']); ?></td>
                               <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator($ab_value['total_persentase']); ?>%</td>
                             </tr>
 
