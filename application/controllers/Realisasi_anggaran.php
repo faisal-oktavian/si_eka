@@ -457,6 +457,7 @@ class Realisasi_anggaran extends CI_Controller {
 				'iduraian' => $iduraian,
 				'idpaket_belanja' => $idpaket_belanja,
 				'transaction_date' => $transaction_date,
+				'idtransaction_detail' => $idtransaction_detail,
 			);
 			// var_dump($the_filter);die;
 
@@ -995,6 +996,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$iduraian = azarr($the_data, 'iduraian', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$transaction_date = azarr($the_data, 'transaction_date', '');
+		$idtransaction_detail = azarr($the_data, 'idtransaction_detail', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
 		$format_month = date("m", strtotime($transaction_date));
@@ -1002,6 +1004,9 @@ class Realisasi_anggaran extends CI_Controller {
 		// menampilkan data realisasi yang sudah ada sampai dengan tanggal inputan
 		$this->db->where('transaction.status', 1);
 		$this->db->where('transaction_detail.status', 1);
+		if (strlen($idtransaction_detail) > 0) {
+			$this->db->where('transaction_detail.idtransaction_detail != "'.$idtransaction_detail.'" ');
+		}
 		$this->db->where('transaction_detail.iduraian', $iduraian);
 		$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
 		$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") >=', $format_year . '-01');
