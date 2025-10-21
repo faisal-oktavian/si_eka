@@ -74,8 +74,11 @@
                 border: none;
                 padding: 3px 5px;
             }
-            .ttd {
-                margin-top: 60px;
+            .ttd-direktur {
+                margin-top: 80px;
+            }
+            .ttd-pptk {
+                margin-top: 80px;
             }
         </style>
     </head>
@@ -186,25 +189,28 @@
             </table>
         </div>
 
-        <table style="width:100%; margin-top:50px; border:none;">
+        <table style="width:100%; margin-top:50px; border:none; vertical-align:top;">
             <tr>
-            <td style="width:50%; text-align:center; border:none;">
-                Pengguna Anggaran<br>
-                Kuasa Pengguna Anggaran
-                <div class="ttd">
-                <br><br><br>
-                <b><u>dr. NINIS HERLINA KIRANASARI</u></b><br>
-                NIP. 19690108 200003 2 003
-                </div>
-            </td>
-            <td style="width:50%; text-align:center; border:none;">
-                Pejabat Pelaksana Teknis Kegiatan (PPTK)
-                <div class="ttd">
-                <br><br><br>
-                <b><u>dr. LUCKY MURNIASH FITRI IKA MUHERI</u></b><br>
-                NIP. 19790826 201410 2 001
-                </div>
-            </td>
+                <td style="width:50%; text-align:center; border:none;">
+                    Pengguna Anggaran
+                    <br>
+                    Kuasa Pengguna Anggaran
+                </td>
+                <td style="width:50%; text-align:center; border:none;">
+                    Pejabat Pelaksana Teknis Kegiatan (PPTK)
+                </td>
+            </tr>
+            <tr style="height: 80px;"> 
+            </tr>
+            <tr>
+                <td style="width:50%; text-align:center; border:none;">
+                    <b><u>dr. NINIS HERLINA KIRANASARI</u></b><br>
+                    NIP. 19690108 200003 2 003
+                </td>
+                <td style="width:50%; text-align:center; border:none;">
+                    <b><u>dr. LUCKY MURNIASH FITRI IKA MUHERI</u></b><br>
+                    NIP. 19790826 201410 2 001
+                </td>
             </tr>
         </table>
     </body>
