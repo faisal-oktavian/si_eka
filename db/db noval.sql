@@ -2031,3 +2031,5 @@ INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `crea
 INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'pptk', 'PPTK', 'PPTK', '2025-10-23 13:17:52', 'superadmin', '2025-10-23 13:17:56', 'superadmin');
 
 INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kontrak_pengadaan', 'Kontrak Pengadaan', 'Kontrak Pengadaan', '2025-10-23 13:18:20', 'superadmin', '2025-10-23 13:18:20', 'superadmin');
+
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'realisasi_anggaran', 'Realisasi Anggaran', 'Realisasi Anggaran', '2025-10-23 13:22:12', 'superadmin', '2025-10-23 13:22:16', 'superadmin');
