@@ -2020,3 +2020,14 @@ ALTER TABLE `paket_belanja_detail`
 ALTER TABLE `verification_history`
 	ADD CONSTRAINT `FK_verification_history_verification` FOREIGN KEY (`idverification`) REFERENCES `verification` (`idverification`) ON UPDATE CASCADE ON DELETE CASCADE;
 
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kpa', 'KPA', 'KPA', '2025-10-23 13:12:50', 'superadmin', '2025-10-23 13:12:56', 'superadmin');
+
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppk', 'PPK', 'PPK', '2025-10-23 13:13:33', 'superadmin', '2025-10-23 13:13:35', 'superadmin');
+
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppa', 'PPA', 'PPA', '2025-10-23 13:13:33', 'superadmin', '2025-10-23 13:13:35', 'superadmin');
+
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppkom', 'PPKom', 'PPKom', '2025-10-23 13:17:15', 'superadmin', '2025-10-23 13:17:20', 'superadmin');
+
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'pptk', 'PPTK', 'PPTK', '2025-10-23 13:17:52', 'superadmin', '2025-10-23 13:17:56', 'superadmin');
+
+INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kontrak_pengadaan', 'Kontrak Pengadaan', 'Kontrak Pengadaan', '2025-10-23 13:18:20', 'superadmin', '2025-10-23 13:18:20', 'superadmin');
