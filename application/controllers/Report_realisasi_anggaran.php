@@ -67,7 +67,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$iduraian = $this->input->get('iduraian');
 
-		$crud->set_select('idtransaction_detail, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
+		$crud->set_select('idtransaction_detail, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_detail.transaction_description, volume, laki, perempuan, harga_satuan, total');
 		$crud->set_select_table('idtransaction_detail, txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
 		$crud->set_filter('txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
 		$crud->set_sorting('txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
