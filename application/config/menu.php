@@ -63,6 +63,10 @@
                             'role_name' => 'role_select_ppkom_pptk',
                             'role_title' => 'Pilih PPKom / PPTK'
                         ),
+                        array(
+                            'role_name' => 'role_specification',
+                            'role_title' => 'Bisa Isi Spesifikasi'
+                        ),
                     ),
                 ),
                 array(

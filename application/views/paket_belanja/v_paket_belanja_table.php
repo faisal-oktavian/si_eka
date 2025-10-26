@@ -31,6 +31,16 @@
                                 <?php echo $sub_value['nama_subkategori'];?>
                                 <br>
                                 <?php echo $sub_value['kode_rekening'];?>
+                                <?php 
+                                    if (!empty($sub_value['spesifikasi'])) { 
+                                ?>
+                                        <div style="font-style: italic; color: #555; padding: 2px 0; line-height: 1.2; margin-top: 10px;">
+                                            <?php echo "<b>Spesifikasi:</b>"; ?>
+                                            <?php echo ($sub_value['spesifikasi']); ?>
+                                        </div>
+                                <?php
+                                    }
+                                ?>
                             </div>
                         </td>
                         <td align="center"><?php echo $sub_value['volume'];?></td>
@@ -40,6 +50,7 @@
                         <td style="text-align: center;">
                             <button class="btn btn-default btn-xs btn-edit-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
                             <button class="btn btn-danger btn-xs btn-delete-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
+                            <button class="btn btn-success btn-xs btn-specification" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Isi Spesifikasi</button>
                         </td>
                     </tr>
         <?php
@@ -80,6 +91,16 @@
                                     <?php echo $ss_value['nama_subkategori'];?>
                                     <br>
                                     <?php echo $ss_value['kode_rekening'];?>
+                                    <?php 
+                                        if (!empty($ss_value['spesifikasi'])) {
+                                    ?>
+                                            <div style="font-style: italic; color: #555; padding: 2px 0; line-height: 1.2; margin-top: 10px;">
+                                                <?php echo "<b>Spesifikasi:</b>"; ?>
+                                                <?php echo nl2br($ss_value['spesifikasi']); ?>
+                                            </div>
+                                    <?php
+                                        } 
+                                    ?>
                                 </div>
                             </td>
                             <td align="center"><?php echo $ss_value['volume'];?></td>
@@ -89,6 +110,7 @@
                             <td style="text-align: center;">
                                 <button class="btn btn-default btn-xs btn-edit-detail" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
                                 <button class="btn btn-danger btn-xs btn-delete-detail" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
+                                <button class="btn btn-success btn-xs btn-specification" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Isi Spesifikasi</button>
                             </td>
                         </tr>
         <?php

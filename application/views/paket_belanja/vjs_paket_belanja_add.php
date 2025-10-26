@@ -17,22 +17,43 @@
 							echo "false";
 						} ?>;
 
+	var role_specification = <?php if (aznav('role_specification')) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
+	// set default hide tombol spesifikasi
+	setTimeout(function() {
+		jQuery('#table_onthespot').find('.btn-specification').hide();
+	}, 300);
+
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
 
-			jQuery('#form_paket_belanja').find('input, select').prop('disabled', true);
-            jQuery('.btn-add_paket_belanja, #btn_add_akun_belanja, #btn_save_paket_belanja').hide();
-
-			setTimeout(function() {
-				jQuery('#table_onthespot').find('button').hide();
-			}, 500);
-
-			if (role_ppkom_pptk == true) {
-				jQuery('#select_ppkom_pptk, #hd_idpaket_belanja').prop('disabled', false);
-				jQuery('#btn_save_paket_belanja').show();
-			}
+			readonly();
 		}
 	});
+
+	function readonly() {
+		jQuery('#form_paket_belanja').find('input, select').prop('disabled', true);
+		jQuery('.btn-add_paket_belanja, #btn_add_akun_belanja, #btn_save_paket_belanja').hide();
+
+		setTimeout(function() {
+			jQuery('#table_onthespot').find('button').hide();
+		}, 500);
+
+		if (role_ppkom_pptk == true) {
+			jQuery('#select_ppkom_pptk, #hd_idpaket_belanja').prop('disabled', false);
+			jQuery('#btn_save_paket_belanja').show();
+		}
+
+		if (role_specification == true) {
+			setTimeout(function() {
+				jQuery('#table_onthespot').find('.btn-specification').show();
+			}, 500);
+		}
+	}
 
     jQuery('body').on('click', '#btn_add_akun_belanja', function() {
 		var idprogram = jQuery('#idprogram').val();
@@ -530,4 +551,73 @@
 			});
 		}
 		// }, 500);
+	});
+
+	jQuery('body').on('click','.btn-specification', function() {
+		var id = jQuery(this).attr('data-id');
+
+        show_loading();
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja/add_spesifikasi',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				hide_loading();
+
+				show_modal('add_spesifikasi');
+
+				// reset
+				CKEDITOR.instances['specification'].setData('');
+				jQuery('#link_url').val('');
+
+
+				 // isi CKEditor dengan data dari response
+				setTimeout(function() {
+					CKEDITOR.instances['specification'].setData(response.specification || '');
+				}, 300);
+
+				// set value input lain
+				jQuery('#link_url').val(response.link_url || '');
+
+				jQuery('#form_add_spesifikasi').find('#hd_idpb_detail_sub').val(id);
+			},
+			error: function(response) {}
+		});
+	});
+
+	jQuery('body').on('click', '.btn-action-save_spesifikasi', function() {
+
+		// paksa cdeditor update ke textarea
+		for (instance in CKEDITOR.instances) {
+			CKEDITOR.instances[instance].updateElement();
+		}
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja/save_spesifikasi',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_add_spesifikasi').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_spesifikasi');
+
+					generate_detail_paket_belanja(response.idpaket_belanja);
+
+					readonly();
+					
+					// location.reload();
+				}
+			},
+			error: function(response) {}
+		});
 	});

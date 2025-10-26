@@ -24,7 +24,9 @@ class Master_paket_belanja extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		if ( (aznav('role_view_paket_belanja') && strlen($idrole) > 0) || (aznav('role_select_ppkom_pptk') && strlen($idrole) > 0) ) {
+		if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
+			&& strlen($idrole) > 0 ) {
+
 			$crud->set_btn_add(false);
 		}
 
@@ -118,7 +120,8 @@ class Master_paket_belanja extends CI_Controller {
 			$idpaket_belanja = azarr($data, 'idpaket_belanja');
 
 			$btn = '';
-			if ( (aznav('role_view_paket_belanja') && strlen($idrole) > 0) || (aznav('role_select_ppkom_pptk') && strlen($idrole) > 0) ) {
+			if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
+			&& strlen($idrole) > 0 ) {
 				$btn .= '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
 			else {
@@ -164,6 +167,14 @@ class Master_paket_belanja extends CI_Controller {
 		$modal3->set_modal($v_modal3);
 		$modal3->set_action_modal(array('save_subkategori'=>'Simpan'));
 		$azapp->add_content($modal3->render());
+
+		$v_modal2 = $this->load->view('paket_belanja/v_spesifikasi_modal', $data, true);
+		$modal2 = $azapp->add_modal();
+		$modal2->set_id('add_spesifikasi');
+		$modal2->set_modal_title('Tambah Spesifikasi');
+		$modal2->set_modal($v_modal2);
+		$modal2->set_action_modal(array('save_spesifikasi'=>'Simpan'));
+		$azapp->add_content($modal2->render());
 		
 		$js = az_add_js('paket_belanja/vjs_paket_belanja_add', $data);
 		$azapp->add_js($js);
@@ -539,6 +550,68 @@ class Master_paket_belanja extends CI_Controller {
 		echo json_encode($return);
 	}
 
+	function add_spesifikasi() {
+		$idpaket_belanja_detail_sub = $this->input->post('id');
+
+		$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$this->db->select('spesifikasi, link_url, idpaket_belanja');
+		$detail_sub = $this->db->get('paket_belanja_detail_sub');
+
+		$ret = array(
+			'specification' => $detail_sub->row()->spesifikasi,
+			'link_url' => $detail_sub->row()->link_url,
+		);
+
+		echo json_encode($ret);
+	}
+
+	function save_spesifikasi() {
+		$err_code = 0;
+		$err_message = '';
+		$idpaket_belanja = '';
+
+		$idpb_detail_sub = $this->input->post('hd_idpb_detail_sub');
+		$specification = $this->input->post("specification");
+		$link_url = $this->input->post("link_url");
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('specification', 'Spesifikasi', 'required|trim');
+		
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+		
+		if ($err_code == 0) {
+			if (strlen($idpb_detail_sub) == 0) {
+				$err_code++;
+				$err_message = 'Invalid ID';
+			}
+		}
+
+		if ($err_code == 0) {
+			$arr_data = array(
+				'spesifikasi' => $specification,
+				'link_url' => $link_url,
+			);
+
+	    	az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_data);
+
+			$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+			$this->db->select('spesifikasi, link_url, idpaket_belanja');
+			$detail_sub = $this->db->get('paket_belanja_detail_sub');
+
+			$idpaket_belanja = $detail_sub->row()->idpaket_belanja;
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idpaket_belanja' => $idpaket_belanja,
+		);
+		echo json_encode($return);
+	}
+
 	function select_kode_rekening() {
 		$id = $this->input->post('id');
 
@@ -649,7 +722,7 @@ class Master_paket_belanja extends CI_Controller {
 			$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
 			$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
 			$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening,
-			 paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+			 paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.spesifikasi');
 			$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -662,7 +735,7 @@ class Master_paket_belanja extends CI_Controller {
 				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 				$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 				$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-				$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+				$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.spesifikasi');
 				$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
 				// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -680,6 +753,7 @@ class Master_paket_belanja extends CI_Controller {
 						'nama_satuan' => $dss_value->nama_satuan,
 						'harga_satuan' => $dss_value->harga_satuan,
 						'jumlah' => $dss_value->jumlah,
+						'spesifikasi' => $dss_value->spesifikasi,
 					);
 				}
 
@@ -699,6 +773,7 @@ class Master_paket_belanja extends CI_Controller {
 					'nama_satuan' => $ds_value->nama_satuan,
 					'harga_satuan' => $ds_value->harga_satuan,
 					'jumlah' => $ds_value->jumlah,
+					'spesifikasi' => $ds_value->spesifikasi,
 					'arr_pd_detail_sub_sub' => $arr_pd_detail_sub_sub,
 				);
 			}

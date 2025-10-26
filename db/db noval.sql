@@ -2039,3 +2039,8 @@ ALTER TABLE `paket_belanja`
 	ADD INDEX `select_ppkom_pptk` (`select_ppkom_pptk`);
 ALTER TABLE `paket_belanja`
 	CHANGE COLUMN `select_ppkom_pptk` `select_ppkom_pptk` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' AFTER `idprogram`;
+
+ALTER TABLE `paket_belanja_detail_sub`
+	ADD COLUMN `spesifikasi` TEXT NULL COMMENT 'spesifikasi dari uraian yang dipilih' AFTER `is_subkategori`,
+	ADD COLUMN `link_url` VARCHAR(200) NULL DEFAULT NULL COMMENT 'link url dari spesifikasi yang diisi' AFTER `spesifikasi`,
+	ADD INDEX `link_url` (`link_url`);
