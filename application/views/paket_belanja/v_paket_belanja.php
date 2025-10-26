@@ -42,6 +42,22 @@
 				</div>
 			</div>
 		</div>
+		<?php
+			if (aznav('role_select_ppkom_pptk')) {
+		?>
+				<div class="form-group">
+					<label class="control-label col-md-4">PPKom/PPTK</label>
+					<div class="col-md-8">
+						<select class="form-control" name="select_ppkom_pptk" id="select_ppkom_pptk">
+							<option value="" disabled selected> ~ Pilih ~ </option>
+							<option value="ppkom">PPKom</option>
+							<option value="pptk">PPTK</option>
+						</select>
+					</div>
+				</div>
+		<?php
+			}
+		?>
 	</div>
 	<div class="col-md-12">
 		<hr>

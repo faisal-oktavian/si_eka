@@ -59,6 +59,10 @@
                             'role_name' => 'role_view_paket_belanja',
                             'role_title' => 'Hanya lihat data'
                         ),
+                        array(
+                            'role_name' => 'role_select_ppkom_pptk',
+                            'role_title' => 'Pilih PPKom / PPTK'
+                        ),
                     ),
                 ),
                 array(

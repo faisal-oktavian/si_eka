@@ -9,7 +9,13 @@
 						echo "true";
 					} else {
 						echo "false";
-					} ?>;					
+					} ?>;
+					
+	var role_ppkom_pptk = <?php if (aznav('role_select_ppkom_pptk')) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
@@ -19,7 +25,12 @@
 
 			setTimeout(function() {
 				jQuery('#table_onthespot').find('button').hide();
-			}, 500);		
+			}, 500);
+
+			if (role_ppkom_pptk == true) {
+				jQuery('#select_ppkom_pptk, #hd_idpaket_belanja').prop('disabled', false);
+				jQuery('#btn_save_paket_belanja').show();
+			}
 		}
 	});
 
@@ -106,7 +117,8 @@
 					bootbox.alert("Data Berhasil Disimpan.");
 
 					setTimeout(function() {
-						location.href = app_url + 'master_paket_belanja/edit/' + idpaket_belanja;
+						// location.href = app_url + 'master_paket_belanja/edit/' + idpaket_belanja;
+						location.reload();
 					}, 2000);					
                 }
                 else {
@@ -193,6 +205,8 @@
 				jQuery("#idkegiatan").append(new Option(response.paket_belanja.nama_kegiatan, response.paket_belanja.idkegiatan, true, true)).trigger('change');
 				jQuery("#idsub_kegiatan").append(new Option(response.paket_belanja.nama_subkegiatan, response.paket_belanja.idsub_kegiatan, true, true)).trigger('change');
 				
+				jQuery('#select_ppkom_pptk').val(response.paket_belanja.select_ppkom_pptk);
+
 				jQuery('#nama_paket_belanja').val(response.paket_belanja.nama_paket_belanja);
 				jQuery('#nilai_anggaran').val(thousand_separator(response.paket_belanja.nilai_anggaran));
 			},

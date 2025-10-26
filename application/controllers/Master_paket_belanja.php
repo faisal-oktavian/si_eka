@@ -24,7 +24,7 @@ class Master_paket_belanja extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		if (aznav('role_view_paket_belanja') && strlen($idrole) > 0) {
+		if ( (aznav('role_view_paket_belanja') && strlen($idrole) > 0) || (aznav('role_select_ppkom_pptk') && strlen($idrole) > 0) ) {
 			$crud->set_btn_add(false);
 		}
 
@@ -118,7 +118,7 @@ class Master_paket_belanja extends CI_Controller {
 			$idpaket_belanja = azarr($data, 'idpaket_belanja');
 
 			$btn = '';
-			if (aznav('role_view_paket_belanja') && strlen($idrole) > 0) {
+			if ( (aznav('role_view_paket_belanja') && strlen($idrole) > 0) || (aznav('role_select_ppkom_pptk') && strlen($idrole) > 0) ) {
 				$btn .= '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
 			else {
@@ -193,7 +193,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
 		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
 		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
-		$this->db->select('kegiatan.idprogram, concat(program.no_rekening_program, " - ", program.nama_program) as nama_program, sub_kegiatan.idkegiatan, concat(kegiatan.no_rekening_kegiatan, " - ", kegiatan.nama_kegiatan) as nama_kegiatan, paket_belanja.idsub_kegiatan, concat(sub_kegiatan.no_rekening_subkegiatan, " - ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan, paket_belanja.nama_paket_belanja, paket_belanja.nilai_anggaran');
+		$this->db->select('kegiatan.idprogram, concat(program.no_rekening_program, " - ", program.nama_program) as nama_program, sub_kegiatan.idkegiatan, concat(kegiatan.no_rekening_kegiatan, " - ", kegiatan.nama_kegiatan) as nama_kegiatan, paket_belanja.idsub_kegiatan, concat(sub_kegiatan.no_rekening_subkegiatan, " - ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan, paket_belanja.nama_paket_belanja, paket_belanja.nilai_anggaran, paket_belanja.select_ppkom_pptk');
 		$paket_belanja = $this->db->get('paket_belanja')->result_array();
 
 		$this->db->where('idpaket_belanja', $id);
@@ -733,13 +733,20 @@ class Master_paket_belanja extends CI_Controller {
 		$idsub_kegiatan = $this->input->post("idsub_kegiatan");
 		$nama_paket_belanja = $this->input->post("nama_paket_belanja");
 		$nilai_anggaran = az_crud_number($this->input->post("nilai_anggaran"));
+		$select_ppkom_pptk = $this->input->post('select_ppkom_pptk');
 
 		$this->load->library('form_validation');
-		$this->form_validation->set_rules('idprogram', 'Nama Program', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('idkegiatan', 'Nomor Kegiatan', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('idsub_kegiatan', 'Nomor Sub Kegiatan', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('nama_paket_belanja', 'Nomor Paket Belanja', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('nilai_anggaran', 'Jumlah Anggaran', 'required|trim|max_length[200]');
+
+		if (aznav('role_select_ppkom_pptk')) {
+			$this->form_validation->set_rules('select_ppkom_pptk', 'Opsi PPKom/PPTK', 'required|trim|max_length[200]');
+		}
+		else {
+			$this->form_validation->set_rules('idprogram', 'Nama Program', 'required|trim|max_length[200]');
+			$this->form_validation->set_rules('idkegiatan', 'Nomor Kegiatan', 'required|trim|max_length[200]');
+			$this->form_validation->set_rules('idsub_kegiatan', 'Nomor Sub Kegiatan', 'required|trim|max_length[200]');
+			$this->form_validation->set_rules('nama_paket_belanja', 'Nomor Paket Belanja', 'required|trim|max_length[200]');
+			$this->form_validation->set_rules('nilai_anggaran', 'Jumlah Anggaran', 'required|trim|max_length[200]');	
+		}
 		
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
@@ -753,14 +760,21 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-	    	$arr_data = array(
-	    		'idprogram' => $idprogram,
-	    		'idkegiatan' => $idkegiatan,
-	    		'idsub_kegiatan' => $idsub_kegiatan,
-	    		'nama_paket_belanja' => $nama_paket_belanja,
-	    		'nilai_anggaran' => $nilai_anggaran,
-				'status_paket_belanja' => "OK",
-	    	);
+			if (aznav('role_select_ppkom_pptk')) {
+				$arr_data = array(
+					'select_ppkom_pptk' => $select_ppkom_pptk,
+				);
+			}
+			else {
+				$arr_data = array(
+					'idprogram' => $idprogram,
+					'idkegiatan' => $idkegiatan,
+					'idsub_kegiatan' => $idsub_kegiatan,
+					'nama_paket_belanja' => $nama_paket_belanja,
+					'nilai_anggaran' => $nilai_anggaran,
+					'status_paket_belanja' => "OK",
+				);
+			}
 
 	    	az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
 		}

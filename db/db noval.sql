@@ -2033,3 +2033,9 @@ INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `crea
 INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kontrak_pengadaan', 'Kontrak Pengadaan', 'Kontrak Pengadaan', '2025-10-23 13:18:20', 'superadmin', '2025-10-23 13:18:20', 'superadmin');
 
 INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'realisasi_anggaran', 'Realisasi Anggaran', 'Realisasi Anggaran', '2025-10-23 13:22:12', 'superadmin', '2025-10-23 13:22:16', 'superadmin');
+
+ALTER TABLE `paket_belanja`
+	ADD COLUMN `select_ppkom_pptk` INT(10) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' AFTER `idprogram`,
+	ADD INDEX `select_ppkom_pptk` (`select_ppkom_pptk`);
+ALTER TABLE `paket_belanja`
+	CHANGE COLUMN `select_ppkom_pptk` `select_ppkom_pptk` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' AFTER `idprogram`;
