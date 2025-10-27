@@ -23,10 +23,14 @@
 							echo "false";
 						} ?>;
 
+	var idrole = "<?php echo $this->session->userdata('idrole'); ?>";
+
 	// set default hide tombol spesifikasi
-	setTimeout(function() {
-		jQuery('#table_onthespot').find('.btn-specification').hide();
-	}, 300);
+	if (idrole != "" && idrole != null) {
+		setTimeout(function() {
+			jQuery('#table_onthespot').find('.btn-specification').hide();
+		}, 300);
+	}
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
@@ -41,7 +45,7 @@
 
 		setTimeout(function() {
 			jQuery('#table_onthespot').find('button').hide();
-		}, 500);
+		}, 300);
 
 		if (role_ppkom_pptk == true) {
 			jQuery('#select_ppkom_pptk, #hd_idpaket_belanja').prop('disabled', false);
@@ -51,7 +55,7 @@
 		if (role_specification == true) {
 			setTimeout(function() {
 				jQuery('#table_onthespot').find('.btn-specification').show();
-			}, 500);
+			}, 300);
 		}
 	}
 

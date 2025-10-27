@@ -50,8 +50,8 @@
 					<div class="col-md-8">
 						<select class="form-control" name="select_ppkom_pptk" id="select_ppkom_pptk">
 							<option value="" disabled selected> ~ Pilih ~ </option>
-							<option value="ppkom">PPKom</option>
-							<option value="pptk">PPTK</option>
+							<option value="PPKom">PPKom</option>
+							<option value="PPTK">PPTK</option>
 						</select>
 					</div>
 				</div>

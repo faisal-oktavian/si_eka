@@ -18,9 +18,9 @@ class Master_paket_belanja extends CI_Controller {
 		$azapp = $this->azapp;
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
-		$idrole = $this->session->userdata('role_name');
+		$idrole = $this->session->userdata('idrole');
 
-		$crud->set_column(array('#', 'Program', 'Kegiatan', 'Sub Kegiatan', 'Paket Belanja', 'Anggaran', azlang('Action')));
+		$crud->set_column(array('#', 'Program', 'Kegiatan', 'Sub Kegiatan', 'Paket Belanja', 'Anggaran', 'PPKom/PPTK', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -72,10 +72,10 @@ class Master_paket_belanja extends CI_Controller {
 		$idsub_kegiatan = $this->input->get('idf_nama_subkegiatan');
 		$nama_paket_belanja = $this->input->get('vf_nama_paket_belanja');
 
-		$crud->set_select('idpaket_belanja, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_select_table('idpaket_belanja, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_sorting('nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
-		$crud->set_filter('nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran');
+		$crud->set_select('idpaket_belanja, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran, select_ppkom_pptk');
+		$crud->set_select_table('idpaket_belanja, nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran, select_ppkom_pptk');
+		$crud->set_sorting('nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran, select_ppkom_pptk');
+		$crud->set_filter('nama_program, nama_kegiatan, nama_subkegiatan, nama_paket_belanja, nilai_anggaran, select_ppkom_pptk');
 		$crud->set_select_align(', , , ,right');
 		
 		$crud->add_join_manual('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
@@ -110,7 +110,7 @@ class Master_paket_belanja extends CI_Controller {
 	}
 
 	function custom_style($key, $value, $data) {
-		$idrole = $this->session->userdata('role_name');
+		$idrole = $this->session->userdata('idrole');
 		
 		if ($key == 'nilai_anggaran') {
 			return az_thousand_separator($value);
@@ -552,14 +552,21 @@ class Master_paket_belanja extends CI_Controller {
 
 	function add_spesifikasi() {
 		$idpaket_belanja_detail_sub = $this->input->post('id');
+		$spesifikasi = "";
+		$link_url = "";
 
 		$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$this->db->select('spesifikasi, link_url, idpaket_belanja');
 		$detail_sub = $this->db->get('paket_belanja_detail_sub');
 
+		if ($detail_sub->num_rows() > 0) {
+			$spesifikasi = $detail_sub->row()->spesifikasi;
+			$link_url = $detail_sub->row()->link_url;
+		}
+
 		$ret = array(
-			'specification' => $detail_sub->row()->spesifikasi,
-			'link_url' => $detail_sub->row()->link_url,
+			'specification' => $spesifikasi,
+			'link_url' => $link_url,
 		);
 
 		echo json_encode($ret);

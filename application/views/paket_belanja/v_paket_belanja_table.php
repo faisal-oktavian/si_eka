@@ -36,7 +36,9 @@
                                 ?>
                                         <div style="font-style: italic; color: #555; padding: 2px 0; line-height: 1.2; margin-top: 10px;">
                                             <?php echo "<b>Spesifikasi:</b>"; ?>
-                                            <?php echo ($sub_value['spesifikasi']); ?>
+                                            <div style="padding-left: 20px;">
+                                                <?php echo ($sub_value['spesifikasi']); ?>
+                                            </div>
                                         </div>
                                 <?php
                                     }
@@ -96,7 +98,9 @@
                                     ?>
                                             <div style="font-style: italic; color: #555; padding: 2px 0; line-height: 1.2; margin-top: 10px;">
                                                 <?php echo "<b>Spesifikasi:</b>"; ?>
-                                                <?php echo nl2br($ss_value['spesifikasi']); ?>
+                                                <div style="padding-left: 20px;">
+                                                    <?php echo nl2br($ss_value['spesifikasi']); ?>
+                                                </div>
                                             </div>
                                     <?php
                                         } 
