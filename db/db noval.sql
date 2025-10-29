@@ -2044,3 +2044,64 @@ ALTER TABLE `paket_belanja_detail_sub`
 	ADD COLUMN `spesifikasi` TEXT NULL COMMENT 'spesifikasi dari uraian yang dipilih' AFTER `is_subkategori`,
 	ADD COLUMN `link_url` VARCHAR(200) NULL DEFAULT NULL COMMENT 'link url dari spesifikasi yang diisi' AFTER `spesifikasi`,
 	ADD INDEX `link_url` (`link_url`);
+
+CREATE TABLE `purchase_plan` (
+	`idpurchase_plan` INT NOT NULL,
+	`purchase_plan_date` DATETIME NULL COMMENT 'tanggal rencana pengadaan',
+	`purchase_plan_code` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nomor rencana pengadaan',
+	`purchase_plan_status` VARCHAR(50) NULL DEFAULT NULL COMMENT 'status rencana pengadaan',
+	`updated_status` DATETIME NULL COMMENT 'tanggal update status',
+	`total_budget` DOUBLE NULL DEFAULT NULL COMMENT 'total anggaran rencana pengadaan',
+	`iduser_created` BIGINT NULL DEFAULT NULL COMMENT 'id user yang membuat',
+	`created` DATETIME NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idpurchase_plan`),
+	INDEX `purchase_plan_date` (`purchase_plan_date`),
+	INDEX `purchase_plan_code` (`purchase_plan_code`),
+	INDEX `purchase_plan_status` (`purchase_plan_status`),
+	INDEX `updated_status` (`updated_status`),
+	INDEX `total_budget` (`total_budget`),
+	INDEX `iduser_created` (`iduser_created`),
+	INDEX `status` (`status`)
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+
+CREATE TABLE `purchase_plan_detail` (
+	`idpurchase_plan_detail` INT NOT NULL,
+	`idpurchase_plan` INT NULL,
+	`idpaket_belanja` INT NULL COMMENT 'ambil data dari table paket belanja detail sub',
+	`idpaket_belanja_detail_sub` INT NULL COMMENT 'ambil data dari table paket belanja detail sub',
+	`volume` DOUBLE NULL DEFAULT NULL,
+	`purchase_plan_detail_total` DOUBLE NULL DEFAULT NULL,
+	`created` DATETIME NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idpurchase_plan_detail`),
+	INDEX `idpurchase_plan` (`idpurchase_plan`),
+	INDEX `idpaket_belanja` (`idpaket_belanja`),
+	INDEX `idpaket_belanja_detail_sub` (`idpaket_belanja_detail_sub`),
+	INDEX `volume` (`volume`),
+	INDEX `purchase_plan_detail_total` (`purchase_plan_detail_total`),
+	INDEX `status` (`status`),
+	CONSTRAINT `FK__purchase_plan` FOREIGN KEY (`idpurchase_plan`) REFERENCES `purchase_plan` (`idpurchase_plan`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+
+ALTER TABLE `paket_belanja_detail_sub`
+	ADD COLUMN `status_detail_step` VARCHAR(50) NULL DEFAULT NULL COMMENT 'untuk menandakan id tabel ini di step mana' AFTER `is_idpaket_belanja_detail_sub`,
+	ADD INDEX `status_detail_step` (`status_detail_step`);
+
+ALTER TABLE `purchase_plan_detail`
+	DROP FOREIGN KEY `FK__purchase_plan`;
+ALTER TABLE `purchase_plan`
+	CHANGE COLUMN `idpurchase_plan` `idpurchase_plan` INT(10) NOT NULL AUTO_INCREMENT FIRST;
+ALTER TABLE `purchase_plan_detail`
+	CHANGE COLUMN `idpurchase_plan_detail` `idpurchase_plan_detail` INT(10) NOT NULL AUTO_INCREMENT FIRST,
+	ADD CONSTRAINT `FK_purchase_plan_detail_purchase_plan` FOREIGN KEY (`idpurchase_plan`) REFERENCES `purchase_plan` (`idpurchase_plan`) ON UPDATE CASCADE ON DELETE CASCADE;

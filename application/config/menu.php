@@ -120,6 +120,19 @@
             ),
         ),
         array(
+            "name" => "rencana_pengadaan",
+            "title" => "Rencana Pengadaan",
+            "icon" => "clipboard",
+            "url" => "rencana_pengadaan",
+            'submenu' => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_view_rencana_pengadaan',
+                    'role_title' => 'Hanya lihat data'
+                ),
+            ),
+        ),
+        array(
             "name" => "realisasi_anggaran",
             "title" => "Realisasi Anggaran",
             "icon" => "shopping-cart",

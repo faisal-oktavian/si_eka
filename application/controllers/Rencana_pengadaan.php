@@ -1,0 +1,857 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Rencana_pengadaan extends CI_Controller {
+	public function __construct() {
+        parent::__construct();
+
+        $this->load->helper('az_auth');
+        az_check_auth('rencana_pengadaan');
+        $this->table = 'purchase_plan';
+        $this->controller = 'rencana_pengadaan';
+        $this->load->helper('az_crud');
+    }
+
+	public function index() {		
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$crud = $azapp->add_crud();
+		$this->load->helper('az_role');
+		$idrole = $this->session->userdata('idrole');
+
+		$crud->set_column(array('#', 'Tanggal Rencana', 'Nomor Rencana', 'Detail', 'Status', 'Admin', azlang('Action')));
+		$crud->set_id($this->controller);
+		$crud->set_default_url(true);
+
+		if (aznav('role_view_rencana_pengadaan') && strlen($idrole) > 0) {
+			$crud->set_btn_add(false);
+		}
+
+		$date1 = $azapp->add_datetime();
+		$date1->set_id('date1');
+		$date1->set_name('date1');
+		$date1->set_format('DD-MM-YYYY');
+		$date1->set_value('01-'.Date('m-Y'));
+		// $date1->set_value('01-01-'.Date('Y'));
+		$data['date1'] = $date1->render();
+
+		$date2 = $azapp->add_datetime();
+		$date2->set_id('date2');
+		$date2->set_name('date2');
+		$date2->set_format('DD-MM-YYYY');
+		$date2->set_value(Date('t-m-Y'));
+		$data['date2'] = $date2->render();
+
+		$crud->add_aodata('date1', 'date1');
+		$crud->add_aodata('date2', 'date2');
+		$crud->add_aodata('transaction_code', 'transaction_code');
+		$crud->add_aodata('vf_transaction_status', 'vf_transaction_status');
+
+		$vf = $this->load->view('realisasi_anggaran/vf_realisasi_anggaran', $data, true);
+        $crud->set_top_filter($vf);
+
+		$crud = $crud->render();
+		$data['crud'] = $crud;
+		$data['active'] = 'realisasi_anggaran';
+		$view = $this->load->view('realisasi_anggaran/v_format_realisasi_anggaran', $data, true);
+		$azapp->add_content($view);
+
+		$js = az_add_js('rencana_pengadaan/vjs_rencana_pengadaan');
+		$azapp->add_js($js);
+
+		$data_header['title'] = 'Rencana Pengadaan';
+		$data_header['breadcrumb'] = array('rencana_pengadaan');
+		$azapp->set_data_header($data_header);
+
+		echo $azapp->render();
+	}
+
+	public function get() {
+		$this->load->library('AZApp');
+		$crud = $this->azapp->add_crud();
+
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$transaction_code = $this->input->get('transaction_code');
+		$transaction_status = $this->input->get('vf_transaction_status');
+
+        $crud->set_select('purchase_plan.idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created');        
+        $crud->set_select_table('idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
+        $crud->set_sorting('purchase_plan_date, purchase_plan_code, purchase_plan_status');
+        $crud->set_filter('purchase_plan_date, purchase_plan_code, purchase_plan_status');
+		$crud->set_id($this->controller);
+		$crud->set_select_align(' , , , center');
+
+        $crud->add_join_manual('user', 'purchase_plan.iduser_created = user.iduser');
+        
+        if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $crud->add_where('date(purchase_plan.purchase_plan_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $crud->add_where('date(purchase_plan.purchase_plan_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($transaction_code) > 0) {
+			$crud->add_where('purchase_plan.purchase_plan_code = "' . $transaction_code . '"');
+		}
+		if (strlen($transaction_status) > 0) {
+			$crud->add_where('purchase_plan.purchase_plan_status = "' . $transaction_status . '"');
+		}
+
+		$crud->add_where("purchase_plan.status = 1");
+		$crud->add_where("purchase_plan.purchase_plan_status != 'DRAFT' ");
+
+		$crud->set_table($this->table);
+		$crud->set_custom_style('custom_style');
+		$crud->set_order_by('purchase_plan_date desc');
+		echo $crud->get_table();
+	}
+
+	function custom_style($key, $value, $data) {
+		$idrole = $this->session->userdata('idrole');
+		$idpurchase_plan = azarr($data, 'idpurchase_plan');
+		
+		if ($key == 'purchase_plan_status') {
+			// PROSES PENGADAAN		-> data diinputkan di menu rencana pengadaan (oleh user PPTK / PPKom)
+
+			$lbl = 'default';
+			$tlbl = '-';
+			if ($value == "PROSES PENGADAAN") {
+				$lbl = 'warning';
+				$tlbl = 'Proses Pengadaan';
+			}
+
+			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		}
+
+		if ($key == "detail") {
+			$this->db->where('purchase_plan_detail.idpurchase_plan = "'.$idpurchase_plan.'" ');
+			$this->db->where('purchase_plan_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+			$purchase_plan = $this->db->get('purchase_plan');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			$last_query = $this->db->last_query();
+			$purchase_plan_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query ');
+
+
+			$html = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
+			$html .= 	'<tr>';
+			$html .= 		'<th width="320px">Nama Paket Belanja</th>';
+			$html .= 		'<th width="200px">Uraian</th>';
+			$html .= 		'<th width="80px">Volume</th>';
+			$html .= 	'</tr>';
+
+			foreach ($purchase_plan->result() as $key => $value) {
+				$html .= '<tr>';
+				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
+				$html .= 	'<td>'.$value->nama_sub_kategori.'</td>';
+				$html .= 	'<td align="center">'.$value->volume.'</td>';
+				$html .= '</tr>';
+			}
+
+			$html .= '</table>';
+
+			if ($purchase_plan->num_rows() > 3) {
+				$html .= '<div>
+							<a href="rencana_pengadaan/edit/'.$idpurchase_plan.'/view_only">Selengkapnya...</a>
+						</div>';
+			}
+
+			return $html;
+		}
+
+		// if ($key == 'transaction_status') {
+		// 	// INPUT DATA 				-> data diinputkan dimenu realisasi anggaran (oleh user realisasi); 
+		// 	// MENUNGGU VERIFIKASI 		-> data diinputkan di menu verifikasi dokumen (oleh user realisasi); 
+		// 	// SUDAH DIVERIFIKASI 		-> data sudah diverifikasi (oleh user verifikator); 
+		// 	// DITOLAK VERIFIKATOR 		-> data ditolak verifikator (oleh user verifikator);
+		// 	// INPUT NPD				-> data diinputkan di menu npd (oleh user npd);
+		// 	// MENUNGGU PEMBAYARAN		-> data sudah dikirim ke bendahara (oleh user npd);
+		// 	// SUDAH DIBAYAR BENDAHARA 	-> data sudah dibayar bendahara (oleh user bendahara);
+
+		// 	$lbl = 'default';
+		// 	$tlbl = '-';
+		// 	if ($value == "INPUT DATA") {
+		// 		$lbl = 'warning';
+		// 		$tlbl = 'Input Data';
+		// 	}
+		// 	else if ($value == "MENUNGGU VERIFIKASI") {
+		// 		$lbl = 'info';
+		// 		$tlbl = 'Menunggu Verifikasi';
+		// 	}
+		// 	else if ($value == "SUDAH DIVERIFIKASI") {
+		// 		$lbl = 'default';
+		// 		$tlbl = 'Sudah Diverifikasi';
+		// 	}
+		// 	else if ($value == "DITOLAK VERIFIKATOR") {
+		// 		$lbl = 'danger';
+		// 		$tlbl = 'Ditolak Verifikator';
+		// 	}
+		// 	if ($value == "INPUT NPD") {
+		// 		$lbl = 'warning';
+		// 		$tlbl = 'Input NPD';
+		// 	}
+		// 	else if ($value == "MENUNGGU PEMBAYARAN") {
+		// 		$lbl = 'info';
+		// 		$tlbl = 'Menunggu Pembayaran';
+		// 	}
+		// 	else if ($value == "SUDAH DIBAYAR BENDAHARA") {
+		// 		$lbl = 'success';
+		// 		$tlbl = 'Sudah Dibayar Bendahara';
+		// 	}
+
+		// 	return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+		// }
+
+		if ($key == 'action') {
+            $idpurchase_plan = azarr($data, 'idpurchase_plan');
+			$is_view_only = false;
+
+            $btn = '<button class="btn btn-default btn-xs btn-edit-rencana-pengadaan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+            $btn .= '<button class="btn btn-danger btn-xs btn-delete-rencana-pengadaan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+
+            // $this->db->where('idtransaction', $idtransaction);
+            // $trx = $this->db->get('transaction');
+
+            // $trx_status = $trx->row()->transaction_status;
+            // // if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+            // if (in_array($trx_status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			// 	$is_view_only = true;
+            // }
+
+			if (aznav('role_view_rencana_pengadaan') && strlen($idrole) > 0) {
+				$is_view_only = true;
+			}
+
+			if ($is_view_only) {
+				$btn = '<button class="btn btn-info btn-xs btn-view-only-rencana-pengadaan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
+			}
+
+			return $btn;
+		}
+
+		return $value;
+	}
+
+    function add($id = '') {
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+
+        $data = array(
+            'id' => $id,
+            'iduser_created' => $this->session->userdata('iduser'),
+            'user_name' => $this->session->userdata('name'),
+        );
+        
+		$view = $this->load->view('rencana_pengadaan/v_rencana_pengadaan', $data, true);
+		$azapp->add_content($view);
+
+		$v_modal = $this->load->view('rencana_pengadaan/v_rencana_pengadaan_modal', '', true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('add_uraian');
+		$modal->set_modal_title('Tambah Rencana Pengadaan');
+		$modal->set_modal($v_modal);
+		$modal->set_action_modal(array('save_uraian'=>'Simpan'));
+		$azapp->add_content($modal->render());
+		
+		$js = az_add_js('rencana_pengadaan/vjs_rencana_pengadaan_add', $data);
+		$azapp->add_js($js);
+		
+		$data_header['title'] = 'Rencana Pengadaan';
+		$data_header['breadcrumb'] = array('rencana_pengadaan');
+		$azapp->set_data_header($data_header);
+
+		echo $azapp->render();
+	}
+
+    function search_uraian() {
+		$keyword = $this->input->get("term");
+        $month_now = date('m');
+        $query_where = "";
+        $query_or = "";
+
+		$role_name = $this->session->userdata('role_name');
+
+        if ($month_now > 1) {
+            $query_or = " OR ";
+        }
+
+        for ($i=1; $i <= $month_now; $i++) { 
+            if ($i == 1) {
+                $query_where .= "pbds_parent.rak_volume_januari IS NOT NULL OR pbds_child.rak_volume_januari IS NOT NULL";
+            }
+            else if ($i == 2) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_februari IS NOT NULL OR pbds_child.rak_volume_februari IS NOT NULL";
+            }
+            else if ($i == 3) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_maret IS NOT NULL OR pbds_child.rak_volume_maret IS NOT NULL";
+            }
+            else if ($i == 4) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_april IS NOT NULL OR pbds_child.rak_volume_april IS NOT NULL";
+            }
+            else if ($i == 5) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_mei IS NOT NULL OR pbds_child.rak_volume_mei IS NOT NULL";
+            }
+            else if ($i == 6) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_juni IS NOT NULL OR pbds_child.rak_volume_juni IS NOT NULL";
+            }
+            else if ($i == 7) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_juli IS NOT NULL OR pbds_child.rak_volume_juli IS NOT NULL";
+            }
+            else if ($i == 8) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_agustus IS NOT NULL OR pbds_child.rak_volume_agustus IS NOT NULL";
+            }
+            else if ($i == 9) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_september IS NOT NULL OR pbds_child.rak_volume_september IS NOT NULL";
+            }
+            else if ($i == 10) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_oktober IS NOT NULL OR pbds_child.rak_volume_oktober IS NOT NULL";
+            }
+            else if ($i == 11) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_november IS NOT NULL OR pbds_child.rak_volume_november IS NOT NULL";
+            }
+            else if ($i == 12) {
+                $query_where .= $query_or;
+                $query_where .= "pbds_parent.rak_volume_desember IS NOT NULL OR pbds_child.rak_volume_desember IS NOT NULL";
+            }
+        }
+
+        // ambil data paket belanja dan uraian yang belum masuk ke step rencana pengadaan
+		if ($role_name == "ppkom") {
+			$this->db->where('pb.select_ppkom_pptk = "PPKom" ');
+		}
+		else if ($role_name == "pptk") {
+			$this->db->where('pb.select_ppkom_pptk = "PPTK" ');
+		}
+
+        $this->db->where(' ('.$query_where.') ');
+		$this->db->where('pb.status', 1);
+		$this->db->where('pb.status_paket_belanja = "OK" ');
+		$this->db->where('pbd.status', 1);
+		$this->db->where(' ( pbds_parent.status_detail_step = "INPUT PAKET BELANJA" OR pbds_child.status_detail_step = "INPUT PAKET BELANJA" ) ');
+		
+        $this->db->group_start();
+        $this->db->like('pb.nama_paket_belanja', $keyword);
+        $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
+        $this->db->or_like('sk_parent.nama_sub_kategori', $keyword);
+        $this->db->group_end();
+		
+        $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+        $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
+        $this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
+
+        $this->db->order_by("nama_paket_belanja");
+
+		$this->db->select('COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS id,
+            CONCAT( "[",
+                pb.nama_paket_belanja,
+                "] ",
+                COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori)
+            ) AS text');
+		$data = $this->db->get('paket_belanja pb');
+        // echo "<pre>"; print_r($this->db->last_query()); die;
+
+		$results = array(
+			"results" => $data->result_array(),
+		);
+		echo json_encode($results);
+	}
+
+    function select_uraian() {
+		$idpaket_belanja_detail_sub = $this->input->post('idpaket_belanja_detail_sub');
+
+        $this->db->where(' (pbds_parent.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" OR pbds_child.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'") ');
+        $this->db->where('pb.status', 1);
+		$this->db->where('pb.status_paket_belanja = "OK" ');
+		$this->db->where('pbd.status', 1);
+
+        $this->db->group_start();
+		$this->db->where('pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ');
+		$this->db->or_where('pbds_child.status_detail_step = "INPUT PAKET BELANJA" ');
+        $this->db->group_end();
+
+		
+        $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+        $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
+        $this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
+        
+        $this->db->join('satuan satuan_child', 'satuan_child.idsatuan = pbds_child.idsatuan', 'left');
+        $this->db->join('satuan satuan_parent', 'satuan_parent.idsatuan = pbds_parent.idsatuan', 'left');
+
+        $this->db->order_by("nama_paket_belanja");
+
+		$this->db->select('
+            pb.idpaket_belanja, 
+            pb.nama_paket_belanja,
+            COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id, 
+            COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori) AS nama_sub_kategori, 
+            COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
+            COALESCE(satuan_child.nama_satuan, satuan_parent.nama_satuan) AS nama_satuan,
+            COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan
+        ');
+		$pb = $this->db->get('paket_belanja pb');
+        // echo "<pre>"; print_r($this->db->last_query()); die;
+
+		$ret = array(
+			'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
+			'idpaket_belanja' => $pb->row()->idpaket_belanja,
+			'nama_paket_belanja' => $pb->row()->nama_paket_belanja,
+			'detail_sub_id' => $pb->row()->detail_sub_id,
+			'nama_sub_kategori' => $pb->row()->nama_sub_kategori,
+			'volume' => $pb->row()->volume,
+			'nama_satuan' => $pb->row()->nama_satuan,
+			'harga_satuan' => $pb->row()->harga_satuan,
+		);
+
+		echo json_encode($ret);
+	}
+
+    function add_rencana() {
+		$err_code = 0;
+		$err_message = '';
+
+	 	$idpurchase_plan = $this->input->post('idpurchase_plan');
+	 	$idpaket_belanja = $this->input->post('idpaket_belanja');
+	 	$idpurchase_plan_detail = $this->input->post('idpurchase_plan_detail');
+        $idpaket_belanja_detail_sub = $this->input->post('idpaket_belanja_detail_sub');
+        $volume = $this->input->post('volume');
+        $purchase_plan_detail_total = $this->input->post('purchase_plan_detail_total');
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('idpaket_belanja_detail_sub', 'Uraian', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('volume', 'Volume', 'required|trim|max_length[200]');
+
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		// if ($err_code == 0) {
+		// 	$this->db->where('idtransaction',$idtransaction);
+		// 	$transaction = $this->db->get('transaction');
+
+		// 	if ($transaction->num_rows() > 0) {
+		// 		$status = $transaction->row()->transaction_status;
+		// 		// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 		if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 			$err_code++;
+		// 			$err_message = "Data tidak bisa diedit atau dihapus.";
+		// 		}
+		// 	}	
+		// }
+
+		if ($err_code == 0) {
+
+			if (strlen($idpurchase_plan) == 0) {
+				$arr_plan = array(
+					'iduser_created' => $this->session->userdata('iduser'),
+					'purchase_plan_date' => Date('Y-m-d H:i:s'),
+					'purchase_plan_status' => 'DRAFT',
+					'purchase_plan_code' => $this->generate_transaction_code(),
+				);
+
+				$save_plan = az_crud_save($idpurchase_plan, 'purchase_plan', $arr_plan);
+				$idpurchase_plan = azarr($save_plan, 'insert_id');
+			}
+            
+			if ($err_code == 0) {
+				//purchase plan detail
+				$arr_plan_detail = array(
+					'idpurchase_plan' => $idpurchase_plan,
+					'idpaket_belanja' => $idpaket_belanja,
+					'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
+					'volume' => $volume,
+					'purchase_plan_detail_total' => $purchase_plan_detail_total,
+					
+				);
+				
+				$td = az_crud_save($idpurchase_plan_detail, 'purchase_plan_detail', $arr_plan_detail);
+				$idpurchase_plan_detail = azarr($td, 'insert_id');
+
+				// hitung total transaksi
+				$this->calculate_total_budget($idpurchase_plan);	
+			}
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'idpurchase_plan' => $idpurchase_plan,
+			'idpurchase_plan_detail' => $idpurchase_plan_detail,
+		);
+		echo json_encode($return);
+	}
+
+	function edit_order() {
+		$id = $this->input->post("id");
+
+		$err_code = 0;
+		$err_message = "";
+		
+		$this->db->where(' (pd_parent.idpurchase_plan_detail = "'.$id.'" OR pd_child.idpurchase_plan_detail = "'.$id.'") ');
+
+        $this->db->where('pb.status', 1);
+		$this->db->where('pb.status_paket_belanja = "OK" ');
+		$this->db->where('pbd.status', 1);
+		
+        $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+        $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
+        $this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
+        $this->db->join('satuan satuan_child', 'satuan_child.idsatuan = pbds_child.idsatuan', 'left');
+        $this->db->join('satuan satuan_parent', 'satuan_parent.idsatuan = pbds_parent.idsatuan', 'left');
+
+		$this->db->join('purchase_plan_detail pd_parent', 'pd_parent.idpaket_belanja_detail_sub = pbds_parent.idpaket_belanja_detail_sub','left');
+		$this->db->join('purchase_plan_detail pd_child', 'pd_child.idpaket_belanja_detail_sub = pbds_child.idpaket_belanja_detail_sub', 'left');
+
+        $this->db->order_by("nama_paket_belanja");
+
+		$this->db->select('
+            pb.idpaket_belanja, 
+            pb.nama_paket_belanja,
+            COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id, 
+            COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori) AS nama_sub_kategori, 
+            COALESCE(pbds_child.volume, pbds_parent.volume) AS volume_paket_belanja,
+            COALESCE(satuan_child.nama_satuan, satuan_parent.nama_satuan) AS nama_satuan,
+            COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan, 
+			COALESCE(pd_child.volume, pd_parent.volume) AS volume, 
+			COALESCE(pd_child.purchase_plan_detail_total, pd_parent.purchase_plan_detail_total) AS purchase_plan_detail_total,
+			COALESCE(pd_child.idpurchase_plan, pd_parent.idpurchase_plan) AS idpurchase_plan
+        ');
+		$pb = $this->db->get('paket_belanja pb');
+        // echo "<pre>"; print_r($this->db->last_query()); die;
+
+		$pb = $pb->result_array();
+
+		$ret = array(
+			'data' => azarr($pb, 0),
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($ret);
+	}
+
+	function delete_order() {
+		$id = $this->input->post('id');
+
+		$err_code = 0;
+		$err_message = "";
+		$is_delete = true;
+		$message = '';
+
+		$this->db->where('idpurchase_plan_detail',$id);
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
+		$purchase_plan = $this->db->get('purchase_plan_detail');
+
+		$status = $purchase_plan->row()->purchase_plan_status;
+		$idpurchase_plan = $purchase_plan->row()->idpurchase_plan;
+		
+		// // if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// if (in_array($status, array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 	$is_delete = false;
+		// }
+
+		if ($is_delete) {
+			$delete = az_crud_delete('purchase_plan_detail', $id, true);
+
+			$err_code = $delete['err_code'];
+			$err_message = $delete['err_message'];
+
+			if ($err_code == 0) {
+				// hitung total transaksi
+				$this->calculate_total_budget($idpurchase_plan);
+			}
+		}
+		else{
+			$err_code = 1;
+			$err_message = "Data tidak bisa diedit atau dihapus.";
+		}
+
+		// cek apakah masih ada paket belanja/detail transaksi di realisasi anggaran ini?
+		if ($err_code == 0) {
+			$this->db->where('idpurchase_plan', $idpurchase_plan);
+			$this->db->where('status', 1);
+			$plan_detail = $this->db->get('purchase_plan_detail');
+
+			if ($plan_detail->num_rows() == 0) {
+				$arr_update = array(
+					'purchase_plan_status' => 'DRAFT',
+				);
+				az_crud_save($idpurchase_plan, 'purchase_plan', $arr_update);
+
+				$message = 'Uraian berhasil dihapus,';
+				$message .= '<br><span style="color:red; font_weight:bold;">jika anda ingin menambahkan uraian baru, harap klik simpan rencana pengadaan, agar datanya tidak hilang.</span>';
+			}
+		}	
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+			'message' => $message,
+			'idpurchase_plan' => $idpurchase_plan,
+		);
+
+		echo json_encode($return);
+	}
+
+	function save_rencana() {
+		$err_code = 0;
+		$err_message = '';
+
+		
+		$idpurchase_plan = $this->input->post("hd_idpurchase_plan");
+		$purchase_plan_date = az_crud_date($this->input->post("purchase_plan_date"));
+		$iduser_created = $this->input->post("iduser_created");
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('purchase_plan_date', 'Tanggal Rencana', 'required|trim|max_length[200]');
+
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (strlen($idpurchase_plan) == 0) {
+				$err_code++;
+				$err_message = 'Invalid ID';
+			}
+		}
+
+		// if ($err_code == 0) {
+		// 	$this->db->where('idtransaction',$idtransaction);
+		// 	$transaction = $this->db->get('transaction');
+
+		// 	if ($transaction->num_rows() > 0) {
+		// 		$status = $transaction->row()->transaction_status;
+		// 		// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 		if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 			$err_code++;
+		// 			$err_message = "Data tidak bisa diedit atau dihapus.";
+		// 		}
+		// 	}	
+		// }
+
+		if ($err_code == 0) {
+	    	$arr_data = array(
+	    		'purchase_plan_date' => $purchase_plan_date,
+	    		'purchase_plan_status' => "PROSES PENGADAAN",
+	    		'iduser_created' => $iduser_created,
+	    	);
+
+	    	az_crud_save($idpurchase_plan, 'purchase_plan', $arr_data);
+
+			// hitung total transaksi
+			$this->calculate_total_budget($idpurchase_plan);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message
+		);
+		echo json_encode($return);
+	}
+
+	function edit($id) {
+		$this->db->where('idpurchase_plan', $id);
+		$check = $this->db->get('purchase_plan');
+		if ($check->num_rows() == 0) {
+			redirect(app_url().'rencana_pengadaan');
+		} 
+		else if($this->uri->segment(4) != "view_only") {
+			// $status = $check->row()->transaction_status;
+			// // if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			// if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+			// 	redirect(app_url().'realisasi_anggaran');
+			// }
+		}
+		$this->add($id);
+	}
+
+	function get_data() {
+		$id = $this->input->post('id');
+
+		$this->db->where('purchase_plan.idpurchase_plan', $id);
+		$this->db->join('user', 'user.iduser = purchase_plan.iduser_created');
+		$this->db->select('date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, user.name as user_created, purchase_plan.iduser_created');
+		$this->db->order_by('purchase_plan_date', 'desc');
+		$purchase_plan = $this->db->get('purchase_plan')->result_array();
+
+		$this->db->where('idpurchase_plan', $id);
+		$purchase_plan_detail = $this->db->get('purchase_plan_detail')->result_array();
+
+		$return = array(
+			'purchase_plan' => azarr($purchase_plan, 0),
+			'purchase_plan_detail' => $purchase_plan_detail
+		);
+		echo json_encode($return);
+	}
+
+	function delete_rencana() {
+		$id = $this->input->post('id');
+
+		$err_code = 0;
+		$err_message = '';
+
+		$this->db->where('idpurchase_plan',$id);
+		$purchase_plan = $this->db->get('purchase_plan');
+
+		// if ($purchase_plan->num_rows() > 0) {
+		// 	$status = $purchase_plan->row()->purchase_plan_status;
+		// 	// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 	if (in_array($status, array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		// 		$err_code++;
+		// 		$err_message = "Data tidak bisa diedit atau dihapus.";
+		// 	}
+		// }
+
+		if($err_code == 0) {
+			az_crud_delete($this->table, $id);
+
+		} 
+		else{
+			$ret = array(
+				'err_code' => $err_code,
+				'err_message' => $err_message
+			);
+			echo json_encode($ret);
+		}
+	}
+
+	function get_list_order() {
+		$idpurchase_plan = $this->input->post("idpurchase_plan");
+
+		$this->db->where('purchase_plan_detail.idpurchase_plan = "'.$idpurchase_plan.'" ');
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('purchase_plan.status', 1);
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan_detail.idpurchase_plan_detail, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan.total_budget, purchase_plan.purchase_plan_status');
+		$purchase_plan = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+		$data = array(
+			'detail' => $purchase_plan->result_array(),
+		);
+
+		$view = $this->load->view('rencana_pengadaan/v_rencana_pengadaan_table', $data, true);
+		$arr = array(
+			'data' => $view
+		);
+		echo json_encode($arr);
+	}
+
+	function calculate_total_budget($idpurchase_plan) {
+
+		$this->db->where('status', 1);
+		$this->db->where('idpurchase_plan', $idpurchase_plan);
+		$this->db->select('sum(purchase_plan_detail_total) as purchase_plan_detail_total');
+		$plan_detail = $this->db->get('purchase_plan_detail');
+
+		$total_budget = azobj($plan_detail->row(), 'purchase_plan_detail_total', 0);
+
+		$arr_update = array(
+			'total_budget' => $total_budget,
+		);
+
+		az_crud_save($idpurchase_plan, 'purchase_plan', $arr_update);
+	}
+
+    private function generate_transaction_code() {
+		$this->db->where('day(purchase_plan_date)', Date('d'));
+		$this->db->where('month(purchase_plan_date)', Date('m'));
+		$this->db->where('year(purchase_plan_date)', Date('Y'));
+		$this->db->where('purchase_plan_code IS NOT NULL ');
+		$this->db->order_by('purchase_plan_code desc');
+		$data = $this->db->get('purchase_plan', 1);
+		if ($data->num_rows() == 0) {
+			$numb = '0001';
+
+			$purchase_plan_code = 'PP'.Date('Ymd').$numb;
+
+			$this->db->where('purchase_plan_code', $purchase_plan_code);
+			$this->db->select('purchase_plan_code');
+			$check = $this->db->get('purchase_plan');
+			$ok = 0;
+			if($check->num_rows() == 0) {
+				$ok = 1;
+			}
+
+			while($ok == 0) {
+				$last = substr($purchase_plan_code, 10);
+				$numb = $last + 1;
+				$numb = sprintf("%04d", $numb);
+
+				$purchase_plan_code = 'PP'.Date('Ymd').$numb;
+
+				$this->db->where('purchase_plan_code', $purchase_plan_code);
+				$this->db->select('purchase_plan_code');
+				$check = $this->db->get('purchase_plan');
+				$ok = 0;
+				if($check->num_rows() == 0) {
+					$ok = 1;
+				}
+			}
+		}
+		else {
+			$last = $data->row()->purchase_plan_code;
+			$last = substr($last, 10);
+			$numb = $last + 1;
+			$numb = sprintf("%04d", $numb);
+
+			$purchase_plan_code = 'PP'.Date('Ymd').$numb;
+
+			$this->db->where('purchase_plan_code', $purchase_plan_code);
+			$this->db->select('purchase_plan_code');
+			$check = $this->db->get('purchase_plan');
+			$ok = 0;
+			if($check->num_rows() == 0) {
+				$ok = 1;
+			}
+
+			while($ok == 0) {
+				$last = substr($purchase_plan_code, 10);
+				$numb = $last + 1;
+				$numb = sprintf("%04d", $numb);
+
+				$purchase_plan_code = 'PP'.Date('Ymd').$numb;
+
+				$this->db->where('purchase_plan_code', $purchase_plan_code);
+				$this->db->select('purchase_plan_code');
+				$check = $this->db->get('purchase_plan');
+				$ok = 0;
+				if($check->num_rows() == 0) {
+					$ok = 1;
+				}
+			}
+		}
+
+        // PP -> Purchase Plan
+
+		return $purchase_plan_code;
+	}
+}

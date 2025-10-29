@@ -17,7 +17,7 @@ class Realisasi_anggaran extends CI_Controller {
 		$azapp = $this->azapp;
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
-		$idrole = $this->session->userdata('role_name');
+		$idrole = $this->session->userdata('idrole');
 
 		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Invoice', 'Paket Belanja', 'Total Realisasi', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
@@ -110,7 +110,7 @@ class Realisasi_anggaran extends CI_Controller {
 	}
 
 	function custom_style($key, $value, $data) {
-		$idrole = $this->session->userdata('role_name');
+		$idrole = $this->session->userdata('idrole');
 		
 		if ($key == 'total_realisasi') {
 			$total_realisasi = az_thousand_separator($value);
