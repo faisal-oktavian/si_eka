@@ -2105,3 +2105,55 @@ ALTER TABLE `purchase_plan`
 ALTER TABLE `purchase_plan_detail`
 	CHANGE COLUMN `idpurchase_plan_detail` `idpurchase_plan_detail` INT(10) NOT NULL AUTO_INCREMENT FIRST,
 	ADD CONSTRAINT `FK_purchase_plan_detail_purchase_plan` FOREIGN KEY (`idpurchase_plan`) REFERENCES `purchase_plan` (`idpurchase_plan`) ON UPDATE CASCADE ON DELETE CASCADE;
+
+CREATE TABLE `contract` (
+	`idcontract` INT NOT NULL AUTO_INCREMENT,
+	`contract_date` DATETIME NULL,
+	`contract_code` VARCHAR(50) NULL DEFAULT NULL,
+	`contract_status` VARCHAR(50) NULL DEFAULT NULL,
+	`updated_status` DATETIME NULL,
+	`contract_spt` VARCHAR(200) NULL DEFAULT NULL,
+	`contract_invitation_number` VARCHAR(200) NULL DEFAULT NULL,
+	`contract_sp` VARCHAR(200) NULL DEFAULT NULL,
+	`contract_spk` VARCHAR(200) NULL DEFAULT NULL,
+	`contract_honor` VARCHAR(200) NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idcontract`),
+	INDEX `contract_date` (`contract_date`),
+	INDEX `contract_code` (`contract_code`),
+	INDEX `contract_status` (`contract_status`),
+	INDEX `updated_status` (`updated_status`),
+	INDEX `contract_spt` (`contract_spt`),
+	INDEX `contract_invitation_number` (`contract_invitation_number`),
+	INDEX `contract_sp` (`contract_sp`),
+	INDEX `contract_spk` (`contract_spk`),
+	INDEX `contract_honor` (`contract_honor`),
+	INDEX `status` (`status`)
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+
+CREATE TABLE `contract_detail` (
+	`idcontract_detail` INT NOT NULL AUTO_INCREMENT,
+	`idcontract` INT NULL,
+	`idpurchase_plan` INT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idcontract_detail`),
+	INDEX `idcontract` (`idcontract`),
+	INDEX `idpurchase_plan` (`idpurchase_plan`),
+	INDEX `status` (`status`)
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+ALTER TABLE `contract`
+	ADD COLUMN `iduser_created` BIGINT NULL DEFAULT NULL AFTER `updated_status`,
+	ADD INDEX `iduser_created` (`iduser_created`);
+

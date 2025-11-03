@@ -133,6 +133,19 @@
             ),
         ),
         array(
+            "name" => "purchase_contract",
+            "title" => "Kontrak Pengadaan",
+            "icon" => "handshake",
+            "url" => "purchase_contract",
+            'submenu' => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_view_purchase_contract',
+                    'role_title' => 'Hanya lihat data'
+                ),
+            ),
+        ),
+        array(
             "name" => "realisasi_anggaran",
             "title" => "Realisasi Anggaran",
             "icon" => "shopping-cart",
