@@ -1,21 +1,21 @@
 <script>
-	jQuery('body').on('click', '.btn-add-rencana_pengadaan', function() {
-		location.href = app_url + 'rencana_pengadaan/add';
+	jQuery('body').on('click', '.btn-add-purchase_plan', function() {
+		location.href = app_url + 'purchase_plan/add';
 	});
 
-	jQuery('body').on('click', '.btn-edit-rencana-pengadaan', function() {
+	jQuery('body').on('click', '.btn-edit-purchase-plan', function() {
 		var id = jQuery(this).attr('data_id');
-		location.href = app_url + 'rencana_pengadaan/edit/' + id;
+		location.href = app_url + 'purchase_plan/edit/' + id;
 	});
 
-	jQuery('body').on('click','.btn-delete-rencana-pengadaan', function() {
+	jQuery('body').on('click','.btn-delete-purchase-plan', function() {
 		var id = jQuery(this).attr('data_id');
 
 		bootbox.confirm('Apakah anda yakin ingin menghapus data ini?', function(e) {
 			show_loading();
 			if (e) {
 				jQuery.ajax({
-					url: app_url + 'rencana_pengadaan/delete_rencana',
+					url: app_url + 'purchase_plan/delete_plan',
 					type: 'POST',
 					dataType: 'JSON',
 					data: {
@@ -39,8 +39,8 @@
 		})
 	});
 
-	jQuery('body').on('click', '.btn-view-only-rencana-pengadaan', function() {
+	jQuery('body').on('click', '.btn-view-only-purchase-plan', function() {
 		var id = jQuery(this).attr('data_id');
 
-        location.href = app_url + 'rencana_pengadaan/edit/' + id + '/view_only';
+        location.href = app_url + 'purchase_plan/edit/' + id + '/view_only';
 	});

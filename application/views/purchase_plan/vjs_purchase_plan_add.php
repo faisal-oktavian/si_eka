@@ -8,11 +8,11 @@
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
 
-			jQuery('#form_rencana').find('input, select').prop('disabled', true);
-            jQuery('#btn_add_uraian, #btn_save_rencana_pengadaan').hide();
+			jQuery('#form_plan').find('input, select').prop('disabled', true);
+            jQuery('#btn_add_uraian, #btn_save_purchase_plan').hide();
 
 			setTimeout(function() {
-				jQuery('#table_rencana').find('button').hide();
+				jQuery('#table_plan').find('button').hide();
 			}, 500);		
 		}
 	});
@@ -50,7 +50,7 @@
 		allowClear: true,
 		minimumInputLength: 0,
 		ajax: { 
-		    url: app_url + 'rencana_pengadaan/search_uraian',
+		    url: app_url + 'purchase_plan/search_uraian',
 		    dataType: "json",
 		    delay: 250,
 		    data: function(params) {
@@ -72,7 +72,7 @@
 
     function search_uraian(idpaket_belanja_detail_sub) {
 		jQuery.ajax({
-			url: app_url + 'rencana_pengadaan/select_uraian',
+			url: app_url + 'purchase_plan/select_uraian',
 			type: 'POST', 
 			dataType: 'JSON',
 			data: {
@@ -123,7 +123,7 @@
 		else {
 			// show_loading();
 			jQuery.ajax({
-				url: app_url + 'rencana_pengadaan/add_rencana',
+				url: app_url + 'purchase_plan/add_plan',
 				type: 'POST',
 				dataType: 'JSON',
 				data: jQuery('#form_add').serialize() + '&purchase_plan_date=' + purchase_plan_date,
@@ -149,14 +149,14 @@
 	// generate_transaction(2);
     function generate_transaction(idpurchase_plan) {
 		jQuery.ajax({
-			url: app_url+'rencana_pengadaan/get_list_order/',
+			url: app_url+'purchase_plan/get_list_order/',
 			type: 'POST',
 			dataType: 'JSON',
 			data: {
 				idpurchase_plan: idpurchase_plan
 			},
 			success: function(response) {
-				jQuery('#table_rencana tbody').html(response.data);
+				jQuery('#table_plan tbody').html(response.data);
 			},
 			error: function(response) {}
 		});
@@ -168,7 +168,7 @@
 
 		show_loading();
 		jQuery.ajax({
-			url: app_url + 'rencana_pengadaan/edit_order',
+			url: app_url + 'purchase_plan/edit_order',
 			type: 'POST',
 			dataType: 'JSON',
 			data: {
@@ -205,7 +205,7 @@
 			show_loading();
 			if (e) {
 				jQuery.ajax({
-					url: app_url + 'rencana_pengadaan/delete_order',
+					url: app_url + 'purchase_plan/delete_order',
 					type: 'POST',
 					dataType: 'JSON',
 					data: {
@@ -232,18 +232,18 @@
 	});
 
 	// simpan rencana pengadaan
-	jQuery('body').on('click', '#btn_save_rencana_pengadaan', function() {
+	jQuery('body').on('click', '#btn_save_purchase_plan', function() {
 		// show_loading();
 
 		jQuery.ajax({
-			url: app_url + 'rencana_pengadaan/save_rencana',
+			url: app_url + 'purchase_plan/save_plan',
 			type: 'POST',
 			dataType: 'JSON',
-			data: jQuery('#form_rencana').serialize(),
+			data: jQuery('#form_plan').serialize(),
 			success: function(response) {
 				hide_loading();
 				if (response.err_code == 0) {
-					location.href = app_url + 'rencana_pengadaan';
+					location.href = app_url + 'purchase_plan';
 				}
 				else {
 					bootbox.alert(response.err_message);
@@ -259,7 +259,7 @@
 		generate_transaction(the_id);
 
 		jQuery.ajax({
-			url: app_url + 'rencana_pengadaan/get_data',
+			url: app_url + 'purchase_plan/get_data',
 			type: 'POST',
 			dataType: 'JSON',
 			data: {

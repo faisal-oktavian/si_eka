@@ -1,14 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Rencana_pengadaan extends CI_Controller {
+class Purchase_plan extends CI_Controller {
 	public function __construct() {
         parent::__construct();
 
         $this->load->helper('az_auth');
-        az_check_auth('rencana_pengadaan');
+        az_check_auth('purchase_plan');
         $this->table = 'purchase_plan';
-        $this->controller = 'rencana_pengadaan';
+        $this->controller = 'purchase_plan';
         $this->load->helper('az_crud');
     }
 
@@ -23,7 +23,7 @@ class Rencana_pengadaan extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
-		if (aznav('role_view_rencana_pengadaan') && strlen($idrole) > 0) {
+		if (aznav('role_view_purchase_plan') && strlen($idrole) > 0) {
 			$crud->set_btn_add(false);
 		}
 
@@ -47,20 +47,20 @@ class Rencana_pengadaan extends CI_Controller {
 		$crud->add_aodata('transaction_code', 'transaction_code');
 		$crud->add_aodata('vf_transaction_status', 'vf_transaction_status');
 
-		$vf = $this->load->view('realisasi_anggaran/vf_realisasi_anggaran', $data, true);
+		$vf = $this->load->view('purchase_plan/vf_purchase_plan', $data, true);
         $crud->set_top_filter($vf);
 
 		$crud = $crud->render();
 		$data['crud'] = $crud;
-		$data['active'] = 'realisasi_anggaran';
-		$view = $this->load->view('realisasi_anggaran/v_format_realisasi_anggaran', $data, true);
+		$data['active'] = 'purchase_plan';
+		$view = $this->load->view('purchase_plan/v_format_purchase_plan', $data, true);
 		$azapp->add_content($view);
 
-		$js = az_add_js('rencana_pengadaan/vjs_rencana_pengadaan');
+		$js = az_add_js('purchase_plan/vjs_purchase_plan');
 		$azapp->add_js($js);
 
 		$data_header['title'] = 'Rencana Pengadaan';
-		$data_header['breadcrumb'] = array('rencana_pengadaan');
+		$data_header['breadcrumb'] = array('purchase_plan');
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
@@ -136,7 +136,7 @@ class Rencana_pengadaan extends CI_Controller {
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
 			$last_query = $this->db->last_query();
-			$purchase_plan_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query ');
+			$purchase_plan_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
 
 
 			$html = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
@@ -146,7 +146,7 @@ class Rencana_pengadaan extends CI_Controller {
 			$html .= 		'<th width="80px">Volume</th>';
 			$html .= 	'</tr>';
 
-			foreach ($purchase_plan->result() as $key => $value) {
+			foreach ($purchase_plan_limit->result() as $key => $value) {
 				$html .= '<tr>';
 				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
 				$html .= 	'<td>'.$value->nama_sub_kategori.'</td>';
@@ -158,7 +158,7 @@ class Rencana_pengadaan extends CI_Controller {
 
 			if ($purchase_plan->num_rows() > 3) {
 				$html .= '<div>
-							<a href="rencana_pengadaan/edit/'.$idpurchase_plan.'/view_only">Selengkapnya...</a>
+							<a href="purchase_plan/edit/'.$idpurchase_plan.'/view_only">Selengkapnya...</a>
 						</div>';
 			}
 
@@ -212,8 +212,8 @@ class Rencana_pengadaan extends CI_Controller {
             $idpurchase_plan = azarr($data, 'idpurchase_plan');
 			$is_view_only = false;
 
-            $btn = '<button class="btn btn-default btn-xs btn-edit-rencana-pengadaan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
-            $btn .= '<button class="btn btn-danger btn-xs btn-delete-rencana-pengadaan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+            $btn = '<button class="btn btn-default btn-xs btn-edit-purchase-plan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+            $btn .= '<button class="btn btn-danger btn-xs btn-delete-purchase-plan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
             // $this->db->where('idtransaction', $idtransaction);
             // $trx = $this->db->get('transaction');
@@ -224,12 +224,12 @@ class Rencana_pengadaan extends CI_Controller {
 			// 	$is_view_only = true;
             // }
 
-			if (aznav('role_view_rencana_pengadaan') && strlen($idrole) > 0) {
+			if (aznav('role_view_purchase_plan') && strlen($idrole) > 0) {
 				$is_view_only = true;
 			}
 
 			if ($is_view_only) {
-				$btn = '<button class="btn btn-info btn-xs btn-view-only-rencana-pengadaan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
+				$btn = '<button class="btn btn-info btn-xs btn-view-only-purchase-plan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
 
 			return $btn;
@@ -248,10 +248,10 @@ class Rencana_pengadaan extends CI_Controller {
             'user_name' => $this->session->userdata('name'),
         );
         
-		$view = $this->load->view('rencana_pengadaan/v_rencana_pengadaan', $data, true);
+		$view = $this->load->view('purchase_plan/v_purchase_plan', $data, true);
 		$azapp->add_content($view);
 
-		$v_modal = $this->load->view('rencana_pengadaan/v_rencana_pengadaan_modal', '', true);
+		$v_modal = $this->load->view('purchase_plan/v_purchase_plan_modal', '', true);
 		$modal = $azapp->add_modal();
 		$modal->set_id('add_uraian');
 		$modal->set_modal_title('Tambah Rencana Pengadaan');
@@ -259,11 +259,11 @@ class Rencana_pengadaan extends CI_Controller {
 		$modal->set_action_modal(array('save_uraian'=>'Simpan'));
 		$azapp->add_content($modal->render());
 		
-		$js = az_add_js('rencana_pengadaan/vjs_rencana_pengadaan_add', $data);
+		$js = az_add_js('purchase_plan/vjs_purchase_plan_add', $data);
 		$azapp->add_js($js);
 		
 		$data_header['title'] = 'Rencana Pengadaan';
-		$data_header['breadcrumb'] = array('rencana_pengadaan');
+		$data_header['breadcrumb'] = array('purchase_plan');
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
@@ -425,7 +425,7 @@ class Rencana_pengadaan extends CI_Controller {
 		echo json_encode($ret);
 	}
 
-    function add_rencana() {
+    function add_plan() {
 		$err_code = 0;
 		$err_message = '';
 
@@ -614,7 +614,7 @@ class Rencana_pengadaan extends CI_Controller {
 		echo json_encode($return);
 	}
 
-	function save_rencana() {
+	function save_plan() {
 		$err_code = 0;
 		$err_message = '';
 
@@ -676,7 +676,7 @@ class Rencana_pengadaan extends CI_Controller {
 		$this->db->where('idpurchase_plan', $id);
 		$check = $this->db->get('purchase_plan');
 		if ($check->num_rows() == 0) {
-			redirect(app_url().'rencana_pengadaan');
+			redirect(app_url().'purchase_plan');
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			// $status = $check->row()->transaction_status;
@@ -707,7 +707,7 @@ class Rencana_pengadaan extends CI_Controller {
 		echo json_encode($return);
 	}
 
-	function delete_rencana() {
+	function delete_plan() {
 		$id = $this->input->post('id');
 
 		$err_code = 0;
@@ -758,7 +758,7 @@ class Rencana_pengadaan extends CI_Controller {
 			'detail' => $purchase_plan->result_array(),
 		);
 
-		$view = $this->load->view('rencana_pengadaan/v_rencana_pengadaan_table', $data, true);
+		$view = $this->load->view('purchase_plan/v_purchase_plan_table', $data, true);
 		$arr = array(
 			'data' => $view
 		);

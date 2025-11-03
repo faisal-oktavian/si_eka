@@ -120,14 +120,14 @@
             ),
         ),
         array(
-            "name" => "rencana_pengadaan",
+            "name" => "purchase_plan",
             "title" => "Rencana Pengadaan",
             "icon" => "clipboard",
-            "url" => "rencana_pengadaan",
+            "url" => "purchase_plan",
             'submenu' => array(),
             'role' => array(
                 array(
-                    'role_name' => 'role_view_rencana_pengadaan',
+                    'role_name' => 'role_view_purchase_plan',
                     'role_title' => 'Hanya lihat data'
                 ),
             ),
