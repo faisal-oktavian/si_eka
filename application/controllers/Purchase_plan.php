@@ -44,8 +44,8 @@ class Purchase_plan extends CI_Controller {
 
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
-		$crud->add_aodata('transaction_code', 'transaction_code');
-		$crud->add_aodata('vf_transaction_status', 'vf_transaction_status');
+		$crud->add_aodata('vf_purchase_plan_code', 'vf_purchase_plan_code');
+		$crud->add_aodata('vf_purchase_plan_status', 'vf_purchase_plan_status');
 
 		$vf = $this->load->view('purchase_plan/vf_purchase_plan', $data, true);
         $crud->set_top_filter($vf);
@@ -72,8 +72,8 @@ class Purchase_plan extends CI_Controller {
 
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$transaction_code = $this->input->get('transaction_code');
-		$transaction_status = $this->input->get('vf_transaction_status');
+		$purchase_plan_code = $this->input->get('vf_purchase_plan_code');
+		$purchase_plan_status = $this->input->get('vf_purchase_plan_status');
 
         $crud->set_select('purchase_plan.idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created');        
         $crud->set_select_table('idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
@@ -88,11 +88,11 @@ class Purchase_plan extends CI_Controller {
             $crud->add_where('date(purchase_plan.purchase_plan_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
             $crud->add_where('date(purchase_plan.purchase_plan_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
-        if (strlen($transaction_code) > 0) {
-			$crud->add_where('purchase_plan.purchase_plan_code = "' . $transaction_code . '"');
+        if (strlen($purchase_plan_code) > 0) {
+			$crud->add_where('purchase_plan.purchase_plan_code = "' . $purchase_plan_code . '"');
 		}
-		if (strlen($transaction_status) > 0) {
-			$crud->add_where('purchase_plan.purchase_plan_status = "' . $transaction_status . '"');
+		if (strlen($purchase_plan_status) > 0) {
+			$crud->add_where('purchase_plan.purchase_plan_status = "' . $purchase_plan_status . '"');
 		}
 
 		$crud->add_where("purchase_plan.status = 1");
