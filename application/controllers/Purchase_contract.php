@@ -112,6 +112,7 @@ class Purchase_contract extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		
 		$idcontract = azarr($data, 'idcontract');
+		$read_more = false;
 
 		if ($key == 'detail') {
             $this->db->where('contract.idcontract', $idcontract);
@@ -146,8 +147,15 @@ class Purchase_contract extends CI_Controller {
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
+				if ($contract_detail->num_rows() > 3) {
+					$read_more = true;
+				}
+				$last_query = $this->db->last_query();
+				$contract_detail_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
+
+
                 $arr_detail = array();
-                foreach ($contract_detail->result() as $key => $c_value) {
+                foreach ($contract_detail_limit->result() as $key => $c_value) {
                     $arr_detail[] = array(
                         'nama_paket_belanja' => $c_value->nama_paket_belanja,
                         'nama_sub_kategori' => $c_value->nama_sub_kategori,
@@ -161,7 +169,7 @@ class Purchase_contract extends CI_Controller {
             }
             // echo "<pre>"; print_r($arr_data);die;
 
-			$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
+			$table = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
 			$table .=	"<thead>";
 			$table .=		"<tr>";
 			$table .=			"<th width='120px;'>Nomor Dokumen</th>";
@@ -183,6 +191,10 @@ class Purchase_contract extends CI_Controller {
 
 			$table .=	"</tbody>";
 			$table .= "</table>";
+
+			if ($read_more) {
+				$table .= '<a href="purchase_contract/edit/'.$idcontract.'/view_only">Selengkapnya...</a>';
+			}
 
 			return $table;
 		}

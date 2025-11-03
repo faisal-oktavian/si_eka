@@ -8,8 +8,12 @@
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
 			// jQuery('.form-horizontal, .btn-primary').attr('readonly', true);
-			jQuery('#form_npd').find('input, select').prop('disabled', true);
-			jQuery('#btn_add_npd, #btn_save_npd').hide();
+			jQuery('#form_contract').find('input, select').prop('disabled', true);
+			jQuery('#btn_add_contract, #btn_save_contract').hide();
+
+			setTimeout(function() {
+				jQuery('#table_dokumen').find('button').hide();
+			}, 500);	
 			// jQuery('#btn_save_onthespot').attr('disabled', true);
 			// jQuery('#btn_add_product').attr('disabled', true);
 			// jQuery('#idoutlet').attr('disabled', true);
