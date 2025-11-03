@@ -116,10 +116,11 @@ class Purchase_contract extends CI_Controller {
 		if ($key == 'detail') {
             $this->db->where('contract.idcontract', $idcontract);
             $this->db->where('contract.status', 1);
+            $this->db->where('contract.contract_status != "DRAFT"');
             $this->db->where('contract_detail.status', 1);
             
             $this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
-            $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan.idpurchase_plan');
+            $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
             
             $this->db->group_by('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
             $this->db->select('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
@@ -135,7 +136,7 @@ class Purchase_contract extends CI_Controller {
                 $this->db->where('purchase_plan_detail.status', 1);
                 $this->db->where('paket_belanja.status', 1);
 
-                $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan.idpurchase_plan');
+                $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
                 $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
                 $this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
                 $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
@@ -682,9 +683,10 @@ class Purchase_contract extends CI_Controller {
         $this->db->where('contract.idcontract', $idcontract);
 		$this->db->where('contract.status', 1);
 		$this->db->where('contract_detail.status', 1);
+		$this->db->where('contract.contract_status != "DRAFT" ');
 		
         $this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
-		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		
         $this->db->group_by('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
         $this->db->select('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
@@ -700,7 +702,7 @@ class Purchase_contract extends CI_Controller {
             $this->db->where('purchase_plan_detail.status', 1);
             $this->db->where('paket_belanja.status', 1);
 
-            $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan.idpurchase_plan');
+            $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
             $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
             $this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
             $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');

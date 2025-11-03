@@ -125,6 +125,7 @@ class Purchase_plan extends CI_Controller {
 			$this->db->where('purchase_plan_detail.idpurchase_plan = "'.$idpurchase_plan.'" ');
 			$this->db->where('purchase_plan_detail.status', 1);
 			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 
 			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
@@ -744,6 +745,7 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where('purchase_plan_detail.idpurchase_plan = "'.$idpurchase_plan.'" ');
 		$this->db->where('purchase_plan_detail.status', 1);
 		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
