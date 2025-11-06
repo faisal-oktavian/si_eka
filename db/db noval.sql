@@ -2157,3 +2157,76 @@ ALTER TABLE `contract`
 	ADD COLUMN `iduser_created` BIGINT NULL DEFAULT NULL AFTER `updated_status`,
 	ADD INDEX `iduser_created` (`iduser_created`);
 
+
+CREATE TABLE `budget_realization` (
+	`idbudget_realization` INT NOT NULL AUTO_INCREMENT,
+	`realization_date` DATETIME NULL,
+	`realization_code` VARCHAR(50) NULL DEFAULT NULL,
+	`realization_status` VARCHAR(50) NULL DEFAULT NULL,
+	`realization_description` TEXT NULL,
+	`updated_status` DATETIME NULL,
+	`total_realization` DOUBLE NULL DEFAULT NULL,
+	`iduser_created` BIGINT NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idbudget_realization`),
+	INDEX `realization_date` (`realization_date`),
+	INDEX `realization_code` (`realization_code`),
+	INDEX `realization_status` (`realization_status`),
+	INDEX `updated_status` (`updated_status`),
+	INDEX `total_realization` (`total_realization`),
+	INDEX `iduser_created` (`iduser_created`),
+	INDEX `status` (`status`)
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+
+CREATE TABLE `budget_realization_detail` (
+	`idbudget_realization_detail` BIGINT NOT NULL AUTO_INCREMENT,
+	`idbudget_realization` INT NULL,
+	`idpaket_belanja` INT NULL,
+	`provider` VARCHAR(50) NULL DEFAULT NULL COMMENT 'penyedia',
+	`idsub_kategori` INT NULL COMMENT 'uraian',
+	`idruang` INT NULL COMMENT 'id ruang',
+	`training_name` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nama pelatihan',
+	`volume` DOUBLE NULL DEFAULT NULL,
+	`male` DOUBLE NULL DEFAULT NULL,
+	`female` DOUBLE NULL DEFAULT NULL,
+	`unit_price` DOUBLE NULL DEFAULT NULL COMMENT 'harga satuan',
+	`ppn` DOUBLE NULL DEFAULT NULL,
+	`pph` DOUBLE NULL DEFAULT NULL,
+	`total_realization_detail` DOUBLE NULL DEFAULT NULL COMMENT 'total per detail',
+	`realization_detail_description` TEXT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL,
+	`updated` DATETIME NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL,
+	`status` INT NULL DEFAULT '1',
+	PRIMARY KEY (`idbudget_realization_detail`),
+	INDEX `idbudget_realization` (`idbudget_realization`),
+	INDEX `idpaket_belanja` (`idpaket_belanja`),
+	INDEX `provider` (`provider`),
+	INDEX `idsub_kategori` (`idsub_kategori`),
+	INDEX `idruang` (`idruang`),
+	INDEX `training_name` (`training_name`),
+	INDEX `volume` (`volume`),
+	INDEX `male` (`male`),
+	INDEX `female` (`female`),
+	INDEX `unit_price` (`unit_price`),
+	INDEX `ppn` (`ppn`),
+	INDEX `pph` (`pph`),
+	INDEX `total_realization_detail` (`total_realization_detail`),
+	INDEX `status` (`status`)
+)
+COLLATE='utf8mb4_0900_ai_ci'
+;
+ALTER TABLE `budget_realization_detail`
+	CHANGE COLUMN `idpaket_belanja` `idcontract_detail` INT(10) NULL DEFAULT NULL AFTER `idbudget_realization`,
+	ADD COLUMN `idpurchase_plan_detail` INT(10) NULL DEFAULT NULL AFTER `idcontract_detail`,
+	DROP INDEX `idpaket_belanja`,
+	ADD INDEX `idcontract_detail` (`idcontract_detail`),
+	ADD INDEX `idpurchase_plan_detail` (`idpurchase_plan_detail`);
+S

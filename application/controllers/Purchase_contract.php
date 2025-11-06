@@ -20,7 +20,7 @@ class Purchase_contract extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Kontrak', 'Nomor Kontrak', 'Detail', 'Status Kontrak', 'Admin', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Kontrak', 'Nomor Kontrak', 'Detail', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -157,6 +157,7 @@ class Purchase_contract extends CI_Controller {
                 $arr_detail = array();
                 foreach ($contract_detail_limit->result() as $key => $c_value) {
                     $arr_detail[] = array(
+                        'purchase_plan_code' => $value->purchase_plan_code,
                         'nama_paket_belanja' => $c_value->nama_paket_belanja,
                         'nama_sub_kategori' => $c_value->nama_sub_kategori,
                         'volume' => $c_value->volume,
@@ -172,9 +173,10 @@ class Purchase_contract extends CI_Controller {
 			$table = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
 			$table .=	"<thead>";
 			$table .=		"<tr>";
-			$table .=			"<th width='120px;'>Nomor Dokumen</th>";
-			$table .=			"<th width='auto'>Nama Paket Belanja</th>";
-			$table .=			"<th width='auto'>Volume</th>";
+			$table .=			"<th width='100px;'>Nomor Rencana</th>";
+			$table .=			"<th width='300px;'>Nama Paket Belanja</th>";
+			$table .=			"<th width='200px'>Uraian</th>";
+			$table .=			"<th width='50px'>Volume</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -182,6 +184,7 @@ class Purchase_contract extends CI_Controller {
 			foreach ((array) $arr_data as $key => $value) {
                 foreach ($value['arr_detail'] as $key => $dvalue) {
                     $table .= "<tr>";
+                    $table .=       "<td>".$dvalue['purchase_plan_code']."</td>";
                     $table .=       "<td>".$dvalue['nama_paket_belanja']."</td>";
                     $table .=       "<td>".$dvalue['nama_sub_kategori']."</td>";
                     $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";

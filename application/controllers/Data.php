@@ -721,4 +721,108 @@ class Data extends CI_Controller {
 		);
 		echo json_encode($results);
 	}
+
+	public function get_contract_code(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("contract_code");
+		if (strlen($q) > 0) {
+			$this->db->like("contract_code", $q);
+		}
+		$this->db->select("idcontract as id, contract_code as text");
+		$this->db->where('status', '1');
+		$this->db->where('contract_status != "DRAFT" ');
+
+		$data = $this->db->get("contract", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->like("contract_code", $q);
+		}
+		$this->db->where('status', '1');
+		$this->db->where('contract_status != "DRAFT" ');
+		$cdata = $this->db->get("contract");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
+
+	public function get_paket_belanja_detail_sub_parent(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+		$parent = $this->input->get("parent");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori");
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("paket_belanja.nama_paket_belanja", $q);
+			$this->db->or_like("sub_kategori.nama_sub_kategori", $q);
+			$this->db->group_end();
+		}
+		$this->db->where('contract_detail.idcontract', $parent);
+		$this->db->where('contract_detail.status', '1');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		
+		$this->db->select('
+			paket_belanja_detail_sub.idpaket_belanja_detail_sub as id, 
+			concat(purchase_plan.purchase_plan_code, " → ", paket_belanja.nama_paket_belanja, " → ", sub_kategori.nama_sub_kategori) as text, 
+			contract_detail.idcontract as data_idcontract, 
+			contract_detail.idcontract_detail as data_idcontract_detail, 
+			purchase_plan.idpurchase_plan as data_idpurchase_plan, 
+			purchase_plan_detail.idpurchase_plan_detail as data_idpurchase_plan_detail, 
+			paket_belanja.idpaket_belanja as data_idpaket_belanja, 
+			paket_belanja_detail_sub.idpaket_belanja_detail_sub as data_idpaket_belanja_detail_sub, 
+			sub_kategori.idsub_kategori as data_idsub_kategori');
+		$data = $this->db->get("contract_detail", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("paket_belanja.nama_paket_belanja", $q);
+			$this->db->or_like("sub_kategori.nama_sub_kategori", $q);
+			$this->db->group_end();
+		}
+		$this->db->where('contract_detail.idcontract', $parent);
+		$this->db->where('contract_detail.status', '1');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		$cdata = $this->db->get("contract_detail");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+
+		// echo "<pre>"; print_r($results);die;
+		echo json_encode($results);
+	}
 }	

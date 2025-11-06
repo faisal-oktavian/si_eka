@@ -86,64 +86,38 @@ class CI_AZSelect2 extends CI_AZ{
 		
 		if (strlen($this->original_id) > 0) {
 			$js_ready .= 'jQuery("#'.$this->original_id.'").select2({';
-		} else {
+		}
+		else {
 			$js_ready .= 'jQuery("#id'.$this->id.'").select2({';
 		}
 
 		$js_ready .= '
-			placeholder: "~ '.$this->placeholder.' ~",
-			allowClear: true,
-			minimumInputLength: '.$this->input_length.',
-			ajax: { 
-				url: "'.app_url().$this->url.'",
-				dataType: "json",
-				delay: '.$this->delay.',
-				data: function(params) {
-					return {
-						term: params.term,
-						page: params.page || 1,
-						parent: jQuery("#'.$this->select_parent.'").val(),';
-
+			            placeholder: "~ '.$this->placeholder.' ~",
+			            allowClear: true,
+			            minimumInputLength: '.$this->input_length.',
+			            ajax: { 
+			                url: "'.app_url().$this->url.'",
+			                dataType: "json",
+			                delay: '.$this->delay.',
+			                data: function(params) {
+			                  return {
+			                      term: params.term,
+			                      page: params.page || 1,
+			                      parent: jQuery("#'.$this->select_parent.'").val(),';
 		foreach ($this->custom_post as $key => $value) {
-			$js_ready .= $key.': jQuery("#'.$value.'").val(),';
+			$js_ready .= 			  $key.': jQuery("#'.$value.'").val(),';
 		}
 
 		foreach ($this->param_data as $key => $value) {
-			$js_ready .= $key.': "'.$value.'",';
+			$js_ready .= 			  $key.': "'.$value.'",';
 		}
 
-		$js_ready .= '
-					};
-				},
-				processResults: function (data) {
-					if (data.results) {
-						return { results: data.results };
-					}
-					if (Array.isArray(data)) {
-						return { results: data };
-					}
-					return { results: [] };
-				},
-				cache: true
-			},
-			templateResult: function (data) {
-				if (!data.id) return data.text;
-				var attrs = "";
-				for (var key in data) {
-					if (data.hasOwnProperty(key) && typeof key === "string" && key.indexOf("data_") === 0 && data[key]) {
-						attrs += " " + key.replace(/_/g, "-") + "=\'" + data[key] + "\'";
-					}
-				}
-				return $("<span"+attrs+">" + data.text + "</span>");
-			},
-			templateSelection: function (data) {
-				return data.text || data.id;
-			},
-		});';
-
-
-
-
+		$js_ready .= '	                      
+			                  }
+			                },
+			                cache: true
+			            }
+			        });';
 		$js = '';
 		$id_new = 'id'.$this->id;
 		if (strlen($this->original_id) > 0) {

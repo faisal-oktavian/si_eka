@@ -146,10 +146,10 @@
             ),
         ),
         array(
-            "name" => "realisasi_anggaran",
+            "name" => "budget_realization",
             "title" => "Realisasi Anggaran",
             "icon" => "shopping-cart",
-            "url" => "realisasi_anggaran",
+            "url" => "budget_realization",
             'submenu' => array(),
             'role' => array(
                 array(
@@ -157,7 +157,7 @@
                     'role_title' => 'Bisa realisasi anggaran sebelum bulan RAK'
                 ),
                 array(
-                    'role_name' => 'role_view_realisasi_anggaran',
+                    'role_name' => 'role_view_budget_realization',
                     'role_title' => 'Hanya lihat data'
                 ),
             ),
