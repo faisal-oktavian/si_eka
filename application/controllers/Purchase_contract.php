@@ -147,12 +147,12 @@ class Purchase_contract extends CI_Controller {
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
-				if ($contract_detail->num_rows() > 3) {
-					$read_more = true;
-				}
 				$last_query = $this->db->last_query();
 				$contract_detail_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
 
+				if ($contract_detail->num_rows() > 3) {
+					$read_more = true;
+				}
 
                 $arr_detail = array();
                 foreach ($contract_detail_limit->result() as $key => $c_value) {
@@ -203,21 +203,9 @@ class Purchase_contract extends CI_Controller {
 		}
 
 		if ($key == 'contract_status') {
-			$lbl = 'default';
-			$tlbl = '-';
-			if ($value == "KONTRAK PENGADAAN") {
-				$lbl = 'warning';
-				$tlbl = 'Kontrak Pengadaan';
-			}
-			// else if ($value == "MENUNGGU PEMBAYARAN") {
-			// 	$lbl = 'info';
-			// 	$tlbl = 'Menunggu Pembayaran';
-			// }
-			// else if ($value == "SUDAH DIBAYAR BENDAHARA") {
-			// 	$lbl = 'success';
-			// 	$tlbl = 'Sudah Dibayar Bendahara';
-			// }
-			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+			$status = label_status($value);
+			
+			return $status;
 		}
 
 		if ($key == 'action') {

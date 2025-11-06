@@ -10,6 +10,7 @@ class Purchase_plan extends CI_Controller {
         $this->table = 'purchase_plan';
         $this->controller = 'purchase_plan';
         $this->load->helper('az_crud');
+		$this->load->helper('transaction_status_helper');
     }
 
 	public function index() {		
@@ -107,18 +108,12 @@ class Purchase_plan extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		$idrole = $this->session->userdata('idrole');
 		$idpurchase_plan = azarr($data, 'idpurchase_plan');
+		$read_more = false;
 		
 		if ($key == 'purchase_plan_status') {
-			// PROSES PENGADAAN		-> data diinputkan di menu rencana pengadaan (oleh user PPTK / PPKom)
-
-			$lbl = 'default';
-			$tlbl = '-';
-			if ($value == "PROSES PENGADAAN") {
-				$lbl = 'warning';
-				$tlbl = 'Proses Pengadaan';
-			}
-
-			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+			$status = label_status($value);
+			
+			return $status;
 		}
 
 		if ($key == "detail") {
@@ -139,6 +134,9 @@ class Purchase_plan extends CI_Controller {
 			$last_query = $this->db->last_query();
 			$purchase_plan_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
 
+			if ($purchase_plan->num_rows() > 3) {
+				$read_more = true;
+			}
 
 			$html = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
 			$html .= 	'<tr>';
@@ -157,7 +155,7 @@ class Purchase_plan extends CI_Controller {
 
 			$html .= '</table>';
 
-			if ($purchase_plan->num_rows() > 3) {
+			if ($read_more) {
 				$html .= '<div>
 							<a href="purchase_plan/edit/'.$idpurchase_plan.'/view_only">Selengkapnya...</a>
 						</div>';

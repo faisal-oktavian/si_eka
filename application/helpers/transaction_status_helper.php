@@ -36,7 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
 	function label_status($status) {
-		$label_status = "";
+		$label_status = "<label class='label label-default'>-</label>";
 
 		if ($status == "PROSES PENGADAAN") {
 			$label_status = "<label class='label' style='text-align: center; background-color: #FFCC00; color: black;'>
