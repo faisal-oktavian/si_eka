@@ -76,13 +76,66 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
 	// update status di setiap detail paket belanja
-	function update_status_detail_pb() {
-		
+	function update_status_detail_pb($the_data) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja');
+		$status = azarr($the_data, 'status');
+
+		$arr_update = array(
+			'status_detail_step' => $status,
+		);
+
+		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$ci->db->where('idpaket_belanja', $idpaket_belanja);
+		$ci->db->update('paket_belanja_detail_sub', $arr_update);
+
+		update_status_paket_belanja($idpaket_belanja);
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 	
 	// update status paket belanja
-	function update_status_paket_belanja() {
+	function update_status_paket_belanja($idpaket_belanja) {
+		$ci =& get_instance();
 
+		$err_code = 0;
+		$err_message = '';
+
+		$ci->db->where('status', 1);
+		$ci->db->where('idpaket_belanja', $idpaket_belanja);
+		$ci->db->where('status_detail_step = "INPUT PAKET BELANJA" ');
+		$detail_sub = $ci->db->get('paket_belanja_detail_sub');
+		// echo "<pre>"; print_r($ci->db->last_query());die;
+
+		if ($detail_sub->num_rows() == 0) {
+			$status_paket_belanja = "PROSES REALISASI";
+		}
+		else {
+			$status_paket_belanja = "OK";
+		}
+
+		$arr_update = array(
+			'status_paket_belanja' => $status_paket_belanja,
+		);
+
+		$ci->db->where('idpaket_belanja', $idpaket_belanja);
+		$ci->db->update('paket_belanja', $arr_update);
+
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 
 	// update status rencana pengadaan
