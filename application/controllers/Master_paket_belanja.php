@@ -111,7 +111,8 @@ class Master_paket_belanja extends CI_Controller {
 
 	function custom_style($key, $value, $data) {
 		$idrole = $this->session->userdata('idrole');
-		
+		$is_view_only = false;
+
 		if ($key == 'nilai_anggaran') {
 			return az_thousand_separator($value);
 		}
@@ -119,14 +120,25 @@ class Master_paket_belanja extends CI_Controller {
 		if ($key == 'action') {
 			$idpaket_belanja = azarr($data, 'idpaket_belanja');
 
-			$btn = '';
+			$this->db->where('idpaket_belanja', $idpaket_belanja);
+			$pb = $this->db->get('paket_belanja');
+
+			$status = $pb->row()->status_paket_belanja;
+
+			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+
+			if ($status != "OK" ) {
+				$is_view_only = true;
+            }
+
 			if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
 			&& strlen($idrole) > 0 ) {
-				$btn .= '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
+				$is_view_only = true;
 			}
-			else {
-				$btn .= '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
-				$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+
+			if ($is_view_only) {
+				$btn = '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
 
 			return $btn;
@@ -459,6 +471,24 @@ class Master_paket_belanja extends CI_Controller {
 			if ($total_rak_volume > $volume) {
 				$err_code++;
 				$err_message = 'Total volume rak per bulan tidak boleh melebihi volume';
+			}
+		}
+
+		// validasi volume yang diinput tidak boleh kurang dari total volume yang sudah masuk di rencana pengadaan
+		if ($err_code == 0) {
+			if (strlen($idpb_detail_sub) > 0) {
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$this->db->where('status', 1);
+				$pp_detail = $this->db->get('purchase_plan_detail');
+	
+				if ($pp_detail->num_rows() > 0) {
+					$existing_volume = $pp_detail->row()->volume;
+	
+					if ($volume < $existing_volume) {
+						$err_code++;
+						$err_message = 'Volume tidak boleh kurang dari volume yang sudah masuk di rencana pengadaan';
+					}
+				}
 			}
 		}
 
@@ -1206,5 +1236,11 @@ class Master_paket_belanja extends CI_Controller {
 
 		echo "Done<br>";
 		echo $total_data." Data.";
+	}
+
+	function testing_helper() {
+		$this->load->helper('transaction_status_helper');
+
+		
 	}
 }
