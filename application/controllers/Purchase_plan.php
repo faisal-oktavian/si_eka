@@ -727,7 +727,7 @@ class Purchase_plan extends CI_Controller {
 			redirect(app_url().'purchase_plan');
 		} 
 		else if($this->uri->segment(4) != "view_only") {
-			$status = $check->row()->transaction_status;
+			$status = $check->row()->purchase_plan_status;
 
 			$the_filter = array(
 				'menu' => 'RENCANA PENGADAAN',
