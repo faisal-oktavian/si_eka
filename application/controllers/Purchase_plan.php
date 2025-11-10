@@ -184,6 +184,26 @@ class Purchase_plan extends CI_Controller {
 				$is_view_only = true;
 			}
 
+			// cek apakah yang login user pptk & ppkom
+			$role_name = $this->session->userdata('role_name');
+			if (in_array($role_name, array('pptk', 'ppkom') ) ) {
+
+				$this->db->where('idpurchase_plan', $idpurchase_plan);
+				$this->db->join('user', 'user.iduser = purchase_plan.iduser_created');
+				$this->db->join('role', 'role.idrole = user.idrole', 'left');
+				$this->db->select('role.name as role_name');
+				$check = $this->db->get('purchase_plan');
+
+				$data_role_name = $check->row()->role_name;
+				
+				if ($role_name == "pptk" && $data_role_name != "pptk") {
+					$is_view_only = true;
+				}
+				else if ($role_name == "ppkom" && $data_role_name != "ppkom") {
+					$is_view_only = true;
+				}
+			}
+
 			if ($is_view_only) {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-purchase-plan" data_id="'.$idpurchase_plan.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
@@ -462,13 +482,15 @@ class Purchase_plan extends CI_Controller {
 				$idpurchase_plan = azarr($save_plan, 'insert_id');
 			}
 			else {
-				$the_filter = array(
-					'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
-					'idpaket_belanja' => $idpaket_belanja,
-					'status' => "PROSES PENGADAAN",
-				);
-	
-				update_status_detail_pb($the_filter);
+				if ($status != "DRAFT") {
+					$the_filter = array(
+						'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
+						'idpaket_belanja' => $idpaket_belanja,
+						'status' => "PROSES PENGADAAN",
+					);
+		
+					update_status_detail_pb($the_filter);
+				}
 			}
             
 			if ($err_code == 0) {

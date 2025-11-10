@@ -85,7 +85,7 @@ class Master_paket_belanja extends CI_Controller {
 		$crud->add_join_manual('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		
 		$crud->add_where("paket_belanja.status = '1' ");
-		$crud->add_where("paket_belanja.status_paket_belanja = 'OK' ");
+		$crud->add_where("paket_belanja.status_paket_belanja != 'DRAFT' ");
 		if (strlen($tahun_anggaran) > 0) {
 			$crud->add_where('urusan_pemerintah.tahun_anggaran_urusan = "' . $tahun_anggaran . '"');
 		}
@@ -478,7 +478,9 @@ class Master_paket_belanja extends CI_Controller {
 		if ($err_code == 0) {
 			if (strlen($idpb_detail_sub) > 0) {
 				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
-				$this->db->where('status', 1);
+				$this->db->where('purchase_plan_detail.status', 1);
+				$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 				$pp_detail = $this->db->get('purchase_plan_detail');
 	
 				if ($pp_detail->num_rows() > 0) {

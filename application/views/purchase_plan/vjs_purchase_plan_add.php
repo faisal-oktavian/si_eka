@@ -38,7 +38,7 @@
 			show_modal('add_uraian');
 
 			jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
-			jQuery('#idtransaction_detail').val('');
+			jQuery('#idpurchase_plan_detail').val('');
 			jQuery('#iduraian').html('').val('');
 			jQuery('#form_add input, #form_add select, #form_add textarea').not('.x-hidden').val('').trigger('change.select2');	
 		}
