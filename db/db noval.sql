@@ -2229,4 +2229,10 @@ ALTER TABLE `budget_realization_detail`
 	DROP INDEX `idpaket_belanja`,
 	ADD INDEX `idcontract_detail` (`idcontract_detail`),
 	ADD INDEX `idpurchase_plan_detail` (`idpurchase_plan_detail`);
-S
+
+
+ALTER TABLE `budget_realization_detail`
+	ADD CONSTRAINT `FK_budget_realization_detail_budget_realization` FOREIGN KEY (`idbudget_realization`) REFERENCES `budget_realization` (`idbudget_realization`) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE `contract_detail`
+	ADD CONSTRAINT `FK_contract_detail_contract` FOREIGN KEY (`idcontract`) REFERENCES `contract` (`idcontract`) ON UPDATE CASCADE ON DELETE CASCADE;
+

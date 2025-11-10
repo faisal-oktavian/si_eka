@@ -686,7 +686,7 @@ class Purchase_contract extends CI_Controller {
         $this->db->where('contract.idcontract', $idcontract);
 		$this->db->where('contract.status', 1);
 		$this->db->where('contract_detail.status', 1);
-		$this->db->where('contract.contract_status != "DRAFT" ');
+		// $this->db->where('contract.contract_status != "DRAFT" ');
 		
         $this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
