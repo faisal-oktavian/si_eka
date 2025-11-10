@@ -14,22 +14,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	function validation_status($the_data) {
 		$menu = azarr($the_data, 'menu');
 		$type = azarr($the_data, 'type');
-		$arr_validation = '';
+		$arr_validation = array('PROSES PENGADAAN', 'KONTRAK PENGADAAN', 'MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA');
 
 		if ($menu == "RENCANA PENGADAAN") {
-			$arr_validation = " 'KONTRAK PENGADAAN', 'MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA' ";
+			$key = array_search("PROSES PENGADAAN", $arr_validation);
+
+			if ($key !== false) {
+				unset($arr_validation[$key]);
+			}
 		}
 		else if ($menu == "KONTRAK PENGADAAN") {
-			$arr_validation = " 'PROSES PENGADAAN', 'MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA' ";
+			$key = array_search("KONTRAK PENGADAAN", $arr_validation);
+
+			if ($key !== false) {
+				unset($arr_validation[$key]);
+			}
 		}
 		else if ($menu == "VERIFIKASI DOKUMEN") {
-			$arr_validation = " 'PROSES PENGADAAN', 'KONTRAK PENGADAAN', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA' ";
+			$remove = array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
+
+			$arr_validation = array_values(array_diff($arr_validation, $remove));
 		}
 		else if ($menu == "NPD") {
-			$arr_validation = " 'PROSES PENGADAAN', 'KONTRAK PENGADAAN', 'MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA' ";
+			$key = array_search("INPUT NPD", $arr_validation);
+
+			if ($key !== false) {
+				unset($arr_validation[$key]);
+			}
 		}
 		else if ($menu == "PEMBAYARAN") {
-			$arr_validation = " 'PROSES PENGADAAN', 'KONTRAK PENGADAAN', 'MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN' ";
+			$key = array_search("SUDAH DIBAYAR BENDAHARA", $arr_validation);
+
+			if ($key !== false) {
+				unset($arr_validation[$key]);
+			}
 		}
 
 		return $arr_validation;
@@ -139,8 +157,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
 	// update status rencana pengadaan
-	function update_status_purchase_plan() {
+	function update_status_purchase_plan($the_data) {
+		$ci =& get_instance();
 
+		$err_code = 0;
+		$err_message = '';
+
+		$idpurchase_plan = azarr($the_data, 'idpurchase_plan');
+		$status = azarr($the_data, 'status');
+
+		$arr_update = array(
+			'purchase_plan_status' => $status,
+		);
+
+		$ci->db->where('idpurchase_plan', $idpurchase_plan);
+		$ci->db->update('purchase_plan', $arr_update);
+
+
+		// update status detail paket belanja
+		$ci->db->where('status', 1);
+		$ci->db->where('idpurchase_plan', $idpurchase_plan);
+		$pd = $ci->db->get('purchase_plan_detail');
+
+		foreach ($pd->result() as $key => $value) {
+			$the_filter = array(
+				'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+				'idpaket_belanja' => $value->idpaket_belanja,
+				'status' => $status,
+			);
+
+			update_status_detail_pb($the_filter);	
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 
 	// update status kontrak pengadaan

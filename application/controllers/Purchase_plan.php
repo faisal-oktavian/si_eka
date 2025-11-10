@@ -176,7 +176,7 @@ class Purchase_plan extends CI_Controller {
 			);
 			$arr_validation = validation_status($the_filter);
 
-			if (in_array($purchase_plan_status, array($arr_validation) ) ) {
+			if (in_array($purchase_plan_status, $arr_validation) ) {
 				$is_view_only = true;
             }
 
@@ -434,7 +434,7 @@ class Purchase_plan extends CI_Controller {
 				);
 				$arr_validation = validation_status($the_filter);
 
-				if (in_array($status, array($arr_validation) ) ) {
+				if (in_array($status, $arr_validation) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -603,9 +603,11 @@ class Purchase_plan extends CI_Controller {
 			);
 			$arr_validation = validation_status($the_filter);
 
-			if (in_array($status, array($arr_validation) ) ) {
+			if (in_array($status, $arr_validation) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
+
+				$is_delete = false;
 			}
 		}
 
@@ -704,7 +706,7 @@ class Purchase_plan extends CI_Controller {
 				);
 				$arr_validation = validation_status($the_filter);
 
-				if (in_array($status, array($arr_validation) ) ) {
+				if (in_array($status, $arr_validation) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -757,7 +759,7 @@ class Purchase_plan extends CI_Controller {
 			);
 			$arr_validation = validation_status($the_filter);
 
-			if (in_array($status, array($arr_validation) ) ) {
+			if (in_array($status, $arr_validation) ) {
 				redirect(app_url().'purchase_plan');
 			}
 		}
@@ -789,7 +791,10 @@ class Purchase_plan extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-		$this->db->where('idpurchase_plan',$id);
+		$this->db->where('purchase_plan.idpurchase_plan', $id);
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$purchase_plan = $this->db->get('purchase_plan');
 
 		if ($purchase_plan->num_rows() > 0) {
@@ -801,13 +806,24 @@ class Purchase_plan extends CI_Controller {
 			);
 			$arr_validation = validation_status($the_filter);
 
-			if (in_array($status, array($arr_validation) ) ) {
+			if (in_array($status, $arr_validation) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
 			}
 		}
 
 		if($err_code == 0) {
+			// update status uraian di paket belanja
+			foreach ($purchase_plan->result() as $key => $value) {
+				$the_filter = array(
+					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+					'idpaket_belanja' => $value->idpaket_belanja,
+					'status' => "INPUT PAKET BELANJA",
+				);
+
+				update_status_detail_pb($the_filter);	
+			}
+
 			az_crud_delete($this->table, $id);
 
 		} 
