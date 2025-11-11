@@ -85,7 +85,7 @@ class Purchase_contract extends CI_Controller {
         $crud->set_sorting('contract_code, contract_status, user_input');
         $crud->set_filter('contract_code, contract_status, user_input');
 		$crud->set_id($this->controller);
-		// $crud->set_select_align(', , , center, center');
+		$crud->set_select_align(', , , center');
 
         $crud->add_join_manual('user user_created', 'contract.iduser_created = user_created.iduser', 'left');
         
@@ -112,7 +112,10 @@ class Purchase_contract extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		
 		$idcontract = azarr($data, 'idcontract');
+		$contract_status = azarr($data, 'contract_status');
+		$idrole = $this->session->userdata('idrole');
 		$read_more = false;
+		$is_view_only = false;
 
 		if ($key == 'detail') {
             $this->db->where('contract.idcontract', $idcontract);
@@ -209,25 +212,24 @@ class Purchase_contract extends CI_Controller {
 		}
 
 		if ($key == 'action') {
-			$is_viewonly = false;
+			$btn = '<button class="btn btn-default btn-xs btn-edit-contract" data_id="'.$idcontract.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+			$btn .= '<button class="btn btn-danger btn-xs btn-delete-contract" data_id="'.$idcontract.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
-			$btn = '';
-			$idrole = $this->session->userdata('idrole');
+			$the_filter = array(
+				'menu' => 'KONTRAK PENGADAAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
 
-		    if (!aznav('role_view_purchase_contract') || strlen($idrole) == 0) {
-				$btn .= '<button class="btn btn-default btn-xs btn-edit-contract" data_id="'.$idcontract.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
-				$btn .= '<button class="btn btn-danger btn-xs btn-delete-contract" data_id="'.$idcontract.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+			if (in_array($contract_status, $arr_validation) ) {
+				$is_view_only = true;
+            }
 
-				// // INPUT DATA, MENUNGGU PEMBAYARAN, SUDAH DIBAYAR BENDAHARA
-				// if (in_array($npd_status, array("MENUNGGU PEMBAYARAN", "SUDAH DIBAYAR BENDAHARA") ) ) {
-				// 	$is_viewonly = true;
-				// }
+			if (aznav('role_view_purchase_contract') && strlen($idrole) > 0) {
+				$is_view_only = true;
 			}
-			else {
-				$is_viewonly = true;
-			}
 
-			if ($is_viewonly) {
+			if ($is_view_only) {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-contract" data_id="'.$idcontract.'"><span class="fa fa-external-link-alt"></span> Lihat</button>';
 			}
 
@@ -338,18 +340,25 @@ class Purchase_contract extends CI_Controller {
 			$err_message = validation_errors();
 		}
 
-		// if ($err_code == 0) {
-		// 	$this->db->where('idnpd',$idnpd);
-		// 	$npd = $this->db->get('npd');
+		if ($err_code == 0) {
+			$this->db->where('idcontract',$idcontract);
+			$contract = $this->db->get('contract');
 
-		// 	if ($npd->num_rows() > 0) {
-		// 		$status = $npd->row()->npd_status;
-		// 		if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 			$err_code++;
-		// 			$err_message = "Data tidak bisa diedit atau dihapus.";
-		// 		}
-		// 	}	
-		// }
+			if ($contract->num_rows() > 0) {
+				$status = $contract->row()->contract_status;
+
+				$the_filter = array(
+					'menu' => 'KONTRAK PENGADAAN',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
 
 		if ($err_code == 0) {
 
@@ -393,17 +402,17 @@ class Purchase_contract extends CI_Controller {
 				$idcontract_detail = azarr($contract_detail, 'insert_id');
 				
 
-				// // cek apakah datanya baru diinput / edit data
-				// $this->db->where('idnpd', $idnpd);
-				// $check = $this->db->get('npd');
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('idcontract', $idcontract);
+				$check = $this->db->get('contract');
 
-				// if ($check->row()->npd_status != "DRAFT") {
-				// 	$the_filter = array(
-				// 		'idnpd' => $idnpd,
-				// 		'type' => 'INPUT NPD'
-				// 	);
-				// 	$update_status = update_status_verifikasi_dokumen($the_filter);
-				// }
+				if ($check->row()->contract_status != "DRAFT") {
+					$the_filter = array(
+						'idpurchase_plan' => $idpurchase_plan,
+						'status' => 'KONTRAK PENGADAAN'
+					);
+					$update_status = update_status_purchase_plan($the_filter);
+				}
 			}
 		}
 
@@ -480,18 +489,29 @@ class Purchase_contract extends CI_Controller {
 			}
 		}
 
-		// if ($err_code == 0) {
-		// 	$this->db->where('idnpd',$idnpd);
-		// 	$npd = $this->db->get('npd');
+		// validasi status ketika edit data
+		if ($err_code == 0) {
+			$this->db->where('contract.idcontract',$idcontract);
+			$this->db->where('contract.status', 1);
+			$this->db->where('contract_detail.status', 1);
+			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			$contract = $this->db->get('contract');
 
-		// 	if ($npd->num_rows() > 0) {
-		// 		$status = $npd->row()->npd_status;
-		// 		if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 			$err_code++;
-		// 			$err_message = "Data tidak bisa diedit atau dihapus.";
-		// 		}
-		// 	}	
-		// }
+			if ($contract->num_rows() > 0) {
+				$status = $contract->row()->contract_status;
+
+				$the_filter = array(
+					'menu' => 'KONTRAK PENGADAAN',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
 
 		if ($err_code == 0) {
 	    	$arr_data = array(
@@ -507,13 +527,14 @@ class Purchase_contract extends CI_Controller {
 
 	    	az_crud_save($idcontract, 'contract', $arr_data);
 
-
-			// // update status verifikasi dokumen
-			// $the_filter = array(
-			// 	'idcontract' => $idcontract,
-			// 	'type' => 'KONTRAK PENGADAAN'
-			// );
-			// $update_status = update_status_verifikasi_dokumen($the_filter);
+			// update status rencana pengadaan
+			foreach ($contract->result() as $key => $value) {
+				$the_filter = array(
+					'idpurchase_plan' => $value->idpurchase_plan,
+					'status' => 'KONTRAK PENGADAAN'
+				);
+				$update_status = update_status_purchase_plan($the_filter);
+			}
 		}
 
 		$return = array(
@@ -550,32 +571,53 @@ class Purchase_contract extends CI_Controller {
 		$message = "";
 		$is_delete = true;
 
-		$this->db->where('idcontract_detail',$id);
+		$this->db->where('idcontract_detail', $id);
+		$this->db->where('contract_detail.status', 1);
+		$this->db->where('contract.status', 1);
 		$this->db->join('contract', 'contract_detail.idcontract = contract.idcontract');
 		$contract = $this->db->get('contract_detail');
 
-		$status = $contract->row()->contract_status;
-		$idcontract = $contract->row()->idcontract;
-		// if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 	$is_delete = false;
-		// }
+		if ($contract->num_rows() == 0) {
+			$err_code++;
+			$err_message = "Invalid ID";
+
+			$is_delete = false;
+		}
+
+		if ($err_code == 0) {
+			$status = $contract->row()->contract_status;
+			$idcontract = $contract->row()->idcontract;
+
+			$the_filter = array(
+				'menu' => 'KONTRAK PENGADAAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+
+				$is_delete = false;
+			}
+		}
 
 		if ($is_delete) {
+			// update status rencana pengadaan
+			foreach ($contract->result() as $key => $value) {
+				$the_filter = array(
+					'idpurchase_plan' => $value->idpurchase_plan,
+					'status' => "PROSES PENGADAAN",
+				);
+	
+				update_status_purchase_plan($the_filter);
+			}
+
+			// hapus detail kontrak pengadaan
 			$delete = az_crud_delete('contract_detail', $id, true);
 
 			$err_code = $delete['err_code'];
 			$err_message = $delete['err_message'];
-
-			if ($err_code == 0) {
-				
-				// // update status verifikasi dokumen
-				// $the_filter = array(
-				// 	'idcontract' => $idcontract,
-				// 	'idcontract_detail' => $id,
-				// 	'type' => 'INPUT NPD'
-				// );
-				// $update_status = update_status_verifikasi_dokumen($the_filter);
-			}
 		}
 		else{
 			$err_code = 1;
@@ -615,10 +657,17 @@ class Purchase_contract extends CI_Controller {
 			redirect(app_url().'contract');
 		} 
 		else if($this->uri->segment(4) != "view_only") {
-			// $status = $check->row()->npd_status;
-			// if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-			// 	redirect(app_url().'npd');
-			// }
+			$status = $check->row()->contract_status;
+
+			$the_filter = array(
+				'menu' => 'KONTRAK PENGADAAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				redirect(app_url().'contract');
+			}
 		}
 		$this->add($id);
 	}
@@ -648,24 +697,37 @@ class Purchase_contract extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-		$this->db->where('idcontract',$id);
+		$this->db->where('contract.idcontract',$id);
+		$this->db->where('contract.status', 1);
+		$this->db->where('contract_detail.status', 1);
+		$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
 		$contract = $this->db->get('contract');
 
-		// if ($contract->num_rows() > 0) {
-		// 	$status = $contract->row()->contract_status;
-		// 	if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 		$err_code++;
-		// 		$err_message = "Data tidak bisa diedit atau dihapus.";
-		// 	}
-		// }
+		if ($contract->num_rows() > 0) {
+			$status = $contract->row()->contract_status;
+
+			$the_filter = array(
+				'menu' => 'KONTRAK PENGADAAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
 
 		if($err_code == 0) {
-			// // kembalikan status realisasi anggaran
-			// $the_filter = array(
-			// 	'idcontract' => $id,
-			// 	'type' => 'SUDAH DIVERIFIKASI'
-			// );
-			// $update_status = update_status_verifikasi_dokumen($the_filter);
+			// update status uraian di paket belanja
+			foreach ($contract->result() as $key => $value) {
+				$the_filter = array(
+					'idpurchase_plan' => $value->idpurchase_plan,
+					'status' => "PROSES PENGADAAN",
+				);
+	
+				update_status_purchase_plan($the_filter);
+			}
 
 			az_crud_delete($this->table, $id);
 		} 
@@ -692,7 +754,7 @@ class Purchase_contract extends CI_Controller {
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		
         $this->db->group_by('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
-        $this->db->select('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
+        $this->db->select('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code, contract.contract_status');
         $contract = $this->db->get('contract');
         // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -728,6 +790,7 @@ class Purchase_contract extends CI_Controller {
                 'idcontract' => $value->idcontract,
                 'idcontract_detail' => $value->idcontract_detail,
                 'purchase_plan_code' => $value->purchase_plan_code,
+                'contract_status' => $value->contract_status,
                 'arr_detail' => $arr_detail,
             );
         }

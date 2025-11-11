@@ -36,6 +36,10 @@
 		}
 	});
 
+	jQuery('body').on('change', '#idcontract', function() {
+		jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
+	});
+
     $('#idpaket_belanja_detail_sub').on('select2:select', function (e) {
         var data = e.params.data;
         console.log('Semua data terpilih:', data);

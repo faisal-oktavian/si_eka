@@ -30,8 +30,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				unset($arr_validation[$key]);
 			}
 		}
+		else if ($menu == "REALISASI ANGGARAN") {
+			$key = array_search("MENUNGGU VERIFIKASI", $arr_validation);
+
+			if ($key !== false) {
+				unset($arr_validation[$key]);
+			}
+		}
 		else if ($menu == "VERIFIKASI DOKUMEN") {
-			$remove = array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
+			$remove = array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
 
 			$arr_validation = array_values(array_diff($arr_validation, $remove));
 		}
@@ -197,8 +204,61 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
 	// update status kontrak pengadaan
-	function update_status_purchase_contract() {
+	function update_status_purchase_contract($the_data) {
+		$ci =& get_instance();
 
+		$err_code = 0;
+		$err_message = '';
+
+		$idcontract_detail = azarr($the_data, 'idcontract_detail');
+		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail');
+		$idbudget_realization = azarr($the_data, 'idbudget_realization');
+		$status = azarr($the_data, 'status');
+
+		$ci->db->where('idcontract_detail', $idcontract_detail);
+		$contract = $ci->db->get('contract_detail');
+
+		$idcontract = $contract->row()->idcontract;
+		$idpurchase_plan = $contract->row()->idpurchase_plan;
+
+		$arr_update = array(
+			'contract_status' => $status,
+		);
+
+		$ci->db->where('idcontract', $idcontract);
+		$ci->db->update('contract', $arr_update);
+
+
+		$arr_update_plan = array(
+			'purchase_plan_status' => $status,
+		);
+
+		$ci->db->where('idpurchase_plan', $idpurchase_plan);
+		$ci->db->update('purchase_plan', $arr_update_plan);
+
+
+		// update status detail paket belanja
+		$ci->db->where('budget_realization_detail.status', 1);
+		$ci->db->where('budget_realization_detail.idbudget_realization', $idbudget_realization);
+		$ci->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$ci->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$rd = $ci->db->get('budget_realization_detail');
+
+		foreach ($rd->result() as $key => $value) {
+			$the_filter = array(
+				'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+				'idpaket_belanja' => $value->idpaket_belanja,
+				'status' => $status,
+			);
+
+			update_status_detail_pb($the_filter);	
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 
 	// update status realisasi anggaran

@@ -85,7 +85,7 @@ class Budget_realization extends CI_Controller {
 		$crud->set_select_align(' , , , right, center');
 
         $crud->add_join_manual('user', 'budget_realization.iduser_created = user.iduser');
-        $crud->add_join_manual('budget_realization_detail', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
+        // $crud->add_join_manual('budget_realization_detail', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
 		
         // $crud->set_group_by('transaction.idtransaction, transaction.transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name');
         
@@ -101,7 +101,7 @@ class Budget_realization extends CI_Controller {
 		}
 
 		$crud->add_where("budget_realization.status = 1");
-		$crud->add_where("budget_realization_detail.status = 1");
+		// $crud->add_where("budget_realization_detail.status = 1");
 		$crud->add_where("budget_realization.realization_status != 'DRAFT' ");
 
 		$crud->set_table($this->table);
@@ -113,7 +113,9 @@ class Budget_realization extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		$idrole = $this->session->userdata('idrole');
 		$idbudget_realization = azarr($data, 'idbudget_realization');
+		$realization_status = azarr($data, 'realization_status');
 		$read_more = false;
+		$is_view_only = false;
 		
 		if ($key == 'total_realization') {
 			$total_realization = az_thousand_separator($value);
@@ -185,19 +187,18 @@ class Budget_realization extends CI_Controller {
 		}
 
 		if ($key == 'action') {
-			$is_view_only = false;
-
-            $btn = '<button class="btn btn-default btn-xs btn-edit-budget-realization" data_id="'.$idbudget_realization.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
+			$btn = '<button class="btn btn-default btn-xs btn-edit-budget-realization" data_id="'.$idbudget_realization.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
             $btn .= '<button class="btn btn-danger btn-xs btn-delete-budget-realization" data_id="'.$idbudget_realization.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
-            // $this->db->where('idtransaction', $idtransaction);
-            // $trx = $this->db->get('transaction');
+			$the_filter = array(
+				'menu' => 'REALISASI ANGGARAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
 
-            // $trx_status = $trx->row()->transaction_status;
-            // // if (in_array($trx_status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-            // if (in_array($trx_status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-			// 	$is_view_only = true;
-            // }
+			if (in_array($realization_status, $arr_validation) ) {
+				$is_view_only = true;
+            }
 
 			if (aznav('role_view_budget_realization') && strlen($idrole) > 0) {
 				$is_view_only = true;
@@ -473,19 +474,25 @@ class Budget_realization extends CI_Controller {
 		// }
 		// // var_dump($err_message);die;
 
-		// if ($err_code == 0) {
-		// 	$this->db->where('idtransaction',$idtransaction);
-		// 	$transaction = $this->db->get('transaction');
+		if ($err_code == 0) {
+			$this->db->where('idbudget_realization',$idbudget_realization);
+			$realization = $this->db->get('budget_realization');
 
-		// 	if ($transaction->num_rows() > 0) {
-		// 		$status = $transaction->row()->transaction_status;
-		// 		// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 		if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 			$err_code++;
-		// 			$err_message = "Data tidak bisa diedit atau dihapus.";
-		// 		}
-		// 	}	
-		// }
+			if ($realization->num_rows() > 0) {
+				$status = $realization->row()->realization_status;
+
+				$the_filter = array(
+					'menu' => 'REALISASI ANGGARAN',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
 
 		if ($err_code == 0) {
 
@@ -524,16 +531,16 @@ class Budget_realization extends CI_Controller {
 					'idpurchase_plan_detail' => $data_idpurchase_plan_detail,
 					'provider' => $provider,
 					'idsub_kategori' => $data_idsub_kategori,
-					'idruang' => $idruang,
-					'training_name' => $training_name,
+					'idruang' => $idruang ? $idruang : null,
+					'training_name' => $training_name ? $training_name : null,
 					'volume' => $volume,
-					'male' => $male,
-					'female' => $female,
+					'male' => $male ? $male : null,
+					'female' => $female ? $female : null,
 					'unit_price' => $unit_price,
-					'ppn' => $ppn,
-					'pph' => $pph,
+					'ppn' => $ppn ? $ppn : null,
+					'pph' => $pph ? $pph : null,
 					'total_realization_detail' => $total_realization_detail,
-					'realization_detail_description' => $realization_detail_description,
+					'realization_detail_description' => $realization_detail_description ? $realization_detail_description : null,
 				);
 				
 				$save_rd = az_crud_save($idbudget_realization_detail, 'budget_realization_detail', $arr_realization_detail);
@@ -541,6 +548,21 @@ class Budget_realization extends CI_Controller {
 
 				// hitung total transaksi
 				$this->calculate_total_realization($idbudget_realization);
+
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('idbudget_realization', $idbudget_realization);
+				$check = $this->db->get('budget_realization');
+
+				if ($check->row()->realization_status != "DRAFT") {
+					
+					$the_filter = array(
+						'idcontract_detail' => $data_idcontract_detail,
+						'idpurchase_plan_detail' => $data_idpurchase_plan_detail,
+						'idbudget_realization' => $idbudget_realization,
+						'status' => 'MENUNGGU VERIFIKASI'
+					);
+					$update_status = update_status_purchase_contract($the_filter);
+				}
 			}
 		}
 
@@ -562,7 +584,7 @@ class Budget_realization extends CI_Controller {
 		$this->db->where('budget_realization_detail.idbudget_realization_detail', $idrealization_detail);
 
 		$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
-		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract_detail');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
@@ -600,12 +622,15 @@ class Budget_realization extends CI_Controller {
 			purchase_plan.idpurchase_plan, 
 			purchase_plan_detail.idpurchase_plan_detail');
 		$rd = $this->db->get('budget_realization_detail')->result_array();
+		// echo "<pre>"; print_r($this->db->last_query()); die;
 
 		$ret = array(
 			'data' => azarr($rd, 0),
 			'err_code' => $err_code,
 			'err_message' => $err_message
 		);
+		// echo "<pre>"; print_r($ret); die;
+
 		echo json_encode($ret);
 	}
 
@@ -617,19 +642,49 @@ class Budget_realization extends CI_Controller {
 		$is_delete = true;
 		$message = '';
 
-		$this->db->where('idrealization_detail', $idrealization_detail);
-		$this->db->join('realization', 'realization_detail.idrealization = realization.idrealization');
+		$this->db->where('idbudget_realization_detail', $idrealization_detail);
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
 		$budget_realization = $this->db->get('budget_realization');
 
-		$status = $budget_realization->row()->realization_status;
-		$idbudget_realization = $budget_realization->row()->idbudget_realization;
-		// // if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// if (in_array($status, array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 	$is_delete = false;
-		// }
+		if ($budget_realization->num_rows() == 0) {
+			$err_code++;
+			$err_message = "Invalid ID";
+
+			$is_delete = false;
+		}
+
+		if ($err_code == 0) {
+			$status = $budget_realization->row()->realization_status;
+			$idbudget_realization = $budget_realization->row()->idbudget_realization;
+			$idcontract_detail = $budget_realization->row()->idcontract_detail;
+			$idpurchase_plan_detail = $budget_realization->row()->idpurchase_plan_detail;
+			$idbudget_realization_detail = $budget_realization->row()->idbudget_realization_detail;
+
+			$the_filter = array(
+				'menu' => 'REALISASI ANGGARAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+
+				$is_delete = false;
+			}
+		}
 
 		if ($is_delete) {
-			$delete = az_crud_delete('budget_realization_detail', $idrealization_detail, true);
+			$the_filter = array(
+				'idcontract_detail' => $idcontract_detail,
+				'idpurchase_plan_detail' => $idpurchase_plan_detail,
+				'idbudget_realization' => $idbudget_realization,
+				'status' => 'KONTRAK PENGADAAN'
+			);
+			$update_status = update_status_purchase_contract($the_filter);
+
+
+			$delete = az_crud_delete('budget_realization_detail', $idbudget_realization_detail, true);
 
 			$err_code = $delete['err_code'];
 			$err_message = $delete['err_message'];
@@ -646,7 +701,7 @@ class Budget_realization extends CI_Controller {
 
 		// cek apakah masih ada paket belanja/detail transaksi di realisasi anggaran ini?
 		if ($err_code == 0) {
-			$this->db->where('idrealization_detail', $idrealization_detail);
+			$this->db->where('idbudget_realization_detail', $idrealization_detail);
 			$this->db->where('status', 1);
 			$budget_realization_detail = $this->db->get('budget_realization_detail');
 
@@ -694,19 +749,26 @@ class Budget_realization extends CI_Controller {
 			}
 		}
 
-		// if ($err_code == 0) {
-		// 	$this->db->where('idtransaction',$idtransaction);
-		// 	$transaction = $this->db->get('transaction');
+		if ($err_code == 0) {
+			$this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+			$realization = $this->db->get('budget_realization');
 
-		// 	if ($transaction->num_rows() > 0) {
-		// 		$status = $transaction->row()->transaction_status;
-		// 		// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 		if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 			$err_code++;
-		// 			$err_message = "Data tidak bisa diedit atau dihapus.";
-		// 		}
-		// 	}	
-		// }
+			if ($realization->num_rows() > 0) {
+				$status = $realization->row()->realization_status;
+
+				$the_filter = array(
+					'menu' => 'REALISASI ANGGARAN',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
+		}
 
 		if ($err_code == 0) {
 	    	$arr_data = array(
@@ -719,6 +781,17 @@ class Budget_realization extends CI_Controller {
 
 			// hitung total transaksi
 			$this->calculate_total_realization($idbudget_realization);
+
+			// update status rencana pengadaan
+			foreach ($realization->result() as $key => $value) {
+				$the_filter = array(
+					'idcontract_detail' => $value->idcontract_detail,
+					'idpurchase_plan_detail' => $value->idpurchase_plan_detail,
+					'idbudget_realization' => $idbudget_realization,
+					'status' => 'MENUNGGU VERIFIKASI'
+				);
+				$update_status = update_status_purchase_contract($the_filter);
+			}
 		}
 
 		$return = array(
@@ -735,11 +808,17 @@ class Budget_realization extends CI_Controller {
 			redirect(app_url().'budget_realization');
 		} 
 		else if($this->uri->segment(4) != "view_only") {
-			// $status = $check->row()->transaction_status;
-			// // if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-			// if (in_array($status, array('SUDAH DIVERIFIKASI', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-			// 	redirect(app_url().'budget_realization');
-			// }
+			$status = $check->row()->realization_status;
+
+			$the_filter = array(
+				'menu' => 'REALISASI ANGGARAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				redirect(app_url().'budget_realization');
+			}
 		}
 		$this->add($id);
 	}
@@ -765,17 +844,24 @@ class Budget_realization extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-		$this->db->where('idbudget_realization',$idbudget_realization);
+		$this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
 		$budget_realization = $this->db->get('budget_realization');
 
-		// if ($budget_realization->num_rows() > 0) {
-		// 	$status = $budget_realization->row()->transaction_status;
-		// 	// if (in_array($status, array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 	if (in_array($status, array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR', 'INPUT NPD', 'MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-		// 		$err_code++;
-		// 		$err_message = "Data tidak bisa diedit atau dihapus.";
-		// 	}
-		// }
+		if ($budget_realization->num_rows() > 0) {
+			$status = $budget_realization->row()->realization_status;
+
+			$the_filter = array(
+				'menu' => 'REALISASI ANGGARAN',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
 
 		// // cek apakah sudah ada data di tabel verification & detail
 		// if ($err_code == 0) {
@@ -789,6 +875,17 @@ class Budget_realization extends CI_Controller {
 		// }
 
 		if($err_code == 0) {
+			// update status rencana pengadaan
+			foreach ($budget_realization->result() as $key => $value) {
+				$the_filter = array(
+					'idcontract_detail' => $value->idcontract_detail,
+					'idpurchase_plan_detail' => $value->idpurchase_plan_detail,
+					'idbudget_realization' => $idbudget_realization,
+					'status' => 'KONTRAK PENGADAAN'
+				);
+				$update_status = update_status_purchase_contract($the_filter);
+			}
+
 			az_crud_delete($this->table, $idbudget_realization);
 
 		} 

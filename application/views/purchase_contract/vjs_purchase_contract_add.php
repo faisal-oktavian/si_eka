@@ -7,23 +7,12 @@
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
-			// jQuery('.form-horizontal, .btn-primary').attr('readonly', true);
 			jQuery('#form_contract').find('input, select').prop('disabled', true);
 			jQuery('#btn_add_contract, #btn_save_contract').hide();
 
 			setTimeout(function() {
 				jQuery('#table_dokumen').find('button').hide();
-			}, 500);	
-			// jQuery('#btn_save_onthespot').attr('disabled', true);
-			// jQuery('#btn_add_product').attr('disabled', true);
-			// jQuery('#idoutlet').attr('disabled', true);
-			// jQuery('#taken_sent').attr('disabled', true);
-			// jQuery('#customer_type').attr('disabled', true);
-			// jQuery('#transaction_type').attr('disabled', true);
-			// jQuery('#cs_no').attr('disabled', true);
-			// jQuery('#search_member').attr('disabled', true);
-			// jQuery('#idacc_term_payment').prop('disabled', true);
-			// jQuery('#idacc_tax_pph').prop('disabled', true);
+			}, 500);
 		}
 	});
 
@@ -36,7 +25,6 @@
 		show_modal('add_contract');
 
 		jQuery('#form_add').find('.detail-dokumen').addClass('hide');
-		// jQuery('#idtransaction_detail').val('');
 		jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
 	});
 

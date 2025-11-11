@@ -29,12 +29,12 @@
             </td>
 			<td>
 				<?php 
-					// if (in_array($value['npd_status'], array('DRAFT', 'INPUT NPD') ) ) {
+					if (in_array($value['contract_status'], array('DRAFT', 'KONTRAK PENGADAAN') ) ) {
 				?>
 						<button class="btn btn-default btn-xs btn-edit-dokumen" type="button" data-id="<?php echo $value['idcontract_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
 						<button class="btn btn-danger btn-xs btn-delete-dokumen" type="button" data-id="<?php echo $value['idcontract_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
 				<?php
-					// }
+					}
 				?>
 			</td>
 		</tr>

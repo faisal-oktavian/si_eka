@@ -778,6 +778,12 @@ class Data extends CI_Controller {
 		}
 		$this->db->where('contract_detail.idcontract', $parent);
 		$this->db->where('contract_detail.status', '1');
+		$this->db->where('purchase_plan.status', '1');
+		$this->db->where('purchase_plan_detail.status', '1');
+		$this->db->where('paket_belanja.status', '1');
+		$this->db->where('paket_belanja_detail_sub.status', '1');
+		$this->db->where('sub_kategori.status', '1');
+		$this->db->where('paket_belanja_detail_sub.status_detail_step = "KONTRAK PENGADAAN" ');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
@@ -795,6 +801,7 @@ class Data extends CI_Controller {
 			paket_belanja_detail_sub.idpaket_belanja_detail_sub as data_idpaket_belanja_detail_sub, 
 			sub_kategori.idsub_kategori as data_idsub_kategori');
 		$data = $this->db->get("contract_detail", $limit, $offset);
+		// echo "<pre>"; print_r($this->db->last_query());die;
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
@@ -804,6 +811,11 @@ class Data extends CI_Controller {
 		}
 		$this->db->where('contract_detail.idcontract', $parent);
 		$this->db->where('contract_detail.status', '1');
+		$this->db->where('purchase_plan.status', '1');
+		$this->db->where('purchase_plan_detail.status', '1');
+		$this->db->where('paket_belanja.status', '1');
+		$this->db->where('paket_belanja_detail_sub.status', '1');
+		$this->db->where('sub_kategori.status', '1');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');

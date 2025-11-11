@@ -39,7 +39,7 @@
 		})
 	});
 
-	jQuery('body').on('click', '.btn-view-only-npd', function() {
+	jQuery('body').on('click', '.btn-view-only-contract', function() {
 		var id = jQuery(this).attr('data_id');
-		location.href = app_url + 'npd/edit/' + id + '/view_only';
+		location.href = app_url + 'purchase_contract/edit/' + id + '/view_only';
 	});

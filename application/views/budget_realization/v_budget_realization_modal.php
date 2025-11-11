@@ -16,13 +16,13 @@
     </div>
 	<hr>
     <div class="detail-paket-belanja hide">
-        <input type="" id="data_idcontract" name="data_idcontract" class="x-hidden" placeholder="id kontrak">
-        <input type="" id="data_idcontract_detail" name="data_idcontract_detail" class="x-hidden" placeholder="id kontrak detail">
-        <input type="" id="data_idpurchase_plan" name="data_idpurchase_plan" class="x-hidden" placeholder="id rencana">
-        <input type="" id="data_idpurchase_plan_detail" name="data_idpurchase_plan_detail" class="x-hidden" placeholder="id rencana detail">
-        <input type="" id="data_idpaket_belanja" name="data_idpaket_belanja" class="x-hidden" placeholder="id paket belanja">
-        <input type="" id="data_idpaket_belanja_detail_sub" name="data_idpaket_belanja_detail_sub" class="x-hidden" placeholder="id paket belanja detail sub">
-        <input type="" id="data_idsub_kategori" name="data_idsub_kategori" class="x-hidden" placeholder="id sub kategori">
+        <input type="hidden" id="data_idcontract" name="data_idcontract" class="x-hidden" placeholder="id kontrak">
+        <input type="hidden" id="data_idcontract_detail" name="data_idcontract_detail" class="x-hidden" placeholder="id kontrak detail">
+        <input type="hidden" id="data_idpurchase_plan" name="data_idpurchase_plan" class="x-hidden" placeholder="id rencana">
+        <input type="hidden" id="data_idpurchase_plan_detail" name="data_idpurchase_plan_detail" class="x-hidden" placeholder="id rencana detail">
+        <input type="hidden" id="data_idpaket_belanja" name="data_idpaket_belanja" class="x-hidden" placeholder="id paket belanja">
+        <input type="hidden" id="data_idpaket_belanja_detail_sub" name="data_idpaket_belanja_detail_sub" class="x-hidden" placeholder="id paket belanja detail sub">
+        <input type="hidden" id="data_idsub_kategori" name="data_idsub_kategori" class="x-hidden" placeholder="id sub kategori">
 
         <div class="form-group">
             <label class="control-label col-sm-3">Urusan</label>

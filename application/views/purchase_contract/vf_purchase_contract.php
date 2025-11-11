@@ -24,9 +24,14 @@
 		<div class="col-md-4 col-sm-6">
 			<select class="form-control" name="vf_contract_status" id="vf_contract_status">
 				<option value="">Semua</option>
-				<!-- <option value="INPUT NPD">Input NPD</option>
+				<option value="PROSES PENGADAAN">Proses Pengadaan</option>
+				<option value="KONTRAK PENGADAAN">Kontrak Pengadaan</option>
+				<option value="MENUNGGU VERIFIKASI">Menunggu Verifikasi</option>
+				<option value="SUDAH DIVERIFIKASI">Sudah Diverifikasi</option>
+				<option value="DITOLAK VERIFIKATOR">Ditolak Verifikator</option>
+				<option value="INPUT NPD">Input NPD</option>
 				<option value="MENUNGGU PEMBAYARAN">Menunggu Pembayaran</option>
-				<option value="SUDAH DIBAYAR BENDAHARA">Sudah Dibayar Bendahara</option> -->
+				<option value="SUDAH DIBAYAR BENDAHARA">Sudah Dibayar Bendahara</option>
 			</select>
 		</div>
 	</div>
