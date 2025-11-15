@@ -163,10 +163,10 @@
             ),
         ),
         array(
-            "name" => "verifikasi_dokumen",
+            "name" => "document_verification",
             "title" => "Verifikasi Dokumen",
             "icon" => "user",
-            "url" => "verifikasi_dokumen",
+            "url" => "document_verification",
             'submenu' => array(),
             'role' => array(),
         ),

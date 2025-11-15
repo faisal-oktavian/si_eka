@@ -2236,3 +2236,11 @@ ALTER TABLE `budget_realization_detail`
 ALTER TABLE `contract_detail`
 	ADD CONSTRAINT `FK_contract_detail_contract` FOREIGN KEY (`idcontract`) REFERENCES `contract` (`idcontract`) ON UPDATE CASCADE ON DELETE CASCADE;
 
+ALTER TABLE `verification`
+	ADD COLUMN `idbudget_realization` INT(10) NULL DEFAULT NULL AFTER `idverification`,
+	ADD INDEX `idbudget_realization` (`idbudget_realization`);
+
+ALTER TABLE `verification_history`
+	CHANGE COLUMN `idtransaction` `idbudget_realization` INT(10) NULL DEFAULT NULL AFTER `idverification`,
+	DROP INDEX `idtransaction`,
+	ADD INDEX `idbudget_realization` (`idbudget_realization`) USING BTREE;

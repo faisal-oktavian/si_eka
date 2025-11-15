@@ -38,9 +38,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			}
 		}
 		else if ($menu == "VERIFIKASI DOKUMEN") {
-			$remove = array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
+			if ($type == "save") {
+				$remove = array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
+			}
+			else {
+				$remove = array('SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
+			}
 
 			$arr_validation = array_values(array_diff($arr_validation, $remove));
+
+			if ($type == "view") {
+				$arr_validation = array('MENUNGGU VERIFIKASI', 'SUDAH DIVERIFIKASI', 'DITOLAK VERIFIKATOR');
+			}
 		}
 		else if ($menu == "NPD") {
 			$key = array_search("INPUT NPD", $arr_validation);
@@ -262,8 +271,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
 	// update status realisasi anggaran
-	function update_status_budget_realization() {
+	function update_status_budget_realization($the_data) {
+		$ci =& get_instance();
 
+		$err_code = 0;
+		$err_message = '';
+
+		$idbudget_realization = azarr($the_data, 'idbudget_realization');
+		$idverification = azarr($the_data, 'idverification');
+		$status = azarr($the_data, 'status');
+		
+		
+		// update status detail paket belanja
+		$ci->db->where('budget_realization_detail.status', 1);
+		$ci->db->where('budget_realization_detail.idbudget_realization', $idbudget_realization);
+		$ci->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$ci->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$rd = $ci->db->get('budget_realization_detail');
+
+		foreach ($rd->result() as $key => $value) {
+			$the_filter = array(
+				'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+				'idpaket_belanja' => $value->idpaket_belanja,
+				'status' => $status,
+			);
+
+			update_status_detail_pb($the_filter);	
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 
 	// update status verifikasi dokumen
