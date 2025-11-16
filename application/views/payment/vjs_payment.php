@@ -14,7 +14,7 @@
 		});
 
 		jQuery.ajax({
-			url : app_url + 'pembayaran/edit?id='+id,
+			url : app_url + 'payment/edit?id='+id,
 			method : 'get',
 			dataType : 'JSON',
 			success : function(res){
@@ -95,7 +95,7 @@
 	jQuery('body').on('click', '.btn-action-save-payment', function() {
 		show_loading();
 		jQuery.ajax({
-			url: app_url + 'pembayaran/save',
+			url: app_url + 'payment/save',
 			type: 'POST',
 			dataType: 'JSON',
 			data: jQuery('.form-payment').serialize(),
@@ -111,7 +111,7 @@
 				// bootbox.alert(response.err_message);
 
 				if (response.err_code == 0) {
-					location.href = app_url + 'pembayaran';
+					location.href = app_url + 'payment';
 				}
 				else {
 					bootbox.alert(response.err_message);
@@ -126,7 +126,7 @@
 		var id = jQuery(this).attr('data_id');
 
 		jQuery.ajax({
-			url : app_url + 'pembayaran/debt_log?id='+id,
+			url : app_url + 'payment/debt_log?id='+id,
 			method : 'get',
 			dataType : 'json',
 			success : function(res) {

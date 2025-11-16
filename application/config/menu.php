@@ -184,10 +184,10 @@
             ),
         ),
         array(
-            "name" => "pembayaran",
+            "name" => "payment",
             "title" => "Pembayaran",
             "icon" => "credit-card",
-            "url" => "pembayaran",
+            "url" => "payment",
             'submenu' => array(),
         ),
         array(

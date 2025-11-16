@@ -1,14 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Pembayaran extends CI_Controller {
+class Payment extends CI_Controller {
 	public function __construct() {
         parent::__construct();
 
         $this->load->helper('az_auth');
-        az_check_auth('pembayaran');
+        az_check_auth('payment');
         $this->table = 'npd';
-        $this->controller = 'pembayaran';
+        $this->controller = 'payment';
         $this->load->helper('az_crud');
 		$this->load->helper('transaction_status_helper');
     }
@@ -44,13 +44,13 @@ class Pembayaran extends CI_Controller {
 		$crud->add_aodata('npd_code', 'npd_code');
 		$crud->add_aodata('vf_npd_status', 'vf_npd_status');
 
-		$vf = $this->load->view('pembayaran/vf_pembayaran', $data, true);
+		$vf = $this->load->view('payment/vf_payment', $data, true);
         $crud->set_top_filter($vf);
 
 		$crud = $crud->render();
 		$data['crud'] = $crud;
-		$data['active'] = 'pembayaran';
-		$view = $this->load->view('pembayaran/v_format_pembayaran', $data, true);
+		$data['active'] = 'payment';
+		$view = $this->load->view('payment/v_format_payment', $data, true);
 		$azapp->add_content($view);
 
 		$debt_payment_date = $azapp->add_datetime();
@@ -59,7 +59,7 @@ class Pembayaran extends CI_Controller {
 		$debt_payment_date->set_value(Date('d-m-Y H:i:s'));
 		$data_modal['debt_payment_date'] = $debt_payment_date->render();
 
-		$v_modal = $this->load->view('pembayaran/v_modal_pembayaran', $data_modal, true);
+		$v_modal = $this->load->view('payment/v_modal_payment', $data_modal, true);
 		$modal = $azapp->add_modal();
 		$modal->set_id('payment');
 		$modal->set_modal_title('Pembayaran');
@@ -73,11 +73,11 @@ class Pembayaran extends CI_Controller {
 		$modal2->set_modal('<div class="container-debt-log"></div>');
 		$azapp->add_content($modal2->render());
 
-		$js = az_add_js('pembayaran/vjs_pembayaran');
+		$js = az_add_js('payment/vjs_payment');
 		$azapp->add_js($js);
 
-		$data_header['title'] = 'Pembayaran';
-		$data_header['breadcrumb'] = array('pembayaran');
+		$data_header['title'] = 'Payment';
+		$data_header['breadcrumb'] = array('payment');
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
@@ -123,41 +123,64 @@ class Pembayaran extends CI_Controller {
 	}
 
 	function custom_style($key, $value, $data) {
+
+		$idnpd = azarr($data, 'idnpd');
 		
 		if ($key == 'detail') {
-			$idnpd = azarr($data, 'idnpd');
-			
-			$this->db->where('npd_detail.idnpd', $idnpd);	
+
+			$this->db->where('npd.idnpd', $idnpd);
+			$this->db->where('npd.status', 1);
 			$this->db->where('npd_detail.status', 1);
 			
 			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
 			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-			$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-			$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-			$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
-
-			$this->db->group_by('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja');
-
-			$this->db->select('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja');
-			$npd_detail = $this->db->get('npd');
+			
+			$this->db->select('npd.idnpd, npd_detail.idnpd_detail, npd_detail.idverification, verification.verification_code, npd.npd_status');
+			$npd = $this->db->get('npd');
+			// echo "<pre>"; print_r($this->db->last_query());die;
 
 			$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
 			$table .=	"<thead>";
 			$table .=		"<tr>";
-			$table .=			"<th width='120px;'>Nomor Dokumen</th>";
-			$table .=			"<th width='auto'>Nama Paket Belanja</th>";
+			$table .=			"<th width='300px'>Nama Paket Belanja</th>";
+			$table .=			"<th width='200px'>Uraian</th>";
+			$table .=			"<th width='50px'>Volume</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
-			
-			foreach ((array) $npd_detail->result_array() as $key => $value) {
-				$table .=	"<tr>";
-				$table .=		"<td>".$value['verification_code']."</td>";
-				$table .=		"<td>".$value['nama_paket_belanja']."</td>";
-				$table .=	"</tr>";
-			}
 
+			foreach ($npd->result() as $key => $value) {
+
+				$this->db->where('verification.idverification', $value->idverification);
+				$this->db->where('verification.status', 1);
+				$this->db->where('budget_realization.status', 1);
+				$this->db->where('budget_realization_detail.status', 1);
+				$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+				$this->db->where('verification.status_approve = "DISETUJUI" ');
+
+				$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+				$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+				$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+				$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+				$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+				$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+				$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+				$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+				$verification = $this->db->get('verification');
+				// echo "<pre>"; print_r($this->db->last_query());die;
+
+				foreach ($verification->result() as $key => $c_value) {
+					$table .=	"<tr>";
+					$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
+					$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
+					$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
+					$table .=	"</tr>";
+				}
+			}
+			
 			$table .=	"</tbody>";
 			$table .= "</table>";
 
@@ -415,7 +438,7 @@ class Pembayaran extends CI_Controller {
 		if ($payment->num_rows() > 0) {
 			$data['payment'] = $payment;
 
-			$view = $this->load->view('pembayaran/v_debt_log', $data, true);
+			$view = $this->load->view('payment/v_debt_log', $data, true);
 			$ret = array('success' => true, 'view' => $view);
 		} else {
 			$ret = array('success' => false, 'message' => "Data Transaksi tidak valid");
