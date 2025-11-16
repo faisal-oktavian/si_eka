@@ -9,19 +9,13 @@
 		</div>
 	</div>
 	<hr>
+    <input type="" class="form-control" name="idverification" id="idverification" readonly>
+    <div class="form-group">
+        <label class="control-label col-sm-3">Nomor VerifikasiDokumen</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="verification_code" id="verification_code" readonly>
+        </div>
+    </div>
     <div class="detail-dokumen hide">
-        <div class="form-group">
-            <label class="control-label col-sm-3">Nomor Dokumen</label>
-            <div class="col-sm-8">
-                <input type="hidden" class="form-control" name="idverification" id="idverification" readonly>
-                <input type="text" class="form-control" name="verification_code" id="verification_code" readonly>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="control-label col-sm-3">Nama Paket Belanja</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" name="nama_paket_belanja" id="nama_paket_belanja" readonly>
-            </div>
-        </div>
     </div>
 </form>

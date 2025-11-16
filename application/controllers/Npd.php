@@ -19,6 +19,7 @@ class Npd extends CI_Controller {
 		$azapp = $this->azapp;
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
+		$idrole = $this->session->userdata('idrole');
 
 		$crud->set_column(array('#', 'Tanggal NPD', 'Nomor NPD', 'Detail', 'Status NPD', 'User Input', azlang('Action')));
 		$crud->set_id($this->controller);
@@ -48,7 +49,7 @@ class Npd extends CI_Controller {
 		$vf = $this->load->view('npd/vf_npd', $data, true);
         $crud->set_top_filter($vf);
 
-		if (!aznav('role_view_npd')) {
+		if (!aznav('role_view_npd') || strlen($idrole) == 0) {
 			$btn = "<button class='btn btn-primary az-btn-primary btn-add-npd' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
 			$crud->set_btn_top_custom($btn);
 		}
@@ -111,71 +112,99 @@ class Npd extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		
 		$idnpd = azarr($data, 'idnpd');
-		
-		$this->db->where('npd_detail.idnpd', $idnpd);	
-		$this->db->where('npd_detail.status', 1);
-		
-		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
-		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
-
-		$this->db->group_by('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja, paket_belanja.idpaket_belanja');
-
-		$this->db->select('npd.npd_status, verification.verification_code, paket_belanja.nama_paket_belanja, paket_belanja.idpaket_belanja');
-		$npd_detail = $this->db->get('npd');
+		$idrole = $this->session->userdata('idrole');
+		$read_more = false;
+		$is_view_only = false;
 
 		if ($key == 'detail') {
+
+			$this->db->where('npd.idnpd', $idnpd);
+			$this->db->where('npd.status', 1);
+			$this->db->where('npd_detail.status', 1);
+			
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+			
+			$this->db->select('npd.idnpd, npd_detail.idnpd_detail, npd_detail.idverification, verification.verification_code, npd.npd_status');
+			$npd = $this->db->get('npd');
+			// echo "<pre>"; print_r($this->db->last_query());die;
 
 			$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
 			$table .=	"<thead>";
 			$table .=		"<tr>";
-			$table .=			"<th width='120px;'>Nomor Dokumen</th>";
-			$table .=			"<th width='auto'>Nama Paket Belanja</th>";
+			$table .=			"<th width='100px;'>Nomor Verifikasi Dokumen</th>";
+			$table .=			"<th width='100px;'>Nomor Kontrak</th>";
+			$table .=			"<th width='300px'>Nama Paket Belanja</th>";
+			$table .=			"<th width='200px'>Uraian</th>";
+			$table .=			"<th width='50px'>Volume</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
-			
-			foreach ((array) $npd_detail->result_array() as $key => $value) {
-				$table .=	"<tr>";
-				$table .=		"<td>".$value['verification_code']."</td>";
-				$table .=		"<td>".$value['nama_paket_belanja']."</td>";
-				$table .=	"</tr>";
-			}
 
+			foreach ($npd->result() as $key => $value) {
+
+				$this->db->where('verification.idverification', $value->idverification);
+				$this->db->where('verification.status', 1);
+				$this->db->where('budget_realization.status', 1);
+				$this->db->where('budget_realization_detail.status', 1);
+				$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+				$this->db->where('verification.status_approve = "DISETUJUI" ');
+
+				$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+				$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+				$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+				$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+				$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+				$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+				$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+				$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+				$verification = $this->db->get('verification');
+				// echo "<pre>"; print_r($this->db->last_query());die;
+
+				$last_query = $this->db->last_query();
+				$verification_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
+
+				if ($verification->num_rows() > 3) {
+					$read_more = true;
+				}
+
+				foreach ($verification_limit->result() as $key => $c_value) {
+					$table .=	"<tr>";
+					$table .=		"<td>".$c_value->verification_code."</td>";
+					$table .=		"<td>".$c_value->contract_code."</td>";
+					$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
+					$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
+					$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
+					$table .=	"</tr>";
+				}
+			}
+			
 			$table .=	"</tbody>";
 			$table .= "</table>";
+
+			if ($read_more) {
+				$table .= '<a href="npd/edit/'.$idnpd.'/view_only">Selengkapnya...</a>';
+			}
 
 			return $table;
 		}
 
 		if ($key == 'npd_status') {
-			$lbl = 'default';
-			$tlbl = '-';
-			if ($value == "INPUT NPD") {
-				$lbl = 'warning';
-				$tlbl = 'Input Npd';
-			}
-			else if ($value == "MENUNGGU PEMBAYARAN") {
-				$lbl = 'info';
-				$tlbl = 'Menunggu Pembayaran';
-			}
-			else if ($value == "SUDAH DIBAYAR BENDAHARA") {
-				$lbl = 'success';
-				$tlbl = 'Sudah Dibayar Bendahara';
-			}
-			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
+			$status = label_status($value);
+			
+			return $status;
 		}
 
 		if ($key == 'action') {
             $idnpd = azarr($data, 'idnpd');
-            $idpaket_belanja = $npd_detail->row()->idpaket_belanja;
+            // $idpaket_belanja = $npd_detail->row()->idpaket_belanja;
 			$is_viewonly = false;
 
 			$btn = '';
-			if (!aznav('role_view_npd')) {
+			if (!aznav('role_view_npd') || strlen($idrole) == 0) {
 				$btn .= '<button class="btn btn-default btn-xs btn-edit_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
 				$btn .= '<button class="btn btn-danger btn-xs btn-delete_npd" data_id="'.$idnpd.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
@@ -202,7 +231,7 @@ class Npd extends CI_Controller {
 			}
 
 			// $btn .= '<button class="btn btn-xs btn-default btn-print" data_idnpd="'.$idnpd.'" data_idpaket_belanja="'.$idpaket_belanja.'"><i class="fa fa-print"></i> Cetak</button>';
-			$btn .= '<a href="' . app_url() . 'npd/print_npd?idn=' . $idnpd . '&idp=' . $idpaket_belanja . '" class="btn btn-xs btn-default btn-print" target="_blank"><i class="fa fa-print"></i> Cetak</a> ';
+			$btn .= '<a href="' . app_url() . 'npd/print_npd?idn=' . $idnpd . '" class="btn btn-xs btn-default btn-print" target="_blank"><i class="fa fa-print"></i> Cetak</a> ';
 
 			return $btn;
 		}
@@ -249,7 +278,14 @@ class Npd extends CI_Controller {
 		} 
 		else if($this->uri->segment(4) != "view_only") {
 			$status = $check->row()->npd_status;
-			if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+
+			$the_filter = array(
+				'menu' => 'NPD',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
 				redirect(app_url().'npd');
 			}
 		}
@@ -259,26 +295,16 @@ class Npd extends CI_Controller {
     function search_dokumen() {
 		$keyword = $this->input->get("term");
 
-		$this->db->group_start();
-		$this->db->like('nama_paket_belanja', $keyword);
-		$this->db->or_like('verification.verification_code', $keyword);
-		$this->db->group_end();
+		$this->db->like('verification.verification_code', $keyword);
 
+		$this->db->where('budget_realization.status', 1);
 		$this->db->where('verification.status', 1);
-		$this->db->where('verification_detail.status', 1);
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction_detail.status', 1);
 		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
 		$this->db->where('verification.status_approve = "DISETUJUI" ');
 
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
 
-		$this->db->group_by('verification.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
-		
-		$this->db->select('verification.idverification as id, concat(verification.verification_code, " - ", paket_belanja.nama_paket_belanja) as text');
+		$this->db->select('verification.idverification as id, verification.verification_code as text');
 		$data = $this->db->get('verification');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -289,34 +315,38 @@ class Npd extends CI_Controller {
 	}
 
     function select_dokumen() {
-		$id = $this->input->post('id');
+		$idverification = $this->input->post('idverification');
 
-		$this->db->where('verification.idverification', $id);
+		$this->db->where('verification.idverification', $idverification);
 		$this->db->where('verification.status', 1);
-		$this->db->where('verification_detail.status', 1);
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction_detail.status', 1);
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization_detail.status', 1);
 		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
 		$this->db->where('verification.status_approve = "DISETUJUI" ');
 
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-		$this->db->group_by('verification.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
-		
-		$this->db->select('verification.idverification as idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
-		$data = $this->db->get('verification');
+		$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+		$data['verification'] = $this->db->get('verification');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
-		$ret = array(
-			'idverification' => $data->row()->idverification,
-			'verification_code' => $data->row()->verification_code,
-			'nama_paket_belanja' => $data->row()->nama_paket_belanja,
+		$view = $this->load->view('npd/v_select_document_table', $data, true);
+
+		$arr = array(
+			'data' => $view,
+            'idverification' => $data['verification']->row()->idverification,
+            'verification_code' => $data['verification']->row()->verification_code,
 		);
 
-		echo json_encode($ret);
+		echo json_encode($arr);
 	}
 
     function add_product() {
@@ -341,7 +371,14 @@ class Npd extends CI_Controller {
 
 			if ($npd->num_rows() > 0) {
 				$status = $npd->row()->npd_status;
-				if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+
+				$the_filter = array(
+					'menu' => 'NPD',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
@@ -406,11 +443,11 @@ class Npd extends CI_Controller {
 
 					$save_npd = az_crud_save($idnpd, 'npd', $arr_npd);
 
-					$the_filter = array(
-						'idnpd' => $idnpd,
-						'type' => 'INPUT NPD'
-					);
-					$update_status = update_status_verifikasi_dokumen($the_filter);
+					// $the_filter = array(
+					// 	'idnpd' => $idnpd,
+					// 	'type' => 'INPUT NPD'
+					// );
+					// $update_status = update_status_verifikasi_dokumen($the_filter);
 				}
 			}
 		}
@@ -453,13 +490,20 @@ class Npd extends CI_Controller {
 
 			if ($npd->num_rows() > 0) {
 				$status = $npd->row()->npd_status;
-				if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+
+				$the_filter = array(
+					'menu' => 'NPD',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
 					$err_code++;
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
 			}	
 		}
-
+		
 		if ($err_code == 0) {
 
 			// hitung total anggaran
@@ -475,12 +519,12 @@ class Npd extends CI_Controller {
 	    	az_crud_save($idnpd, 'npd', $arr_data);
 
 
-			// update status verifikasi dokumen
-			$the_filter = array(
-				'idnpd' => $idnpd,
-				'type' => 'INPUT NPD'
-			);
-			$update_status = update_status_verifikasi_dokumen($the_filter);
+			// // update status verifikasi dokumen
+			// $the_filter = array(
+			// 	'idnpd' => $idnpd,
+			// 	'type' => 'INPUT NPD'
+			// );
+			// $update_status = update_status_verifikasi_dokumen($the_filter);
 		}
 
 		$return = array(
@@ -496,24 +540,38 @@ class Npd extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-		$this->db->where('idnpd',$id);
-		$npd = $this->db->get('npd');
+		if (strlen($id) == 0) {
+			$err_code++;
+			$err_message = 'Invalid ID';
+		}
 
-		if ($npd->num_rows() > 0) {
-			$status = $npd->row()->npd_status;
-			if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-				$err_code++;
-				$err_message = "Data tidak bisa diedit atau dihapus.";
-			}
+		if ($err_code == 0) {
+			$this->db->where('idnpd',$id);
+			$npd = $this->db->get('npd');
+
+			if ($npd->num_rows() > 0) {
+				$status = $npd->row()->npd_status;
+
+				$the_filter = array(
+					'menu' => 'NPD',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
 		}
 
 		if($err_code == 0) {
-			// kembalikan status realisasi anggaran
-			$the_filter = array(
-				'idnpd' => $id,
-				'type' => 'SUDAH DIVERIFIKASI'
-			);
-			$update_status = update_status_verifikasi_dokumen($the_filter);
+			// // kembalikan status realisasi anggaran
+			// $the_filter = array(
+			// 	'idnpd' => $id,
+			// 	'type' => 'SUDAH DIVERIFIKASI'
+			// );
+			// $update_status = update_status_verifikasi_dokumen($the_filter);
 
 			az_crud_delete($this->table, $id);
 		} 
@@ -527,25 +585,39 @@ class Npd extends CI_Controller {
 	}
 
 	function send_npd() {
-		$id = $this->input->post('id');
+		$idnpd = $this->input->post('id');
 
 		$err_code = 0;
 		$err_message = '';
 
-		$this->db->where('idnpd',$id);
-		$npd = $this->db->get('npd');
+		if (strlen($idnpd) == 0) {
+			$err_code++;
+			$err_message = 'Invalid ID';
+		}
 
-		if ($npd->num_rows() > 0) {
-			$status = $npd->row()->npd_status;
-			if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
-				$err_code++;
-				$err_message = "Data tidak bisa diedit atau dihapus.";
-			}
+		if ($err_code == 0) {
+			$this->db->where('idnpd',$idnpd);
+			$npd = $this->db->get('npd');
+
+			if ($npd->num_rows() > 0) {
+				$status = $npd->row()->npd_status;
+
+				$the_filter = array(
+					'menu' => 'NPD',
+					'type' => '',
+				);
+				$arr_validation = validation_status($the_filter);
+
+				if (in_array($status, $arr_validation) ) {
+					$err_code++;
+					$err_message = "Data tidak bisa diedit atau dihapus.";
+				}
+			}	
 		}
 
 		if($err_code == 0) {
-			// hitung total anggaran
-			$total_anggaran = $this->calculate_total_anggaran($id);
+			// // hitung total anggaran
+			$total_anggaran = $this->calculate_total_anggaran($idnpd);
 
 			
 			// update status npd
@@ -556,15 +628,15 @@ class Npd extends CI_Controller {
 				'total_anggaran' => $total_anggaran,
 			);
 			
-			$this->db->where('idnpd', $id);
+			$this->db->where('idnpd', $idnpd);
 			$this->db->update('npd', $arr_data);
 
-			// update status verifikasi dokumen
-			$the_filter = array(
-				'idnpd' => $id,
-				'type' => 'MENUNGGU PEMBAYARAN'
-			);
-			$update_status = update_status_verifikasi_dokumen($the_filter);
+			// // update status verifikasi dokumen
+			// $the_filter = array(
+			// 	'idnpd' => $idnpd,
+			// 	'type' => 'MENUNGGU PEMBAYARAN'
+			// );
+			// $update_status = update_status_verifikasi_dokumen($the_filter);
 
 			$ret = array(
 				'err_code' => $err_code,
@@ -612,20 +684,46 @@ class Npd extends CI_Controller {
 		$this->db->join('npd', 'npd_detail.idnpd = npd.idnpd');
 		$npd = $this->db->get('npd_detail');
 
-		$status = $npd->row()->npd_status;
-		$idnpd = $npd->row()->idnpd;
-		if (in_array($status, array('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA') ) ) {
+		if ($npd->num_rows() == 0) {
+			$err_code++;
+			$err_message = "Invalid ID";
+
 			$is_delete = false;
 		}
 
+		if ($err_code == 0) {
+			$status = $npd->row()->npd_status;
+			$idnpd = $npd->row()->idnpd;
+
+			$the_filter = array(
+				'menu' => 'NPD',
+				'type' => '',
+			);
+			$arr_validation = validation_status($the_filter);
+
+			if (in_array($status, $arr_validation) ) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus.";
+
+				$is_delete = false;
+			}
+		}
+
 		if ($is_delete) {
+			// // update status verifikasi dokumen
+			// $the_filter = array(
+			// 	'idnpd' => $idnpd,
+			// 	'idnpd_detail' => $id,
+			// 	'type' => 'INPUT NPD'
+			// );
+			// $update_status = update_status_verifikasi_dokumen($the_filter);
+			
 			$delete = az_crud_delete('npd_detail', $id, true);
 
 			$err_code = $delete['err_code'];
 			$err_message = $delete['err_message'];
 
 			if ($err_code == 0) {
-
 				// hitung total anggaran
 				$total_anggaran = $this->calculate_total_anggaran($id);
 				
@@ -634,14 +732,6 @@ class Npd extends CI_Controller {
 				);
 
 				$save_npd = az_crud_save($id, 'npd', $arr_npd);
-				
-				// update status verifikasi dokumen
-				$the_filter = array(
-					'idnpd' => $idnpd,
-					'idnpd_detail' => $id,
-					'type' => 'INPUT NPD'
-				);
-				$update_status = update_status_verifikasi_dokumen($the_filter);
 			}
 		}
 		else{
@@ -697,23 +787,62 @@ class Npd extends CI_Controller {
     function get_list_order() {
 		$idnpd = $this->input->post("idnpd");
 
-		$this->db->where('npd_detail.idnpd', $idnpd);	
+		$this->db->where('npd.idnpd', $idnpd);
+		$this->db->where('npd.status', 1);
 		$this->db->where('npd_detail.status', 1);
 		
-		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+        $this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
 		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'verification_detail.idtransaction = transaction.idtransaction');
-		$this->db->join('transaction_detail', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = transaction_detail.idpaket_belanja');
+		
+        $this->db->select('npd.idnpd, npd_detail.idnpd_detail, npd_detail.idverification, verification.verification_code, npd.npd_status');
+        $npd = $this->db->get('npd');
+        // echo "<pre>"; print_r($this->db->last_query());die;
 
-		$this->db->group_by('npd.npd_status, npd_detail.idnpd_detail, verification_detail.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
+        $arr_data = array();
+        foreach ($npd->result() as $key => $value) {
 
-		$this->db->select('npd.npd_status, npd_detail.idnpd_detail, verification_detail.idverification, verification.verification_code, paket_belanja.nama_paket_belanja');
-		$npd_detail = $this->db->get('npd');
-		// echo "<pre>"; print_r($this->db->last_query()); die;
+			$this->db->where('verification.idverification', $value->idverification);
+			$this->db->where('verification.status', 1);
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
+			$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+			$this->db->where('verification.status_approve = "DISETUJUI" ');
 
-        $data['detail'] = $npd_detail->result_array();
+			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+			$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+			$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+			$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+			$verification = $this->db->get('verification');
+            // echo "<pre>"; print_r($this->db->last_query());die;
+
+            $arr_detail = array();
+            foreach ($verification->result() as $key => $c_value) {
+                $arr_detail[] = array(
+                    'contract_code' => $c_value->contract_code,
+                    'nama_paket_belanja' => $c_value->nama_paket_belanja,
+                    'nama_sub_kategori' => $c_value->nama_sub_kategori,
+                    'volume' => $c_value->volume,
+                );
+            }
+
+            $arr_data[] = array(
+                'idnpd' => $value->idnpd,
+                'idnpd_detail' => $value->idnpd_detail,
+                'verification_code' => $value->verification_code,
+                'npd_status' => $value->npd_status,
+                'arr_detail' => $arr_detail,
+            );
+        }
+        // echo "<pre>"; print_r($arr_data);die;
+
+        $data['arr_data'] = $arr_data;
 
 		$view = $this->load->view('npd/v_npd_table', $data, true);
 		$arr = array(
@@ -754,194 +883,164 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
-			$this->db->where('paket_belanja_detail.status', 1);
+			// $this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
+			// $this->db->where('paket_belanja_detail.status', 1);
 			
-			$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
-			$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-			$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
-			$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
-			// $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
+			// $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+			// $this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
+			// $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+			// $this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
+			// $this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
+			// // $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
 
-			$this->db->select('
-				paket_belanja_detail.idpaket_belanja_detail, 
-				nama_akun_belanja, 
-				status_paket_belanja, 
-				akun_belanja.no_rekening_akunbelanja, 
-				paket_belanja.idpaket_belanja, 
-				akun_belanja.idakun_belanja, 
-				concat( "(", program.no_rekening_program, ") ", program.nama_program) as nama_program, 
-				concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ") ", kegiatan.nama_kegiatan) as nama_kegiatan,
-				concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ".", sub_kegiatan.no_rekening_subkegiatan, ") ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan');
-			$pb_detail = $this->db->get('paket_belanja_detail');
-			// echo "<pre>"; print_r($this->db->last_query());die;
+			// $this->db->select('
+			// 	paket_belanja_detail.idpaket_belanja_detail, 
+			// 	nama_akun_belanja, 
+			// 	status_paket_belanja, 
+			// 	akun_belanja.no_rekening_akunbelanja, 
+			// 	paket_belanja.idpaket_belanja, 
+			// 	akun_belanja.idakun_belanja, 
+			// 	concat( "(", program.no_rekening_program, ") ", program.nama_program) as nama_program, 
+			// 	concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ") ", kegiatan.nama_kegiatan) as nama_kegiatan,
+			// 	concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ".", sub_kegiatan.no_rekening_subkegiatan, ") ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan');
+			// $pb_detail = $this->db->get('paket_belanja_detail');
+			// // echo "<pre>"; print_r($this->db->last_query());die;
 
-			$nama_program = $pb_detail->row()->nama_program;
-			$nama_kegiatan = $pb_detail->row()->nama_kegiatan;
-			$nama_subkegiatan = $pb_detail->row()->nama_subkegiatan;
+			// $nama_program = $pb_detail->row()->nama_program;
+			// $nama_kegiatan = $pb_detail->row()->nama_kegiatan;
+			// $nama_subkegiatan = $pb_detail->row()->nama_subkegiatan;
 
-			$arr_data = array();
-			$arr_detail_sub = array();
-			$total_data = 0;
-			foreach ($pb_detail->result() as $key => $value) {
-				$idpaket_belanja_detail = $value->idpaket_belanja_detail;
-				// $idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
+			// $arr_data = array();
+			// $arr_detail_sub = array();
+			// $total_data = 0;
+			// foreach ($pb_detail->result() as $key => $value) {
+			// 	$idpaket_belanja_detail = $value->idpaket_belanja_detail;
+			// 	// $idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
 
-				$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail = "'.$idpaket_belanja_detail.'" ');
-				$this->db->where('paket_belanja_detail_sub.status', 1);
-				$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
-				$detail_sub = $this->db->get('paket_belanja_detail_sub');
+			// 	$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail = "'.$idpaket_belanja_detail.'" ');
+			// 	$this->db->where('paket_belanja_detail_sub.status', 1);
+			// 	$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
+			// 	$detail_sub = $this->db->get('paket_belanja_detail_sub');
 				
-				$nama_kategori = $detail_sub->row()->nama_kategori;
+			// 	$nama_kategori = $detail_sub->row()->nama_kategori;
 
-					$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub = "'.$detail_sub->row()->idpaket_belanja_detail_sub.'" ');
-					$this->db->where('paket_belanja_detail_sub.status', 1);
-					$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
-					$detail_sub_parent = $this->db->get('paket_belanja_detail_sub');
+			// 		$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub = "'.$detail_sub->row()->idpaket_belanja_detail_sub.'" ');
+			// 		$this->db->where('paket_belanja_detail_sub.status', 1);
+			// 		$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
+			// 		$detail_sub_parent = $this->db->get('paket_belanja_detail_sub');
 
-				if ($detail_sub_parent->num_rows() > 0) {
-					$detail_sub = $detail_sub_parent;
-				}
-				// echo "<pre>"; print_r($this->db->last_query());die;
+			// 	if ($detail_sub_parent->num_rows() > 0) {
+			// 		$detail_sub = $detail_sub_parent;
+			// 	}
+			// 	// echo "<pre>"; print_r($this->db->last_query());die;
 
-				$arr_detail_sub = array();
-				foreach ($detail_sub->result() as $ds_key => $ds_value) {
-					$idsub_kategori = $ds_value->idsub_kategori;
-					$idpaket_belanja_detail_sub = $ds_value->idpaket_belanja_detail_sub;
+			// 	$arr_detail_sub = array();
+			// 	foreach ($detail_sub->result() as $ds_key => $ds_value) {
+			// 		$idsub_kategori = $ds_value->idsub_kategori;
+			// 		$idpaket_belanja_detail_sub = $ds_value->idpaket_belanja_detail_sub;
 
-					$this->db->where('transaction_detail.iduraian', $idsub_kategori);
-					$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-					$this->db->where('npd.idnpd', $idnpd);
-					$this->db->where('npd.status = "1" ');
-					$this->db->where('npd_detail.status = "1" ');
-					$this->db->where('verification.status = "1" ');
-					$this->db->where('verification_detail.status = "1" ');
-					$this->db->where('transaction.status = "1" ');
-					$this->db->where('transaction_detail.status = "1" ');
-					$this->db->where('sub_kategori.status = "1" ');
+			// 		$this->db->where('transaction_detail.iduraian', $idsub_kategori);
+			// 		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+			// 		$this->db->where('npd.idnpd', $idnpd);
+			// 		$this->db->where('npd.status = "1" ');
+			// 		$this->db->where('npd_detail.status = "1" ');
+			// 		$this->db->where('verification.status = "1" ');
+			// 		$this->db->where('verification_detail.status = "1" ');
+			// 		$this->db->where('transaction.status = "1" ');
+			// 		$this->db->where('transaction_detail.status = "1" ');
+			// 		$this->db->where('sub_kategori.status = "1" ');
 
-					$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
-					$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-					$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-					$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
-					$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
-					$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-					$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idsub_kategori = transaction_detail.iduraian');
+			// 		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			// 		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+			// 		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+			// 		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
+			// 		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+			// 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
+			// 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idsub_kategori = transaction_detail.iduraian');
 
-					$this->db->select('npd.idnpd, paket_belanja_detail_sub.idpaket_belanja_detail_sub, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.jumlah AS total_anggaran, "" AS sisa_anggaran, transaction_detail.total AS total_sekarang, "" AS sisa_akhir');
-					$npd = $this->db->get('npd');
-					// echo "<pre>"; print_r($this->db->last_query());die;
+			// 		$this->db->select('npd.idnpd, paket_belanja_detail_sub.idpaket_belanja_detail_sub, transaction_detail.iduraian, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.jumlah AS total_anggaran, "" AS sisa_anggaran, transaction_detail.total AS total_sekarang, "" AS sisa_akhir');
+			// 		$npd = $this->db->get('npd');
+			// 		// echo "<pre>"; print_r($this->db->last_query());die;
 
 					
-					foreach ($npd->result() as $n_key => $n_value) {
+			// 		foreach ($npd->result() as $n_key => $n_value) {
 
-						// Total anggaran => Total pagu anggaran yang sudah ditentukan di menu paket belanja
-						// Sisa Anggaran => total anggaran - sisa anggaran sebelum ada pencairan dana ini
-						// Total Sekarang => total pencairan dana pada npd ini
-						// Sisa Akhir => sisa anggaran - total sekarang
+			// 			// Total anggaran => Total pagu anggaran yang sudah ditentukan di menu paket belanja
+			// 			// Sisa Anggaran => total anggaran - sisa anggaran sebelum ada pencairan dana ini
+			// 			// Total Sekarang => total pencairan dana pada npd ini
+			// 			// Sisa Akhir => sisa anggaran - total sekarang
 
-						$the_filter = array(
-							'npd_date_created' => $npd_date_created,
-							'idpaket_belanja' => $idpaket_belanja,
-							'iduraian' => $n_value->iduraian,
-							'idnpd' => $n_value->idnpd,
-						);
+			// 			$the_filter = array(
+			// 				'npd_date_created' => $npd_date_created,
+			// 				'idpaket_belanja' => $idpaket_belanja,
+			// 				'iduraian' => $n_value->iduraian,
+			// 				'idnpd' => $n_value->idnpd,
+			// 			);
 
-						$sisa_anggaran = $this->calculate_sisa_anggaran($the_filter);
+			// 			$sisa_anggaran = $this->calculate_sisa_anggaran($the_filter);
 
-						// $sisa_anggaran = 0;
-						$sisa_akhir = $n_value->total_anggaran - ($sisa_anggaran + $n_value->total_sekarang);
+			// 			// $sisa_anggaran = 0;
+			// 			$sisa_akhir = $n_value->total_anggaran - ($sisa_anggaran + $n_value->total_sekarang);
 
-						$arr_detail_sub[] = array(
-							'idpaket_belanja' => $idpaket_belanja,
-							'iduraian' => $n_value->iduraian,
-							'idpaket_belanja_detail' => $idpaket_belanja_detail,
-							'idpaket_belanja_detail_sub' => $n_value->idpaket_belanja_detail_sub,
-							'nama_sub_kategori' => $n_value->nama_sub_kategori,
-							'total_anggaran' => $n_value->total_anggaran,
-							'sisa_anggaran' => $sisa_anggaran,
-							'total_sekarang' => $n_value->total_sekarang,
-							'sisa_akhir' => $sisa_akhir,
-							'keterangan' => '',
-						);
+			// 			$arr_detail_sub[] = array(
+			// 				'idpaket_belanja' => $idpaket_belanja,
+			// 				'iduraian' => $n_value->iduraian,
+			// 				'idpaket_belanja_detail' => $idpaket_belanja_detail,
+			// 				'idpaket_belanja_detail_sub' => $n_value->idpaket_belanja_detail_sub,
+			// 				'nama_sub_kategori' => $n_value->nama_sub_kategori,
+			// 				'total_anggaran' => $n_value->total_anggaran,
+			// 				'sisa_anggaran' => $sisa_anggaran,
+			// 				'total_sekarang' => $n_value->total_sekarang,
+			// 				'sisa_akhir' => $sisa_akhir,
+			// 				'keterangan' => '',
+			// 			);
 
-						$total_data++;
-					}
-				}
+			// 			$total_data++;
+			// 		}
+			// 	}
 				
-				$arr_detail = array();
-				if ($detail_sub->num_rows() > 0) {
-					if (strlen($nama_kategori) > 0) {
-						$total_data++;
-					}
+			// 	$arr_detail = array();
+			// 	if ($detail_sub->num_rows() > 0) {
+			// 		if (strlen($nama_kategori) > 0) {
+			// 			$total_data++;
+			// 		}
 
-					$arr_detail[] = array(
-						'nama_kategori' => $nama_kategori,
-						'arr_detail_sub' => $arr_detail_sub,
-					);
-				}
+			// 		$arr_detail[] = array(
+			// 			'nama_kategori' => $nama_kategori,
+			// 			'arr_detail_sub' => $arr_detail_sub,
+			// 		);
+			// 	}
 
-				if (count($arr_detail) > 0 && count($arr_detail_sub) > 0) {
-					$total_data++;
+			// 	if (count($arr_detail) > 0 && count($arr_detail_sub) > 0) {
+			// 		$total_data++;
 
-					$arr_data[] = array(
-						'no_rekening_akunbelanja' => $value->no_rekening_akunbelanja,
-						'nama_akun_belanja' => $value->nama_akun_belanja,
-						'total_data' => $total_data,
-						'arr_detail' => $arr_detail,
-					);
+			// 		$arr_data[] = array(
+			// 			'no_rekening_akunbelanja' => $value->no_rekening_akunbelanja,
+			// 			'nama_akun_belanja' => $value->nama_akun_belanja,
+			// 			'total_data' => $total_data,
+			// 			'arr_detail' => $arr_detail,
+			// 		);
 
-					$total_data = 0;
-				}
-			}
-			// echo "<pre>"; print_r($arr_data);die;
+			// 		$total_data = 0;
+			// 	}
+			// }
+			// // echo "<pre>"; print_r($arr_data);die;
 
 			$the_data = array(
 				'nomor_surat' => $npd_code,
 				'npd_date' => $npd_date,
 				'pptk' => az_get_config('PPTK', 'config'),
-				'program' => $nama_program,
-				'kegiatan' => $nama_kegiatan,
-				'sub_kegiatan' => $nama_subkegiatan,
+				// 'program' => $nama_program,
+				// 'kegiatan' => $nama_kegiatan,
+				// 'sub_kegiatan' => $nama_subkegiatan,
 				'nomor_dpa' => az_get_config('nomor_DPA', 'config'),
 				'tahun_anggaran' => az_get_config('tahun_anggaran', 'config'),
-				'arr_data' => $arr_data,
+				// 'arr_data' => $arr_data,
 			);
 
 			// echo "<pre>"; print_r($the_data);die;
 			$this->load->view('npd/v_label', $the_data);
 		}
-	}
-
-	function get_data_detail() {
-		
-	}
-
-	function query_paket_belanja_detail_sub($idpaket_belanja_detail) {
-		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
-		$this->db->where('paket_belanja_detail_sub.status', 1);
-		$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
-		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori,
-		paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-		$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
-
-		return $pb_detail_sub;
-	}
-
-	function query_paket_belanja_detail_sub_sub($idpaket_belanja_detail_sub) {
-		$this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-		$this->db->where('paket_belanja_detail_sub.status', 1);
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
-		$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
-
-		return $pd_detail_sub_sub;
 	}
 
 	// mapping bulan Indonesia
@@ -1054,23 +1153,22 @@ class Npd extends CI_Controller {
 	}
 
 	function calculate_total_anggaran($idnpd) {
+
 		$this->db->where('npd_detail.idnpd', $idnpd);
 		$this->db->where('npd_detail.status', 1);
 		$this->db->where('verification.status', 1);
-		$this->db->where('verification_detail.status', 1);
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization.realization_status != "DRAFT" ');
 		$this->db->where('verification.verification_status != "DRAFT" ');
 
 		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
-
-		$this->db->select('sum(transaction.total_realisasi) as total_anggaran');
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+		
+		$this->db->select('sum(budget_realization.total_realization) as total_realization');
 		$npd_detail = $this->db->get('npd_detail');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
-		$total_anggaran = azobj($npd_detail->row(), 'total_anggaran', 0);
+		$total_anggaran = azobj($npd_detail->row(), 'total_realization', 0);
 
 		return $total_anggaran;
 	}

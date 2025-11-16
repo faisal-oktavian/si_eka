@@ -32,7 +32,7 @@
 		show_modal('add');
 
 		jQuery('#form_add').find('.detail-dokumen').addClass('hide');
-		// jQuery('#idtransaction_detail').val('');
+		jQuery('#idnpd_detail').val('');
 		jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
 	});
 
@@ -55,7 +55,7 @@
 
 	jQuery('body').on('change', '#search_dokumen', function() {
 		var id = jQuery(this).val();
-		console.log('asdasda '+id);
+		// console.log('asdasda '+id);
 		
 		select_dokumen(id);
 	});
@@ -66,14 +66,14 @@
 			type: 'POST', 
 			dataType: 'JSON',
 			data: {
-				id: idverification
+				idverification: idverification
 			},
 			success: function(response) {
 				jQuery('#form_add').find('.detail-dokumen').removeClass('hide');
 				
 				jQuery('#idverification').val(response.idverification);
 				jQuery('#verification_code').val(response.verification_code);
-				jQuery('#nama_paket_belanja').val(response.nama_paket_belanja);
+				jQuery('#form_add').find('.detail-dokumen').html(response.data);
 
 				jQuery('#search_dokumen').val('').trigger('change.select2');
 			},
@@ -106,7 +106,7 @@
 		});
 	});
 	
-	// generate_transaction(3);
+	// generate_transaction(1);
 	function generate_transaction(idnpd) {
 		jQuery.ajax({
 			url: app_url+'npd/get_list_order/',

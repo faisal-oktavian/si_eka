@@ -38,8 +38,8 @@
 		<table class="table table-bordered table-condensed" id="table_dokumen">
 			<thead>
 				<tr>
-					<th>Nomor Dokumen</th>
-					<th width="auto">Nama Paket Belanja</th>
+					<th>Nomor Verifikasi Dokumen</th>
+					<th width="auto">Detail</th>
 					<th width="130px">Aksi</th>
 				</tr>
 			</thead>
