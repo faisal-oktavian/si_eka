@@ -76,7 +76,7 @@ class Payment extends CI_Controller {
 		$js = az_add_js('payment/vjs_payment');
 		$azapp->add_js($js);
 
-		$data_header['title'] = 'Payment';
+		$data_header['title'] = 'Pembayaran';
 		$data_header['breadcrumb'] = array('payment');
 		$azapp->set_data_header($data_header);
 
