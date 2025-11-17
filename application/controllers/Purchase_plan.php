@@ -482,14 +482,46 @@ class Purchase_plan extends CI_Controller {
 				$idpurchase_plan = azarr($save_plan, 'insert_id');
 			}
 			else {
-				if ($status != "DRAFT") {
-					$the_filter = array(
-						'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
-						'idpaket_belanja' => $idpaket_belanja,
-						'status' => "PROSES PENGADAAN",
-					);
-		
-					update_status_detail_pb($the_filter);
+				// validasi apakah data paket belanja yang disimpan sama?
+				// jika tidak maka data tidak perlu disimpan
+
+				$this->db->where('status', 1);
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('idpurchase_plan', $idpurchase_plan);
+				$ppd = $this->db->get('purchase_plan_detail');
+
+				if ($ppd->num_rows() == 0) {
+					$err_code++;
+					$err_message = "Paket Belanja yang anda inputkan berbeda dengan paket belanja yang telah diinputkan sebelumnya. <br>";
+					$err_message .= "Silahkan menginputkan data dengan paket belanja yang sama.";
+				}
+
+				// validasi uraian tidak boleh sama dalam 1 transaksi
+				if ($err_code == 0) {
+					$this->db->where('status', 1);
+					$this->db->where('idpurchase_plan', $idpurchase_plan);
+					$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+					$ppd = $this->db->get('purchase_plan_detail');
+					// echo "<pre>"; print_r($this->db->last_query()); die;
+
+					if ($ppd->num_rows() > 0) {
+						$err_code++;
+						$err_message = "Uraian yang anda inputan sama dengan data sebelumnya<br>";
+						$err_message .= "Anda bisa mengedit uraian yang telah diinput.";
+					}
+				}
+
+				if ($err_code == 0) {
+
+					if ($status != "DRAFT") {
+						$the_filter = array(
+							'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
+							'idpaket_belanja' => $idpaket_belanja,
+							'status' => "PROSES PENGADAAN",
+						);
+			
+						update_status_detail_pb($the_filter);
+					}
 				}
 			}
             
