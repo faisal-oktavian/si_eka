@@ -317,8 +317,14 @@ class Purchase_plan extends CI_Controller {
 
         $this->db->where(' ('.$query_where.') ');
 		$this->db->where('pb.status', 1);
-		$this->db->where('pb.status_paket_belanja = "OK" ');
+		// $this->db->where('pb.status_paket_belanja = "OK" ');
 		$this->db->where('pbd.status', 1);
+		
+		$this->db->group_start();
+        $this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
+        $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
+        $this->db->group_end();
+
         $this->db->group_start();
         $this->db->like('pb.nama_paket_belanja', $keyword);
         $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
@@ -327,9 +333,12 @@ class Purchase_plan extends CI_Controller {
 		
         $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
 
-		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail 
-			AND pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ', 'left', false); // false ← PENTING: jangan escape!
-		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub AND pbds_child.status_detail_step = "INPUT PAKET BELANJA" ', 'left', false); // false ← PENTING: jangan escape!
+		// $this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail 
+		// 	AND pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ', 'left', false); // false ← PENTING: jangan escape!
+		// $this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub AND pbds_child.status_detail_step = "INPUT PAKET BELANJA" ', 'left', false); // false ← PENTING: jangan escape!
+		
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail', 'left', false); // false ← PENTING: jangan escape!
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left', false); // false ← PENTING: jangan escape!
         $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
         $this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
 
@@ -355,12 +364,14 @@ class Purchase_plan extends CI_Controller {
 
         $this->db->where(' (pbds_parent.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" OR pbds_child.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'") ');
         $this->db->where('pb.status', 1);
-		$this->db->where('pb.status_paket_belanja = "OK" ');
+		// $this->db->where('pb.status_paket_belanja = "OK" ');
 		$this->db->where('pbd.status', 1);
 
         $this->db->group_start();
-		$this->db->where('pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ');
-		$this->db->or_where('pbds_child.status_detail_step = "INPUT PAKET BELANJA" ');
+		// $this->db->where('pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ');
+		// $this->db->or_where('pbds_child.status_detail_step = "INPUT PAKET BELANJA" ');
+		$this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
+        $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
         $this->db->group_end();
 
 		
@@ -380,7 +391,7 @@ class Purchase_plan extends CI_Controller {
             pb.nama_paket_belanja,
             COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id, 
             COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori) AS nama_sub_kategori, 
-            COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
+            COALESCE( (pbds_child.volume - pbds_child.volume_realization), (pbds_parent.volume - pbds_parent.volume_realization) ) AS volume,
             COALESCE(satuan_child.nama_satuan, satuan_parent.nama_satuan) AS nama_satuan,
             COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan
         ');
@@ -409,7 +420,7 @@ class Purchase_plan extends CI_Controller {
 	 	$idpaket_belanja = $this->input->post('idpaket_belanja');
 	 	$idpurchase_plan_detail = $this->input->post('idpurchase_plan_detail');
         $idpaket_belanja_detail_sub = $this->input->post('idpaket_belanja_detail_sub');
-        $volume = $this->input->post('volume');
+        $volume = az_crud_number($this->input->post('volume'));
         $purchase_plan_detail_total = $this->input->post('purchase_plan_detail_total');
 
 		$this->load->library('form_validation');
@@ -448,6 +459,8 @@ class Purchase_plan extends CI_Controller {
 
 			if ($pbds->num_rows() > 0) {
 				$volume_paket_belanja = $pbds->row()->volume;
+				$volume_realization = $pbds->row()->volume_realization;
+				$volume_paket_belanja -= $volume_realization;
 
 				$this->db->where('idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
 				$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
@@ -467,7 +480,7 @@ class Purchase_plan extends CI_Controller {
 				}
 			}
 		}
-
+		
 		if ($err_code == 0) {
 
 			if (strlen($idpurchase_plan) == 0) {
@@ -501,6 +514,7 @@ class Purchase_plan extends CI_Controller {
 					$this->db->where('status', 1);
 					$this->db->where('idpurchase_plan', $idpurchase_plan);
 					$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+					$this->db->where('idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
 					$ppd = $this->db->get('purchase_plan_detail');
 					// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -521,6 +535,10 @@ class Purchase_plan extends CI_Controller {
 						);
 			
 						update_status_detail_pb($the_filter);
+
+
+						// hitung total volume yang sudah terealisasi
+						calculate_realisasi_volume($idpaket_belanja_detail_sub);
 					}
 				}
 			}
@@ -562,7 +580,7 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where(' (pd_parent.idpurchase_plan_detail = "'.$id.'" OR pd_child.idpurchase_plan_detail = "'.$id.'") ');
 
         $this->db->where('pb.status', 1);
-		$this->db->where('pb.status_paket_belanja = "OK" ');
+		// $this->db->where('pb.status_paket_belanja = "OK" ');
 		$this->db->where('pbd.status', 1);
 		
         $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
@@ -663,6 +681,9 @@ class Purchase_plan extends CI_Controller {
 			if ($err_code == 0) {
 				// hitung total transaksi
 				$this->calculate_total_budget($idpurchase_plan);
+
+				// hitung total volume yang sudah terealisasi
+				calculate_realisasi_volume($idpaket_belanja_detail_sub);
 			}
 		}
 		else{
@@ -728,6 +749,7 @@ class Purchase_plan extends CI_Controller {
 			$this->db->where('purchase_plan_detail.status', 1);
 			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 			$purchase_plan = $this->db->get('purchase_plan');
+			// echo "<pre>"; print_r($this->db->last_query()); die;
 
 			if ($purchase_plan->num_rows() > 0) {
 				$status = $purchase_plan->row()->purchase_plan_status;
@@ -757,14 +779,20 @@ class Purchase_plan extends CI_Controller {
 			// hitung total transaksi
 			$this->calculate_total_budget($idpurchase_plan);
 
-			// update status paket belanja
 			foreach ($purchase_plan->result() as $key => $value) {
+				$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
+				$idpaket_belanja = $value->idpaket_belanja;
+				
+				// hitung total volume yang sudah terealisasi
+				calculate_realisasi_volume($idpaket_belanja_detail_sub);
+
 				$the_filter = array(
-					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
-					'idpaket_belanja' => $value->idpaket_belanja,
+					'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
+					'idpaket_belanja' => $idpaket_belanja,
 					'status' => "PROSES PENGADAAN",
 				);
-	
+				
+				// update status paket belanja
 				update_status_detail_pb($the_filter);
 			}
 		}
@@ -854,6 +882,9 @@ class Purchase_plan extends CI_Controller {
 				);
 
 				update_status_detail_pb($the_filter);	
+
+				// hitung total volume yang sudah terealisasi
+				calculate_realisasi_volume($value->idpaket_belanja_detail_sub);
 			}
 
 			az_crud_delete($this->table, $id);

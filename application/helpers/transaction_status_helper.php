@@ -316,6 +316,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 	}
 
+	
+	// hitung volume yang sudah terealisasi
+	function calculate_realisasi_volume($idpaket_belanja_detail_sub) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$ci->db->where('status', 1);
+		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$ci->db->select_sum('volume');
+		$ppd = $ci->db->get('purchase_plan_detail');
+
+		$volume_realization = 0;
+		if ($ppd->num_rows() > 0) {
+			$volume_realization = $ppd->row()->volume;
+		}
+
+		$arr_update = array(
+			'volume_realization' => $volume_realization,
+		);
+
+		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$ci->db->update('paket_belanja_detail_sub', $arr_update);
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
 
 
 
