@@ -380,12 +380,12 @@
 
 				jQuery('#transaction_description').val('');
 				
-				if (res == 1) {
-					jQuery('.description').removeClass('hide');
-				}
-				else {
-					jQuery('.description').addClass('hide');
-				}
+				// if (res == 1) {
+				// 	jQuery('.description').removeClass('hide');
+				// }
+				// else {
+				// 	jQuery('.description').addClass('hide');
+				// }
 			}
 		});
 	}
