@@ -234,6 +234,30 @@ class Budget_realization extends CI_Controller {
 		$modal->set_modal($v_modal);
 		$modal->set_action_modal(array('save'=>'Simpan'));
 		$azapp->add_content($modal->render());
+
+		// get data purchase_contract
+		$purchase_contract = $azapp->add_crud();
+		$purchase_contract->set_column(array('#', "Tanggal Kontrak", "Nomor Kontrak", "Detail"));
+		$purchase_contract->set_th_class(array('', '', '', '', '', '', '', '', ''));
+		$purchase_contract->set_width('auto, 100px, 100px, auto');
+		$purchase_contract->set_id($this->controller . '2');
+		$purchase_contract->set_default_url(false);
+		$purchase_contract->set_btn_add(false);
+
+		$purchase_contract->set_url("app_url+'budget_realization/get_contract'");
+		$purchase_contract->set_url_edit("app_url+'budget_realization/edit_contract'");
+		$purchase_contract->set_url_delete("app_url+'budget_realization/delete_contract'");
+		$purchase_contract->set_url_save("app_url+'budget_realization/save_contract'");
+		// $purchase_contract->set_callback_table_complete('callback_check_contract_table();');
+		$data_add['contract'] = $purchase_contract->render();
+
+		$v_modal_2 = $this->load->view('budget_realization/v_select_contract_modal', $data_add, true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('select_contract');
+		$modal->set_modal_title('Cari Kontrak Pengadaan');
+		$modal->set_modal($v_modal_2);
+		$modal->set_action_modal(array('save'=>'Simpan'));
+		$azapp->add_content($modal->render());
 		
 		$js = az_add_js('budget_realization/vjs_budget_realization_add', $data);
 		$azapp->add_js($js);
@@ -243,6 +267,120 @@ class Budget_realization extends CI_Controller {
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
+	}
+
+	public function get_contract()
+	{
+		$this->load->library('AZApp');
+		$crud_contract = $this->azapp->add_crud();
+
+		$crud_contract->set_select('contract.idcontract, contract.idcontract as txt_idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as detail');
+        $crud_contract->set_select_table('idcontract, txt_idcontract, txt_contract_date, contract_code, detail');
+        $crud_contract->set_sorting('contract_code');
+        $crud_contract->set_filter('contract_code');
+		$crud_contract->set_id($this->controller . '2');
+		$crud_contract->set_select_align(', , , center');
+		$crud_contract->set_custom_first_column(true);
+
+        $crud_contract->add_join_manual('user user_created', 'contract.iduser_created = user_created.iduser', 'left');
+        
+		$crud_contract->add_where("contract.status = 1");
+		$crud_contract->add_where("contract.contract_status != 'DRAFT' ");
+
+		$crud_contract->set_table('contract');
+		$crud_contract->set_custom_style('custom_style_contract');
+		$crud_contract->set_order_by('contract_date desc');
+		echo $crud_contract->get_table();
+	}
+
+	function custom_style_contract($key, $value, $data) {
+		$idcontract = azarr($data, 'idcontract');
+		$contract_code = azarr($data, 'contract_code');
+
+		if ($key == 'txt_idcontract') {
+			$id = '<button class="btn btn-success btn-xs btn-select-contract" type="button" data_id="'.$idcontract.'" data_code="'.$contract_code.'"> Pilih</button>';
+
+			return $id;
+		}
+
+		if ($key == 'detail') {
+            $this->db->where('contract.idcontract', $idcontract);
+            $this->db->where('contract.status', 1);
+            $this->db->where('contract.contract_status != "DRAFT"');
+            $this->db->where('contract_detail.status', 1);
+            
+            $this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+            $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+            
+            $this->db->group_by('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
+            $this->db->select('contract.idcontract, contract_detail.idcontract_detail, purchase_plan.purchase_plan_code');
+            $contract = $this->db->get('contract');
+            // echo "<pre>"; print_r($this->db->last_query());die;
+
+            $arr_data = array();
+            foreach ($contract->result() as $key => $value) {
+
+                $this->db->where('contract_detail.idcontract_detail', $value->idcontract_detail);
+                $this->db->where('contract_detail.status', 1);
+                $this->db->where('purchase_plan.status', 1);
+                $this->db->where('purchase_plan_detail.status', 1);
+                $this->db->where('paket_belanja.status', 1);
+
+                $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+                $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+                $this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+                $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+                $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+                $contract_detail = $this->db->get('contract_detail');
+                // echo "<pre>"; print_r($this->db->last_query());die;
+
+                $arr_detail = array();
+                foreach ($contract_detail->result() as $key => $c_value) {
+                    $arr_detail[] = array(
+                        'purchase_plan_code' => $value->purchase_plan_code,
+                        'nama_paket_belanja' => $c_value->nama_paket_belanja,
+                        'nama_sub_kategori' => $c_value->nama_sub_kategori,
+                        'volume' => $c_value->volume,
+                    );
+                }
+
+                $arr_data[] = array(
+                    'arr_detail' => $arr_detail,
+                );
+            }
+            // echo "<pre>"; print_r($arr_data);die;
+
+			$table = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
+			$table .=	"<thead>";
+			$table .=		"<tr>";
+			$table .=			"<th width='100px;'>Nomor Rencana</th>";
+			$table .=			"<th width='300px;'>Nama Paket Belanja</th>";
+			$table .=			"<th width='200px'>Uraian</th>";
+			$table .=			"<th width='50px'>Volume</th>";
+			$table .=		"</tr>";
+			$table .=	"</thead>";
+			$table .=	"<tbody>";
+			
+			foreach ((array) $arr_data as $key => $value) {
+                foreach ($value['arr_detail'] as $key => $dvalue) {
+                    $table .= "<tr>";
+                    $table .=       "<td>".$dvalue['purchase_plan_code']."</td>";
+                    $table .=       "<td>".$dvalue['nama_paket_belanja']."</td>";
+                    $table .=       "<td>".$dvalue['nama_sub_kategori']."</td>";
+                    $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";
+                    $table .= "</tr>";
+                }
+			}
+
+			$table .=	"</tbody>";
+			$table .= "</table>";
+
+			return $table;
+		}
+
+		return $value;
 	}
 
 	function select_paket_belanja() {

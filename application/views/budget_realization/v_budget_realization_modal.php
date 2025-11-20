@@ -5,7 +5,14 @@
 	<div class="form-group">
 		<label class="control-label col-sm-3">Nomor Kontrak</label>
 		<div class="col-sm-8">
-            <?php echo az_select_contract_code();?>
+            <div class="row">
+                <div class="col-sm-10">
+                    <?php echo az_select_contract_code();?>
+                </div>
+                <div class="col-sm-2 text-right">
+                    <button class="btn btn-primary btn-show-contract" type="button">Cari</button>
+                </div>
+            </div>
 		</div>
 	</div>
     <div class="form-group ">

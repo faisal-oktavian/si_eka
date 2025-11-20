@@ -36,6 +36,21 @@
 		}
 	});
 
+	jQuery('body').on('click', '.btn-show-contract', function() {
+		show_modal('select_contract');
+
+		jQuery('#form_select_contract').find('.btn-action-save').hide();
+	});
+
+	jQuery('body').on('click', '.btn-select-contract', function() {
+		hide_modal('select_contract');
+
+		var idcontract = jQuery(this).attr('data_id');
+		var contract_code = jQuery(this).attr('data_code');
+
+		jQuery('#form_add').find("#idcontract").append(new Option(contract_code, idcontract, true, true)).trigger('change');
+	});
+
 	jQuery('body').on('change', '#idcontract', function() {
 		jQuery('#form_add').find('.detail-paket-belanja').addClass('hide');
 	});
