@@ -31,11 +31,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			}
 		}
 		else if ($menu == "REALISASI ANGGARAN") {
-			$key = array_search("MENUNGGU VERIFIKASI", $arr_validation);
+			$remove = array('MENUNGGU VERIFIKASI', 'DITOLAK VERIFIKATOR');
 
-			if ($key !== false) {
-				unset($arr_validation[$key]);
-			}
+			$arr_validation = array_values(array_diff($arr_validation, $remove));
+			
+			// $key = array_search("MENUNGGU VERIFIKASI", $arr_validation);
+
+			// if ($key !== false) {
+			// 	unset($arr_validation[$key]);
+			// }
 		}
 		else if ($menu == "VERIFIKASI DOKUMEN") {
 			if ($type == "save") {
