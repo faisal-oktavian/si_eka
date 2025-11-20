@@ -24,8 +24,12 @@
 		
 		show_modal('add_contract');
 
-		jQuery('#form_add').find('.detail-dokumen').addClass('hide');
-		jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
+		// jQuery('#form_add').find('#idcontract').val('');
+		jQuery('#form_add').find('#idcontract_detail').val('');
+		jQuery('.btn-action-save').hide();
+
+		// jQuery('#form_add').find('.detail-dokumen').addClass('hide');
+		// jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
 	});
 
 	jQuery("#search_dokumen").select2({
@@ -72,13 +76,16 @@
 		});
 	}
 
-	jQuery('body').on('click', '.btn-action-save', function() {
+	jQuery('body').on('click', '.btn-select-plan', function() {
+
+		var idpurchase_plan = jQuery(this).attr('data_id');
+		console.log(idpurchase_plan);
 		// show_loading();
 		jQuery.ajax({
 			url: app_url + 'purchase_contract/add_save',
 			type: 'POST',
 			dataType: 'JSON',
-			data: jQuery('#form_add').serialize(),
+			data: jQuery('#form_add').serialize() + '&idpurchase_plan=' + idpurchase_plan,
 			success: function(response) {
 				hide_loading();
 				if (response.err_code > 0) {
@@ -96,6 +103,31 @@
 			error: function(response) {}
 		});
 	});
+
+	// jQuery('body').on('click', '.btn-action-save', function() {
+	// 	// show_loading();
+	// 	jQuery.ajax({
+	// 		url: app_url + 'purchase_contract/add_save',
+	// 		type: 'POST',
+	// 		dataType: 'JSON',
+	// 		data: jQuery('#form_add').serialize(),
+	// 		success: function(response) {
+	// 			hide_loading();
+	// 			if (response.err_code > 0) {
+	// 				bootbox.alert(response.err_message);
+	// 			}
+	// 			else {
+	// 				hide_modal('add_contract');
+
+	// 				jQuery('#idcontract').val(response.idcontract);
+	// 				jQuery('#hd_idcontract').val(response.idcontract);
+
+	// 				generate_transaction(response.idcontract);
+	// 			}
+	// 		},
+	// 		error: function(response) {}
+	// 	});
+	// });
 	
 	// generate_transaction(2);
 	function generate_transaction(idcontract) {
@@ -151,10 +183,10 @@
 
 				show_modal('add_contract');
 
-				jQuery('#form_add').find('.detail-dokumen').addClass('hide');
+				// jQuery('#form_add').find('.detail-dokumen').addClass('hide');
 				jQuery('#idcontract_detail').val(id);
 				jQuery('#idcontract').val(response.data.idcontract);
-				jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');
+				// jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');
 
 				select_dokumen(response.data.idpurchase_plan);
 			},

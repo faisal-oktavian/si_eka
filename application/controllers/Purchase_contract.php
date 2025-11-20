@@ -252,7 +252,25 @@ class Purchase_contract extends CI_Controller {
 		$view = $this->load->view('purchase_contract/v_purchase_contract', $data, true);
 		$azapp->add_content($view);
 
-		$v_modal = $this->load->view('purchase_contract/v_purchase_contract_modal', '', true);
+		// get data purchase_plan
+		$purchase_plan = $azapp->add_crud();
+		$purchase_plan->set_column(array('#', "Tanggal Rencana", "Nomor Rencana", "Detail"));
+		$purchase_plan->set_th_class(array('', '', '', '', '', '', '', '', ''));
+		$purchase_plan->set_width('auto, 100px, 100px, auto');
+		$purchase_plan->set_id($this->controller . '2');
+		$purchase_plan->set_default_url(false);
+		$purchase_plan->set_btn_add(false);
+
+		$purchase_plan->set_url("app_url+'purchase_contract/get_plan'");
+		$purchase_plan->set_url_edit("app_url+'purchase_contract/edit_plan'");
+		$purchase_plan->set_url_delete("app_url+'purchase_contract/delete_plan'");
+		$purchase_plan->set_url_save("app_url+'purchase_contract/save_plan'");
+		// $purchase_plan->set_callback_table_complete('callback_check_plan_table();');
+		$data_add['plan'] = $purchase_plan->render();
+
+		$data_add['id'] = '';
+
+		$v_modal = $this->load->view('purchase_contract/v_purchase_contract_modal', $data_add, true);
 		$modal = $azapp->add_modal();
 		$modal->set_id('add_contract');
 		$modal->set_modal_title('Tambah Kontrak Pengadaan');
@@ -270,58 +288,75 @@ class Purchase_contract extends CI_Controller {
 		echo $azapp->render();
 	}
 
-    function search_dokumen() {
-		$keyword = $this->input->get("term");
+	public function get_plan()
+	{
+		$this->load->library('AZApp');
+		$crud_plan = $this->azapp->add_crud();
 
-		$this->db->group_start();
-		$this->db->like('paket_belanja.nama_paket_belanja', $keyword);
-		$this->db->or_like('purchase_plan.purchase_plan_code', $keyword);
-		$this->db->group_end();
+		$crud_plan->set_select('purchase_plan.idpurchase_plan, purchase_plan.idpurchase_plan as txt_idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created');        
+        $crud_plan->set_select_table('idpurchase_plan, txt_idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
+        $crud_plan->set_sorting('purchase_plan_date, purchase_plan_code, purchase_plan_status');
+        $crud_plan->set_filter('purchase_plan_date, purchase_plan_code, purchase_plan_status');
+		$crud_plan->set_id($this->controller . '2');
+		$crud_plan->set_select_align(' , , , center');
+		$crud_plan->set_custom_first_column(true);
 
-		$this->db->where('purchase_plan.purchase_plan_status = "PROSES PENGADAAN" ');
-		$this->db->where('purchase_plan.status', 1);
-		$this->db->where('purchase_plan_detail.status', 1);
-		$this->db->where('paket_belanja.status', 1);
+        $crud_plan->add_join_manual('user', 'purchase_plan.iduser_created = user.iduser');
+        
+		$crud_plan->add_where("purchase_plan.status = 1");
+		$crud_plan->add_where("purchase_plan.purchase_plan_status = 'PROSES PENGADAAN' ");
 
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
-
-		$this->db->group_by('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code');
-		
-		$this->db->select('purchase_plan.idpurchase_plan as id, purchase_plan.purchase_plan_code as text');
-		$data = $this->db->get('purchase_plan');
-		// echo "<pre>"; print_r($this->db->last_query());die;
-
-		$results = array(
-			"results" => $data->result_array(),
-		);
-		echo json_encode($results);
+		$crud_plan->set_table('purchase_plan');
+		$crud_plan->set_custom_style('custom_style_plan');
+		$crud_plan->set_order_by('purchase_plan_date desc');
+		echo $crud_plan->get_table();
 	}
 
-    function select_dokumen() {
-		$idpurchase_plan = $this->input->post('idpurchase_plan');
+	function custom_style_plan($key, $value, $data) {
+		$idpurchase_plan = azarr($data, 'idpurchase_plan');
 
-		$this->db->where('purchase_plan.idpurchase_plan', $idpurchase_plan);
-		$this->db->where('purchase_plan.status', 1);
-		$this->db->where('purchase_plan_detail.status', 1);
-		$this->db->where('paket_belanja.status', 1);
+		if ($key == 'txt_idpurchase_plan') {
+			$id = '<button class="btn btn-success btn-xs btn-select-plan" type="button" data_id="'.$idpurchase_plan.'"> Pilih</button>';
 
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
-        $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+			return $id;
+		}
 
-		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
-		$data['purchase_plan'] = $this->db->get('purchase_plan');
-		// echo "<pre>"; print_r($this->db->last_query());die;
+		if ($key == "detail") {
+			$this->db->where('purchase_plan_detail.idpurchase_plan = "'.$idpurchase_plan.'" ');
+			$this->db->where('purchase_plan_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 
-        $view = $this->load->view('purchase_contract/v_select_document_table', $data, true);
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-		$arr = array(
-			'data' => $view,
-            'idpurchase_plan' => $data['purchase_plan']->row()->idpurchase_plan,
-		);
-		echo json_encode($arr);
+			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+			$purchase_plan = $this->db->get('purchase_plan');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			$html = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
+			$html .= 	'<tr>';
+			$html .= 		'<th width="320px">Nama Paket Belanja</th>';
+			$html .= 		'<th width="200px">Uraian</th>';
+			$html .= 		'<th width="80px">Volume</th>';
+			$html .= 	'</tr>';
+
+			foreach ($purchase_plan->result() as $key => $value) {
+				$html .= '<tr>';
+				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
+				$html .= 	'<td>'.$value->nama_sub_kategori.'</td>';
+				$html .= 	'<td align="center">'.$value->volume.'</td>';
+				$html .= '</tr>';
+			}
+
+			$html .= '</table>';
+
+			return $html;
+		}
+
+		return $value;
 	}
 
     function add_save() {
@@ -392,6 +427,25 @@ class Purchase_contract extends CI_Controller {
 			}
             
 			if ($err_code == 0) {
+
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('contract.idcontract', $idcontract);
+				$check = $this->db->get('contract');
+
+				if (strlen($idcontract_detail) > 0) {
+					if ($check->row()->contract_status != "DRAFT") {
+
+						$this->db->where('idcontract_detail', $idcontract_detail);
+						$contract_detail = $this->db->get('contract_detail');
+
+						$the_filter = array(
+							'idpurchase_plan' => $contract_detail->row()->idpurchase_plan,
+							'status' => 'PROSES PENGADAAN'
+						);
+						$update_status = update_status_purchase_plan($the_filter);
+					}
+				}
+
 				//transaction detail
 				$arr_contract_detail = array(
 					'idcontract' => $idcontract,
@@ -400,11 +454,6 @@ class Purchase_contract extends CI_Controller {
 				
 				$contract_detail = az_crud_save($idcontract_detail, 'contract_detail', $arr_contract_detail);
 				$idcontract_detail = azarr($contract_detail, 'insert_id');
-				
-
-				// cek apakah datanya baru diinput / edit data
-				$this->db->where('idcontract', $idcontract);
-				$check = $this->db->get('contract');
 
 				if ($check->row()->contract_status != "DRAFT") {
 					$the_filter = array(
@@ -877,5 +926,62 @@ class Purchase_contract extends CI_Controller {
         // Purchase Contract => PC
 
 		return $contract_code;
+	}
+
+
+
+	///////////// tidak terpakai /////////////
+	function search_dokumen() {
+		$keyword = $this->input->get("term");
+
+		$this->db->group_start();
+		$this->db->like('paket_belanja.nama_paket_belanja', $keyword);
+		$this->db->or_like('purchase_plan.purchase_plan_code', $keyword);
+		$this->db->group_end();
+
+		$this->db->where('purchase_plan.purchase_plan_status = "PROSES PENGADAAN" ');
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('paket_belanja.status', 1);
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+
+		$this->db->group_by('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code');
+		
+		$this->db->select('purchase_plan.idpurchase_plan as id, purchase_plan.purchase_plan_code as text');
+		$data = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+		$results = array(
+			"results" => $data->result_array(),
+		);
+		echo json_encode($results);
+	}
+
+    function select_dokumen() {
+		$idpurchase_plan = $this->input->post('idpurchase_plan');
+
+		$this->db->where('purchase_plan.idpurchase_plan', $idpurchase_plan);
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('paket_belanja.status', 1);
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+        $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+		$data['purchase_plan'] = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+        $view = $this->load->view('purchase_contract/v_select_document_table', $data, true);
+
+		$arr = array(
+			'data' => $view,
+            'idpurchase_plan' => $data['purchase_plan']->row()->idpurchase_plan,
+		);
+		echo json_encode($arr);
 	}
 }
