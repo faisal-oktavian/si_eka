@@ -568,6 +568,24 @@ class Budget_realization extends CI_Controller {
 			}	
 		}
 
+		// validasi volume realisasi tidak boleh lebih dari kontrak pengadaan
+		if ($err_code == 0) {
+			$this->db->where('contract_detail.idcontract_detail', $data_idcontract_detail);
+			$this->db->where('paket_belanja_detail_sub.idsub_kategori', $data_idsub_kategori);
+
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+			
+			$this->db->select('purchase_plan_detail.volume');
+			$contract_detail = $this->db->get('contract_detail');
+			
+			if ($volume > $contract_detail->row()->volume) {
+				$err_code++;
+				$err_message = "Volume realisasi tidak boleh lebih dari volume pada kontrak pengadaan.";
+			}
+		}
+		
 		if ($err_code == 0) {
 
 			if (strlen($idbudget_realization) == 0) {
