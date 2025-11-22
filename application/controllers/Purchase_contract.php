@@ -395,6 +395,27 @@ class Purchase_contract extends CI_Controller {
 			}	
 		}
 
+		// validasi status
+		if ($err_code == 0) {
+			$this->db->where('contract.idcontract', $idcontract);
+			$this->db->where('contract.status', 1);
+			$this->db->where('contract_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan_detail.status', 1);
+			$this->db->where('purchase_plan_detail.purchase_plan_detail_status != "KONTRAK PENGADAAN" ');
+
+			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+			$_contract = $this->db->get('contract');
+
+			if ($_contract->num_rows() > 0) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus, karena uraian sudah masuk di realisasi anggaran.";
+			}
+		}
+
 		if ($err_code == 0) {
 
 			if (strlen($idcontract) == 0) {
@@ -651,6 +672,29 @@ class Purchase_contract extends CI_Controller {
 			}
 		}
 
+		// validasi status
+		if ($err_code == 0) {
+			$this->db->where('contract.idcontract', $idcontract);
+			$this->db->where('contract.status', 1);
+			$this->db->where('contract_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan_detail.status', 1);
+			$this->db->where('purchase_plan_detail.purchase_plan_detail_status != "KONTRAK PENGADAAN" ');
+
+			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+			$_contract = $this->db->get('contract');
+
+			if ($_contract->num_rows() > 0) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus, karena uraian sudah masuk di realisasi anggaran.";
+
+				$is_delete = false;
+			}
+		}
+		
 		if ($is_delete) {
 			// update status rencana pengadaan
 			foreach ($contract->result() as $key => $value) {
@@ -764,6 +808,27 @@ class Purchase_contract extends CI_Controller {
 			if (in_array($status, $arr_validation) ) {
 				$err_code++;
 				$err_message = "Data tidak bisa diedit atau dihapus.";
+			}
+		}
+
+		// validasi status
+		if ($err_code == 0) {
+			$this->db->where('contract.idcontract', $idcontract);
+			$this->db->where('contract.status', 1);
+			$this->db->where('contract_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan_detail.status', 1);
+			$this->db->where('purchase_plan_detail.purchase_plan_detail_status != "KONTRAK PENGADAAN" ');
+
+			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+			$_contract = $this->db->get('contract');
+
+			if ($_contract->num_rows() > 0) {
+				$err_code++;
+				$err_message = "Data tidak bisa diedit atau dihapus, karena uraian sudah masuk di realisasi anggaran.";
 			}
 		}
 

@@ -2253,3 +2253,7 @@ ALTER TABLE `paket_belanja_detail_sub`
 ALTER TABLE `purchase_plan_detail`
 	ADD COLUMN `volume_realization` DOUBLE NULL DEFAULT NULL AFTER `volume`,
 	ADD INDEX `volume_realization` (`volume_realization`);
+
+ALTER TABLE `purchase_plan_detail`
+	ADD COLUMN `purchase_plan_detail_status` VARCHAR(50) NULL DEFAULT 'KONTRAK PENGADAAN' AFTER `purchase_plan_detail_total`,
+	ADD INDEX `purchase_plan_detail_status` (`purchase_plan_detail_status`);

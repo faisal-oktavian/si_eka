@@ -186,6 +186,7 @@
 				// jQuery('#form_add').find('.detail-dokumen').addClass('hide');
 				jQuery('#idcontract_detail').val(id);
 				jQuery('#idcontract').val(response.data.idcontract);
+				jQuery('.btn-action-save').hide();
 				// jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');
 
 				select_dokumen(response.data.idpurchase_plan);

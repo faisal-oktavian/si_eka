@@ -223,49 +223,75 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$err_code = 0;
 		$err_message = '';
 
-		$idcontract_detail = azarr($the_data, 'idcontract_detail');
+		$idcontract = azarr($the_data, 'idcontract');
 		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail');
-		$idbudget_realization = azarr($the_data, 'idbudget_realization');
+		$idpurchase_plan = azarr($the_data, 'idpurchase_plan');
 		$status = azarr($the_data, 'status');
 
-		$ci->db->where('idcontract_detail', $idcontract_detail);
+		$ci->db->where('contract_detail.idcontract', $idcontract);
+		$ci->db->where('purchase_plan_detail.idpurchase_plan', $idpurchase_plan);
+		$ci->db->where('purchase_plan_detail.purchase_plan_detail_status = "KONTRAK PENGADAAN" ');
+
+		$ci->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$ci->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
 		$contract = $ci->db->get('contract_detail');
+		// echo "<pre>"; print_r($ci->db->last_query());die;
 
-		$idcontract = $contract->row()->idcontract;
-		$idpurchase_plan = $contract->row()->idpurchase_plan;
+		if ($contract->num_rows() == 0) {
+			$arr_update = array(
+				'contract_status' => $status,
+			);
 
-		$arr_update = array(
-			'contract_status' => $status,
-		);
+			$ci->db->where('idcontract', $idcontract);
+			$ci->db->update('contract', $arr_update);
 
-		$ci->db->where('idcontract', $idcontract);
-		$ci->db->update('contract', $arr_update);
+			$the_filter = array(
+				'idpurchase_plan' => $idpurchase_plan,
+				'status' => $status,
+			);
 
-
-		$arr_update_plan = array(
-			'purchase_plan_status' => $status,
-		);
-
-		$ci->db->where('idpurchase_plan', $idpurchase_plan);
-		$ci->db->update('purchase_plan', $arr_update_plan);
-
+			update_status_purchase_plan($the_filter);
+		}
 
 		// update status detail paket belanja
-		$ci->db->where('budget_realization_detail.status', 1);
-		$ci->db->where('budget_realization_detail.idbudget_realization', $idbudget_realization);
-		$ci->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-		$ci->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
-		$rd = $ci->db->get('budget_realization_detail');
+		$ci->db->where('status', 1);
+		$ci->db->where('idpurchase_plan', $idpurchase_plan);
+		$pd = $ci->db->get('purchase_plan_detail');
 
-		foreach ($rd->result() as $key => $value) {
+		foreach ($pd->result() as $key => $value) {
 			$the_filter = array(
 				'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
 				'idpaket_belanja' => $value->idpaket_belanja,
-				'status' => $status,
+				'status' => $value->purchase_plan_detail_status,
 			);
 
 			update_status_detail_pb($the_filter);	
 		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
+	// update status detail kontrak pengadaan
+	function update_status_detail_purchase_contract($the_data) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail');
+		$status = azarr($the_data, 'status');
+
+		$arr_update_plan = array(
+			'purchase_plan_detail_status' => $status,
+		);
+
+		$ci->db->where('idpurchase_plan_detail', $idpurchase_plan_detail);
+		$ci->db->update('purchase_plan_detail', $arr_update_plan);
 
 		$ret = array(
 			'err_code' => $err_code,
@@ -300,7 +326,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				'status' => $status,
 			);
 
-			update_status_detail_pb($the_filter);	
+			update_status_detail_pb($the_filter);
 		}
 
 		$ret = array(
@@ -328,8 +354,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$err_code = 0;
 		$err_message = '';
 
-		$ci->db->where('status', 1);
+		$ci->db->where('purchase_plan_detail.status', 1);
 		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$ci->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+		$ci->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 		$ci->db->select_sum('volume');
 		$ppd = $ci->db->get('purchase_plan_detail');
 
