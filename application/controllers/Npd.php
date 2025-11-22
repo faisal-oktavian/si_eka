@@ -147,7 +147,7 @@ class Npd extends CI_Controller {
 				$this->db->where('verification.status', 1);
 				$this->db->where('budget_realization.status', 1);
 				$this->db->where('budget_realization_detail.status', 1);
-				$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+				// $this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
 				$this->db->where('verification.status_approve = "DISETUJUI" ');
 
 				$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
@@ -252,7 +252,25 @@ class Npd extends CI_Controller {
 		$view = $this->load->view('npd/v_npd', $data, true);
 		$azapp->add_content($view);
 
-		$v_modal = $this->load->view('npd/v_npd_modal', '', true);
+		// get data document
+		$document = $azapp->add_crud();
+		$document->set_column(array('#', "Tanggal Verifikasi", "Nomor Dokumen", "Detail"));
+		$document->set_th_class(array('', '', '', '', '', '', '', '', ''));
+		$document->set_width('auto, 100px, 100px, auto');
+		$document->set_id($this->controller . '2');
+		$document->set_default_url(false);
+		$document->set_btn_add(false);
+
+		$document->set_url("app_url+'npd/get_document'");
+		$document->set_url_edit("app_url+'npd/edit_document'");
+		$document->set_url_delete("app_url+'npd/delete_document'");
+		$document->set_url_save("app_url+'npd/save_document'");
+		// $document->set_callback_table_complete('callback_check_plan_table();');
+		$data_add['document'] = $document->render();
+
+		$data_add['id'] = '';
+
+		$v_modal = $this->load->view('npd/v_npd_modal', $data_add, true);
 		$modal = $azapp->add_modal();
 		$modal->set_id('add');
 		$modal->set_modal_title('Tambah NPD');
@@ -268,6 +286,91 @@ class Npd extends CI_Controller {
 		$azapp->set_data_header($data_header);
 
 		echo $azapp->render();
+	}
+
+	public function get_document()
+	{
+		$this->load->library('AZApp');
+		$crud_document = $this->azapp->add_crud();
+
+		$crud_document->set_select('verification.idverification, verification.idverification as txt_idverification, date_format(verification.confirm_verification_date, "%d-%m-%Y %H:%i:%s") AS txt_confirm_verification_date, verification.verification_code, "" AS detail');
+		
+		$crud_document->set_select_table('idverification, txt_idverification, txt_confirm_verification_date, verification_code, detail');
+
+        $crud_document->set_sorting('confirm_verification_date, verification_code');
+        $crud_document->set_filter('confirm_verification_date, verification_code');
+		$crud_document->set_id($this->controller . '2');
+		$crud_document->set_custom_first_column(true);
+		// $crud_document->set_select_align('center, center, , , center, center');
+
+		$crud_document->add_join_manual('user user_realization', 'user_realization.iduser = verification.iduser_created');
+        $crud_document->add_join_manual('user user_verification', 'user_verification.iduser = verification.iduser_verification', 'left');
+        
+		$crud_document->add_where("verification.status = '1' ");
+		$crud_document->add_where("verification.verification_status = 'SUDAH DIVERIFIKASI' ");
+
+		$crud_document->set_table('verification');
+		$crud_document->set_custom_style('custom_style_document');
+		echo $crud_document->get_table();
+	}
+
+	function custom_style_document($key, $value, $data) {
+		$idverification = azarr($data, 'idverification');
+
+		if ($key == 'txt_idverification') {
+			$id = '<button class="btn btn-success btn-xs btn-select-document" type="button" data_id="'.$idverification.'"> Pilih</button>';
+
+			return $id;
+		}
+
+		if ($key == 'detail') {
+            $this->db->where('verification.idverification', $idverification);
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
+
+			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+			$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+			$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+			$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+			$budget_realization = $this->db->get('verification');
+            // echo "<pre>"; print_r($this->db->last_query());die;
+
+			$table = '<table class="table" style="border-color:#efefef; margin:0px;" width="100%" border="1">';
+			$table .=	"<thead>";
+			$table .=		"<tr>";
+			$table .=			"<th width='auto'>Nomor Kontrak</th>";
+			// $table .=			"<th width='auto'>Nomor Rencana</th>";
+			$table .=			"<th width='180px'>Paket Belanja</th>";
+			$table .=			"<th width='200px'>Uraian</th>";
+			$table .=			"<th width='60px'>Volume</th>";
+			$table .=		"</tr>";
+			$table .=	"</thead>";
+			$table .=	"<tbody>";
+
+            foreach ($budget_realization->result_array() as $key => $value) {
+				$table .= "<tr>";
+				$table .= 		"<td>".$value['contract_code']."</td>";
+				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
+				$table .= 		"<td>".$value['nama_paket_belanja']."</td>";
+				$table .= 		"<td>".$value['nama_sub_kategori']."</td>";
+				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
+				$table .= "</tr>";
+            }
+			
+			$table .=	"</tbody>";
+			$table .= "</table>";
+
+			return $table;
+		}
+
+		return $value;
 	}
 
 	function edit($id) {
@@ -429,7 +532,7 @@ class Npd extends CI_Controller {
 				
 
 				// cek apakah datanya baru diinput / edit data
-				$this->db->where('idnpd', $idnpd);
+				$this->db->where('npd.idnpd', $idnpd);
 				$check = $this->db->get('npd');
 
 				if ($check->row()->npd_status != "DRAFT") {
@@ -443,11 +546,19 @@ class Npd extends CI_Controller {
 
 					$save_npd = az_crud_save($idnpd, 'npd', $arr_npd);
 
-					// $the_filter = array(
-					// 	'idnpd' => $idnpd,
-					// 	'type' => 'INPUT NPD'
-					// );
-					// $update_status = update_status_verifikasi_dokumen($the_filter);
+
+					$this->db->where('npd_detail.idnpd_detail', $idnpd_detail);
+					$this->db->where('verification.status', 1);
+					$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+					$npd_detail = $this->db->get('npd_detail');
+
+					// update status verifikasi dokumen
+					$the_filter = array(
+						'idverification' => $idverification,
+						'idbudget_realization' => $npd_detail->row()->idbudget_realization,
+						'status' => 'INPUT NPD'
+					);
+					$update_status = update_status_document_verification($the_filter);
 				}
 			}
 		}
@@ -485,7 +596,11 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$this->db->where('idnpd',$idnpd);
+			$this->db->where('npd.idnpd',$idnpd);
+			$this->db->where('npd.status', 1);
+			$this->db->where('npd_detail.status', 1);
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 			$npd = $this->db->get('npd');
 
 			if ($npd->num_rows() > 0) {
@@ -519,12 +634,15 @@ class Npd extends CI_Controller {
 	    	az_crud_save($idnpd, 'npd', $arr_data);
 
 
-			// // update status verifikasi dokumen
-			// $the_filter = array(
-			// 	'idnpd' => $idnpd,
-			// 	'type' => 'INPUT NPD'
-			// );
-			// $update_status = update_status_verifikasi_dokumen($the_filter);
+			foreach ($npd->result() as $key => $value) {
+				// update status verifikasi dokumen
+				$the_filter = array(
+					'idverification' => $value->idverification,
+					'idbudget_realization' => $value->idbudget_realization,
+					'status' => 'INPUT NPD'
+				);
+				$update_status = update_status_document_verification($the_filter);
+			}
 		}
 
 		$return = array(
@@ -566,13 +684,16 @@ class Npd extends CI_Controller {
 		}
 
 		if($err_code == 0) {
-			// // kembalikan status realisasi anggaran
-			// $the_filter = array(
-			// 	'idnpd' => $id,
-			// 	'type' => 'SUDAH DIVERIFIKASI'
-			// );
-			// $update_status = update_status_verifikasi_dokumen($the_filter);
-
+			foreach ($npd->result() as $key => $value) {
+				// update status verifikasi dokumen
+				$the_filter = array(
+					'idverification' => $value->idverification,
+					'idbudget_realization' => $value->idbudget_realization,
+					'status' => 'SUDAH DIVERIFIKASI'
+				);
+				$update_status = update_status_document_verification($the_filter);
+			}
+			
 			az_crud_delete($this->table, $id);
 		} 
 		else{
@@ -694,6 +815,7 @@ class Npd extends CI_Controller {
 		if ($err_code == 0) {
 			$status = $npd->row()->npd_status;
 			$idnpd = $npd->row()->idnpd;
+			$idverification = $npd->row()->idverification;
 
 			$the_filter = array(
 				'menu' => 'NPD',
@@ -710,13 +832,19 @@ class Npd extends CI_Controller {
 		}
 
 		if ($is_delete) {
-			// // update status verifikasi dokumen
-			// $the_filter = array(
-			// 	'idnpd' => $idnpd,
-			// 	'idnpd_detail' => $id,
-			// 	'type' => 'INPUT NPD'
-			// );
-			// $update_status = update_status_verifikasi_dokumen($the_filter);
+			$this->db->where('npd_detail.idnpd_detail', $id);
+			$this->db->where('verification.status', 1);
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+			$npd_detail = $this->db->get('npd_detail');
+
+			// update status verifikasi dokumen
+			$the_filter = array(
+				'idverification' => $idverification,
+				'idbudget_realization' => $npd_detail->row()->idbudget_realization,
+				'status' => 'SUDAH DIVERIFIKASI'
+			);
+			$update_status = update_status_document_verification($the_filter);
+
 			
 			$delete = az_crud_delete('npd_detail', $id, true);
 
@@ -805,7 +933,7 @@ class Npd extends CI_Controller {
 			$this->db->where('verification.status', 1);
 			$this->db->where('budget_realization.status', 1);
 			$this->db->where('budget_realization_detail.status', 1);
-			$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+			// $this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
 			$this->db->where('verification.status_approve = "DISETUJUI" ');
 
 			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');

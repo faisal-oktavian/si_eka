@@ -339,8 +339,46 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
 	// update status verifikasi dokumen
-	function update_status_document_verification() {
+	function update_status_document_verification($the_data) {
+		$ci =& get_instance();
 
+		$err_code = 0;
+		$err_message = '';
+
+		$idverification = azarr($the_data, 'idverification');
+		$idbudget_realization = azarr($the_data, 'idbudget_realization');
+		$status = azarr($the_data, 'status');
+
+		$arr_update_npd = array(
+			'verification_status' => $status,
+		);
+
+		$ci->db->where('idverification', $idverification);
+		$ci->db->update('verification', $arr_update_npd);
+
+
+		$arr_update_realization = array(
+			'realization_status' => $status,
+		);
+
+		$ci->db->where('idbudget_realization', $idbudget_realization);
+		$ci->db->update('budget_realization', $arr_update_realization);
+
+
+		// update status rencana pengadaan
+		$the_filter = array(
+			'idbudget_realization' => $idbudget_realization,
+			'idverification' => $idverification,
+			'status' => $status,
+		);
+		// echo "<pre>"; print_r($the_filter); die;
+		$update_status = update_status_budget_realization($the_filter);
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 
 	// update status nota pencairan dana

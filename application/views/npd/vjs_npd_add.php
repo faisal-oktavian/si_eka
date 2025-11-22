@@ -31,9 +31,12 @@
 		
 		show_modal('add');
 
-		jQuery('#form_add').find('.detail-dokumen').addClass('hide');
-		jQuery('#idnpd_detail').val('');
-		jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
+		jQuery('#form_add').find('#idnpd_detail').val('');
+		jQuery('.btn-action-save').hide();
+
+		// jQuery('#form_add').find('.detail-dokumen').addClass('hide');
+		// jQuery('#idnpd_detail').val('');
+		// jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');	
 	});
 
 	jQuery("#search_dokumen").select2({
@@ -81,13 +84,16 @@
 		});
 	}
 
-	jQuery('body').on('click', '.btn-action-save', function() {
+	jQuery('body').on('click', '.btn-select-document', function() {
+
+		var idverification = jQuery(this).attr('data_id');
+		console.log(idverification);
 		// show_loading();
 		jQuery.ajax({
 			url: app_url + 'npd/add_product',
 			type: 'POST',
 			dataType: 'JSON',
-			data: jQuery('#form_add').serialize(),
+			data: jQuery('#form_add').serialize() + '&idverification=' + idverification,
 			success: function(response) {
 				hide_loading();
 				if (response.err_code > 0) {
@@ -105,6 +111,31 @@
 			error: function(response) {}
 		});
 	});
+
+	// jQuery('body').on('click', '.btn-action-save', function() {
+	// 	// show_loading();
+	// 	jQuery.ajax({
+	// 		url: app_url + 'npd/add_product',
+	// 		type: 'POST',
+	// 		dataType: 'JSON',
+	// 		data: jQuery('#form_add').serialize(),
+	// 		success: function(response) {
+	// 			hide_loading();
+	// 			if (response.err_code > 0) {
+	// 				bootbox.alert(response.err_message);
+	// 			}
+	// 			else {
+	// 				hide_modal('add');
+
+	// 				jQuery('#idnpd').val(response.idnpd);
+	// 				jQuery('#hd_idnpd').val(response.idnpd);
+
+	// 				generate_transaction(response.idnpd);
+	// 			}
+	// 		},
+	// 		error: function(response) {}
+	// 	});
+	// });
 	
 	// generate_transaction(1);
 	function generate_transaction(idnpd) {
