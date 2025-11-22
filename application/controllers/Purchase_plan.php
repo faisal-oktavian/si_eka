@@ -391,7 +391,7 @@ class Purchase_plan extends CI_Controller {
             pb.nama_paket_belanja,
             COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id, 
             COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori) AS nama_sub_kategori, 
-            COALESCE( (pbds_child.volume - pbds_child.volume_realization), (pbds_parent.volume - pbds_parent.volume_realization) ) AS volume,
+            COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
             COALESCE(satuan_child.nama_satuan, satuan_parent.nama_satuan) AS nama_satuan,
             COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan
         ');
@@ -422,6 +422,7 @@ class Purchase_plan extends CI_Controller {
         $idpaket_belanja_detail_sub = $this->input->post('idpaket_belanja_detail_sub');
         $volume = az_crud_number($this->input->post('volume'));
         $purchase_plan_detail_total = $this->input->post('purchase_plan_detail_total');
+        $purchase_plan_date = az_crud_date($this->input->post('purchase_plan_date'));
 
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('idpaket_belanja_detail_sub', 'Uraian', 'required|trim|max_length[200]');
@@ -452,34 +453,61 @@ class Purchase_plan extends CI_Controller {
 			}	
 		}
 
-		// validasi volume tidak boleh melebihi volume paket belanja
+		// validasi dari realisasi anggaran
 		if ($err_code == 0) {
 			$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 			$pbds = $this->db->get('paket_belanja_detail_sub');
 
-			if ($pbds->num_rows() > 0) {
-				$volume_paket_belanja = $pbds->row()->volume;
-				$volume_realization = $pbds->row()->volume_realization;
-				$volume_paket_belanja -= $volume_realization;
+			$idsub_kategori = $pbds->row()->idsub_kategori;
 
-				$this->db->where('idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
-				$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-				$this->db->where('status', 1);
-				$this->db->select('sum(volume) as volume');
-				$ppd = $this->db->get('purchase_plan_detail');
+			$the_filter = array(
+				'idsub_kategori' => $idsub_kategori,
+				'idpaket_belanja' => $idpaket_belanja,
+				'transaction_date' => $purchase_plan_date,
+				'idpurchase_plan_detail' => $idpurchase_plan_detail,
+			);
+			// var_dump($the_filter);die;
 
-				$volume_sudah_diinput = 0;
-				if ($ppd->num_rows() > 0) {
-					$volume_sudah_diinput = $ppd->row()->volume;
-				}
+			// ambil data DPA
+			$data_utama = $this->get_data_utama($the_filter);
+			// echo "<pre>"; print_r($this->db->last_query()); die;
 
-				$volume_total = $volume_sudah_diinput + $volume;
-				if ($volume_total > $volume_paket_belanja) {
+			// ambil data Rencana Anggaran Kegiatan (RAK) sampai bulan yang dipilih
+			$data_rak = $this->get_data_rak($the_filter);
+			// echo "<pre>"; print_r($this->db->last_query()); die;
+
+			// ambil data uraian belanja yang sudah masuk di rencana pengadaan
+			$data_realisasi = $this->get_data_rencana($the_filter);
+			// echo "<pre>"; print_r($this->db->last_query()); die;
+			
+
+			// jika dicentang maka pengecekannya inputannya langsung dibandingkan dengan total keseluruhan volume dan total anggaran
+			if (!aznav('role_bypass')) {
+				// validasi apakah volume inputan + volume yang sudah direalisasikan melebihi volume RAK
+				if ( (floatval($volume) + floatval($data_realisasi->row()->total_volume)) > floatval($data_rak->row()->total_rak_volume) ) {
+					$sisa_volume = floatval($data_rak->row()->total_rak_volume) - floatval($data_realisasi->row()->total_volume);
+
 					$err_code++;
-					$err_message = "Total volume yang sudah diinput tidak boleh melebihi volume dari paket belanja (".$volume_paket_belanja.").";
+					$err_message = "Volume yang diinputkan melebihi volume RAK pada bulan yang dipilih. <br>";
+					$err_message .= "Sisa Volume yang bisa diinput pada bulan yang dipilih yaitu : ".$sisa_volume;
 				}
+				// var_dump('('.floatval($volume).' + '.floatval($data_realisasi->row()->total_volume).') > '.floatval($data_rak->row()->total_rak_volume)); echo "<br><br>";
+			}
+
+		
+			if ($err_code == 0) {
+				// validasi apakah volume yang sudah direalisasikan melebihi volume yang sudah ditentukan
+				if ($data_utama->row()->volume < (floatval($data_realisasi->row()->total_volume) + floatval($volume))) {
+					$sisa_volume = $data_utama->row()->volume - floatval($data_realisasi->row()->total_volume);
+
+					$err_code++;
+					$err_message = "Volume yang direalisasikan melebihi volume dari DPA. <br>";
+					$err_message .= "Sisa Volume yang bisa diinput yaitu : ".$sisa_volume;
+				}
+				// var_dump($data_utama->row()->volume.' < ('.floatval($data_realisasi->row()->total_volume).' + '.floatval($volume).')'); echo "<br><br>";
 			}
 		}
+		// var_dump($err_message);die;
 		
 		if ($err_code == 0) {
 
@@ -1014,5 +1042,166 @@ class Purchase_plan extends CI_Controller {
         // PP -> Purchase Plan
 
 		return $purchase_plan_code;
+	}
+
+	function get_data_utama($the_data) {
+		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$add_select = azarr($the_data, 'add_select', '');
+
+		// menampilkan data utama dari paket belanja
+		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
+		$this->db->where('(pbds_child.idsub_kategori = "'.$idsub_kategori.'" OR pbds_parent.idsub_kategori = "'.$idsub_kategori.'")');
+		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+
+		if (strlen($add_select) > 0) {
+			$this->db->group_by('pb.idpaket_belanja, pb.nama_paket_belanja, pbd.idpaket_belanja_detail, detail_sub_id, idsub_kategori, volume, idsatuan, harga_satuan, jumlah');
+		}
+
+		$this->db->select('pb.idpaket_belanja,
+			pb.nama_paket_belanja,
+			pbd.idpaket_belanja_detail,
+			COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id,
+			COALESCE(pbds_child.idsub_kategori, pbds_parent.idsub_kategori) AS idsub_kategori,
+			COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
+			COALESCE(pbds_child.idsatuan, pbds_parent.idsatuan) AS idsatuan,
+			COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan,
+			COALESCE(pbds_child.jumlah, pbds_parent.jumlah) AS jumlah'.$add_select);
+		$pb = $this->db->get('paket_belanja pb');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		return $pb;
+	}
+
+	function get_data_rak($the_data) {
+		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$transaction_date = azarr($the_data, 'transaction_date', '');
+
+		$format_date = date("n", strtotime($transaction_date));
+
+		$add_query_volume = '';
+		$add_query_jumlah = '';
+		for ($i = 0; $i < $format_date; $i++) { 
+			if ($i == 0) {
+				// untuk bulan Januari
+				$add_query_volume .= 'COALESCE(pbds_child.rak_volume_januari, pbds_parent.rak_volume_januari, 0)';
+				$add_query_jumlah .= 'COALESCE(pbds_child.rak_jumlah_januari, pbds_parent.rak_jumlah_januari, 0)';
+			}
+			else if ($i == 1) {
+				// untuk bulan Februari
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_februari, pbds_parent.rak_volume_februari, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_februari, pbds_parent.rak_jumlah_februari, 0)';
+			}
+			else if ($i == 2) {
+				// untuk bulan Maret
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_maret, pbds_parent.rak_volume_maret, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_maret, pbds_parent.rak_jumlah_maret, 0)';
+			}
+			else if ($i == 3) {
+				// untuk bulan April
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_april, pbds_parent.rak_volume_april, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_april, pbds_parent.rak_jumlah_april, 0)';
+			}
+			else if ($i == 4) {
+				// untuk bulan Mei
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_mei, pbds_parent.rak_volume_mei, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_mei, pbds_parent.rak_jumlah_mei, 0)';
+			}
+			else if ($i == 5) {
+				// untuk bulan Juni
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_juni, pbds_parent.rak_volume_juni, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_juni, pbds_parent.rak_jumlah_juni, 0)';
+			}
+			else if ($i == 6) {
+				// untuk bulan Juli
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_juli, pbds_parent.rak_volume_juli, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_juli, pbds_parent.rak_jumlah_juli, 0)';
+			}
+			else if ($i == 7) {
+				// untuk bulan Agustus
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_agustus, pbds_parent.rak_volume_agustus, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_agustus, pbds_parent.rak_jumlah_agustus, 0)';
+			}
+			else if ($i == 8) {
+				// untuk bulan September
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_september, pbds_parent.rak_volume_september, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_september, pbds_parent.rak_jumlah_september, 0)';
+			}
+			else if ($i == 9) {
+				// untuk bulan Oktober
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_oktober, pbds_parent.rak_volume_oktober, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_oktober, pbds_parent.rak_jumlah_oktober, 0)';
+			}
+			else if ($i == 10) {
+				// untuk bulan November
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_november, pbds_parent.rak_volume_november, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_november, pbds_parent.rak_jumlah_november, 0)';
+			}
+			else if ($i == 11) {
+				// untuk bulan Desember
+				$add_query_volume .= ' + COALESCE(pbds_child.rak_volume_desember, pbds_parent.rak_volume_desember, 0)';
+				$add_query_jumlah .= ' + COALESCE(pbds_child.rak_jumlah_desember, pbds_parent.rak_jumlah_desember, 0)';
+			}
+		}
+
+		$add_query_volume = rtrim($add_query_volume, ', '); // Hilangkan koma dan spasi di akhir
+		$add_query_jumlah = rtrim($add_query_jumlah, ', '); // Hilangkan koma dan spasi di akhir
+		
+		$add_query_volume = 'SUM(' . rtrim($add_query_volume, ', ') . ') AS total_rak_volume';
+		$add_query_jumlah = 'SUM(' . rtrim($add_query_jumlah, ', ') . ') AS total_rak_jumlah';
+
+		// var_dump($add_query_volume); echo "<br><br>";
+		// var_dump($add_query_jumlah);
+		// die;
+
+		$the_filter = array(
+			'idsub_kategori' => $idsub_kategori,
+			'idpaket_belanja' => $idpaket_belanja,
+			'transaction_date' => $transaction_date,
+			'add_select' => ', ' .$add_query_volume . ', ' . $add_query_jumlah, // digunakan untuk menyisipkan query tambahan pada select di fungsi get_data_utama
+		);
+
+		// menampilkan data Rencana Anggaran Kegiatan (RAK) sampai dengan tanggal inputan
+		$db = $this->get_data_utama($the_filter);
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		return $db;
+	}
+
+	function get_data_rencana($the_data) {
+		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$transaction_date = azarr($the_data, 'transaction_date', '');
+		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail', '');
+
+		$format_year = date("Y", strtotime($transaction_date));
+		$format_month = date("m", strtotime($transaction_date));
+
+		// menampilkan data rencana yang sudah ada sampai dengan tanggal inputan
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_detail.status', 1);
+		if (strlen($idpurchase_plan_detail) > 0) {
+			$this->db->where('purchase_plan_detail.idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
+		}
+		$this->db->where('paket_belanja_detail_sub.idsub_kategori', $idsub_kategori);
+		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >=', $format_year . '-01');
+		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <=', $format_year . '-' . $format_month);
+		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+
+		$this->db->select('
+			count(purchase_plan.idpurchase_plan), 
+			sum( COALESCE(purchase_plan_detail.volume_realization, purchase_plan_detail.volume) ) as total_volume
+		');
+		$data = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		return $data;
 	}
 }

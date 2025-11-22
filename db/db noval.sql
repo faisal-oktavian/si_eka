@@ -2244,3 +2244,12 @@ ALTER TABLE `verification_history`
 	CHANGE COLUMN `idtransaction` `idbudget_realization` INT(10) NULL DEFAULT NULL AFTER `idverification`,
 	DROP INDEX `idtransaction`,
 	ADD INDEX `idbudget_realization` (`idbudget_realization`) USING BTREE;
+
+ALTER TABLE `paket_belanja_detail_sub`
+	ADD COLUMN `volume_realization` DOUBLE NULL DEFAULT '0' COMMENT 'volume yang sudah diproses ' AFTER `volume`,
+	ADD INDEX `volume_realization` (`volume_realization`);
+
+
+ALTER TABLE `purchase_plan_detail`
+	ADD COLUMN `volume_realization` DOUBLE NULL DEFAULT NULL AFTER `volume`,
+	ADD INDEX `volume_realization` (`volume_realization`);

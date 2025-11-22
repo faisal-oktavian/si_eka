@@ -130,6 +130,10 @@
                     'role_name' => 'role_view_purchase_plan',
                     'role_title' => 'Hanya lihat data'
                 ),
+                array(
+                    'role_name' => 'role_bypass',
+                    'role_title' => 'Bisa rencana pengadaan sebelum bulan RAK'
+                ),
             ),
         ),
         array(
@@ -152,10 +156,6 @@
             "url" => "budget_realization",
             'submenu' => array(),
             'role' => array(
-                array(
-                    'role_name' => 'role_bypass',
-                    'role_title' => 'Bisa realisasi anggaran sebelum bulan RAK'
-                ),
                 array(
                     'role_name' => 'role_view_budget_realization',
                     'role_title' => 'Hanya lihat data'
