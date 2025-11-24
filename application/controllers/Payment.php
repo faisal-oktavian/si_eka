@@ -155,7 +155,7 @@ class Payment extends CI_Controller {
 				$this->db->where('verification.status', 1);
 				$this->db->where('budget_realization.status', 1);
 				$this->db->where('budget_realization_detail.status', 1);
-				$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+				// $this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
 				$this->db->where('verification.status_approve = "DISETUJUI" ');
 
 				$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
@@ -402,7 +402,7 @@ class Payment extends CI_Controller {
 			// update status npd
 			$the_filter = array(
 				'idnpd' => $idnpd,
-				'type' => 'SUDAH DIBAYAR BENDAHARA'
+				'status' => 'SUDAH DIBAYAR BENDAHARA'
 			);
 			$update_status = update_status_npd($the_filter);
 		}

@@ -63,13 +63,14 @@
 		select_dokumen(id);
 	});
 
-	function select_dokumen(idverification) {
+	function select_dokumen(idverification, idnpd_detail = '') {
 		jQuery.ajax({
 			url: app_url + 'npd/select_dokumen',
 			type: 'POST', 
 			dataType: 'JSON',
 			data: {
-				idverification: idverification
+				idverification: idverification,
+				idnpd_detail: idnpd_detail,
 			},
 			success: function(response) {
 				jQuery('#form_add').find('.detail-dokumen').removeClass('hide');
@@ -196,7 +197,7 @@
 				jQuery('#idnpd').val(response.data.idnpd);
 				jQuery('#form_add input, #form_add select').not('.x-hidden').val('').trigger('change.select2');
 
-				select_dokumen(response.data.idverification);
+				select_dokumen(response.data.idverification, id);
 			},
 			error: function(response) {}
 		});

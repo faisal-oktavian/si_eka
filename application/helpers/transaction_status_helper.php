@@ -382,8 +382,37 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
 	// update status nota pencairan dana
-	function update_status_npd() {
+	function update_status_npd($the_data) {
+		$ci =& get_instance();
 
+		$err_code = 0;
+		$err_message = '';
+
+		$idnpd = azarr($the_data, 'idnpd');
+		$status = azarr($the_data, 'status');
+
+		$ci->db->where('npd.idnpd',$idnpd);
+		$ci->db->where('npd.status', 1);
+		$ci->db->where('npd_detail.status', 1);
+		$ci->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$ci->db->join('verification', 'verification.idverification = npd_detail.idverification');
+		$npd = $ci->db->get('npd');
+		
+		foreach ($npd->result() as $key => $value) {
+			// update status verifikasi dokumen
+			$the_filter = array(
+				'idverification' => $value->idverification,
+				'idbudget_realization' => $value->idbudget_realization,
+				'status' => $status
+			);
+			$update_status = update_status_document_verification($the_filter);
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
 	}
 
 	

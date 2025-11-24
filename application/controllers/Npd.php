@@ -277,7 +277,7 @@ class Npd extends CI_Controller {
 		$document->set_default_url(false);
 		$document->set_btn_add(false);
 
-		$document->set_url("app_url+'npd/get_document'");
+		$document->set_url("app_url+'npd/get_document?idnpd=".$id."'");
 		$document->set_url_edit("app_url+'npd/edit_document'");
 		$document->set_url_delete("app_url+'npd/delete_document'");
 		$document->set_url_save("app_url+'npd/save_document'");
@@ -308,6 +308,8 @@ class Npd extends CI_Controller {
 	{
 		$this->load->library('AZApp');
 		$crud_document = $this->azapp->add_crud();
+		$idnpd = $this->input->get('idnpd');
+
 
 		$crud_document->set_select('verification.idverification, verification.idverification as txt_idverification, date_format(verification.confirm_verification_date, "%d-%m-%Y %H:%i:%s") AS txt_confirm_verification_date, verification.verification_code, "" AS detail');
 		
@@ -323,7 +325,12 @@ class Npd extends CI_Controller {
         $crud_document->add_join_manual('user user_verification', 'user_verification.iduser = verification.iduser_verification', 'left');
         
 		$crud_document->add_where("verification.status = '1' ");
-		$crud_document->add_where("verification.verification_status = 'SUDAH DIVERIFIKASI' ");
+		if (strlen($idnpd) == 0) {
+			$crud_document->add_where("verification.verification_status = 'SUDAH DIVERIFIKASI' ");
+		}
+		else {
+			$crud_document->add_where("verification.verification_status = 'SUDAH DIVERIFIKASI' OR verification.idverification IN (SELECT npd_detail.idverification FROM npd_detail WHERE npd_detail.idnpd = '".$idnpd."' AND npd_detail.status = 1) ");
+		}
 
 		$crud_document->set_table('verification');
 		$crud_document->set_custom_style('custom_style_document');
@@ -435,12 +442,15 @@ class Npd extends CI_Controller {
 
     function select_dokumen() {
 		$idverification = $this->input->post('idverification');
+		$idnpd_detail = $this->input->post('idnpd_detail');
 
 		$this->db->where('verification.idverification', $idverification);
 		$this->db->where('verification.status', 1);
 		$this->db->where('budget_realization.status', 1);
 		$this->db->where('budget_realization_detail.status', 1);
-		$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+		if (strlen($idnpd_detail) == 0) {
+			$this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+		}
 		$this->db->where('verification.status_approve = "DISETUJUI" ');
 
 		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
@@ -458,7 +468,7 @@ class Npd extends CI_Controller {
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		$view = $this->load->view('npd/v_select_document_table', $data, true);
-
+		
 		$arr = array(
 			'data' => $view,
             'idverification' => $data['verification']->row()->idverification,
@@ -680,7 +690,11 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$this->db->where('idnpd',$id);
+			$this->db->where('npd.idnpd',$id);
+			$this->db->where('npd.status', 1);
+			$this->db->where('npd_detail.status', 1);
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 			$npd = $this->db->get('npd');
 
 			if ($npd->num_rows() > 0) {
@@ -733,7 +747,11 @@ class Npd extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			$this->db->where('idnpd',$idnpd);
+			$this->db->where('npd.idnpd',$idnpd);
+			$this->db->where('npd.status', 1);
+			$this->db->where('npd_detail.status', 1);
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 			$npd = $this->db->get('npd');
 
 			if ($npd->num_rows() > 0) {
@@ -768,12 +786,16 @@ class Npd extends CI_Controller {
 			$this->db->where('idnpd', $idnpd);
 			$this->db->update('npd', $arr_data);
 
-			// // update status verifikasi dokumen
-			// $the_filter = array(
-			// 	'idnpd' => $idnpd,
-			// 	'type' => 'MENUNGGU PEMBAYARAN'
-			// );
-			// $update_status = update_status_verifikasi_dokumen($the_filter);
+
+			foreach ($npd->result() as $key => $value) {
+				// update status verifikasi dokumen
+				$the_filter = array(
+					'idverification' => $value->idverification,
+					'idbudget_realization' => $value->idbudget_realization,
+					'status' => 'MENUNGGU PEMBAYARAN'
+				);
+				$update_status = update_status_document_verification($the_filter);
+			}
 
 			$ret = array(
 				'err_code' => $err_code,
