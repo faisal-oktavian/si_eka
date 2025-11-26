@@ -84,20 +84,59 @@
 							<canvas id="pieAnggaranChart" width="180" height="180"></canvas>
 						</div>
 						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
+
+
 							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#4caf50;margin-right:10px;border-radius:4px;"></span>
+								<span style="display:inline-block;width:18px;height:18px;background:#28A745;margin-right:10px;border-radius:4px;"></span>
 								<div>
 									<div style="font-weight:600;">Sudah Dibayar</div>
 									<div id="label-sudah-dibayar" style="font-size:15px;"></div>
 								</div>
 							</div>
 							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#ff9800;margin-right:10px;border-radius:4px;"></span>
+								<span style="display:inline-block;width:18px;height:18px;background:#FFCC66;margin-right:10px;border-radius:4px;"></span>
 								<div>
-									<div style="font-weight:600;">Proses Verifikasi</div>
-									<div id="label-belum-dibayar" style="font-size:15px;"></div>
+									<div style="font-weight:600;">Menunggu Pembayaran</div>
+									<div id="label-menunggu-pembayaran" style="font-size:15px;"></div>
 								</div>
 							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:18px;height:18px;background:#999999;margin-right:10px;border-radius:4px;"></span>
+								<div>
+									<div style="font-weight:600;">NPD</div>
+									<div id="label-npd" style="font-size:15px;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:18px;height:18px;background:#0066FF;margin-right:10px;border-radius:4px;"></span>
+								<div>
+									<div style="font-weight:600;">Sudah Diverifikasi</div>
+									<div id="label-sudah-diverifikasi" style="font-size:15px;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:18px;height:18px;background:#FF6600;margin-right:10px;border-radius:4px;"></span>
+								<div>
+									<div style="font-weight:600;">Menunggu Verifikasi</div>
+									<div id="label-menunggu-verifikasi" style="font-size:15px;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:18px;height:18px;background:#FF9900;margin-right:10px;border-radius:4px;"></span>
+								<div>
+									<div style="font-weight:600;">Kontrak Pengadaan</div>
+									<div id="label-kontrak-pengadaan" style="font-size:15px;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:18px;height:18px;background:#FFCC00;margin-right:10px;border-radius:4px;"></span>
+								<div>
+									<div style="font-weight:600;">Proses Pengadaan</div>
+									<div id="label-proses-pengadaan" style="font-size:15px;"></div>
+								</div>
+							</div>
+
+
 							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;">
 								<span style="display:inline-block;width:18px;height:18px;background:#f44336;margin-right:10px;border-radius:4px;"></span>
 								<div>
@@ -155,23 +194,44 @@
 			// var nominal_sudah_dibayar = 50000000;
 			// var nominal_belum_dibayar = 30000000;
 			// var nominal_belum_direalisasi = 20000000;
+			
 			var nominal_sudah_dibayar = <?php echo isset($sudah_dibayar) ? $sudah_dibayar : 0; ?>;
-			var nominal_belum_dibayar = <?php echo isset($belum_dibayar) ? $belum_dibayar : 0; ?>;
+			var nominal_menunggu_pembayaran = <?php echo isset($menunggu_pembayaran) ? $menunggu_pembayaran : 0; ?>;
+			var nominal_npd = <?php echo isset($npd) ? $npd : 0; ?>;
+			var nominal_sudah_diverifikasi = <?php echo isset($sudah_diverifikasi) ? $sudah_diverifikasi : 0; ?>;
+			var nominal_menunggu_verifikasi = <?php echo isset($menunggu_verifikasi) ? $menunggu_verifikasi : 0; ?>;
+			var nominal_kontrak_pengadaan = <?php echo isset($kontrak_pengadaan) ? $kontrak_pengadaan : 0; ?>;
+			var nominal_proses_pengadaan = <?php echo isset($proses_pengadaan) ? $proses_pengadaan : 0; ?>;
 			var nominal_belum_direalisasi = <?php echo isset($belum_direalisasi) ? $belum_direalisasi : 0; ?>;
 
-			var total = nominal_sudah_dibayar + nominal_belum_dibayar + nominal_belum_direalisasi;
+			var total = nominal_sudah_dibayar + nominal_menunggu_pembayaran + nominal_npd + nominal_sudah_diverifikasi + nominal_menunggu_verifikasi + nominal_kontrak_pengadaan + nominal_proses_pengadaan + nominal_belum_direalisasi;
+
 			// var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 
 			var persen_sudah_dibayar = total ? Math.round(nominal_sudah_dibayar / total * 100) : 0;
-			var persen_belum_dibayar = total ? Math.round(nominal_belum_dibayar / total * 100) : 0;
-			var persen_belum_direalisasi = total ? 100 - persen_sudah_dibayar - persen_belum_dibayar : 0;
+			var persen_menunggu_pembayaran = total ? Math.round(nominal_menunggu_pembayaran / total * 100) : 0;
+			var persen_npd = total ? Math.round(nominal_npd / total * 100) : 0;
+			var persen_sudah_diverifikasi = total ? Math.round(nominal_sudah_diverifikasi / total * 100) : 0;
+			var persen_menunggu_verifikasi = total ? Math.round(nominal_menunggu_verifikasi / total * 100) : 0;
+			var persen_kontrak_pengadaan = total ? Math.round(nominal_kontrak_pengadaan / total * 100) : 0;
+			var persen_proses_pengadaan = total ? Math.round(nominal_proses_pengadaan / total * 100) : 0;
+
+			var persen_belum_direalisasi = total ? 100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan) : 0;
 
 			function formatRupiah(angka) {
 				return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 			}
 
 			document.getElementById('label-sudah-dibayar').innerText = persen_sudah_dibayar + '% (' + formatRupiah(nominal_sudah_dibayar) + ')';
-			document.getElementById('label-belum-dibayar').innerText = persen_belum_dibayar + '% (' + formatRupiah(nominal_belum_dibayar) + ')';
+			document.getElementById('label-menunggu-pembayaran').innerText = persen_menunggu_pembayaran + '% (' + formatRupiah(nominal_menunggu_pembayaran) + ')';
+			document.getElementById('label-npd').innerText = persen_npd + '% (' + formatRupiah(nominal_npd) + ')';
+			document.getElementById('label-sudah-diverifikasi').innerText = persen_sudah_diverifikasi + '% (' + formatRupiah(nominal_sudah_diverifikasi) + ')';
+			document.getElementById('label-menunggu-verifikasi').innerText = persen_menunggu_verifikasi + '% (' + formatRupiah(nominal_menunggu_verifikasi) + ')';
+			document.getElementById('label-kontrak-pengadaan').innerText = persen_kontrak_pengadaan + '% (' + formatRupiah(nominal_kontrak_pengadaan) + ')';
+			document.getElementById('label-proses-pengadaan').innerText = persen_proses_pengadaan + '% (' + formatRupiah(nominal_proses_pengadaan) + ')';
+			
+			
+			// document.getElementById('label-belum-dibayar').innerText = persen_belum_dibayar + '% (' + formatRupiah(nominal_belum_dibayar) + ')';
 			document.getElementById('label-belum-direalisasi').innerText = persen_belum_direalisasi + '% (' + formatRupiah(nominal_belum_direalisasi) + ')';
 
 			var ctx = document.getElementById('pieAnggaranChart').getContext('2d');
@@ -180,19 +240,34 @@
 				data: {
 					labels: [
 						'Sudah Dibayar',
-						'Belum Dibayar',
+						'Menunggu Pembayaran',
+						'NPD',
+						'Sudah Diverifikasi',
+						'Menunggu Diverifikasi',
+						'Kontrak Pengadaan',
+						'Proses Pengadaan',
 						'Belum Direalisasi'
 					],
 					datasets: [{
 						data: [
 							nominal_sudah_dibayar,
-							nominal_belum_dibayar,
+							nominal_menunggu_pembayaran,
+							nominal_npd,
+							nominal_sudah_diverifikasi,
+							nominal_menunggu_verifikasi,
+							nominal_kontrak_pengadaan,
+							nominal_proses_pengadaan,
 							nominal_belum_direalisasi
 						],
 						backgroundColor: [
-							'#4caf50',
-							'#ff9800',
-							'#f44336'
+							'#28A745',
+							'#FFCC66',
+							'#999999',
+							'#0066FF',
+							'#FF6600',
+							'#FF9900',
+							'#FFCC00',
+							'#f44336',
 						],
 						borderWidth: 2,
 						borderColor: '#fff',
