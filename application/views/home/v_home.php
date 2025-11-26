@@ -71,115 +71,86 @@
 <?php
 	if (aznav('role_table')) {
 ?>		
-		<!-- grafik realisasi anggaran & grafik potensi sisa anggaran -->
+		<!-- grafik realisasi anggaran -->
 		<div class="row" style="margin-top:30px;">
-			<div class="col-md-6 col-xs-12" style="margin:auto;">
+			<div class="col-md-12 col-xs-12" style="margin:auto;">
 				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
 					<div class="d-flex align-items-center" style="margin-bottom:18px;">
 						<i class="fa fa-pie-chart" style="font-size:26px;color:#4caf50;margin-right:10px;"></i>
 						<span class="title-chart" style="font-size:20px;">Grafik Realisasi Anggaran Tahun <?php echo $tahun_ini; ?></span>
 					</div>
 					<div class="row">
-						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
-							<canvas id="pieAnggaranChart" width="180" height="180"></canvas>
+						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;width: 300px; height: 300px; margin: auto;">
+							<canvas id="pieAnggaranChart" width="120" height="120"></canvas>
 						</div>
-						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
+						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center; margin-left:5%">
+							<div class="row">
+								<div class="col-md-6">
+									
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#28A745;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Sudah Dibayar</div>
+											<div id="label-sudah-dibayar" style="font-size:15px;"></div>
+										</div>
+									</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#FFCC66;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Menunggu Pembayaran</div>
+											<div id="label-menunggu-pembayaran" style="font-size:15px;"></div>
+										</div>
+									</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#999999;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">NPD</div>
+											<div id="label-npd" style="font-size:15px;"></div>
+										</div>
+									</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#0066FF;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Sudah Diverifikasi</div>
+											<div id="label-sudah-diverifikasi" style="font-size:15px;"></div>
+										</div>
+									</div>
 
+								</div>
+								<div class="col-md-6">
 
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#28A745;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Sudah Dibayar</div>
-									<div id="label-sudah-dibayar" style="font-size:15px;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#FFCC66;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Menunggu Pembayaran</div>
-									<div id="label-menunggu-pembayaran" style="font-size:15px;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#999999;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">NPD</div>
-									<div id="label-npd" style="font-size:15px;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#0066FF;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Sudah Diverifikasi</div>
-									<div id="label-sudah-diverifikasi" style="font-size:15px;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#FF6600;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Menunggu Verifikasi</div>
-									<div id="label-menunggu-verifikasi" style="font-size:15px;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#FF9900;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Kontrak Pengadaan</div>
-									<div id="label-kontrak-pengadaan" style="font-size:15px;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#FFCC00;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Proses Pengadaan</div>
-									<div id="label-proses-pengadaan" style="font-size:15px;"></div>
-								</div>
-							</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#FF6600;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Menunggu Verifikasi</div>
+											<div id="label-menunggu-verifikasi" style="font-size:15px;"></div>
+										</div>
+									</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#FF9900;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Kontrak Pengadaan</div>
+											<div id="label-kontrak-pengadaan" style="font-size:15px;"></div>
+										</div>
+									</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#FFCC00;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Proses Pengadaan</div>
+											<div id="label-proses-pengadaan" style="font-size:15px;"></div>
+										</div>
+									</div>
+									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;">
+										<span style="display:inline-block;width:18px;height:18px;background:#f44336;margin-right:10px;border-radius:4px;"></span>
+										<div>
+											<div style="font-weight:600;">Belum Direalisasi</div>
+											<div id="label-belum-direalisasi" style="font-size:15px;"></div>
+										</div>
+									</div>
 
-
-							<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:18px;height:18px;background:#f44336;margin-right:10px;border-radius:4px;"></span>
-								<div>
-									<div style="font-weight:600;">Belum Direalisasi</div>
-									<div id="label-belum-direalisasi" style="font-size:15px;"></div>
 								</div>
 							</div>
 						</div>	
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-xs-12" style="margin:auto;">
-				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-					<div class="d-flex align-items-center" style="margin-bottom:18px;">
-						<span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Potensi Sisa Anggaran Tahun <?php echo $tahun_ini; ?></span>
-					</div>
-					<div class="row">
-						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
-							<canvas id="piePotensiSisaChart" width="180" height="180"></canvas>
-						</div>
-						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">Total Anggaran</div>
-									<div id="label-total-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">Realisasi Anggaran</div>
-									<div id="label-realisasi-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#c3c3c3;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">Sisa Anggaran</div>
-									<div id="label-sisa-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -275,6 +246,8 @@
 					}]
 				},
 				options: {
+					responsive: true,
+    				maintainAspectRatio: false,
 					cutout: '65%',
 					plugins: {
 						legend: {
@@ -310,7 +283,80 @@
 				}
 			};
 		</script>
+		
 
+
+		<!-- grafik potensi sisa anggaran & Realisasi Anggaran per Sumber Dana -->
+		<div class="row" style="margin-top:30px;">
+
+			<!-- grafik potensi sisa anggaran-->
+			<div class="col-md-6 col-xs-12" style="margin:auto;">
+				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
+					<div class="d-flex align-items-center" style="margin-bottom:18px;">
+						<span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Potensi Sisa Anggaran Tahun <?php echo $tahun_ini; ?></span>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
+							<canvas id="piePotensiSisaChart" width="180" height="180"></canvas>
+						</div>
+						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
+							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
+								<div>
+									<div style="font-weight:700;color:#263238;">Total Anggaran</div>
+									<div id="label-total-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
+								<div>
+									<div style="font-weight:700;color:#263238;">Realisasi Anggaran</div>
+									<div id="label-realisasi-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:22px;height:22px;background:#c3c3c3;margin-right:14px;border-radius:5px;"></span>
+								<div>
+									<div style="font-weight:700;color:#263238;">Sisa Anggaran</div>
+									<div id="label-sisa-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Realisasi Anggaran per Sumber Dana -->
+			<div class="col-md-6 col-xs-12" style="margin:auto;">
+				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
+					<div class="d-flex align-items-center" style="margin-bottom:18px;">
+						<span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Realisasi Anggaran per Sumber Dana Tahun <?php echo $tahun_ini; ?></span>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
+							<canvas id="pieRealisasiSumberDanaChart" width="180" height="180"></canvas>
+						</div>
+						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
+							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
+								<div>
+									<div style="font-weight:700;color:#263238;">DBH Cukai Hasil Tembakau (CHT)</div>
+									<div id="label-realisasi-dbh" style="font-size:17px;color:#263238;"></div>
+								</div>
+							</div>
+							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
+								<span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
+								<div>
+									<div style="font-weight:700;color:#263238;">Pendapatan dari BLUD</div>
+									<div id="label-realisasi-blud" style="font-size:17px;color:#263238;"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<!-- grafik potensi sisa anggaran -->
 		<script>
 			// Data dummy, silakan ganti dengan data backend jika perlu
@@ -390,76 +436,6 @@
 			// 	}
 			// };
 		</script>
-
-
-
-		<!-- grafik Sisa Anggaran per Sumber Dana per Tahun & grafik Realisasi Anggaran per Sumber Dana -->
-		<div class="row" style="margin-top:30px;">
-			<div class="col-md-6 col-xs-12" style="margin:auto;">
-				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-					<div class="d-flex align-items-center" style="margin-bottom:18px;">
-						<span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Realisasi Anggaran per Sumber Dana Tahun <?php echo $tahun_ini; ?></span>
-					</div>
-					<div class="row">
-						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
-							<canvas id="pieRealisasiSumberDanaChart" width="180" height="180"></canvas>
-						</div>
-						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">DBH Cukai Hasil Tembakau (CHT)</div>
-									<div id="label-realisasi-dbh" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">Pendapatan dari BLUD</div>
-									<div id="label-realisasi-blud" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-xs-12" style="margin:auto;">
-				<!-- <div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-					<div class="d-flex align-items-center" style="margin-bottom:18px;">
-						<i class="fa fa-pie-chart" style="font-size:26px;color:#4caf50;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Grafik Sisa Anggaran per Sumber Dana Tahun <?php echo $tahun_ini; ?></span>
-					</div>
-					<div class="row">
-						<div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
-							<canvas id="pieSisaSumberDanaChart" width="180" height="180"></canvas>
-						</div>
-						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#ff9800;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">Sisa Anggaran</div>
-									<div id="label-sisa-anggaran" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">DBH Cukai Hasil Tembakau (CHT)</div>
-									<div id="label-sisa-dbh" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
-								<span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
-								<div>
-									<div style="font-weight:700;color:#263238;">Pendapatan dari BLUD</div>
-									<div id="label-sisa-blud" style="font-size:17px;color:#263238;"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div> -->
-			</div>
-		</div>
 
 		<!-- grafik Realisasi Anggaran per Sumber Dana -->
 		<script>
