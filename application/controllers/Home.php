@@ -388,28 +388,26 @@ class Home extends AZ_Controller {
 		$dbh = 0;
 		$blud = 0;
 
+
 		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('npd.status = 1 ');
-		$this->db->where('npd_detail.status = 1 ');
-		$this->db->where('verification.status = 1 ');
-		$this->db->where('verification.verification_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('verification.status_approve = "DISETUJUI" ');
-		$this->db->where('verification_detail.status = 1 ');
-		$this->db->where('transaction.status = 1 ');
-		$this->db->where('transaction.transaction_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('transaction_detail.`status` = 1 ');
-		$this->db->where('YEAR(transaction_detail.created) = "'.$tahun_ini.'" ');
+		$this->db->where('npd.status', 1);
+		$this->db->where('npd_detail.status', 1);
+		$this->db->where('verification.status', 1);
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization_detail.status', 1);
+		$this->db->where('sub_kategori.status', 1);
+		$this->db->where('sumber_dana.status', 1);
+		$this->db->where('YEAR(npd.npd_date_created) = "'.$tahun_ini.'" ');
 
 		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
-		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
-		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification'	);
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization'	);
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization'	);
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
 		$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
 
 		$this->db->group_by('nama_sumber_dana');
-		$this->db->select('SUM(total) AS total_sumber_dana, nama_sumber_dana');
+		$this->db->select('SUM(budget_realization_detail.total_realization_detail) AS total_sumber_dana, nama_sumber_dana');
 		$npd = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
