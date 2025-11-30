@@ -86,7 +86,7 @@
 						<div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center; margin-left:5%">
 							<div class="row">
 								<div class="col-md-6">
-									
+
 									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
 										<span style="display:inline-block;width:18px;height:18px;background:#28A745;margin-right:10px;border-radius:4px;"></span>
 										<div>
@@ -272,12 +272,24 @@
 				var activePoints = pieAnggaranChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
 				if (activePoints.length > 0) {
 					var idx = activePoints[0].index;
+
+					console.log(idx);
 					// Tentukan link berdasarkan index
 					if (idx === 0) {
 						window.open('<?= site_url("realisasi_anggaran_detail/sudah_dibayar") ?>', '_blank');
 					} else if (idx === 1) {
 						window.open('<?= site_url("realisasi_anggaran_detail/belum_dibayar") ?>', '_blank');
 					} else if (idx === 2) {
+						window.open('<?= site_url("realisasi_anggaran_detail/npd") ?>', '_blank');
+					} else if (idx === 3) {
+						window.open('<?= site_url("realisasi_anggaran_detail/sudah_diverifikasi") ?>', '_blank');
+					} else if (idx === 4) {
+						window.open('<?= site_url("realisasi_anggaran_detail/belum_diverifikasi") ?>', '_blank');
+					} else if (idx === 5) {
+						window.open('<?= site_url("realisasi_anggaran_detail/kontrak_pengadaan") ?>', '_blank');
+					} else if (idx === 6) {
+						window.open('<?= site_url("realisasi_anggaran_detail/proses_pengadaan") ?>', '_blank');
+					} else if (idx === 7) {
 						window.open('<?= site_url("realisasi_anggaran_detail/belum_direalisasi") ?>', '_blank');
 					}
 				}

@@ -393,7 +393,9 @@ class Home extends AZ_Controller {
 		$this->db->where('npd.status', 1);
 		$this->db->where('npd_detail.status', 1);
 		$this->db->where('verification.status', 1);
+		$this->db->where('verification.verification_status != "DRAFT" ');
 		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization.realization_status != "DRAFT" ');
 		$this->db->where('budget_realization_detail.status', 1);
 		$this->db->where('sub_kategori.status', 1);
 		$this->db->where('sumber_dana.status', 1);
