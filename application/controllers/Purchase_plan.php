@@ -549,15 +549,6 @@ class Purchase_plan extends CI_Controller {
 				if ($err_code == 0) {
 
 					if ($status != "DRAFT") {
-						$the_filter = array(
-							'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
-							'idpaket_belanja' => $idpaket_belanja,
-							'status' => "PROSES PENGADAAN",
-						);
-			
-						update_status_detail_pb($the_filter);
-
-
 						// hitung total volume yang sudah terealisasi
 						calculate_realisasi_volume($idpaket_belanja_detail_sub);
 					}
@@ -683,15 +674,6 @@ class Purchase_plan extends CI_Controller {
 		}
 
 		if ($is_delete) {
-			// update status uraian di paket belanja
-			$the_filter = array(
-				'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
-				'idpaket_belanja' => $idpaket_belanja,
-				'status' => "INPUT PAKET BELANJA",
-			);
-
-			update_status_detail_pb($the_filter);
-
 
 			// hapus detail rencana pengadaan
 			$delete = az_crud_delete('purchase_plan_detail', $id, true);
@@ -802,19 +784,18 @@ class Purchase_plan extends CI_Controller {
 
 			foreach ($purchase_plan->result() as $key => $value) {
 				$idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
-				$idpaket_belanja = $value->idpaket_belanja;
+				$idpurchase_plan_detail = $value->idpurchase_plan_detail;
 				
 				// hitung total volume yang sudah terealisasi
 				calculate_realisasi_volume($idpaket_belanja_detail_sub);
 
 				$the_filter = array(
-					'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
-					'idpaket_belanja' => $idpaket_belanja,
+					'idpurchase_plan_detail' => $idpurchase_plan_detail,
 					'status' => "PROSES PENGADAAN",
 				);
 				
 				// update status paket belanja
-				update_status_detail_pb($the_filter);
+				update_status_detail_purchase_plan($the_filter);
 			}
 		}
 
@@ -896,13 +877,6 @@ class Purchase_plan extends CI_Controller {
 		if($err_code == 0) {
 			// update status uraian di paket belanja
 			foreach ($purchase_plan->result() as $key => $value) {
-				$the_filter = array(
-					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
-					'idpaket_belanja' => $value->idpaket_belanja,
-					'status' => "INPUT PAKET BELANJA",
-				);
-
-				update_status_detail_pb($the_filter);	
 
 				// hitung total volume yang sudah terealisasi
 				calculate_realisasi_volume($value->idpaket_belanja_detail_sub);

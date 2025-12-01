@@ -230,8 +230,8 @@ class Home extends AZ_Controller {
 		// Menunggu Pembayaran
 			$this->db->where('npd.status', 1);
 			$this->db->where('npd.npd_status = "MENUNGGU PEMBAYARAN" ');
-			$this->db->where('YEAR(npd.confirm_payment_date) = "'.$tahun_ini.'" ');
-			$this->db->select('sum(total_pay) as total_yang_menunggu_pembayaran');
+			$this->db->where('YEAR(npd.npd_date_created) = "'.$tahun_ini.'" ');
+			$this->db->select('sum(total_anggaran) as total_yang_menunggu_pembayaran');
 			$npd_before_pay = $this->db->get('npd');
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 

@@ -48,7 +48,8 @@
     th.col-month, td.col-month { 
         width: 150px; 
         min-width: 150px;
-        text-align: center; 
+        text-align: center;
+        font-size: 14px;
     }
 </style>
 

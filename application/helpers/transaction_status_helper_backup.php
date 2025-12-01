@@ -117,58 +117,63 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		
 		return $label_status;
 	}
-	
-	// hitung volume yang sudah terealisasi
-	function calculate_realisasi_volume($idpaket_belanja_detail_sub) {
+
+
+	// update status di setiap detail paket belanja
+	function update_status_detail_pb($the_data) {
 		$ci =& get_instance();
 
 		$err_code = 0;
 		$err_message = '';
 
-		$ci->db->where('purchase_plan_detail.status', 1);
-		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-		$ci->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
-		$ci->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
-		$ci->db->select_sum('volume');
-		$ppd = $ci->db->get('purchase_plan_detail');
-        // echo "<pre>"; print_r($ci->db->last_query());die;
-		
-        $volume_realization = 0;
-		if ($ppd->num_rows() > 0) {
-			$volume_realization = $ppd->row()->volume;
-		}
-
-		$arr_update = array(
-			'volume_realization' => $volume_realization,
-		);
-
-		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-		$ci->db->update('paket_belanja_detail_sub', $arr_update);
-
-		$ret = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-		);
-		return $ret;
-	}
-
-
-    // update status detail rencana pengadaan
-	function update_status_detail_purchase_plan($the_data) {
-		$ci =& get_instance();
-
-		$err_code = 0;
-		$err_message = '';
-
-		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja');
 		$status = azarr($the_data, 'status');
 
-		$arr_update_plan = array(
-			'purchase_plan_detail_status' => $status,
-		);
+		// $arr_update = array(
+		// 	'status_detail_step' => $status,
+		// );
 
-		$ci->db->where('idpurchase_plan_detail', $idpurchase_plan_detail);
-		$ci->db->update('purchase_plan_detail', $arr_update_plan);
+		// $ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		// $ci->db->where('idpaket_belanja', $idpaket_belanja);
+		// $ci->db->update('paket_belanja_detail_sub', $arr_update);
+
+		update_status_paket_belanja($idpaket_belanja);
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+	
+	// update status paket belanja
+	function update_status_paket_belanja($idpaket_belanja) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		// $ci->db->where('status', 1);
+		// $ci->db->where('idpaket_belanja', $idpaket_belanja);
+		// $ci->db->where('status_detail_step = "INPUT PAKET BELANJA" ');
+		// $detail_sub = $ci->db->get('paket_belanja_detail_sub');
+		// // echo "<pre>"; print_r($ci->db->last_query());die;
+
+		// if ($detail_sub->num_rows() == 0) {
+		// 	$status_paket_belanja = "PROSES REALISASI";
+		// }
+		// else {
+		// 	$status_paket_belanja = "OK";
+		// }
+
+		// $arr_update = array(
+		// 	'status_paket_belanja' => $status_paket_belanja,
+		// );
+
+		// $ci->db->where('idpaket_belanja', $idpaket_belanja);
+		// $ci->db->update('paket_belanja', $arr_update);
+
 
 		$ret = array(
 			'err_code' => $err_code,
@@ -177,7 +182,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		return $ret;
 	}
 
-    // update status rencana pengadaan
+	// update status rencana pengadaan
 	function update_status_purchase_plan($the_data) {
 		$ci =& get_instance();
 
@@ -202,11 +207,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		foreach ($pd->result() as $key => $value) {
 			$the_filter = array(
-				'idpurchase_plan_detail' => $value->idpurchase_plan_detail,
+				'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+				'idpaket_belanja' => $value->idpaket_belanja,
 				'status' => $status,
 			);
 
-			update_status_detail_purchase_plan($the_filter);	
+			update_status_detail_pb($the_filter);	
 		}
 
 		$ret = array(
@@ -216,31 +222,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		return $ret;
 	}
 
-    // update status detail kontrak pengadaan
-	function update_status_detail_purchase_contract($the_data) {
-		$ci =& get_instance();
-
-		$err_code = 0;
-		$err_message = '';
-
-		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail');
-		$status = azarr($the_data, 'status');
-
-		$arr_update_plan = array(
-			'purchase_plan_detail_status' => $status,
-		);
-
-		$ci->db->where('idpurchase_plan_detail', $idpurchase_plan_detail);
-		$ci->db->update('purchase_plan_detail', $arr_update_plan);
-
-		$ret = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message,
-		);
-		return $ret;
-	}
-
-    // update status kontrak pengadaan
+	// update status kontrak pengadaan
 	function update_status_purchase_contract($the_data) {
 		$ci =& get_instance();
 
@@ -278,6 +260,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			update_status_purchase_plan($the_filter);
 		}
 
+		// update status detail paket belanja
+		$ci->db->where('status', 1);
+		$ci->db->where('idpurchase_plan', $idpurchase_plan);
+		$pd = $ci->db->get('purchase_plan_detail');
+
+		foreach ($pd->result() as $key => $value) {
+			$the_filter = array(
+				'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
+				'idpaket_belanja' => $value->idpaket_belanja,
+				'status' => $value->purchase_plan_detail_status,
+			);
+
+			update_status_detail_pb($the_filter);	
+		}
+
 		$ret = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message,
@@ -285,7 +282,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		return $ret;
 	}
 
-    // update status realisasi anggaran
+	// update status detail kontrak pengadaan
+	function update_status_detail_purchase_contract($the_data) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail');
+		$status = azarr($the_data, 'status');
+
+		$arr_update_plan = array(
+			'purchase_plan_detail_status' => $status,
+		);
+
+		$ci->db->where('idpurchase_plan_detail', $idpurchase_plan_detail);
+		$ci->db->update('purchase_plan_detail', $arr_update_plan);
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
+	// update status realisasi anggaran
 	function update_status_budget_realization($the_data) {
 		$ci =& get_instance();
 
@@ -323,7 +344,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		return $ret;
 	}
 
-    // update status verifikasi dokumen
+	// update status verifikasi dokumen
 	function update_status_document_verification($the_data) {
 		$ci =& get_instance();
 
@@ -366,7 +387,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		return $ret;
 	}
 
-    // update status nota pencairan dana
+	// update status nota pencairan dana
 	function update_status_npd($the_data) {
 		$ci =& get_instance();
 
@@ -399,3 +420,187 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		);
 		return $ret;
 	}
+
+	
+	// hitung volume yang sudah terealisasi
+	function calculate_realisasi_volume($idpaket_belanja_detail_sub) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$ci->db->where('purchase_plan_detail.status', 1);
+		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$ci->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+		$ci->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
+		$ci->db->select_sum('volume');
+		$ppd = $ci->db->get('purchase_plan_detail');
+
+		$volume_realization = 0;
+		if ($ppd->num_rows() > 0) {
+			$volume_realization = $ppd->row()->volume;
+		}
+
+		$arr_update = array(
+			'volume_realization' => $volume_realization,
+		);
+
+		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$ci->db->update('paket_belanja_detail_sub', $arr_update);
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
+
+
+
+	// update status realisasi anggaran
+	// untuk mengakomodir add_product (tambah produk); save_verification (simpan transaksi verifikasi); delete_order (hapus detail transaksi verifikasi); delete_verifikasi_dokumen (hapus transaksi verifikasi); approval (persetujuan verifikasi)
+    function xx_update_status_realisasi_anggaran($arr) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$idverification = azarr($arr, 'idverification');
+		$idverification_detail = azarr($arr, 'idverification_detail');
+		$type = azarr($arr, 'type');
+
+		$ci->db->where('verification.idverification', $idverification);
+		if (strlen($idverification_detail) > 0) {
+			$ci->db->where('verification_detail.idverification_detail', $idverification_detail);
+		}
+		$ci->db->where('verification.verification_status != "DRAFT" ');
+		$ci->db->where('verification.status', 1);
+		$ci->db->where('verification_detail.status', 1);
+		$ci->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
+		$trx = $ci->db->get('verification');
+
+		foreach ($trx->result() as $key => $value) {
+			$idtransaction = $value->idtransaction;
+
+			$update_data = array(
+				'transaction_status' => $type,
+				'updated_status' => date('Y-m-d H:i:s'),
+			);
+			
+			$ci->db->where('idtransaction', $idtransaction);
+			$ci->db->update('transaction', $update_data);
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
+
+
+	// update status verifikasi dokumen
+	function xx_update_status_verifikasi_dokumen($arr) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$idnpd = azarr($arr, 'idnpd');
+		$idnpd_detail = azarr($arr, 'idnpd_detail');
+		$type = azarr($arr, 'type');
+
+		$ci->db->where('npd.idnpd', $idnpd);
+		if (strlen($idnpd_detail) > 0) {
+			$ci->db->where('npd_detail.idnpd_detail', $idnpd_detail);
+		}
+		$ci->db->where('npd.npd_status != "DRAFT" ');	
+		$ci->db->where('npd.status', 1);
+		$ci->db->where('npd_detail.status', 1);
+		$ci->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$trx = $ci->db->get('npd');
+		// echo"<pre>"; print_r($ci->db->last_query()); die;
+
+		foreach ($trx->result() as $key => $value) {
+			$idverification = $value->idverification;
+
+			$update_data = array(
+				'verification_status' => $type,
+				'updated_status' => date('Y-m-d H:i:s'),
+			);
+			
+			$ci->db->where('idverification', $idverification);
+			$ci->db->update('verification', $update_data);
+
+
+			// update status realisasi anggaran 
+			$the_filter = array(
+				'idverification' => $idverification,
+				'type' => $type
+			);
+			update_status_realisasi_anggaran($the_filter);
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
+
+	// update status nota pencairan dana (NPD)
+	function xx_update_status_npd($arr) {
+		$ci =& get_instance();
+
+		$err_code = 0;
+		$err_message = '';
+
+		$idnpd = azarr($arr, 'idnpd');
+		$idnpd_detail = azarr($arr, 'idnpd_detail');
+		$type = azarr($arr, 'type');
+
+		$ci->db->where('npd.idnpd', $idnpd);
+		if (strlen($idnpd_detail) > 0) {
+			$ci->db->where('npd_detail.idnpd_detail', $idnpd_detail);
+		}
+		$ci->db->where('npd.npd_status != "DRAFT" ');	
+		$ci->db->where('npd.status', 1);
+		$ci->db->where('npd_detail.status', 1);
+		$ci->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$trx = $ci->db->get('npd');
+		// echo"<pre>"; print_r($ci->db->last_query()); die;
+
+		foreach ($trx->result() as $key => $value) {
+			$idverification = $value->idverification;
+
+			$update_data = array(
+				'verification_status' => $type,
+				'updated_status' => date('Y-m-d H:i:s'),
+			);
+			
+			$ci->db->where('idverification', $idverification);
+			$ci->db->update('verification', $update_data);
+
+
+			// update status realisasi anggaran 
+			$the_filter = array(
+				'idverification' => $idverification,
+				'type' => $type
+			);
+			update_status_realisasi_anggaran($the_filter);
+		}
+
+		$ret = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+		return $ret;
+	}
+
+
+
+
+
