@@ -128,6 +128,7 @@
                                 <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>" data_tw="2"><span class="glyphicon glyphicon-eye-open"></span> TW2</button>
                                 <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>" data_tw="3"><span class="glyphicon glyphicon-eye-open"></span> TW3</button>
                                 <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>" data_tw="4"><span class="glyphicon glyphicon-eye-open"></span> TW4</button>
+                                <button class="btn btn-success btn-xs btn-history-rak" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>"><span class="glyphicon glyphicon-eye-open"></span> History RAK</button>
                               </td>
                             </tr>
 

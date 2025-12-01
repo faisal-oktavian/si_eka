@@ -10,6 +10,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->controller = 'evaluasi_anggaran';
 		$this->load->helper('az_crud');
         $this->load->helper('az_config');
+		$this->load->helper('transaction_status_helper');
     }
 
 	public function index(){
@@ -411,7 +412,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		// $this->db->where('paket_belanja.idpaket_belanja', 82);
 
 		$this->db->where('paket_belanja.status', 1);
-		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
+		$this->db->where('paket_belanja.status_paket_belanja != "DRAFT" ');
 		$this->db->where('paket_belanja.idsub_kegiatan', $idsub_kegiatan);
 		$this->db->order_by('paket_belanja.idpaket_belanja ASC');
 		$this->db->select('idpaket_belanja, nama_paket_belanja, nilai_anggaran');
@@ -440,7 +441,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
 		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.rak_volume_januari, paket_belanja_detail_sub.rak_volume_februari, paket_belanja_detail_sub.rak_volume_maret, paket_belanja_detail_sub.rak_volume_april, paket_belanja_detail_sub.rak_volume_mei, paket_belanja_detail_sub.rak_volume_juni, paket_belanja_detail_sub.rak_volume_juli, paket_belanja_detail_sub.rak_volume_agustus, paket_belanja_detail_sub.rak_volume_september, paket_belanja_detail_sub.rak_volume_oktober, paket_belanja_detail_sub.rak_volume_november, paket_belanja_detail_sub.rak_volume_desember');
 		$paket_belanja_detail = $this->db->get('paket_belanja_detail_sub');
 
 		// if ($paket_belanja_detail->num_rows() > 0) {
@@ -465,7 +466,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 		$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah'.$query_category);
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.rak_volume_januari, paket_belanja_detail_sub.rak_volume_februari, paket_belanja_detail_sub.rak_volume_maret, paket_belanja_detail_sub.rak_volume_april, paket_belanja_detail_sub.rak_volume_mei, paket_belanja_detail_sub.rak_volume_juni, paket_belanja_detail_sub.rak_volume_juli, paket_belanja_detail_sub.rak_volume_agustus, paket_belanja_detail_sub.rak_volume_september, paket_belanja_detail_sub.rak_volume_oktober, paket_belanja_detail_sub.rak_volume_november, paket_belanja_detail_sub.rak_volume_desember'.$query_category);
 		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
 
 		return $paket_belanja_detail_sub;
@@ -1156,5 +1157,506 @@ class Evaluasi_anggaran extends CI_Controller {
 		// echo "<pre>"; print_r($return);die;
 
 		return $return;
+	}
+
+	function get_history_rak() {
+		$idpaket_belanja_detail = $this->input->post("idpaket_belanja_detail");
+		$tahun_anggaran = $this->input->post("tahun_anggaran");
+
+		$rak_januari 	= '';
+		$januari 		= '';
+		$rak_februari	= '';
+		$februari 		= '';
+		$rak_maret 		= '';
+		$maret 			= '';
+		$rak_april 		= '';
+		$april 			= '';
+		$rak_mei 		= '';
+		$mei 			= '';
+		$rak_juni 		= '';
+		$juni 			= '';
+		$rak_juli 		= '';
+		$juli 			= '';
+		$rak_agustus 	= '';
+		$agustus 		= '';
+		$rak_september 	= '';
+		$september 		= '';
+		$rak_oktober 	= '';
+		$oktober		= '';
+		$rak_november 	= '';
+		$november 		= '';
+		$rak_desember 	= '';
+		$desember 		= '';
+
+		// paket belanja
+		$this->db->where('paket_belanja_detail.idpaket_belanja_detail', $idpaket_belanja_detail);
+		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+		$this->db->select('paket_belanja_detail.idpaket_belanja, akun_belanja.nama_akun_belanja');
+		$pb_detail = $this->db->get('paket_belanja_detail');
+		$idpaket_belanja = $pb_detail->row()->idpaket_belanja;
+		$nama_akun_belanja = $pb_detail->row()->nama_akun_belanja;
+
+		// Kategori / Sub Kategori
+		$paket_belanja_detail = $this->query_paket_belanja_detail($idpaket_belanja_detail);
+		// echo "<pre>"; print_r($this->db->last_query());
+
+		$arr_data = array();
+		foreach ($paket_belanja_detail->result() as $pbds_key => $ds_value) {
+
+			$is_bold = 0;
+			$mulai_bulan = 1;
+
+			$rak_januari 	= '';
+			$januari 		= '';
+			$rak_februari	= '';
+			$februari 		= '';
+			$rak_maret 		= '';
+			$maret 			= '';
+			$rak_april 		= '';
+			$april 			= '';
+			$rak_mei 		= '';
+			$mei 			= '';
+			$rak_juni 		= '';
+			$juni 			= '';
+			$rak_juli 		= '';
+			$juli 			= '';
+			$rak_agustus 	= '';
+			$agustus 		= '';
+			$rak_september 	= '';
+			$september 		= '';
+			$rak_oktober 	= '';
+			$oktober		= '';
+			$rak_november 	= '';
+			$november 		= '';
+			$rak_desember 	= '';
+			$desember 		= '';
+
+			// jika valuenya termasuk kategori (bukan sub kategori), maka set nilai seperti didalam kondisi
+			if (strlen($ds_value->idkategori) > 0) {
+				$is_bold = 1;
+			}
+			
+			if (strlen($ds_value->idsub_kategori) > 0) {
+
+				// looping untuk mengambil data dari januari sampai desember
+				for ($i=0; $i < 12; $i++) {
+
+					$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
+					
+					$this->db->where('purchase_plan.status', 1);
+					$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');					
+					$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+					$this->db->where('purchase_plan_detail.status', 1);
+					$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$ds_value->idpaket_belanja_detail_sub.'" ');
+					$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$ds_value->idpaket_belanja.'" ');
+
+					$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+					$this->db->order_by("
+						CASE purchase_plan_detail.purchase_plan_detail_status
+							WHEN 'PROSES PENGADAAN' THEN 1
+							WHEN 'KONTRAK PENGADAAN' THEN 2
+							WHEN 'MENUNGGU VERIFIKASI' THEN 3
+							WHEN 'SUDAH DIVERIFIKASI' THEN 4
+							WHEN 'DITOLAK VERIFIKATOR' THEN 5
+							WHEN 'INPUT NPD' THEN 6
+							WHEN 'MENUNGGU PEMBAYARAN' THEN 7
+							WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
+							ELSE 99
+						END
+					", "", FALSE); 
+					$this->db->limit(1);
+					$this->db->select('purchase_plan_detail.purchase_plan_detail_status');
+					$purchase_plan = $this->db->get('purchase_plan');
+					// echo "<pre>"; print_r($this->db->last_query());
+
+					if ($purchase_plan->num_rows() > 0) {
+						$purchase_plan_detail_status = $purchase_plan->row()->purchase_plan_detail_status;
+
+						$status = label_status($purchase_plan_detail_status);
+
+						// set status sesuai dengan key looping saat ini
+						if ($i == 0) {
+							$januari = $status;
+						}
+						else if ($i == 1) {
+							$februari = $status;
+						}
+						else if ($i == 2) {
+							$maret = $status;
+						}
+						else if ($i == 3) {
+							$april = $status;
+						}
+						else if ($i == 4) {
+							$mei = $status;
+						}
+						else if ($i == 5) {
+							$juni = $status;
+						}
+						else if ($i == 6) {
+							$juli = $status;
+						}
+						else if ($i == 7) {
+							$agustus = $status;
+						}
+						else if ($i == 8) {
+							$september = $status;
+						}
+						else if ($i == 9) {
+							$oktober = $status;
+						}
+						else if ($i == 10) {
+							$november = $status;
+						}
+						else if ($i == 11) {
+							$desember = $status;
+						}
+					}
+
+					$mulai_bulan++;
+				}
+
+				// ambil data realisasi RAK yang sudah ditentukan di menu paket belanja
+				if (strlen($ds_value->rak_volume_januari) > 0) {
+					$rak_januari = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_februari) > 0) {
+					$rak_februari = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_maret) > 0) {
+					$rak_maret = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_april) > 0) {
+					$rak_april = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_mei) > 0) {
+					$rak_mei = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_juni) > 0) {
+					$rak_juni = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_juli) > 0) {
+					$rak_juli = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_agustus) > 0) {
+					$rak_agustus = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_september) > 0) {
+					$rak_september = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_oktober) > 0) {
+					$rak_oktober = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_november) > 0) {
+					$rak_november = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+				if (strlen($ds_value->rak_volume_desember) > 0) {
+					$rak_desember = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+								Realisasi RAK</label>";
+				}
+			}
+
+			// simpan data nama akun belanja pada array pertama
+			if ($pbds_key == 0) {
+				$arr_data[] = array(
+					'idkategori' 			=> '',
+					'nama_kategori' 		=> '',
+					'idsub_kategori'	 	=> '',
+					'nama_subkategori' 		=> $nama_akun_belanja,
+					'is_nama_akun_belanja'	=> 1,
+					'is_bold'				=> 1,
+
+					'rak_januari' 			=> '',
+					'januari' 				=> '',
+					'rak_februari' 			=> '',
+					'februari' 				=> '',
+					'rak_maret' 			=> '',
+					'maret' 				=> '',
+					'rak_april' 			=> '',
+					'april' 				=> '',
+					'rak_mei' 				=> '',
+					'mei' 					=> '',
+					'rak_juni' 				=> '',
+					'juni' 					=> '',
+					'rak_juli' 				=> '',
+					'juli' 					=> '',
+					'rak_agustus' 			=> '',
+					'agustus' 				=> '',
+					'rak_september' 		=> '',
+					'september' 			=> '',
+					'rak_oktober' 			=> '',
+					'oktober' 				=> '',
+					'rak_november' 			=> '',
+					'november' 				=> '',
+					'rak_desember' 			=> '',
+					'desember' 				=> '',
+				);
+			}
+
+			// simpan data uraian ke dalam array
+			$arr_data[] = array(
+				'idkategori' 			=> $ds_value->idkategori,
+				'nama_kategori' 		=> $ds_value->nama_kategori,
+				'idsub_kategori'	 	=> $ds_value->idsub_kategori,
+				'nama_subkategori' 		=> $ds_value->nama_sub_kategori,
+				'is_nama_akun_belanja'	=> 0,
+				'is_bold'				=> $is_bold,
+
+				'rak_januari' 			=> $rak_januari,
+				'januari' 				=> $januari,
+				'rak_februari' 			=> $rak_februari,
+				'februari' 				=> $februari,
+				'rak_maret' 			=> $rak_maret,
+				'maret' 				=> $maret,
+				'rak_april' 			=> $rak_april,
+				'april' 				=> $april,
+				'rak_mei' 				=> $rak_mei,
+				'mei' 					=> $mei,
+				'rak_juni' 				=> $rak_juni,
+				'juni' 					=> $juni,
+				'rak_juli' 				=> $rak_juli,
+				'juli' 					=> $juli,
+				'rak_agustus' 			=> $rak_agustus,
+				'agustus' 				=> $agustus,
+				'rak_september' 		=> $rak_september,
+				'september' 			=> $september,
+				'rak_oktober' 			=> $rak_oktober,
+				'oktober' 				=> $oktober,
+				'rak_november' 			=> $rak_november,
+				'november' 				=> $november,
+				'rak_desember' 			=> $rak_desember,
+				'desember' 				=> $desember,
+			);
+
+
+			////////////////
+			// jika ada sub kategorinya
+			$paket_belanja_detail_sub = $this->query_paket_belanja_detail_sub($ds_value->idpaket_belanja_detail_sub);
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			foreach ($paket_belanja_detail_sub->result() as $dss_key => $dss_value) {
+
+				$is_bold = 0;
+				$mulai_bulan = 1;
+
+				$rak_januari 	= '';
+				$januari 		= '';
+				$rak_februari	= '';
+				$februari 		= '';
+				$rak_maret 		= '';
+				$maret 			= '';
+				$rak_april 		= '';
+				$april 			= '';
+				$rak_mei 		= '';
+				$mei 			= '';
+				$rak_juni 		= '';
+				$juni 			= '';
+				$rak_juli 		= '';
+				$juli 			= '';
+				$rak_agustus 	= '';
+				$agustus 		= '';
+				$rak_september 	= '';
+				$september 		= '';
+				$rak_oktober 	= '';
+				$oktober		= '';
+				$rak_november 	= '';
+				$november 		= '';
+				$rak_desember 	= '';
+				$desember 		= '';
+
+				// jika valuenya termasuk kategori (bukan sub kategori), maka set nilai seperti didalam kondisi
+				if (strlen($dss_value->idkategori) > 0) {
+					$is_bold = 1;
+				}
+				
+				if (strlen($dss_value->idsub_kategori) > 0) {
+
+					// looping untuk mengambil data dari januari sampai desember
+					for ($i=0; $i < 12; $i++) {
+
+						$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
+						
+						$this->db->where('purchase_plan.status', 1);
+						$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');					
+						$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+						$this->db->where('purchase_plan_detail.status', 1);
+						$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$dss_value->idpaket_belanja_detail_sub.'" ');
+						$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$dss_value->idpaket_belanja.'" ');
+
+						$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+						$this->db->order_by("
+							CASE purchase_plan_detail.purchase_plan_detail_status
+								WHEN 'PROSES PENGADAAN' THEN 1
+								WHEN 'KONTRAK PENGADAAN' THEN 2
+								WHEN 'MENUNGGU VERIFIKASI' THEN 3
+								WHEN 'SUDAH DIVERIFIKASI' THEN 4
+								WHEN 'DITOLAK VERIFIKATOR' THEN 5
+								WHEN 'INPUT NPD' THEN 6
+								WHEN 'MENUNGGU PEMBAYARAN' THEN 7
+								WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
+								ELSE 99
+							END
+						", "", FALSE); 
+						$this->db->limit(1);
+						$this->db->select('purchase_plan_detail.purchase_plan_detail_status');
+						$purchase_plan = $this->db->get('purchase_plan');
+						// echo "<pre>"; print_r($this->db->last_query());
+
+						if ($purchase_plan->num_rows() > 0) {
+							$purchase_plan_detail_status = $purchase_plan->row()->purchase_plan_detail_status;
+
+							$status = label_status($purchase_plan_detail_status);
+
+							// set status sesuai dengan key looping saat ini
+							if ($i == 0) {
+								$januari = $status;
+							}
+							else if ($i == 1) {
+								$februari = $status;
+							}
+							else if ($i == 2) {
+								$maret = $status;
+							}
+							else if ($i == 3) {
+								$april = $status;
+							}
+							else if ($i == 4) {
+								$mei = $status;
+							}
+							else if ($i == 5) {
+								$juni = $status;
+							}
+							else if ($i == 6) {
+								$juli = $status;
+							}
+							else if ($i == 7) {
+								$agustus = $status;
+							}
+							else if ($i == 8) {
+								$september = $status;
+							}
+							else if ($i == 9) {
+								$oktober = $status;
+							}
+							else if ($i == 10) {
+								$november = $status;
+							}
+							else if ($i == 11) {
+								$desember = $status;
+							}
+						}
+
+						$mulai_bulan++;
+					}
+
+					// ambil data realisasi RAK yang sudah ditentukan di menu paket belanja
+					if (strlen($dss_value->rak_volume_januari) > 0) {
+						$rak_januari = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_februari) > 0) {
+						$rak_februari = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_maret) > 0) {
+						$rak_maret = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_april) > 0) {
+						$rak_april = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_mei) > 0) {
+						$rak_mei = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_juni) > 0) {
+						$rak_juni = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_juli) > 0) {
+						$rak_juli = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_agustus) > 0) {
+						$rak_agustus = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_september) > 0) {
+						$rak_september = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_oktober) > 0) {
+						$rak_oktober = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_november) > 0) {
+						$rak_november = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+					if (strlen($dss_value->rak_volume_desember) > 0) {
+						$rak_desember = "<label class='label' style='text-align: center; background-color: #ff0000ff; color: white;'>
+									Realisasi RAK</label>";
+					}
+				}
+
+				// simpan data uraian ke dalam array
+				$arr_data[] = array(
+					'idkategori' 			=> '',
+					'nama_kategori' 		=> '',
+					'idsub_kategori'	 	=> $dss_value->idsub_kategori,
+					'nama_subkategori' 		=> $dss_value->nama_sub_kategori,
+					'is_nama_akun_belanja'	=> 0,
+					'is_bold'				=> $is_bold,
+
+					'rak_januari' 			=> $rak_januari,
+					'januari' 				=> $januari,
+					'rak_februari' 			=> $rak_februari,
+					'februari' 				=> $februari,
+					'rak_maret' 			=> $rak_maret,
+					'maret' 				=> $maret,
+					'rak_april' 			=> $rak_april,
+					'april' 				=> $april,
+					'rak_mei' 				=> $rak_mei,
+					'mei' 					=> $mei,
+					'rak_juni' 				=> $rak_juni,
+					'juni' 					=> $juni,
+					'rak_juli' 				=> $rak_juli,
+					'juli' 					=> $juli,
+					'rak_agustus' 			=> $rak_agustus,
+					'agustus' 				=> $agustus,
+					'rak_september' 		=> $rak_september,
+					'september' 			=> $september,
+					'rak_oktober' 			=> $rak_oktober,
+					'oktober' 				=> $oktober,
+					'rak_november' 			=> $rak_november,
+					'november' 				=> $november,
+					'rak_desember' 			=> $rak_desember,
+					'desember' 				=> $desember,
+				);
+			}
+		}
+
+		$data['arr_data'] = $arr_data;
+		// echo "<pre>"; print_r($data);die();
+
+		$view = $this->load->view('evaluasi_anggaran/v_history_rak_table', $data, true);
+		$arr = array(
+			'data' => $view
+		);
+		echo json_encode($arr);
 	}
 }

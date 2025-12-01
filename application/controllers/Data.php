@@ -784,7 +784,6 @@ class Data extends CI_Controller {
 		$this->db->where('paket_belanja_detail_sub.status', '1');
 		$this->db->where('sub_kategori.status', '1');
 		$this->db->where('contract.contract_status = "KONTRAK PENGADAAN" ');
-		// $this->db->where('paket_belanja_detail_sub.status_detail_step = "KONTRAK PENGADAAN" ');
 		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');

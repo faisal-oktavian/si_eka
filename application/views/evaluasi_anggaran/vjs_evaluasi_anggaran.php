@@ -49,3 +49,28 @@
 			'_blank'
 		);
 	});
+
+	jQuery('body').on('click', '.btn-history-rak', function() {
+		var idpaket_belanja_detail = jQuery(this).attr('data_idpaket_belanja_detail');
+		var tw = jQuery(this).attr('data_tw');
+		var tahun_anggaran = jQuery('#tahun_anggaran').val();
+
+		jQuery('.detail-table').html('');
+
+		jQuery.ajax({
+			url: app_url + 'evaluasi_anggaran/get_history_rak',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				idpaket_belanja_detail: idpaket_belanja_detail,
+				tw: tw,
+				tahun_anggaran: tahun_anggaran
+			},
+			success: function(response) {
+				show_modal('detail_realisasi');
+
+				jQuery('.detail-table').html(response.data);
+			},
+			error: function(response) {}
+		});
+	});

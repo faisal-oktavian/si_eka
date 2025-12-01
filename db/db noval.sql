@@ -1930,6 +1930,8 @@ ALTER TABLE `sub_kategori`
 	ADD COLUMN `idkode_rekening` INT(10) NULL DEFAULT NULL AFTER `idsumber_dana`,
 	ADD INDEX `idkode_rekening` (`idkode_rekening`);
 
+
+-- start sync
 ALTER TABLE `verification_history`
 	ADD COLUMN `idtransaction` INT(10) NULL DEFAULT NULL AFTER `idverification`,
 	ADD INDEX `idtransaction` (`idtransaction`);
@@ -2009,8 +2011,8 @@ ALTER TABLE `npd`
 	ADD COLUMN `is_print` INT NULL DEFAULT '0' COMMENT 'untuk menandakan sudah pernah print atau belum' AFTER `npd_status`,
 	ADD INDEX `is_print` (`is_print`);
 
-ALTER TABLE `npd_detail`
-	DROP FOREIGN KEY `npd_detail_ibfk_1`;
+-- ALTER TABLE `npd_detail`
+-- 	DROP FOREIGN KEY `npd_detail_ibfk_1`;
 ALTER TABLE `npd_detail`
 	ADD CONSTRAINT `FK_npd_detail_npd` FOREIGN KEY (`idnpd`) REFERENCES `npd` (`idnpd`) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -2020,19 +2022,19 @@ ALTER TABLE `paket_belanja_detail`
 ALTER TABLE `verification_history`
 	ADD CONSTRAINT `FK_verification_history_verification` FOREIGN KEY (`idverification`) REFERENCES `verification` (`idverification`) ON UPDATE CASCADE ON DELETE CASCADE;
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kpa', 'KPA', 'KPA', '2025-10-23 13:12:50', 'superadmin', '2025-10-23 13:12:56', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kpa', 'KPA', 'KPA', '2025-10-23 13:12:50', 'superadmin', '2025-10-23 13:12:56', 'superadmin');
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppk', 'PPK', 'PPK', '2025-10-23 13:13:33', 'superadmin', '2025-10-23 13:13:35', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppk', 'PPK', 'PPK', '2025-10-23 13:13:33', 'superadmin', '2025-10-23 13:13:35', 'superadmin');
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppa', 'PPA', 'PPA', '2025-10-23 13:13:33', 'superadmin', '2025-10-23 13:13:35', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppa', 'PPA', 'PPA', '2025-10-23 13:13:33', 'superadmin', '2025-10-23 13:13:35', 'superadmin');
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppkom', 'PPKom', 'PPKom', '2025-10-23 13:17:15', 'superadmin', '2025-10-23 13:17:20', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppkom', 'PPKom', 'PPKom', '2025-10-23 13:17:15', 'superadmin', '2025-10-23 13:17:20', 'superadmin');
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'pptk', 'PPTK', 'PPTK', '2025-10-23 13:17:52', 'superadmin', '2025-10-23 13:17:56', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'pptk', 'PPTK', 'PPTK', '2025-10-23 13:17:52', 'superadmin', '2025-10-23 13:17:56', 'superadmin');
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kontrak_pengadaan', 'Kontrak Pengadaan', 'Kontrak Pengadaan', '2025-10-23 13:18:20', 'superadmin', '2025-10-23 13:18:20', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kontrak_pengadaan', 'Kontrak Pengadaan', 'Kontrak Pengadaan', '2025-10-23 13:18:20', 'superadmin', '2025-10-23 13:18:20', 'superadmin');
 
-INSERT INTO `noval_test`.`role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'realisasi_anggaran', 'Realisasi Anggaran', 'Realisasi Anggaran', '2025-10-23 13:22:12', 'superadmin', '2025-10-23 13:22:16', 'superadmin');
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'realisasi_anggaran', 'Realisasi Anggaran', 'Realisasi Anggaran', '2025-10-23 13:22:12', 'superadmin', '2025-10-23 13:22:16', 'superadmin');
 
 ALTER TABLE `paket_belanja`
 	ADD COLUMN `select_ppkom_pptk` INT(10) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' AFTER `idprogram`,

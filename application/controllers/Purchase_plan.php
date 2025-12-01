@@ -332,11 +332,6 @@ class Purchase_plan extends CI_Controller {
         $this->db->group_end();
 		
         $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
-
-		// $this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail 
-		// 	AND pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ', 'left', false); // false ← PENTING: jangan escape!
-		// $this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub AND pbds_child.status_detail_step = "INPUT PAKET BELANJA" ', 'left', false); // false ← PENTING: jangan escape!
-		
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail', 'left', false); // false ← PENTING: jangan escape!
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left', false); // false ← PENTING: jangan escape!
         $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
@@ -368,8 +363,6 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where('pbd.status', 1);
 
         $this->db->group_start();
-		// $this->db->where('pbds_parent.status_detail_step = "INPUT PAKET BELANJA" ');
-		// $this->db->or_where('pbds_child.status_detail_step = "INPUT PAKET BELANJA" ');
 		$this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
         $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
         $this->db->group_end();
