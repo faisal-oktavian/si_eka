@@ -736,7 +736,7 @@ class Data extends CI_Controller {
 		}
 		$this->db->select("idcontract as id, contract_code as text");
 		$this->db->where('status', '1');
-		$this->db->where('contract_status = "KONTRAK PENGADAAN" ');
+		$this->db->where('contract_status IN ("KONTRAK PENGADAAN", "DITOLAK VERIFIKATOR") ');
 
 		$data = $this->db->get("contract", $limit, $offset);
 		
@@ -744,7 +744,7 @@ class Data extends CI_Controller {
 			$this->db->like("contract_code", $q);
 		}
 		$this->db->where('status', '1');
-		$this->db->where('contract_status = "KONTRAK PENGADAAN" ');
+		$this->db->where('contract_status IN ("KONTRAK PENGADAAN", "DITOLAK VERIFIKATOR") ');
 		$cdata = $this->db->get("contract");
 		$count = $cdata->num_rows();
 
@@ -783,7 +783,7 @@ class Data extends CI_Controller {
 		$this->db->where('paket_belanja.status', '1');
 		$this->db->where('paket_belanja_detail_sub.status', '1');
 		$this->db->where('sub_kategori.status', '1');
-		$this->db->where('contract.contract_status = "KONTRAK PENGADAAN" ');
+		$this->db->where('contract.contract_status IN ("KONTRAK PENGADAAN", "DITOLAK VERIFIKATOR") ');
 		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');

@@ -547,6 +547,29 @@ class Npd extends CI_Controller {
 			}
             
 			if ($err_code == 0) {
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('npd.idnpd', $idnpd);
+				$check = $this->db->get('npd');
+
+				if (strlen($idnpd_detail) > 0) {
+					if ($check->row()->npd_status != "DRAFT") {
+						
+						// kembalikan dulu status dari rencana pengadaan yang sudah dipilih sebelumnya
+						$this->db->where('npd_detail.idnpd_detail', $idnpd_detail);
+						$this->db->where('verification.status', 1);
+						$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+						$npd_detail = $this->db->get('npd_detail');
+
+						// update status verifikasi dokumen
+						$the_filter = array(
+							'idverification' => $idverification,
+							'idbudget_realization' => $npd_detail->row()->idbudget_realization,
+							'status' => 'SUDAH DIVERIFIKASI'
+						);
+						$update_status = update_status_document_verification($the_filter);
+					}
+				}
+
 				//transaction detail
 				$arr_npd_detail = array(
 					'idnpd' => $idnpd,
@@ -556,10 +579,6 @@ class Npd extends CI_Controller {
 				$td = az_crud_save($idnpd_detail, 'npd_detail', $arr_npd_detail);
 				$idnpd_detail = azarr($td, 'insert_id');
 				
-
-				// cek apakah datanya baru diinput / edit data
-				$this->db->where('npd.idnpd', $idnpd);
-				$check = $this->db->get('npd');
 
 				if ($check->row()->npd_status != "DRAFT") {
 

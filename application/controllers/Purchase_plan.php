@@ -363,8 +363,8 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where('pbd.status', 1);
 
         $this->db->group_start();
-		$this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
-        $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
+		$this->db->where('pbds_parent.volume >= pbds_parent.volume_realization');
+        $this->db->or_where('pbds_child.volume >= pbds_child.volume_realization');
         $this->db->group_end();
 
 		
@@ -545,14 +545,6 @@ class Purchase_plan extends CI_Controller {
 						$err_message .= "Anda bisa mengedit uraian yang telah diinput.";
 					}
 				}
-
-				if ($err_code == 0) {
-
-					if ($status != "DRAFT") {
-						// hitung total volume yang sudah terealisasi
-						calculate_realisasi_volume($idpaket_belanja_detail_sub);
-					}
-				}
 			}
             
 			if ($err_code == 0) {
@@ -570,7 +562,14 @@ class Purchase_plan extends CI_Controller {
 				$idpurchase_plan_detail = azarr($td, 'insert_id');
 
 				// hitung total transaksi
-				$this->calculate_total_budget($idpurchase_plan);	
+				$this->calculate_total_budget($idpurchase_plan);
+			}
+
+			if ($err_code == 0) {
+				if ($status != "DRAFT") {
+					// hitung total volume yang sudah terealisasi
+					calculate_realisasi_volume($idpaket_belanja_detail_sub);
+				}
 			}
 		}
 

@@ -285,7 +285,7 @@ class Budget_realization extends CI_Controller {
         $crud_contract->add_join_manual('user user_created', 'contract.iduser_created = user_created.iduser', 'left');
         
 		$crud_contract->add_where("contract.status = 1");
-		$crud_contract->add_where("contract.contract_status = 'KONTRAK PENGADAAN' ");
+		$crud_contract->add_where("contract.contract_status IN ('KONTRAK PENGADAAN', 'DITOLAK VERIFIKATOR') ");
 
 		$crud_contract->set_table('contract');
 		$crud_contract->set_custom_style('custom_style_contract');
@@ -604,10 +604,11 @@ class Budget_realization extends CI_Controller {
 				// validasi apakah data paket belanja yang disimpan sama?
 				// jika tidak maka data tidak perlu disimpan
 
-				$this->db->where('status', 1);
+				// $this->db->where('status', 1);
 				$this->db->where('idbudget_realization', $idbudget_realization);
 				$this->db->where('idcontract_detail', $data_idcontract_detail);
 				$rd = $this->db->get('budget_realization_detail');
+				// echo "<pre>"; print_r($this->db->last_query());die;
 
 				if ($rd->num_rows() == 0) {
 					$err_code++;
@@ -617,6 +618,30 @@ class Budget_realization extends CI_Controller {
 			}
             
 			if ($err_code == 0) {
+				// cek apakah datanya baru diinput / edit data
+				$this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
+				$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+				$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+				$check = $this->db->get('budget_realization');
+
+				if (strlen($idbudget_realization_detail) > 0) {
+					if ($check->row()->realization_status != "DRAFT") {
+						
+						// kembalikan dulu status dari realisasi anggaran yang sudah dipilih sebelumnya
+						$the_filter = array(
+							'idcontract' => $check->row()->idcontract,
+							'idpurchase_plan_detail' => $check->row()->idpurchase_plan_detail,
+							'idpurchase_plan' => $check->row()->idpurchase_plan,
+							'status' => 'KONTRAK PENGADAAN'
+						);
+						$update_status = update_status_detail_purchase_contract($the_filter);
+
+
+						// update status kontrak pengadaan
+						update_status_purchase_contract($the_filter);
+					}
+				}
+
 				//detail
 				$arr_realization_detail = array(
 					'idbudget_realization' => $idbudget_realization,
@@ -788,18 +813,34 @@ class Budget_realization extends CI_Controller {
 
 
 			// update status kontrak pengadaan
-			update_status_purchase_contract($the_filter);
-				
+			// update_status_purchase_contract($the_filter);
+			$this->db->where('contract_detail.idcontract', $idcontract);
+			$this->db->where('purchase_plan_detail.idpurchase_plan', $idpurchase_plan);
+			$this->db->where('purchase_plan_detail.purchase_plan_detail_status = "KONTRAK PENGADAAN" ');
 
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 
-			$the_filter = array(
-				'idcontract_detail' => $idcontract_detail,
-				'idpurchase_plan_detail' => $idpurchase_plan_detail,
-				'idbudget_realization' => $idbudget_realization,
-				'status' => 'KONTRAK PENGADAAN'
-			);
-			$update_status = update_status_purchase_contract($the_filter);
+			$data_contract = $this->db->get('contract_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+			
+			if ($data_contract->num_rows() > 0) {
+				$update_status = "KONTRAK PENGADAAN";
 
+				$arr_update = array(
+					'contract_status' => $update_status,
+				);
+
+				$this->db->where('idcontract', $idcontract);
+				$this->db->update('contract', $arr_update);
+
+				$the_filter = array(
+					'idpurchase_plan' => $idpurchase_plan,
+					'status' => $update_status,
+				);
+
+				update_status_purchase_plan($the_filter);
+			}
 
 			$delete = az_crud_delete('budget_realization_detail', $idbudget_realization_detail, true);
 
@@ -818,7 +859,7 @@ class Budget_realization extends CI_Controller {
 
 		// cek apakah masih ada paket belanja/detail transaksi di realisasi anggaran ini?
 		if ($err_code == 0) {
-			$this->db->where('idbudget_realization_detail', $idrealization_detail);
+			$this->db->where('idbudget_realization', $idbudget_realization);
 			$this->db->where('status', 1);
 			$budget_realization_detail = $this->db->get('budget_realization_detail');
 
@@ -1002,18 +1043,49 @@ class Budget_realization extends CI_Controller {
 			// update status detail kontrak pengadaan
 			// update statusnya di table detail rencana pengadaan
 			foreach ($budget_realization->result() as $key => $value) {
+				$idcontract = $value->idcontract;
+				$idpurchase_plan_detail = $value->idpurchase_plan_detail;
+				$idpurchase_plan = $value->idpurchase_plan;
+				$update_status = 'KONTRAK PENGADAAN';
+
 				$the_filter = array(
-					'idcontract' => $value->idcontract,
-					'idpurchase_plan_detail' => $value->idpurchase_plan_detail,
-					'idpurchase_plan' => $value->idpurchase_plan,
-					'status' => 'KONTRAK PENGADAAN'
+					'idcontract' => $idcontract,
+					'idpurchase_plan_detail' => $idpurchase_plan_detail,
+					'idpurchase_plan' => $idpurchase_plan,
+					'status' => $update_status
 				);
-				$update_status = update_status_detail_purchase_contract($the_filter);
+				update_status_detail_purchase_contract($the_filter);
 			}
 
 			// update status kontrak pengadaan
-			update_status_purchase_contract($the_filter);
+			// update_status_purchase_contract($the_filter);
+			$this->db->where('contract_detail.idcontract', $idcontract);
+			$this->db->where('purchase_plan_detail.idpurchase_plan', $idpurchase_plan);
+			$this->db->where('purchase_plan_detail.purchase_plan_detail_status = "KONTRAK PENGADAAN" ');
 
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+			$data_contract = $this->db->get('contract_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+			
+			if ($data_contract->num_rows() > 0) {
+				$arr_update = array(
+					'contract_status' => $update_status,
+				);
+
+				$this->db->where('idcontract', $idcontract);
+				$this->db->update('contract', $arr_update);
+
+				$the_filter = array(
+					'idpurchase_plan' => $idpurchase_plan,
+					'status' => $update_status,
+				);
+
+				update_status_purchase_plan($the_filter);
+			}
+
+			// delete data realisasi
 			az_crud_delete($this->table, $idbudget_realization);
 
 		} 
@@ -1049,9 +1121,15 @@ class Budget_realization extends CI_Controller {
 
 		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
 		$budget_realization = $this->db->get('budget_realization');
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
         $data['detail'] = $budget_realization->result_array();
-		$data['total_realization'] = $budget_realization->row()->total_realization;
+
+		$total_realization = 0;
+		if ($budget_realization->num_rows() > 0) {
+			$total_realization = $budget_realization->row()->total_realization;
+		}
+		$data['total_realization'] = $total_realization;
 
 		$view = $this->load->view('budget_realization/v_budget_realization_table', $data, true);
 		$arr = array(

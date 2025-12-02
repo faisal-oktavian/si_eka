@@ -462,7 +462,8 @@ class Purchase_contract extends CI_Controller {
 
 				if (strlen($idcontract_detail) > 0) {
 					if ($check->row()->contract_status != "DRAFT") {
-
+						
+						// kembalikan dulu status dari rencana pengadaan yang sudah dipilih sebelumnya
 						$this->db->where('idcontract_detail', $idcontract_detail);
 						$contract_detail = $this->db->get('contract_detail');
 
