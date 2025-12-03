@@ -1103,17 +1103,17 @@ class Master_paket_belanja extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-		// cek apakah paket belanja ini sudah ada realisasinya
-		$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
-		$this->db->where('transaction_detail.status', 1);
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
-		$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$trx = $this->db->get('transaction_detail');
+		// cek apakah paket belanja ini sudah masuk di rencana pengadaan
+		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = transaction.idpurchase_plan');
+		$pp = $this->db->get('purchase_plan');
 
-		if ($trx->num_rows() > 0) {
+		if ($pp->num_rows() > 0) {
 			$err_code++;
-			$err_message = 'Paket belanja ini tidak bisa dihapus karena sudah ada realisasinya';
+			$err_message = 'Paket belanja ini tidak bisa dihapus karena sudah masuk di rencana pengadaan';
 		}
 
 		$return = array(
