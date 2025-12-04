@@ -20,7 +20,7 @@ class Budget_realization extends CI_Controller {
 		$this->load->helper('az_role');
 		$idrole = $this->session->userdata('idrole');
 
-		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Realisasi', 'Detail', 'Total Realisasi', 'Status', 'Admin', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Realisasi', 'Keterangan', 'Detail', 'Total Realisasi', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -76,8 +76,8 @@ class Budget_realization extends CI_Controller {
 		$realization_code = $this->input->get('vf_realization_code');
 		$transaction_status = $this->input->get('vf_transaction_status');
 
-        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as detail, total_realization, realization_status, user.name as user_created');
-		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, detail, total_realization, realization_status, user_created');
+        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, realization_status, user.name as user_created');
+		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, realization_status, user_created');
 
         $crud->set_sorting('realization_date, realization_code, total_realization, realization_status');
         $crud->set_filter('realization_date, realization_code, total_realization, realization_status');
@@ -116,6 +116,27 @@ class Budget_realization extends CI_Controller {
 		$realization_status = azarr($data, 'realization_status');
 		$read_more = false;
 		$is_view_only = false;
+
+		$this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization_detail.status', 1);
+
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor');
+		$budget_realization = $this->db->get('budget_realization');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+		$last_query = $this->db->last_query();
+		$budget_realization_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
+
 		
 		if ($key == 'total_realization') {
 			$total_realization = az_thousand_separator($value);
@@ -129,27 +150,33 @@ class Budget_realization extends CI_Controller {
 			return $status;
 		}
 
+		if ($key == "type_code") {
+			$contract_spt = $budget_realization->row()->contract_spt;
+			$contract_invitation_number = $budget_realization->row()->contract_invitation_number;
+			$contract_sp = $budget_realization->row()->contract_sp;
+			$contract_spk = $budget_realization->row()->contract_spk;
+			$contract_honor = $budget_realization->row()->contract_honor;
+			
+			if (strlen($contract_spt) > 0) {
+				$text = "No. SPT : ".$contract_spt." ";
+			}
+			else if (strlen($contract_invitation_number) > 0) {
+				$text = "No. Undangan : ".$contract_invitation_number." ";
+			}
+			else if (strlen($contract_sp) > 0) {
+				$text = "No. SP : ".$contract_sp." ";
+			}
+			else if (strlen($contract_spk) > 0) {
+				$text = "No. SPK : ".$contract_spk." ";
+			}
+			else if (strlen($contract_honor) > 0) {
+				$text = "Gaji/Honor : ".$contract_honor." ";
+			}
+
+			return $text;
+		}
+
 		if ($key == 'detail') {
-            $this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
-			$this->db->where('budget_realization.status', 1);
-			$this->db->where('budget_realization_detail.status', 1);
-
-			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
-			$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
-			$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
-			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
-			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
-			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
-			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-
-			$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description');
-			$budget_realization = $this->db->get('budget_realization');
-            // echo "<pre>"; print_r($this->db->last_query());die;
-
-			$last_query = $this->db->last_query();
-			$budget_realization_limit = $this->db->query('SELECT * FROM ('.$last_query.') as new_query limit 3 ');
-
 			if ($budget_realization->num_rows() > 3) {
 				$read_more = true;
 			}

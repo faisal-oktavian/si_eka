@@ -19,7 +19,7 @@ class Payment extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal NPD', 'Tanggal Pembayaran', 'Nomor NPD', 'Detail', 'Status', 'Total Anggaran', 'Total Bayar', 'User Bendahara', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal NPD', 'Tanggal Pembayaran', 'Nomor NPD', 'Keterangan', 'Detail', 'Status', 'Total Anggaran', 'Total Bayar', 'User Bendahara', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -92,9 +92,9 @@ class Payment extends CI_Controller {
 		$npd_code = $this->input->get('npd_code');
 		$npd_status = $this->input->get('vf_npd_status');
 
-		$crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd.npd_code, "" as detail, npd.npd_status, npd.total_anggaran, npd.total_pay, user_bendahara.name as user_bendahara');
+		$crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, npd.npd_code, "" as type_code, "" as detail, npd.npd_status, npd.total_anggaran, npd.total_pay, user_bendahara.name as user_bendahara');
 
-        $crud->set_select_table('idnpd, txt_npd_date_created, txt_confirm_payment_date, npd_code, detail, npd_status, total_anggaran, total_pay, user_bendahara');
+        $crud->set_select_table('idnpd, txt_npd_date_created, txt_confirm_payment_date, npd_code, type_code, detail, npd_status, total_anggaran, total_pay, user_bendahara');
         $crud->set_sorting('npd_code, npd_status, total_anggaran, total_pay, user_bendahara');
         $crud->set_filter('npd_code, npd_status, total_anggaran, total_pay, user_bendahara');
 		$crud->set_id($this->controller);
@@ -126,67 +126,94 @@ class Payment extends CI_Controller {
 
 		$idnpd = azarr($data, 'idnpd');
 		
-		if ($key == 'detail') {
+		$this->db->where('npd.idnpd', $idnpd);
+		$this->db->where('npd.status', 1);
+		$this->db->where('npd_detail.status', 1);
+		
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+		
+		$this->db->select('npd.idnpd, npd_detail.idnpd_detail, npd_detail.idverification, verification.verification_code, npd.npd_status');
+		$npd = $this->db->get('npd');
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
-			$this->db->where('npd.idnpd', $idnpd);
-			$this->db->where('npd.status', 1);
-			$this->db->where('npd_detail.status', 1);
-			
-			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
-			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-			
-			$this->db->select('npd.idnpd, npd_detail.idnpd_detail, npd_detail.idverification, verification.verification_code, npd.npd_status');
-			$npd = $this->db->get('npd');
+		$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
+		$table .=	"<thead>";
+		$table .=		"<tr>";
+		$table .=			"<th width='300px'>Nama Paket Belanja</th>";
+		$table .=			"<th width='200px'>Uraian</th>";
+		$table .=			"<th width='50px'>Volume</th>";
+		$table .=			"<th width='150px'>Keterangan</th>";
+		$table .=		"</tr>";
+		$table .=	"</thead>";
+		$table .=	"<tbody>";
+
+		foreach ($npd->result() as $npd_key => $npd_value) {
+
+			$this->db->where('verification.idverification', $npd_value->idverification);
+			$this->db->where('verification.status', 1);
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
+			// $this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
+			$this->db->where('verification.status_approve = "DISETUJUI" ');
+
+			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+			$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+			$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+			$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor');
+			$verification = $this->db->get('verification');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
-			$table = "<table class='table table-bordered table-condensed' id='table_dokumen'>";
-			$table .=	"<thead>";
-			$table .=		"<tr>";
-			$table .=			"<th width='300px'>Nama Paket Belanja</th>";
-			$table .=			"<th width='200px'>Uraian</th>";
-			$table .=			"<th width='50px'>Volume</th>";
-			$table .=			"<th width='150px'>Keterangan</th>";
-			$table .=		"</tr>";
-			$table .=	"</thead>";
-			$table .=	"<tbody>";
-
-			foreach ($npd->result() as $key => $value) {
-
-				$this->db->where('verification.idverification', $value->idverification);
-				$this->db->where('verification.status', 1);
-				$this->db->where('budget_realization.status', 1);
-				$this->db->where('budget_realization_detail.status', 1);
-				// $this->db->where('verification.verification_status = "SUDAH DIVERIFIKASI" ');
-				$this->db->where('verification.status_approve = "DISETUJUI" ');
-
-				$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
-				$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
-				$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
-				$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
-				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
-				$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-				$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
-				$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
-				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-
-				$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description');
-				$verification = $this->db->get('verification');
-				// echo "<pre>"; print_r($this->db->last_query());die;
-
-				foreach ($verification->result() as $key => $c_value) {
-					$table .=	"<tr>";
-					$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
-					$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
-					$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
-					$table .= 		"<td>".$c_value->realization_detail_description."</td>";
-					$table .=	"</tr>";
-				}
+			foreach ($verification->result() as $verification_key => $c_value) {
+				$table .=	"<tr>";
+				$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
+				$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
+				$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
+				$table .= 		"<td>".$c_value->realization_detail_description."</td>";
+				$table .=	"</tr>";
 			}
-			
-			$table .=	"</tbody>";
-			$table .= "</table>";
+		}
+		
+		$table .=	"</tbody>";
+		$table .= "</table>";
+		
+
+		if ($key == 'detail') {
 
 			return $table;
+		}
+
+		if ($key == "type_code") {
+			$contract_spt = $verification->row()->contract_spt;
+			$contract_invitation_number = $verification->row()->contract_invitation_number;
+			$contract_sp = $verification->row()->contract_sp;
+			$contract_spk = $verification->row()->contract_spk;
+			$contract_honor = $verification->row()->contract_honor;
+			
+			if (strlen($contract_spt) > 0) {
+				$text = "No. SPT : ".$contract_spt." ";
+			}
+			else if (strlen($contract_invitation_number) > 0) {
+				$text = "No. Undangan : ".$contract_invitation_number." ";
+			}
+			else if (strlen($contract_sp) > 0) {
+				$text = "No. SP : ".$contract_sp." ";
+			}
+			else if (strlen($contract_spk) > 0) {
+				$text = "No. SPK : ".$contract_spk." ";
+			}
+			else if (strlen($contract_honor) > 0) {
+				$text = "Gaji/Honor : ".$contract_honor." ";
+			}
+
+			return $text;
 		}
 
 		if ($key == 'npd_status') {

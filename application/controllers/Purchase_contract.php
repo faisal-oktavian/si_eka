@@ -20,7 +20,7 @@ class Purchase_contract extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Kontrak', 'Nomor Kontrak', 'Detail', 'Status', 'Admin', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Kontrak', 'Nomor Kontrak', 'Keterangan', 'Detail', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -80,8 +80,8 @@ class Purchase_contract extends CI_Controller {
 		$contract_code = $this->input->get('contract_code');
 		$contract_status = $this->input->get('vf_contract_status');
 
-        $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as detail, contract_status, user_created.name as user_input');
-        $crud->set_select_table('idcontract, txt_contract_date, contract_code, detail, contract_status, user_input');
+        $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as type_code, "" as detail, contract_status, user_created.name as user_input, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor');
+        $crud->set_select_table('idcontract, txt_contract_date, contract_code, type_code, detail, contract_status, user_input');
         $crud->set_sorting('contract_code, contract_status, user_input');
         $crud->set_filter('contract_code, contract_status, user_input');
 		$crud->set_id($this->controller);
@@ -112,10 +112,36 @@ class Purchase_contract extends CI_Controller {
 	function custom_style($key, $value, $data) {
 		
 		$idcontract = azarr($data, 'idcontract');
-		$contract_status = azarr($data, 'contract_status');
+		$contract_status = azarr($data, 'contract_status');		
 		$idrole = $this->session->userdata('idrole');
 		$read_more = false;
 		$is_view_only = false;
+
+		$contract_spt = azarr($data, 'contract_spt');	
+		$contract_invitation_number = azarr($data, 'contract_invitation_number');	
+		$contract_sp = azarr($data, 'contract_sp');	
+		$contract_spk = azarr($data, 'contract_spk');	
+		$contract_honor = azarr($data, 'contract_honor');
+
+		if ($key == "type_code") {
+			if (strlen($contract_spt) > 0) {
+				$text = "No. SPT : ".$contract_spt." ";
+			}
+			else if (strlen($contract_invitation_number) > 0) {
+				$text = "No. Undangan : ".$contract_invitation_number." ";
+			}
+			else if (strlen($contract_sp) > 0) {
+				$text = "No. SP : ".$contract_sp." ";
+			}
+			else if (strlen($contract_spk) > 0) {
+				$text = "No. SPK : ".$contract_spk." ";
+			}
+			else if (strlen($contract_honor) > 0) {
+				$text = "Gaji/Honor : ".$contract_honor." ";
+			}
+
+			return $text;
+		}
 
 		if ($key == 'detail') {
             $this->db->where('contract.idcontract', $idcontract);
