@@ -179,13 +179,13 @@
 
 			// var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 
-			var persen_sudah_dibayar = total ? Math.round(nominal_sudah_dibayar / total * 100) : 0;
-			var persen_menunggu_pembayaran = total ? Math.round(nominal_menunggu_pembayaran / total * 100) : 0;
-			var persen_npd = total ? Math.round(nominal_npd / total * 100) : 0;
-			var persen_sudah_diverifikasi = total ? Math.round(nominal_sudah_diverifikasi / total * 100) : 0;
-			var persen_menunggu_verifikasi = total ? Math.round(nominal_menunggu_verifikasi / total * 100) : 0;
-			var persen_kontrak_pengadaan = total ? Math.round(nominal_kontrak_pengadaan / total * 100) : 0;
-			var persen_proses_pengadaan = total ? Math.round(nominal_proses_pengadaan / total * 100) : 0;
+			var persen_sudah_dibayar = total ? Math.round( (nominal_sudah_dibayar / total * 100) * 100) / 100 : 0;
+			var persen_menunggu_pembayaran = total ? Math.round( (nominal_menunggu_pembayaran / total * 100) * 100) / 100 : 0;
+			var persen_npd = total ? Math.round( (nominal_npd / total * 100) * 100) / 100 : 0;
+			var persen_sudah_diverifikasi = total ? Math.round( (nominal_sudah_diverifikasi / total * 100) * 100) / 100 : 0;
+			var persen_menunggu_verifikasi = total ? Math.round( (nominal_menunggu_verifikasi / total * 100) * 100) / 100 : 0;
+			var persen_kontrak_pengadaan = total ? Math.round( (nominal_kontrak_pengadaan / total * 100) * 100) / 100 : 0;
+			var persen_proses_pengadaan = total ? Math.round( (nominal_proses_pengadaan / total * 100) * 100) / 100 : 0;
 
 			var persen_belum_direalisasi = total ? 100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan) : 0;
 
@@ -379,7 +379,7 @@
 			
 			var sisa_anggaran_tahun_ini = total_anggaran_tahun_ini - realisasi_anggaran_tahun_ini;
 
-			var persen_realisasi = total_anggaran_tahun_ini ? Math.round(realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 100) : 0;
+			var persen_realisasi = total_anggaran_tahun_ini ? Math.round( (realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 100) * 100) / 100 : 0;
 			var persen_sisa = total_anggaran_tahun_ini ? 100 - persen_realisasi : 0;
 
 			function formatRupiah(angka) {
@@ -463,10 +463,10 @@
 			var persen_realisasi_blud = 0;
 
 			if (realisasi_dbh != 0) {
-				var persen_realisasi_dbh = Math.round(realisasi_dbh / total_realisasi * 100);
+				var persen_realisasi_dbh = Math.round( (realisasi_dbh / total_realisasi * 100) * 100) / 100;
 			}
 			if (realisasi_blud != 0) {
-				var persen_realisasi_blud = Math.round(realisasi_blud / total_realisasi * 100);
+				var persen_realisasi_blud = Math.round( (realisasi_blud / total_realisasi * 100) * 100) / 100;
 			}
 
 			document.getElementById('label-realisasi-dbh').innerText = persen_realisasi_dbh + '% (' + formatRupiah(realisasi_dbh) + ')';
