@@ -73,7 +73,7 @@ class Budget_realization extends CI_Controller {
 
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$transaction_code = $this->input->get('transaction_code');
+		$realization_code = $this->input->get('vf_realization_code');
 		$transaction_status = $this->input->get('vf_transaction_status');
 
         $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as detail, total_realization, realization_status, user.name as user_created');
@@ -87,14 +87,14 @@ class Budget_realization extends CI_Controller {
         $crud->add_join_manual('user', 'budget_realization.iduser_created = user.iduser');
         // $crud->add_join_manual('budget_realization_detail', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
 		
-        // $crud->set_group_by('transaction.idtransaction, transaction.transaction_date, transaction_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name');
+        // $crud->set_group_by('transaction.idtransaction, transaction.transaction_date, realization_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name');
         
         if (strlen($date1) > 0 && strlen($date2) > 0) {
             $crud->add_where('date(budget_realization.realization_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
             $crud->add_where('date(budget_realization.realization_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
-        if (strlen($transaction_code) > 0) {
-			$crud->add_where('budget_realization.realization_code = "' . $transaction_code . '"');
+        if (strlen($realization_code) > 0) {
+			$crud->add_where('budget_realization.realization_code = "' . $realization_code . '"');
 		}
 		if (strlen($transaction_status) > 0) {
 			$crud->add_where('budget_realization.realization_status = "' . $transaction_status . '"');
@@ -143,7 +143,7 @@ class Budget_realization extends CI_Controller {
 			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-			$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+			$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description');
 			$budget_realization = $this->db->get('budget_realization');
             // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -162,6 +162,7 @@ class Budget_realization extends CI_Controller {
 			$table .=			"<th width='180px'>Paket Belanja</th>";
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='60px'>Volume</th>";
+			$table .=			"<th width='150px'>Keterangan</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -173,6 +174,7 @@ class Budget_realization extends CI_Controller {
 				$table .= 		"<td>".$value['nama_paket_belanja']."</td>";
 				$table .= 		"<td>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
+				$table .= 		"<td>".$value['realization_detail_description']."</td>";
 				$table .= "</tr>";
             }
 			

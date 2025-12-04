@@ -145,6 +145,7 @@ class Payment extends CI_Controller {
 			$table .=			"<th width='300px'>Nama Paket Belanja</th>";
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='50px'>Volume</th>";
+			$table .=			"<th width='150px'>Keterangan</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -168,7 +169,7 @@ class Payment extends CI_Controller {
 				$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-				$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+				$this->db->select('verification.idverification, verification.verification_code, budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description');
 				$verification = $this->db->get('verification');
 				// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -177,6 +178,7 @@ class Payment extends CI_Controller {
 					$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
 					$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
 					$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
+					$table .= 		"<td>".$c_value->realization_detail_description."</td>";
 					$table .=	"</tr>";
 				}
 			}
