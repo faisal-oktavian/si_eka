@@ -71,6 +71,129 @@
 <?php
 	if (aznav('role_table')) {
 ?>		
+		<!-- CDN Chart.js -->
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+		
+
+		<!-- Grafik Line Persentase Capaian Target & Realisasi Anggaran per Bulan -->
+		<div class="row" style="margin-top:30px;">
+			<div class="col-md-12 col-xs-12" style="margin:auto;">
+				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
+					<div class="d-flex align-items-center" style="margin-bottom:18px; text-align:center;">
+						<i class="fa fa-line-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
+						<span class="title-chart" style="font-size:20px;">Persentase Capaian Target & Realisasi Anggaran per Bulan (Tahun <?php echo $tahun_ini; ?>)</span>
+					</div>
+					<div class="row">
+						<div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
+							<canvas id="lineCapaianPerBulan" height="120"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			var bulanLabels = [
+				'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+				'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+			];
+			var CapaianTargetPerBulan = <?php echo json_encode($capaian_target_per_bulan); ?>;
+			var CapaianRealisasiPerBulan = <?php echo json_encode($capaian_realisasi_per_bulan); ?>;
+
+			// data dummy
+			// var CapaianTargetPerBulan = [
+			// 	10, 15, 20, 30, 40, 50,
+			// 	60, 70, 75, 80, 90, 100
+			// ];
+			// var CapaianRealisasiPerBulan = [
+			// 	0, 15, 20, 20, 20, 50,
+			// 	53, 58, 65, 70, 81, 94
+			// ];
+
+			var ctxLine = document.getElementById("lineCapaianPerBulan").getContext('2d');
+			var lineCapaianPerBulan = new Chart(ctxLine, {
+				type: 'line',
+				data: {
+					labels: bulanLabels,
+					datasets: [
+						{
+							label: 'Target',
+							// data: kumulatifTarget,
+							data: CapaianTargetPerBulan,
+							borderColor: 'rgba(220, 0, 48, 0.85)',
+							backgroundColor: 'rgba(220, 0, 48, 0.15)',
+							fill: false,
+							tension: 0.3,
+							pointRadius: 4,
+							pointBackgroundColor: 'rgba(220, 0, 48, 0.85)'
+						},
+						{
+							label: 'Realisasi',
+							// data: kumulatifRealisasi,
+							data: CapaianRealisasiPerBulan,
+							borderColor: 'rgba(54, 163, 235, 0.87)',
+							backgroundColor: 'rgba(54, 163, 235, 0.15)',
+							fill: false,
+							tension: 0.3,
+							pointRadius: 4,
+							pointBackgroundColor: 'rgba(54, 163, 235, 0.87)'
+						}
+					]
+				},
+				options: {
+					responsive: true,
+					plugins: {
+						title: {
+							display: true,
+							// text: 'Persentase Capaian Target & Realisasi Anggaran per Bulan',
+							// font: { size: 18 }
+						},
+						legend: {
+							position: 'bottom'
+						},
+						tooltip: {
+							mode: 'index',
+							intersect: false,
+							callbacks: {
+								label: function(context) {
+									return context.dataset.label + ': ' + context.parsed.y + '%';
+								}
+							}
+						}
+					},
+					interaction: {
+						mode: 'nearest',
+						axis: 'x',
+						intersect: false
+					},
+					scales: {
+						x: {
+							title: {
+								display: true,
+								text: 'Bulan'
+							}
+						},
+						y: {
+							title: {
+								display: true,
+								text: 'Persentase (%)'
+							},
+							beginAtZero: true,
+							max: 100,
+							ticks: {
+								callback: function(value) {
+									return value + '%';
+								}
+							}
+						}
+					}
+				}
+			});
+		</script>
+
+
+
 		<!-- grafik realisasi anggaran -->
 		<div class="row" style="margin-top:30px;">
 			<div class="col-md-12 col-xs-12" style="margin:auto;">
@@ -156,8 +279,7 @@
 			</div>
 		</div>
 
-		<!-- CDN Chart.js -->
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		
 
 		<!-- grafik realisasi anggaran -->
 		<script>
@@ -675,124 +797,6 @@
 				}
 			});
 
-		</script>
-
-		
-		
-		<!-- Grafik Line Persentase Capaian Target & Realisasi Anggaran per Bulan -->
-		<div class="row" style="margin-top:30px;">
-			<div class="col-md-12 col-xs-12" style="margin:auto;">
-				<div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-					<div class="d-flex align-items-center" style="margin-bottom:18px; text-align:center;">
-						<i class="fa fa-line-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-						<span class="title-chart" style="font-size:20px;">Persentase Capaian Target & Realisasi Anggaran per Bulan (Tahun <?php echo $tahun_ini; ?>)</span>
-					</div>
-					<div class="row">
-						<div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
-							<canvas id="lineCapaianPerBulan" height="120"></canvas>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<script>
-			var bulanLabels = [
-				'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-				'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-			];
-			var CapaianTargetPerBulan = <?php echo json_encode($capaian_target_per_bulan); ?>;
-			var CapaianRealisasiPerBulan = <?php echo json_encode($capaian_realisasi_per_bulan); ?>;
-
-			// data dummy
-			// var CapaianTargetPerBulan = [
-			// 	10, 15, 20, 30, 40, 50,
-			// 	60, 70, 75, 80, 90, 100
-			// ];
-			// var CapaianRealisasiPerBulan = [
-			// 	0, 15, 20, 20, 20, 50,
-			// 	53, 58, 65, 70, 81, 94
-			// ];
-
-			var ctxLine = document.getElementById("lineCapaianPerBulan").getContext('2d');
-			var lineCapaianPerBulan = new Chart(ctxLine, {
-				type: 'line',
-				data: {
-					labels: bulanLabels,
-					datasets: [
-						{
-							label: 'Target',
-							// data: kumulatifTarget,
-							data: CapaianTargetPerBulan,
-							borderColor: 'rgba(220, 0, 48, 0.85)',
-							backgroundColor: 'rgba(220, 0, 48, 0.15)',
-							fill: false,
-							tension: 0.3,
-							pointRadius: 4,
-							pointBackgroundColor: 'rgba(220, 0, 48, 0.85)'
-						},
-						{
-							label: 'Realisasi',
-							// data: kumulatifRealisasi,
-							data: CapaianRealisasiPerBulan,
-							borderColor: 'rgba(54, 163, 235, 0.87)',
-							backgroundColor: 'rgba(54, 163, 235, 0.15)',
-							fill: false,
-							tension: 0.3,
-							pointRadius: 4,
-							pointBackgroundColor: 'rgba(54, 163, 235, 0.87)'
-						}
-					]
-				},
-				options: {
-					responsive: true,
-					plugins: {
-						title: {
-							display: true,
-							// text: 'Persentase Capaian Target & Realisasi Anggaran per Bulan',
-							// font: { size: 18 }
-						},
-						legend: {
-							position: 'bottom'
-						},
-						tooltip: {
-							mode: 'index',
-							intersect: false,
-							callbacks: {
-								label: function(context) {
-									return context.dataset.label + ': ' + context.parsed.y + '%';
-								}
-							}
-						}
-					},
-					interaction: {
-						mode: 'nearest',
-						axis: 'x',
-						intersect: false
-					},
-					scales: {
-						x: {
-							title: {
-								display: true,
-								text: 'Bulan'
-							}
-						},
-						y: {
-							title: {
-								display: true,
-								text: 'Persentase (%)'
-							},
-							beginAtZero: true,
-							max: 100,
-							ticks: {
-								callback: function(value) {
-									return value + '%';
-								}
-							}
-						}
-					}
-				}
-			});
 		</script>
 
 

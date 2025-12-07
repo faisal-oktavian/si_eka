@@ -479,6 +479,7 @@ class Home extends AZ_Controller {
 		$this->db->where('pb.status', 1);
 		$this->db->where('pb.status_paket_belanja = "OK" ');
 		$this->db->where('pbd.status', 1);
+		$this->db->where('COALESCE(pbds_child.status, pbds_parent.status) = 1');
 		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
@@ -503,7 +504,29 @@ class Home extends AZ_Controller {
 			COALESCE(pbds_child.rak_jumlah_november, pbds_parent.rak_jumlah_november) AS rak_jumlah_november,
 			COALESCE(pbds_child.rak_jumlah_desember, pbds_parent.rak_jumlah_desember) AS rak_jumlah_desember'.$query_develop);
 		$capaian_target = $this->db->get('paket_belanja pb');
-		// echo "<pre>"; print_r($this->db->last_query()); die;		
+		// echo "<pre>"; print_r($this->db->last_query()); die;	
+		
+
+		// // cek data
+		// $this->db->where('status', 1);
+		// $this->db->where('rak_jumlah_januari IS NOT NULL');
+		// $this->db->where('(
+		// 	idpaket_belanja NOT IN ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "20", "46", "62", "67")
+		// 	OR 
+		// 	idpaket_belanja IS NULL
+		// 	)');
+		// $this->db->select('idpaket_belanja_detail_sub');
+		// $get_data = $this->db->get('paket_belanja_detail_sub');
+		// // echo "<pre>"; print_r($get_data->num_rows());
+
+		// $arr = array();
+		// foreach ($get_data->result() as $key => $value) {
+		// 	$arr[] = $value->idpaket_belanja_detail_sub;
+		// }
+
+		// $implode = '"'.implode('", "',$arr).'"';
+
+		// // echo "<pre>"; print_r($implode); die;	
 
 		// akumulasi semua data per bulan
 		foreach ($capaian_target->result() as $key => $value) {
@@ -527,13 +550,14 @@ class Home extends AZ_Controller {
 
 
 		// ambil capaian realisasi per bulan
-		$this->db->where('STATUS', 1);
-		$this->db->where('transaction_status != "DRAFT" ');
-		$this->db->where('YEAR(transaction_date) = "2025" ');
-		$this->db->group_by('YEAR(transaction_date), MONTH(transaction_date)');
-		$this->db->order_by('YEAR(transaction_date), MONTH(transaction_date)');
-		$this->db->select('YEAR(transaction_date), MONTH(transaction_date) AS bulan_realisasi, SUM(total_realisasi) AS total');
-		$capaian_realisasi = $this->db->get('transaction');
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_status != "DRAFT" ');
+		$this->db->where('YEAR(purchase_plan_date) = "2025" ');
+		$this->db->group_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
+		$this->db->order_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
+		$this->db->select('YEAR(purchase_plan_date), MONTH(purchase_plan_date) AS bulan_realisasi, SUM(total_budget) AS total');
+		$capaian_realisasi = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		foreach ($capaian_realisasi->result() as $key => $value) {
 			if ($value->bulan_realisasi == 1) {
