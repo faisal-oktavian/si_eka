@@ -29,7 +29,7 @@
 	if (idrole != "" && idrole != null) {
 		setTimeout(function() {
 			jQuery('#table_onthespot').find('.btn-specification').hide();
-		}, 300);
+		}, 500);
 	}
 
 	jQuery(document).ready(function() {
