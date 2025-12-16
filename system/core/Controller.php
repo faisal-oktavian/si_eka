@@ -49,6 +49,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/general/controllers.html
  */
+
+// update extension php intelephense
+/**
+ * @property CI_Input $input
+ * @property CI_Loader $load
+ * @property CI_DB_query_builder $db
+ */
+
 class CI_Controller {
 
 	/**
