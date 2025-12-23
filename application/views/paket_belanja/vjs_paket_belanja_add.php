@@ -45,7 +45,7 @@
 
 		setTimeout(function() {
 			jQuery('#table_onthespot').find('button').hide();
-		}, 300);
+		}, 500);
 
 		if (role_ppkom_pptk == true) {
 			jQuery('#select_ppkom_pptk, #hd_idpaket_belanja').prop('disabled', false);
@@ -55,7 +55,7 @@
 		if (role_specification == true) {
 			setTimeout(function() {
 				jQuery('#table_onthespot').find('.btn-specification').show();
-			}, 300);
+			}, 500);
 		}
 	}
 
@@ -581,7 +581,7 @@
 				 // isi CKEditor dengan data dari response
 				setTimeout(function() {
 					CKEDITOR.instances['specification'].setData(response.specification || '');
-				}, 300);
+				}, 500);
 
 				// set value input lain
 				jQuery('#link_url').val(response.link_url || '');
