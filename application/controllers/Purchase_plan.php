@@ -523,11 +523,22 @@ class Purchase_plan extends CI_Controller {
 				$this->db->where('idpaket_belanja', $idpaket_belanja);
 				$this->db->where('idpurchase_plan', $idpurchase_plan);
 				$ppd = $this->db->get('purchase_plan_detail');
+				// echo "<pre>"; print_r($this->db->last_query()); die;
 
 				if ($ppd->num_rows() == 0) {
-					$err_code++;
-					$err_message = "Paket Belanja yang anda inputkan berbeda dengan paket belanja yang telah diinputkan sebelumnya. <br>";
-					$err_message .= "Silahkan menginputkan data dengan paket belanja yang sama.";
+
+					// validasi lanjutan
+					$this->db->where('status', 1);
+					$this->db->where('idpurchase_plan', $idpurchase_plan);
+					$ppd = $this->db->get('purchase_plan_detail');
+					// echo "<pre>"; print_r($this->db->last_query()); die;
+
+					if ($ppd->num_rows() > 0) {
+						$err_code++;
+						$err_message = "Paket Belanja yang anda inputkan berbeda dengan paket belanja yang telah diinputkan sebelumnya. <br>";
+						$err_message .= "Silahkan menginputkan data dengan paket belanja yang sama.";
+					}
+
 				}
 
 				// validasi uraian tidak boleh sama dalam 1 transaksi
@@ -566,6 +577,10 @@ class Purchase_plan extends CI_Controller {
 			}
 
 			if ($err_code == 0) {
+				$this->db->where('idpurchase_plan',$idpurchase_plan);
+				$purchase_plan = $this->db->get('purchase_plan');
+				
+				$status = $purchase_plan->row()->purchase_plan_status;
 				if ($status != "DRAFT") {
 					// hitung total volume yang sudah terealisasi
 					calculate_realisasi_volume($idpaket_belanja_detail_sub);

@@ -137,6 +137,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		if ($ppd->num_rows() > 0) {
 			$volume_realization = $ppd->row()->volume;
 		}
+		
+		if ($volume_realization == null) {
+			$volume_realization = 0;
+		}
 
 		$arr_update = array(
 			'volume_realization' => $volume_realization,
