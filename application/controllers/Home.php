@@ -129,18 +129,80 @@ class Home extends AZ_Controller {
 			$target_per_bulan[] = floatval($target);
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 
-			
-		    // Realisasi: total realisasi transaksi pada bulan tsb
-		    $this->db->where('status', 1);
-		    $this->db->where('transaction_status !=', 'DRAFT');
-		    $this->db->where('YEAR(transaction_date)', $tahun_ini);
-		    $this->db->where('MONTH(transaction_date)', $bulan);
-		    $this->db->select_sum('total_realisasi');
-		    $trx = $this->db->get('transaction');
-		    $realisasi = $trx->row()->total_realisasi;
-			// echo "<pre>"; print_r($this->db->last_query()); die;
-			
-		    $realisasi_per_bulan[] = floatval($realisasi);
+
+
+
+
+			// ambil capaian realisasi per bulan
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan_status != "DRAFT" ');
+			$this->db->where('YEAR(purchase_plan_date)', $tahun_ini);
+			$this->db->where('MONTH(purchase_plan_date)', $bulan);
+			$this->db->group_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
+			$this->db->order_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
+			$this->db->select('YEAR(purchase_plan_date), MONTH(purchase_plan_date) AS bulan_realisasi, SUM(total_budget) AS total');
+			$capaian_realisasi = $this->db->get('purchase_plan');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			$capaian_realisasi_total = 0;
+			if ($capaian_realisasi->num_rows() > 0) {
+				if ($capaian_realisasi->row()->total == null) {
+					$capaian_realisasi_total = 0;
+				}
+				else {
+					$capaian_realisasi_total = $capaian_realisasi->row()->total;
+				}
+			}
+
+			if ($bulan == 1) {
+				$cr_januari = $capaian_realisasi_total;				
+				$realisasi_per_bulan[] = floatval($cr_januari);
+			}
+			else if ($bulan == 2) {
+				// resalisasi
+				$cr_februari = $cr_januari + $capaian_realisasi_total;				
+				$realisasi_per_bulan[] = floatval($cr_februari);
+			}
+			else if ($bulan == 3) {
+				$cr_maret = $cr_februari + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_maret);
+			}
+			else if ($bulan == 4) {
+				$cr_april = $cr_maret + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_april);
+			}
+			else if ($bulan == 5) {
+				$cr_mei = $cr_april + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_mei);
+			}
+			else if ($bulan == 6) {
+				$cr_juni = $cr_mei + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_juni);
+			}
+			else if ($bulan == 7) {
+				$cr_juli = $cr_juni + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_juli);
+			}
+			else if ($bulan == 8) {
+				$cr_agustus = $cr_juli + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_agustus);
+			}
+			else if ($bulan == 9) {
+				$cr_september = $cr_agustus + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_september);
+			}
+			else if ($bulan == 10) {
+				$cr_oktober = $cr_september + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_oktober);
+			}
+			else if ($bulan == 11) {
+				$cr_november = $cr_oktober + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_november);
+			}
+			else if ($bulan == 12) {
+				$cr_desember = $cr_november + $capaian_realisasi_total;
+				$realisasi_per_bulan[] = floatval($cr_desember);
+			}
 		}
 
 		// Grafik Line Persentase Capaian Target & Realisasi Anggaran per Bulan
@@ -552,7 +614,7 @@ class Home extends AZ_Controller {
 		// ambil capaian realisasi per bulan
 		$this->db->where('purchase_plan.status', 1);
 		$this->db->where('purchase_plan_status != "DRAFT" ');
-		$this->db->where('YEAR(purchase_plan_date) = "2025" ');
+		$this->db->where('YEAR(purchase_plan_date) = "'.$tahun_ini.'" ');
 		$this->db->group_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
 		$this->db->order_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
 		$this->db->select('YEAR(purchase_plan_date), MONTH(purchase_plan_date) AS bulan_realisasi, SUM(total_budget) AS total');
