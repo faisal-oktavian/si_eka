@@ -46,12 +46,12 @@
 			if (aznav('role_select_ppkom_pptk')) {
 		?>
 				<div class="form-group">
-					<label class="control-label col-md-4">PPKom/PPTK</label>
+					<label class="control-label col-md-4">PPK/PP</label>
 					<div class="col-md-8">
 						<select class="form-control" name="select_ppkom_pptk" id="select_ppkom_pptk">
 							<option value="" disabled selected> ~ Pilih ~ </option>
-							<option value="PPKom">PPKom</option>
-							<option value="PPTK">PPTK</option>
+							<option value="PPK">PPK</option>
+							<option value="PP">PP</option>
 						</select>
 					</div>
 				</div>
