@@ -1,3 +1,6 @@
+<?php
+	$idrole = $this->session->userdata('idrole');
+?>
 
 <div  style="margin-top:10px;">
 	<a href="<?php echo app_url();?>master_paket_belanja/add" class="btn-add_paket_belanja"><button class="btn btn-default" type="button"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button></a>
@@ -43,7 +46,7 @@
 			</div>
 		</div>
 		<?php
-			if (aznav('role_select_ppkom_pptk')) {
+			if ( ( aznav('role_select_ppkom_pptk') || aznav('role_special_paket_belanja') ) && strlen($idrole) > 0 ) {
 		?>
 				<div class="form-group">
 					<label class="control-label col-md-4">PPK/PP</label>

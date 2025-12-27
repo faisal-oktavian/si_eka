@@ -128,14 +128,18 @@ class Master_paket_belanja extends CI_Controller {
 			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
 			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
-			if ($status != "OK" ) {
-				$is_view_only = true;
-            }
-
 			if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
 			&& strlen($idrole) > 0 ) {
 				$is_view_only = true;
 			}
+
+			if (aznav('role_special_paket_belanja') && strlen($idrole) > 0 ) {
+				$is_view_only = false;
+			}
+
+			if ($status != "OK" ) {
+				$is_view_only = true;
+            }
 
 			if ($is_view_only) {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
@@ -851,7 +855,7 @@ class Master_paket_belanja extends CI_Controller {
 
 		$this->load->library('form_validation');
 
-		if (aznav('role_select_ppkom_pptk')) {
+		if (aznav('role_select_ppkom_pptk') || aznav('role_special_paket_belanja')) {
 			$this->form_validation->set_rules('select_ppkom_pptk', 'Opsi PPKom/PPTK', 'required|trim|max_length[200]');
 		}
 		else {
@@ -874,7 +878,7 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			if (aznav('role_select_ppkom_pptk')) {
+			if (aznav('role_select_ppkom_pptk') || aznav('role_special_paket_belanja')) {
 				$arr_data = array(
 					'select_ppkom_pptk' => $select_ppkom_pptk,
 				);

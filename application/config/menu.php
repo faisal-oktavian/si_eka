@@ -61,11 +61,15 @@
                         ),
                         array(
                             'role_name' => 'role_select_ppkom_pptk',
-                            'role_title' => 'Pilih PPKom / PPTK'
+                            'role_title' => 'Pilih PPK / PP'
                         ),
                         array(
                             'role_name' => 'role_specification',
                             'role_title' => 'Bisa Isi Spesifikasi'
+                        ),
+                        array(
+                            'role_name' => 'role_special_paket_belanja',
+                            'role_title' => 'Bisa Pilih PPK / PP, Isi Spesifikasi'
                         ),
                     ),
                 ),

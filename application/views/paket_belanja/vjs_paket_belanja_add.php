@@ -23,13 +23,23 @@
 							echo "false";
 						} ?>;
 
+	var role_special_paket_belanja = <?php if (aznav('role_special_paket_belanja')) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
 	var idrole = "<?php echo $this->session->userdata('idrole'); ?>";
 
 	// set default hide tombol spesifikasi
 	if (idrole != "" && idrole != null) {
-		setTimeout(function() {
-			jQuery('#table_onthespot').find('.btn-specification').hide();
-		}, 500);
+
+		// jika hak akses "Bisa Pilih PPK / PP, Isi Spesifikasi" tidak dicentang
+		if (role_special_paket_belanja == false) {
+			setTimeout(function() {
+				jQuery('#table_onthespot').find('.btn-specification').hide();
+			}, 500);	
+		}
 	}
 
 	jQuery(document).ready(function() {
@@ -617,7 +627,9 @@
 
 					generate_detail_paket_belanja(response.idpaket_belanja);
 
-					readonly();
+					if (role_special_paket_belanja == false) {
+						readonly();
+					}
 					
 					// location.reload();
 				}
