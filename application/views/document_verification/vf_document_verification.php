@@ -28,7 +28,7 @@
 				<option value="KONTRAK PENGADAAN">Kontrak Pengadaan</option>
 				<option value="MENUNGGU VERIFIKASI">Menunggu Verifikasi</option>
 				<option value="SUDAH DIVERIFIKASI">Sudah Diverifikasi</option>
-				<option value="DITOLAK VERIFIKATOR">Ditolak Verifikator</option>
+				<option value="DITOLAK VERIFIKATOR">Revisi Dokumen</option>
 				<option value="INPUT NPD">Input NPD</option>
 				<option value="MENUNGGU PEMBAYARAN">Menunggu Pembayaran</option>
 				<option value="SUDAH DIBAYAR BENDAHARA">Sudah Dibayar Bendahara</option>

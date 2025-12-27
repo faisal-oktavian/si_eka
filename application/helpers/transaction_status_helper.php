@@ -100,7 +100,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 		else if ($status == "DITOLAK VERIFIKATOR") {
 			$label_status = "<label class='label' style='text-align: center; background-color: #FF3333; color: white;'>
-								Ditolak Verifikator</label>";
+								Revisi Dokumen</label>";
 		}
 		else if ($status == "INPUT NPD") {
 			$label_status = "<label class='label' style='text-align: center; background-color: #999999; color: white;'>

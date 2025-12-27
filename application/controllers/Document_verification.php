@@ -209,11 +209,11 @@ class Document_verification extends CI_Controller {
 			$tlbl = '-';
 			if ($value == "DISETUJUI") {
 				$lbl = 'success';
-				$tlbl = 'Disetujui';
+				$tlbl = 'Lengkap';
 			}
 			else if ($value == "DITOLAK") {
 				$lbl = 'danger';
-				$tlbl = 'Ditolak';
+				$tlbl = 'Revisi';
 			}
 			return "<label class='label label-".$lbl."'>".$tlbl."</label>";
 		}

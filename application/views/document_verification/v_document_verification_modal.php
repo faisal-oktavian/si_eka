@@ -8,8 +8,8 @@
 		<div class="col-md-7">
 			<select class="form-control" name="status_approve" id="status_approve">
 				<option value="" disabled selected>~ Pilih Status ~</option>
-				<option value="DISETUJUI">Disetujui</option>
-				<option value="DITOLAK">Ditolak</option>
+				<option value="DISETUJUI">Lengkap</option>
+				<option value="DITOLAK">Revisi</option>
 			</select>
 		</div>
 	</div>
