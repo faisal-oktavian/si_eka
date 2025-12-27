@@ -203,7 +203,7 @@
         ),
         array(
             "name" => "npd_panjer",
-            "title" => "NPD Panjer",
+            "title" => "NPD Panjar",
             "icon" => "file",
             "url" => "npd_panjer",
             'submenu' => array(),
