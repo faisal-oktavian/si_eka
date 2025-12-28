@@ -10,6 +10,7 @@ class Npd_panjer extends CI_Controller {
         $this->table = 'npd_panjer';
         $this->controller = 'npd_panjer';
         $this->load->helper('az_crud');
+		$this->load->helper('az_config');
     }
 
 	public function index() {		
@@ -156,7 +157,19 @@ class Npd_panjer extends CI_Controller {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-npd-panjer" data_id="'.$idnpd_panjer.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
 
-			$btn .= '<a href="' . app_url() . 'npd_panjer/print_npd?idn=' . $idnpd_panjer . '" class="btn btn-xs btn-default btn-print" target="_blank"><i class="fa fa-print"></i> Cetak</a> ';
+			$this->db->where('npd_panjer.idnpd_panjer', $idnpd_panjer);
+			$this->db->where('npd_panjer.status', 1);
+			$this->db->where('npd_panjer_detail.status', 1);
+			
+			$this->db->join('npd_panjer_detail', 'npd_panjer_detail.idnpd_panjer = npd_panjer.idnpd_panjer');
+			
+			$this->db->group_by('npd_panjer_detail.idpaket_belanja');
+			$this->db->select('npd_panjer_detail.idpaket_belanja');
+			$npd_panjer = $this->db->get('npd_panjer');
+
+			$idpaket_belanja = $npd_panjer->row()->idpaket_belanja;
+
+			$btn .= '<a href="' . app_url() . 'npd_panjer/print_npd_panjer?idn=' . $idnpd_panjer . '&idp=' . $idpaket_belanja . '" class="btn btn-xs btn-default btn-print" target="_blank"><i class="fa fa-print"></i> Cetak</a> ';
 
 			return $btn;
 		}
@@ -747,65 +760,65 @@ class Npd_panjer extends CI_Controller {
 		echo json_encode($return);
 	}
 
-	public function print_npd()
+	public function print_npd_panjer()
 	{	
-		$idnpd = $this->input->get('idn');
+		$idnpd_panjer = $this->input->get('idn');
+		$idpaket_belanja = $this->input->get('idp');
 
 		$err_code = 0;
-		if (strlen($idnpd) == 0) {
+		if (strlen($idnpd_panjer) == 0) {
 			$err_code++;
 		}
-		// if ($err_code == 0) {
-		// 	$this->db->where('npd.idnpd', $idnpd);
-		// 	$this->db->where('npd.status', 1);
-		// 	$this->db->select('*, date_format(npd.npd_date_created, "%d %M %Y") as txt_npd_date_created');
-		// 	$data = $this->db->get('npd');
-		// 	if ($data->num_rows() == 0) {
-		// 		$err_code++;
-		// 	}
-		// 	else {
-		// 		$npd_code = $data->row()->npd_code;
-		// 		$npd_date_created = $data->row()->npd_date_created;
-		// 		$npd_date = $this->bulanIndo($data->row()->txt_npd_date_created);
-
-		// 		$arr_update = array(
-		// 			'is_print' => 1,
-		// 		);
-
-		// 		$this->db->where('npd.idnpd', $idnpd);
-		// 		$this->db->update('npd', $arr_update);
-		// 	}
-		// }
 
 		if ($err_code == 0) {
-			// $this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
-			// $this->db->where('paket_belanja_detail.status', 1);
+			$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
+			$this->db->where('paket_belanja_detail.status', 1);
 			
-			// $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-			// $this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
-			// $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-			// $this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
-			// $this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
-			// // $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
+			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
+			$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+			$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
+			$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
+			
+			$this->db->select('
+				paket_belanja_detail.idpaket_belanja_detail,
+				status_paket_belanja, 
+				paket_belanja.idpaket_belanja, 
+				concat( "(", program.no_rekening_program, ") ", program.nama_program) as nama_program, 
+				concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ") ", kegiatan.nama_kegiatan) as nama_kegiatan,
+				concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ".", sub_kegiatan.no_rekening_subkegiatan, ") ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan');
+			$pb_detail = $this->db->get('paket_belanja_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
 
-			// $this->db->select('
-			// 	paket_belanja_detail.idpaket_belanja_detail, 
-			// 	nama_akun_belanja, 
-			// 	status_paket_belanja, 
-			// 	akun_belanja.no_rekening_akunbelanja, 
-			// 	paket_belanja.idpaket_belanja, 
-			// 	akun_belanja.idakun_belanja, 
-			// 	concat( "(", program.no_rekening_program, ") ", program.nama_program) as nama_program, 
-			// 	concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ") ", kegiatan.nama_kegiatan) as nama_kegiatan,
-			// 	concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ".", sub_kegiatan.no_rekening_subkegiatan, ") ", sub_kegiatan.nama_subkegiatan) as nama_subkegiatan');
-			// $pb_detail = $this->db->get('paket_belanja_detail');
-			// // echo "<pre>"; print_r($this->db->last_query());die;
+			$nama_program = $pb_detail->row()->nama_program;
+			$nama_kegiatan = $pb_detail->row()->nama_kegiatan;
+			$nama_subkegiatan = $pb_detail->row()->nama_subkegiatan;
 
-			// $nama_program = $pb_detail->row()->nama_program;
-			// $nama_kegiatan = $pb_detail->row()->nama_kegiatan;
-			// $nama_subkegiatan = $pb_detail->row()->nama_subkegiatan;
+			
+			// ambil detail npd panjer
+			$this->db->where('npd_panjer_detail.status', 1);
+			$this->db->where('npd_panjer_detail.idnpd_panjer', $idnpd_panjer);
+			$this->db->join('npd_panjer', 'npd_panjer.idnpd_panjer = npd_panjer_detail.idnpd_panjer');
+			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = npd_panjer_detail.iduraian');
+			$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening');
+			$this->db->select('npd_panjer_detail.idnpd_panjer_detail, kode_rekening.kode_rekening, sub_kategori.nama_sub_kategori as nama_uraian, npd_panjer_detail.total, npd_panjer_detail.npd_detail_description, npd_panjer.total_realisasi, date_format(npd_panjer.npd_panjer_date, "%d %M %Y") as npd_panjer_date');
+			$panjer_detail = $this->db->get('npd_panjer_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
 
-			// $arr_data = array();
+			$total_realisasi = 0;
+			$npd_panjer_date = '';
+			$arr_data = array();
+			foreach ($panjer_detail->result() as $key => $value) {
+				$arr_data[] = array(
+					'kode_rekening' => $value->kode_rekening,
+					'nama_uraian' => $value->nama_uraian,
+					'total' => $value->total,
+					'description_detail' => $value->npd_detail_description,
+				);
+
+				$total_realisasi = floatval($value->total_realisasi);
+				$npd_panjer_date = $value->npd_panjer_date;
+			}
+
 			// $arr_detail_sub = array();
 			// $total_data = 0;
 			// foreach ($pb_detail->result() as $key => $value) {
@@ -948,20 +961,21 @@ class Npd_panjer extends CI_Controller {
 			// }
 			// // echo "<pre>"; print_r($arr_data);die;
 
-			// $the_data = array(
-			// 	'nomor_surat' => $npd_code,
-			// 	'npd_date' => $npd_date,
-			// 	'pptk' => az_get_config('PPTK', 'config'),
-			// 	'program' => $nama_program,
-			// 	'kegiatan' => $nama_kegiatan,
-			// 	'sub_kegiatan' => $nama_subkegiatan,
-			// 	'nomor_dpa' => az_get_config('nomor_DPA', 'config'),
-			// 	'tahun_anggaran' => az_get_config('tahun_anggaran', 'config'),
-			// 	'arr_data' => $arr_data,
-			// );
+			$the_data = array(
+				// 'nomor_surat' => $npd_code,
+				// 'npd_date' => $npd_date,
+				'pptk' => az_get_config('PPTK', 'config'),
+				'program' => $nama_program,
+				'kegiatan' => $nama_kegiatan,
+				'sub_kegiatan' => $nama_subkegiatan,
+				'nomor_dpa' => az_get_config('nomor_DPA', 'config'),
+				// 'tahun_anggaran' => az_get_config('tahun_anggaran', 'config'),
+				'arr_data' => $arr_data,
+				'total_realisasi' => $total_realisasi,
+				'npd_panjer_date' => $npd_panjer_date,
+			);
 
 			// echo "<pre>"; print_r($the_data);die;
-			$the_data = array();
 
 			$this->load->view('npd_panjer/v_label_npd_panjer', $the_data);
 		}
