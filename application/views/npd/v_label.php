@@ -178,7 +178,7 @@
                                         <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_anggaran']);?></td>
                                         <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_sekarang']);?></td>
                                         <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_akhir']);?></td>
-                                        <td></td>
+                                        <td><?php echo $value_ds['realization_detail_description'];?></td>
                                     </tr>
                     <?php
                                 }

@@ -1172,7 +1172,7 @@ class Npd extends CI_Controller {
 					$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 					$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 					
-					$this->db->select('npd.idnpd, paket_belanja_detail_sub.idpaket_belanja_detail_sub, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.jumlah AS total_anggaran, "" AS sisa_anggaran, budget_realization_detail.total_realization_detail AS total_sekarang, "" AS sisa_akhir');
+					$this->db->select('npd.idnpd, paket_belanja_detail_sub.idpaket_belanja_detail_sub, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.jumlah AS total_anggaran, "" AS sisa_anggaran, budget_realization_detail.total_realization_detail AS total_sekarang, "" AS sisa_akhir, budget_realization_detail.realization_detail_description AS realization_detail_description');
 					$npd = $this->db->get('npd');
 					// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -1232,7 +1232,7 @@ class Npd extends CI_Controller {
 							'sisa_anggaran' => $sisa_anggaran,
 							'total_sekarang' => $n_value->total_sekarang,
 							'sisa_akhir' => $sisa_akhir,
-							'keterangan' => '',
+							'realization_detail_description' => $n_value->realization_detail_description,
 						);
 
 						$total_data++;
