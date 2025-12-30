@@ -55,7 +55,9 @@ class Home extends AZ_Controller {
 		// GRAFIK REALISASI ANGGARAN PER SUMBER DANA
 		$grafik_sumber_dana = $this->grafik_sumber_dana($tahun_ini);
 		$dbh = $grafik_sumber_dana['dbh'];
+		$target_dbh = $grafik_sumber_dana['target_dbh'];
 		$blud = $grafik_sumber_dana['blud'];
+		$target_blud = $grafik_sumber_dana['target_blud'];
 
 
 		// GRAFIK PERBANDINGAN TARGET & REALISASI PER BULAN
@@ -248,6 +250,8 @@ class Home extends AZ_Controller {
 			'belum_direalisasi' => floatval($belum_direalisasi),
 			'dbh' => floatval($dbh),
 			'blud' => floatval($blud),
+			'target_dbh' => floatval($target_dbh),
+			'target_blud' => floatval($target_blud),
 			'target_per_bulan' => $target_per_bulan,
 			'realisasi_per_bulan' => $realisasi_per_bulan,
 			'belum_terealisasi' => $belum_terealisasi,
@@ -449,8 +453,10 @@ class Home extends AZ_Controller {
 	function grafik_sumber_dana($tahun_ini) {
 		$dbh = 0;
 		$blud = 0;
-
-
+		$target_dbh = 0;
+		$target_blud = 0;
+		
+		
 		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
 		$this->db->where('npd.status', 1);
 		$this->db->where('npd_detail.status', 1);
@@ -470,26 +476,70 @@ class Home extends AZ_Controller {
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
 		$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
 
-		$this->db->group_by('nama_sumber_dana');
-		$this->db->select('SUM(budget_realization_detail.total_realization_detail) AS total_sumber_dana, nama_sumber_dana');
+		$this->db->group_by('nama_sumber_dana, idsumber_dana');
+		$this->db->select('SUM(budget_realization_detail.total_realization_detail) AS total_sumber_dana, sumber_dana.nama_sumber_dana, sumber_dana.idsumber_dana');
 		$npd = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
+
+		$is_develop = false;
+		$add_query = ''; 
+		
+		if ($is_develop) {
+			$add_query = ', pb.idpaket_belanja,
+				pb.nama_paket_belanja,
+				pbd.idpaket_belanja_detail,
+				COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS detail_sub_id,
+				COALESCE(pbds_child.idsub_kategori, pbds_parent.idsub_kategori) AS idsub_kategori,
+				COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
+				COALESCE(pbds_child.idsatuan, pbds_parent.idsatuan) AS idsatuan,
+				COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan,
+				COALESCE(pbds_child.jumlah, pbds_parent.jumlah) AS jumlah';
+		}
+
 		foreach ($npd->result() as $key => $value) {
+			$idsumber_dana = $value->idsumber_dana;
 			$sumber_dana = $value->nama_sumber_dana;
 			$total_sumber_dana = $value->total_sumber_dana;
 
+			// ambil data target per sumber dana
+			$this->db->where('pb.status', 1);
+			$this->db->where('pb.status_paket_belanja = "OK" ');
+			$this->db->where('pbd.status', 1);
+			$this->db->where('sk.idsumber_dana = "'.$idsumber_dana.'" ');
+			$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+			$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
+			$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+			$this->db->join('sub_kategori sk', 'sk.idsub_kategori = COALESCE(pbds_child.idsub_kategori, pbds_parent.idsub_kategori)');
+			$this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sk.idsumber_dana');
+
+			$this->db->select('sumber_dana.nama_sumber_dana, SUM(COALESCE(pbds_child.jumlah, pbds_parent.jumlah)) AS total_target'.$add_query);
+			$pb = $this->db->get('paket_belanja pb');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+
+			// simpan data realisasi per sumber dana
 			if ($sumber_dana == "DBH Cukai Hasil Tembakau (CHT)") {
 				$dbh = $total_sumber_dana;
+
+				if ($pb->num_rows() > 0) {
+					$target_dbh = $pb->row()->total_target;
+				}
 			}
 			else if ($sumber_dana == "Pendapatan dari BLUD") {
 				$blud = $total_sumber_dana;
+
+				if ($pb->num_rows() > 0) {
+					$target_blud = $pb->row()->total_target;
+				}
 			}
 		}
 
 		$return = array(
 			'dbh' => floatval($dbh),
 			'blud' => floatval($blud),
+			'target_dbh' => floatval($target_dbh),
+			'target_blud' => floatval($target_blud),
 		);
 
 		// echo "<pre>"; print_r($return);die;

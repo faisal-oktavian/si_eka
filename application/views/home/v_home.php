@@ -578,17 +578,19 @@
 			// var realisasi_blud = 9000000000;
 
 			var realisasi_dbh = <?php echo isset($dbh) ? $dbh : 0; ?>;
+			var target_dbh = <?php echo isset($target_dbh) ? $target_dbh : 0; ?>;
 			var realisasi_blud = <?php echo isset($blud) ? $blud : 0; ?>;
-			var total_realisasi = realisasi_dbh + realisasi_blud;
+			var target_blud = <?php echo isset($target_blud) ? $target_blud : 0; ?>;
+			// var total_realisasi = realisasi_dbh + realisasi_blud;
 
 			var persen_realisasi_dbh = 0;
 			var persen_realisasi_blud = 0;
 
 			if (realisasi_dbh != 0) {
-				var persen_realisasi_dbh = Math.round( (realisasi_dbh / total_realisasi * 100) * 100) / 100;
+				var persen_realisasi_dbh = Math.round( (realisasi_dbh / target_dbh * 100) * 100) / 100;
 			}
 			if (realisasi_blud != 0) {
-				var persen_realisasi_blud = Math.round( (realisasi_blud / total_realisasi * 100) * 100) / 100;
+				var persen_realisasi_blud = Math.round( (realisasi_blud / target_blud * 100) * 100) / 100;
 			}
 
 			document.getElementById('label-realisasi-dbh').innerText = persen_realisasi_dbh + '% (' + formatRupiah(realisasi_dbh) + ')';
