@@ -352,7 +352,7 @@ class Payment extends CI_Controller {
 		// validasi
 		$this->db->where('idnpd', $idnpd);
 		$this->db->where('status', 1);
-		$this->db->select('npd_status, total_anggaran, date_format(npd_date_created, "%Y") as txt_npd_date_created');
+		$this->db->select('npd_status, total_anggaran, date_format(npd_date_created, "%Y") as txt_npd_date_created, total_pay');
 		$npd_data = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
