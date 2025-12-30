@@ -191,11 +191,20 @@ class Payment extends CI_Controller {
 		}
 
 		if ($key == "type_code") {
-			$contract_spt = $verification->row()->contract_spt;
-			$contract_invitation_number = $verification->row()->contract_invitation_number;
-			$contract_sp = $verification->row()->contract_sp;
-			$contract_spk = $verification->row()->contract_spk;
-			$contract_honor = $verification->row()->contract_honor;
+			$contract_spt = '';
+			$contract_invitation_number = '';
+			$contract_sp = '';
+			$contract_spk = '';
+			$contract_honor = '';
+			$text = '';
+			
+			if ($verification->num_rows() > 0) {
+				$contract_spt = $verification->row()->contract_spt;
+				$contract_invitation_number = $verification->row()->contract_invitation_number;
+				$contract_sp = $verification->row()->contract_sp;
+				$contract_spk = $verification->row()->contract_spk;
+				$contract_honor = $verification->row()->contract_honor;
+			}
 			
 			if (strlen($contract_spt) > 0) {
 				$text = "No. SPT : ".$contract_spt." ";
@@ -343,6 +352,7 @@ class Payment extends CI_Controller {
 		// validasi
 		$this->db->where('idnpd', $idnpd);
 		$this->db->where('status', 1);
+		$this->db->select('npd_status, total_anggaran, date_format(npd_date_created, "%Y") as txt_npd_date_created');
 		$npd_data = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -355,6 +365,14 @@ class Payment extends CI_Controller {
 			if ($npd_data->row()->npd_status == 'SUDAH DIBAYAR BENDAHARA') {
 				$err_code++;
 				$err_message = "Transaksi sudah dibayar";
+			}
+
+			if ($err_code == 0) {
+
+				if (strlen($npd_data->row()->txt_npd_date_created) < strlen(Date('Y'))) {
+					$err_code++;
+					$err_message = "Transaksi tidak dapat diproses karena sudah melewati tahun anggaran.";
+				}
 			}
 
 			if ($err_code == 0) {

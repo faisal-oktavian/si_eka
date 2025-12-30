@@ -331,6 +331,7 @@ class Purchase_contract extends CI_Controller {
         
 		$crud_plan->add_where("purchase_plan.status = 1");
 		$crud_plan->add_where("purchase_plan.purchase_plan_status = 'PROSES PENGADAAN' ");
+		$crud_plan->add_where("YEAR(purchase_plan.created) = '".Date('Y')."' ");
 
 		$crud_plan->set_table('purchase_plan');
 		$crud_plan->set_custom_style('custom_style_plan');
@@ -714,18 +715,32 @@ class Purchase_contract extends CI_Controller {
 			);
 			$arr_validation = validation_status($the_filter);
 
+			// $this->db->where('contract.idcontract', $idcontract);
+			// $this->db->where('contract.status', 1);
+			// $this->db->where('contract_detail.status', 1);
+			// $this->db->where('purchase_plan.status', 1);
+			// $this->db->where('purchase_plan_detail.status', 1);
+			// $this->db->where('purchase_plan_detail.purchase_plan_detail_status IN '.$arr_validation.' ');
+
+			// $this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			// $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			// $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+
+
 			$this->db->where('contract.idcontract', $idcontract);
 			$this->db->where('contract.status', 1);
+			$this->db->where('contract.contract_status IN '.$arr_validation.' ');
 			$this->db->where('contract_detail.status', 1);
-			$this->db->where('purchase_plan.status', 1);
-			$this->db->where('purchase_plan_detail.status', 1);
-			$this->db->where('purchase_plan_detail.purchase_plan_detail_status IN '.$arr_validation.' ');
+			$this->db->where('budget_realization.realization_status != "DRAFT" ');
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
 
 			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
-			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
-			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail');
+			$this->db->join('budget_Realization', 'budget_Realization.idbudget_realization = budget_realization_detail.idbudget_realization');
 
 			$_contract = $this->db->get('contract');
+			// echo "<pre>"; print_r($this->db->last_query());die;
 
 			if ($_contract->num_rows() > 0) {
 				$err_code++;
@@ -734,7 +749,6 @@ class Purchase_contract extends CI_Controller {
 				$is_delete = false;
 			}
 		}
-		
 		if ($is_delete) {
 			// update status rencana pengadaan
 			foreach ($contract->result() as $key => $value) {
@@ -754,7 +768,7 @@ class Purchase_contract extends CI_Controller {
 		}
 		else{
 			$err_code = 1;
-			$err_message = "Data tidak bisa diedit atau dihapus.";
+			// $err_message = "Data tidak bisa diedit atau dihapus.";
 		}
 
 		// cek apakah masih ada dokumen/detail transaksi di kontrak pengadaan ini?

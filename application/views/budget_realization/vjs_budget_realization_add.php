@@ -222,7 +222,7 @@
 				setTimeout(function() {
 					jQuery('#male').val(response.data.male);
 					jQuery('#female').val(response.data.female);
-					jQuery('#transaction_description').val(response.data.transaction_description);
+					jQuery('#realization_detail_description').val(response.data.realization_detail_description);
 					jQuery('#idruang').val(response.data.idruang);
 					jQuery('#name_training').val(response.data.name_training);
 				}, 500);

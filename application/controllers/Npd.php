@@ -195,11 +195,20 @@ class Npd extends CI_Controller {
 		}
 
 		if ($key == "type_code") {
-			$contract_spt = $verification->row()->contract_spt;
-			$contract_invitation_number = $verification->row()->contract_invitation_number;
-			$contract_sp = $verification->row()->contract_sp;
-			$contract_spk = $verification->row()->contract_spk;
-			$contract_honor = $verification->row()->contract_honor;
+			$contract_spt = '';
+			$contract_invitation_number = '';
+			$contract_sp = '';
+			$contract_spk = '';
+			$contract_honor = '';
+			$text = '';
+			
+			if ($verification->num_rows() > 0) {
+				$contract_spt = $verification->row()->contract_spt;
+				$contract_invitation_number = $verification->row()->contract_invitation_number;
+				$contract_sp = $verification->row()->contract_sp;
+				$contract_spk = $verification->row()->contract_spk;
+				$contract_honor = $verification->row()->contract_honor;
+			}
 			
 			if (strlen($contract_spt) > 0) {
 				$text = "No. SPT : ".$contract_spt." ";
@@ -353,6 +362,7 @@ class Npd extends CI_Controller {
         $crud_document->add_join_manual('user user_verification', 'user_verification.iduser = verification.iduser_verification', 'left');
         
 		$crud_document->add_where("verification.status = '1' ");
+		$crud_document->add_where("YEAR(verification.verification_date_created) = '".Date('Y')."' ");
 		if (strlen($idnpd) == 0) {
 			$crud_document->add_where("verification.verification_status = 'SUDAH DIVERIFIKASI' ");
 		}

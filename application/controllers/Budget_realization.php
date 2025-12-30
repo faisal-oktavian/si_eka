@@ -315,6 +315,7 @@ class Budget_realization extends CI_Controller {
         
 		$crud_contract->add_where("contract.status = 1");
 		$crud_contract->add_where("contract.contract_status IN ('KONTRAK PENGADAAN', 'DITOLAK VERIFIKATOR') ");
+		$crud_contract->add_where("YEAR(contract.created) = '".Date('Y')."' ");
 
 		$crud_contract->set_table('contract');
 		$crud_contract->set_custom_style('custom_style_contract');
