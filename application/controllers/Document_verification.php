@@ -114,6 +114,28 @@ class Document_verification extends CI_Controller {
 
 		$crud->add_where("budget_realization.status = '1' ");
 		$crud->add_where("budget_realization.realization_status != 'DRAFT' ");
+		$crud->set_order_by("
+			CASE
+				WHEN realization_status = 'MENUNGGU VERIFIKASI'
+					AND realization_description IS NULL THEN 1
+				WHEN realization_status = 'MENUNGGU VERIFIKASI'
+					AND realization_description IS NOT NULL THEN 2
+				ELSE 3
+			END,
+			CASE realization_status
+				WHEN 'PROSES PENGADAAN' THEN 1
+				WHEN 'KONTRAK PENGADAAN' THEN 2
+				WHEN 'MENUNGGU VERIFIKASI' THEN 3
+				WHEN 'SUDAH DIVERIFIKASI' THEN 4
+				WHEN 'DITOLAK VERIFIKATOR' THEN 5
+				WHEN 'INPUT NPD' THEN 6
+				WHEN 'MENUNGGU PEMBAYARAN' THEN 7
+				WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
+				ELSE 9
+			END,
+			realization_date ASC
+		", NULL, FALSE);
+
 
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
