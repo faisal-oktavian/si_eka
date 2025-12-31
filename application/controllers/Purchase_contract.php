@@ -213,9 +213,9 @@ class Purchase_contract extends CI_Controller {
 			foreach ((array) $arr_data as $key => $value) {
                 foreach ($value['arr_detail'] as $key => $dvalue) {
                     $table .= "<tr>";
-                    $table .=       "<td>".$dvalue['purchase_plan_code']."</td>";
-                    $table .=       "<td>".$dvalue['nama_paket_belanja']."</td>";
-                    $table .=       "<td>".$dvalue['nama_sub_kategori']."</td>";
+                    $table .=       "<td align='left'>".$dvalue['purchase_plan_code']."</td>";
+                    $table .=       "<td align='left'>".$dvalue['nama_paket_belanja']."</td>";
+                    $table .=       "<td align='left'>".$dvalue['nama_sub_kategori']."</td>";
                     $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";
                     $table .= "</tr>";
                 }

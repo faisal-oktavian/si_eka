@@ -74,7 +74,7 @@ class Budget_realization extends CI_Controller {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
 		$realization_code = $this->input->get('vf_realization_code');
-		$transaction_status = $this->input->get('vf_transaction_status');
+		$realization_status = $this->input->get('vf_realization_status');
 
         $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, realization_status, user.name as user_created');
 		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, realization_status, user_created');
@@ -96,8 +96,8 @@ class Budget_realization extends CI_Controller {
         if (strlen($realization_code) > 0) {
 			$crud->add_where('budget_realization.realization_code = "' . $realization_code . '"');
 		}
-		if (strlen($transaction_status) > 0) {
-			$crud->add_where('budget_realization.realization_status = "' . $transaction_status . '"');
+		if (strlen($realization_status) > 0) {
+			$crud->add_where('budget_realization.realization_status = "' . $realization_status . '"');
 		}
 
 		$crud->add_where("budget_realization.status = 1");
@@ -196,12 +196,12 @@ class Budget_realization extends CI_Controller {
 
             foreach ($budget_realization_limit->result_array() as $key => $value) {
 				$table .= "<tr>";
-				$table .= 		"<td>".$value['contract_code']."</td>";
+				$table .= 		"<td align='left'>".$value['contract_code']."</td>";
 				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
-				$table .= 		"<td>".$value['nama_paket_belanja']."</td>";
-				$table .= 		"<td>".$value['nama_sub_kategori']."</td>";
+				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
+				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
-				$table .= 		"<td>".$value['realization_detail_description']."</td>";
+				$table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= "</tr>";
             }
 			
