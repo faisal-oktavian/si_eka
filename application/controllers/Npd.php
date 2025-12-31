@@ -993,7 +993,7 @@ class Npd extends CI_Controller {
 
 		$this->db->where('npd.idnpd', $id);
 		$this->db->join('user', 'user.iduser = npd.iduser_created');
-		$this->db->select('date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, npd_code, user.name as user_created, npd.iduser_created');
+		$this->db->select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_npd_date_created, npd_code, user.name as user_created, npd.iduser_created');
 		$this->db->order_by('npd_date_created', 'desc');
 		$npd = $this->db->get('npd')->result_array();
 

@@ -247,6 +247,8 @@
 				id: the_id
 			},
 			success: function(response) {
+				jQuery('#hd_idnpd').val(response.npd.idnpd);
+				jQuery('#idnpd').val(response.npd.idnpd);
 				jQuery('#npd_code').val(response.npd.npd_code);
 				jQuery('#iduser_created').val(response.npd.iduser_created);
 				jQuery('#user_name').val(response.npd.user_created);
