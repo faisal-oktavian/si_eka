@@ -179,12 +179,12 @@ class Document_verification extends CI_Controller {
 
             foreach ($budget_realization->result_array() as $key => $value) {
 				$table .= "<tr>";
-				$table .= 		"<td>".$value['contract_code']."</td>";
+				$table .= 		"<td align='left'>".$value['contract_code']."</td>";
 				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
-				$table .= 		"<td>".$value['nama_paket_belanja']."</td>";
-				$table .= 		"<td>".$value['nama_sub_kategori']."</td>";
+				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
+				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
-				$table .= 		"<td>".$value['realization_detail_description']."</td>";
+				$table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= "</tr>";
             }
 			

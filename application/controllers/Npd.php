@@ -168,12 +168,12 @@ class Npd extends CI_Controller {
 
 			foreach ($verification_limit->result() as $verification_key => $c_value) {
 				$table .=	"<tr>";
-				$table .=		"<td>".$c_value->verification_code."</td>";
-				$table .=		"<td>".$c_value->contract_code."</td>";
-				$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
-				$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
-				$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
-				$table .= 		"<td>".$c_value->realization_detail_description."</td>";
+				$table .=		"<td align='left'>".$c_value->verification_code."</td>";
+				$table .=		"<td align='left'>".$c_value->contract_code."</td>";
+				$table .=		"<td align='left'>".$c_value->nama_paket_belanja."</td>";
+				$table .=		"<td align='left'>".$c_value->nama_sub_kategori."</td>";
+				$table .=		"<td align='center'>".az_thousand_separator($c_value->volume)."</td>";
+				$table .= 		"<td align='left'>".$c_value->realization_detail_description."</td>";
 				$table .=	"</tr>";
 			}
 		}

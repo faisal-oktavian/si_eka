@@ -98,7 +98,7 @@ class Payment extends CI_Controller {
         $crud->set_sorting('npd_code, npd_status, total_anggaran, total_pay, user_bendahara');
         $crud->set_filter('npd_code, npd_status, total_anggaran, total_pay, user_bendahara');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , , center, right, right');
+		$crud->set_select_align(', , , , , center, right, right');
 
         $crud->add_join_manual('user user_bendahara', 'npd.iduser_payment = user_bendahara.iduser', 'left');
         
@@ -173,10 +173,10 @@ class Payment extends CI_Controller {
 
 			foreach ($verification->result() as $verification_key => $c_value) {
 				$table .=	"<tr>";
-				$table .=		"<td>".$c_value->nama_paket_belanja."</td>";
-				$table .=		"<td>".$c_value->nama_sub_kategori."</td>";
-				$table .=		"<td>".az_thousand_separator($c_value->volume)."</td>";
-				$table .= 		"<td>".$c_value->realization_detail_description."</td>";
+				$table .=		"<td align='left'>".$c_value->nama_paket_belanja."</td>";
+				$table .=		"<td align='left'>".$c_value->nama_sub_kategori."</td>";
+				$table .=		"<td align='center'>".az_thousand_separator($c_value->volume)."</td>";
+				$table .= 		"<td align='left'>".$c_value->realization_detail_description."</td>";
 				$table .=	"</tr>";
 			}
 		}
