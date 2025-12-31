@@ -1112,7 +1112,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->db->where('purchase_plan_detail.status', 1);
 		$this->db->where('purchase_plan.status', 1);
 		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = transaction.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$pp = $this->db->get('purchase_plan');
 
 		if ($pp->num_rows() > 0) {
