@@ -20,7 +20,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->load->helper('az_role');
 		$idrole = $this->session->userdata('idrole');
 
-		$crud->set_column(array('#', 'Program', 'Kegiatan', 'Sub Kegiatan', 'Paket Belanja', 'Anggaran', 'PPKom/PPTK', azlang('Action')));
+		$crud->set_column(array('#', 'Program', 'Kegiatan', 'Sub Kegiatan', 'Paket Belanja', 'Anggaran', 'PPK/PP', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
