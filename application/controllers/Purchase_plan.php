@@ -696,19 +696,15 @@ class Purchase_plan extends CI_Controller {
 		}
 
 		if ($is_delete) {
+			// hitung total transaksi
+			$this->calculate_total_budget($idpurchase_plan);
 
-			// hapus detail rencana pengadaan
-			$delete = az_crud_delete('purchase_plan_detail', $id, true);
-
-			$err_code = $delete['err_code'];
-			$err_message = $delete['err_message'];
+			// hitung total volume yang sudah terealisasi
+			calculate_realisasi_volume($idpaket_belanja_detail_sub, $idpurchase_plan, $id);
 
 			if ($err_code == 0) {
-				// hitung total transaksi
-				$this->calculate_total_budget($idpurchase_plan);
-
-				// hitung total volume yang sudah terealisasi
-				calculate_realisasi_volume($idpaket_belanja_detail_sub);
+				// hapus detail rencana pengadaan
+				$delete = az_crud_delete('purchase_plan_detail', $id, true);
 			}
 		}
 		else{
@@ -901,7 +897,7 @@ class Purchase_plan extends CI_Controller {
 			foreach ($purchase_plan->result() as $key => $value) {
 
 				// hitung total volume yang sudah terealisasi
-				calculate_realisasi_volume($value->idpaket_belanja_detail_sub);
+				calculate_realisasi_volume($value->idpaket_belanja_detail_sub, $id);
 			}
 
 			az_crud_delete($this->table, $id);

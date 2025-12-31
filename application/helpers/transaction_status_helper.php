@@ -119,14 +119,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 	
 	// hitung volume yang sudah terealisasi
-	function calculate_realisasi_volume($idpaket_belanja_detail_sub) {
+	function calculate_realisasi_volume($idpaket_belanja_detail_sub, $idpurchase_plan = null, $idpurchase_plan_detail = null) {
 		$ci =& get_instance();
 
 		$err_code = 0;
 		$err_message = '';
 
 		$ci->db->where('purchase_plan_detail.status', 1);
+		$ci->db->where('purchase_plan.status', 1);
 		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		if (strlen($idpurchase_plan) > 0) {
+			$ci->db->where('purchase_plan_detail.idpurchase_plan != "'.$idpurchase_plan.'" ');
+		}
+		if (strlen($idpurchase_plan_detail) > 0) {
+			$ci->db->where('purchase_plan_detail.idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
+		}
 		$ci->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 		$ci->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 		$ci->db->select_sum('volume');
