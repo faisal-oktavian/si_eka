@@ -308,11 +308,11 @@ class Purchase_plan extends CI_Controller {
         }
 
         // ambil data paket belanja dan uraian yang belum masuk ke step rencana pengadaan
-		if ($role_name == "ppkom") {
-			$this->db->where('pb.select_ppkom_pptk = "PPKom" ');
+		if ($role_name == "ppk") {
+			$this->db->where('pb.select_ppkom_pptk = "PPK" ');
 		}
-		else if ($role_name == "pptk") {
-			$this->db->where('pb.select_ppkom_pptk = "PPTK" ');
+		else if ($role_name == "pp") {
+			$this->db->where('pb.select_ppkom_pptk = "PP" ');
 		}
 
         $this->db->where(' ('.$query_where.') ');
