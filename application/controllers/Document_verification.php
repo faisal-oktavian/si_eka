@@ -123,11 +123,11 @@ class Document_verification extends CI_Controller {
 				ELSE 3
 			END,
 			CASE realization_status
-				WHEN 'PROSES PENGADAAN' THEN 1
-				WHEN 'KONTRAK PENGADAAN' THEN 2
-				WHEN 'MENUNGGU VERIFIKASI' THEN 3
-				WHEN 'SUDAH DIVERIFIKASI' THEN 4
-				WHEN 'DITOLAK VERIFIKATOR' THEN 5
+				WHEN 'DITOLAK VERIFIKATOR' THEN 1
+				WHEN 'PROSES PENGADAAN' THEN 2
+				WHEN 'KONTRAK PENGADAAN' THEN 3
+				WHEN 'MENUNGGU VERIFIKASI' THEN 4
+				WHEN 'SUDAH DIVERIFIKASI' THEN 5
 				WHEN 'INPUT NPD' THEN 6
 				WHEN 'MENUNGGU PEMBAYARAN' THEN 7
 				WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
@@ -332,6 +332,7 @@ class Document_verification extends CI_Controller {
 		if ($err_code == 0) {
 			$arr_data = array(
 				'realization_description' => $realization_description,
+				'log_date_description' => Date('Y-m-d H:i:s'),
 			);
 
 			az_crud_save($idbudget_realization, 'budget_realization', $arr_data);

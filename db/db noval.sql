@@ -2330,3 +2330,8 @@ DELETE FROM `noval`.`user` WHERE  `iduser`=22;
 
 ALTER TABLE `user`
 	AUTO_INCREMENT=3;
+
+ALTER TABLE `budget_realization`
+	CHANGE COLUMN `realization_description` `realization_description` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `updated_status`,
+	ADD COLUMN `log_date_description` DATETIME NULL DEFAULT NULL COMMENT 'untuk catat perubahan pengisian keterangan verifikasi' AFTER `realization_description`;
+
