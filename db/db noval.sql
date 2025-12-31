@@ -2259,3 +2259,74 @@ ALTER TABLE `purchase_plan_detail`
 ALTER TABLE `purchase_plan_detail`
 	ADD COLUMN `purchase_plan_detail_status` VARCHAR(50) NULL DEFAULT 'KONTRAK PENGADAAN' AFTER `purchase_plan_detail_total`,
 	ADD INDEX `purchase_plan_detail_status` (`purchase_plan_detail_status`);
+
+
+-- ubah urutan role name
+ALTER TABLE `user_role`
+	DROP FOREIGN KEY `FK_user_role_role`;
+
+UPDATE `role` SET `idrole`='2' WHERE  `idrole`=6;
+DELETE FROM `role` WHERE  `idrole`=4;
+DELETE FROM `role` WHERE  `idrole`=5;
+DELETE FROM `role` WHERE  `idrole`=7;
+DELETE FROM `role` WHERE  `idrole`=8;
+DELETE FROM `role` WHERE  `idrole`=9;
+DELETE FROM `role` WHERE  `idrole`=10;
+DELETE FROM `role` WHERE  `idrole`=11;
+DELETE FROM `role` WHERE  `idrole`=12;
+DELETE FROM `role` WHERE  `idrole`=13;
+DELETE FROM `role` WHERE  `idrole`=14;
+DELETE FROM `role` WHERE  `idrole`=15;
+
+ALTER TABLE `role`
+	AUTO_INCREMENT=3;
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'direktur', 'Direktur', 'Direktur', '2025-12-31 16:00:33', 'superadmin', '2025-12-31 16:00:38', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppa', 'PPA', 'PPA', '2025-12-31 16:02:08', 'superadmin', '2025-12-31 16:02:15', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'pptk', 'PPTK', 'PPTK', '2025-12-31 16:02:43', 'superadmin', '2025-12-31 16:02:49', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'user_spesifikasi', 'User Spesifikasi', 'User Spesifikasi', '2025-12-31 16:03:46', 'superadmin', '2025-12-31 16:03:51', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'ppk', 'PPK', 'PPK', '2025-12-31 16:04:17', 'superadmin', '2025-12-31 16:04:23', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'pp', 'PP', 'PP', '2025-12-31 16:04:47', 'superadmin', '2025-12-31 16:04:53', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'kontrak_pengadaan', 'Kontrak Pengadaan', 'Kontrak Pengadaan', '2025-12-31 16:05:26', 'superadmin', '2025-12-31 16:05:32', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'realisasi_anggaran', 'Realisasi Anggaran', 'Realisasi Anggaran', '2025-12-31 16:09:27', 'superadmin', '2025-12-31 16:09:34', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'verifikator', 'Verifikator', 'Verifikator', '2025-12-31 16:10:42', 'superadmin', '2025-12-31 16:10:48', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'npd', 'NPD', 'NPD', '2025-12-31 16:11:14', 'superadmin', '2025-12-31 16:11:20', 'superadmin');
+
+INSERT INTO `role` (`parent`, `name`, `title`, `description`, `created`, `createdby`, `updated`, `updatedby`) VALUES ('0', 'bendahara', 'Bendahara', 'Bendahara', '2025-12-31 16:11:45', 'superadmin', '2025-12-31 16:11:51', 'superadmin');
+
+ALTER TABLE `user_role`
+	ADD CONSTRAINT `FK_user_role_role` FOREIGN KEY (`idrole`) REFERENCES `role` (`idrole`) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+-- delete data table user role dahulu
+ALTER TABLE `user_role`
+	AUTO_INCREMENT=1;
+
+
+DELETE FROM `noval`.`user` WHERE  `iduser`=8;
+DELETE FROM `noval`.`user` WHERE  `iduser`=9;
+DELETE FROM `noval`.`user` WHERE  `iduser`=10;
+DELETE FROM `noval`.`user` WHERE  `iduser`=11;
+DELETE FROM `noval`.`user` WHERE  `iduser`=12;
+DELETE FROM `noval`.`user` WHERE  `iduser`=13;
+DELETE FROM `noval`.`user` WHERE  `iduser`=14;
+DELETE FROM `noval`.`user` WHERE  `iduser`=15;
+DELETE FROM `noval`.`user` WHERE  `iduser`=16;
+DELETE FROM `noval`.`user` WHERE  `iduser`=17;
+DELETE FROM `noval`.`user` WHERE  `iduser`=18;
+DELETE FROM `noval`.`user` WHERE  `iduser`=19;
+DELETE FROM `noval`.`user` WHERE  `iduser`=20;
+DELETE FROM `noval`.`user` WHERE  `iduser`=21;
+DELETE FROM `noval`.`user` WHERE  `iduser`=22;
+
+ALTER TABLE `user`
+	AUTO_INCREMENT=3;
