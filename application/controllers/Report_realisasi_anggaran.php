@@ -7,7 +7,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 
         $this->load->helper('az_auth');
         az_check_auth('role_report_realisasi_anggaran');
-        $this->table = 'transaction_detail';
+        $this->table = 'npd';
         $this->controller = 'report_realisasi_anggaran';
         $this->load->helper('az_crud');
         $this->load->helper('az_config');
@@ -19,7 +19,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal', 'Penyedia', 'Ruang', 'Uraian', 'Keterangan', 'Volume', 'LK', 'PR', 'Harga', 'Total'));
+		$crud->set_column(array('#', 'Tanggal', 'Penyedia', 'Ruang', 'Uraian', 'Keterangan', 'Volume', 'LK', 'PR', 'Harga Satuan', 'Total'));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
         $crud->set_btn_add(false);
@@ -41,7 +41,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
-		$crud->add_aodata('iduraian', 'iduraian');
+		$crud->add_aodata('idsub_kategori', 'idsub_kategori');
 
 		$filter = $this->load->view('report_realisasi_anggaran/vf_report_realisasi_anggaran', $data, true);
 		$crud->set_top_filter($filter);
@@ -65,119 +65,60 @@ class Report_realisasi_anggaran extends CI_Controller {
 
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$iduraian = $this->input->get('iduraian');
+		$idsub_kategori = $this->input->get('idsub_kategori');
 
-		$crud->set_select('idtransaction_detail, date_format(transaction_date, "%d-%m-%Y %H:%i:%s") as txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_detail.transaction_description, volume, laki, perempuan, harga_satuan, total');
-		$crud->set_select_table('idtransaction_detail, txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
-		$crud->set_filter('txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
-		$crud->set_sorting('txt_transaction_date, penyedia, nama_ruang, nama_sub_kategori, transaction_description, volume, laki, perempuan, harga_satuan, total');
+
+		$crud->set_select('npd.idnpd, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, budget_realization_detail.provider, ruang.nama_ruang, sub_kategori.nama_sub_kategori, budget_realization_detail.realization_detail_description, budget_realization_detail.volume, budget_realization_detail.male, budget_realization_detail.female, budget_realization_detail.unit_price, budget_realization_detail.total_realization_detail');
+		$crud->set_select_table('idnpd, txt_confirm_payment_date, provider, nama_ruang, nama_sub_kategori, realization_detail_description, volume, male, female, unit_price, total_realization_detail');
+
+		$crud->set_filter('txt_confirm_payment_date, provider, nama_ruang, nama_sub_kategori, realization_detail_description, volume, male, female, unit_price, total_realization_detail');
+		$crud->set_sorting('txt_confirm_payment_date, provider, nama_ruang, nama_sub_kategori, realization_detail_description, volume, male, female, unit_price, total_realization_detail');
+
 		$crud->set_select_align(', , , , , center, center, center, right, right');
 		$crud->set_id($this->controller);
 
-        $crud->add_join_manual('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-        $crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = transaction_detail.iduraian');
-        $crud->add_join_manual('ruang', 'ruang.idruang = transaction_detail.idruang', 'left');
+		$crud->add_join_manual('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$crud->add_join_manual('verification', 'verification.idverification = npd_detail.idverification');
+		$crud->add_join_manual('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+		$crud->add_join_manual('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
+        $crud->add_join_manual('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 
-		$crud->add_where('transaction.status = "1" ');
-		$crud->add_where('transaction.transaction_status != "DRAFT" ');
-		$crud->add_where('transaction_detail.status = "1" ');
+		$crud->add_where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$crud->add_where('npd.status = "1" ');
+		$crud->add_where('npd_detail.status = "1" ');
+		$crud->add_where('verification.status = "1" ');
+		$crud->add_where('budget_realization.status = "1" ');
+		$crud->add_where('budget_realization_detail.status = "1" ');
 
 		if (strlen($date1) > 0 && strlen($date2) > 0) {
-            $crud->add_where('date(transaction.transaction_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
-            $crud->add_where('date(transaction.transaction_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+            $crud->add_where('date(npd.confirm_payment_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $crud->add_where('date(npd.confirm_payment_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
-        if (strlen($iduraian) > 0) {
-			$crud->add_where('transaction_detail.iduraian = "' . $iduraian . '"');
+        if (strlen($idsub_kategori) > 0) {
+			$crud->add_where('budget_realization_detail.idsub_kategori = "' . $idsub_kategori . '"');
 		}
+
 		$crud->set_custom_style('custom_style');
 		$crud->set_table($this->table);
-		$crud->set_order_by('sub_kategori.nama_sub_kategori ASC, transaction_detail.idpaket_belanja ASC, transaction.transaction_date ASC');
+		$crud->set_order_by('npd.confirm_payment_date ASC, sub_kategori.nama_sub_kategori ASC');
 		echo $crud->get_table();
 	}
 
 	function custom_style($key, $value, $data) {
 
-		if ($key == 'harga_satuan') {
-			$harga_satuan = az_thousand_separator($value);
+		if ($key == 'unit_price') {
+			$unit_price = az_thousand_separator($value);
 
-			return $harga_satuan;
+			return $unit_price;
 		}
 
-        if ($key == 'total') {
-			$total = az_thousand_separator($value);
+        if ($key == 'total_realization_detail') {
+			$total_realization_detail = az_thousand_separator($value);
 
-			return $total;
+			return $total_realization_detail;
 		}
 
 		return $value;
-	}
-
-	public function save(){
-		$data = array();
-		$data_post = $this->input->post();
-		$idpost = azarr($data_post, 'id'.$this->table);
-		$data['sMessage'] = '';
-		
-		$this->load->library('form_validation');
-		$this->form_validation->set_error_delimiters('', '');
-
-		$this->form_validation->set_rules('no_rekening_urusan', 'No Rekening ', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('nama_urusan', 'Nama Urusan', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('tahun_anggaran_urusan', 'Tahun Anggaran', 'required|trim|max_length[200]');
-		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
-		
-		$err_code = 0;
-		$err_message = '';
-
-		if($this->form_validation->run() == TRUE){
-
-			$data_save = array(
-				'no_rekening_urusan' => azarr($data_post, 'no_rekening_urusan'), 
-				'nama_urusan' => azarr($data_post, 'nama_urusan'), 
-				'tahun_anggaran_urusan' => az_crud_number(azarr($data_post, 'tahun_anggaran_urusan')),
-				'is_active' => azarr($data_post, 'is_active'),
-			);
-
-			$response_save = az_crud_save($idpost, $this->table, $data_save);
-			$err_code = azarr($response_save, 'err_code');
-			$err_message = azarr($response_save, 'err_message');
-			$insert_id = azarr($response_save, 'insert_id');
-		}
-		else {
-			$err_code++;
-			$err_message = validation_errors();
-		}
-
-		$data["sMessage"] = $err_message;
-		echo json_encode($data);
-	}
-
-	public function edit() {
-		az_crud_edit('idurusan_pemerintah, no_rekening_urusan, nama_urusan, tahun_anggaran_urusan, is_active');
-	}
-
-	public function delete() {
-		$id = $this->input->post('id');
-
-		$err_code = 0;
-		$err_message = '';
-
-		// tambah validasi ketika urusan pemerintah sudah digunakan untuk bidang urusan
-		$this->db->where('status', 1);
-		$this->db->where('idurusan_pemerintah', $id);
-		$bu = $this->db->get('bidang_urusan');
-
-		if ($bu->num_rows() > 0) {
-			$data_return = array(
-                'err_code' => 1,
-                'err_message' => "Data tidak bisa dihapus karena sudah digunakan pada menu Bidang Urusan."
-            );
-
-			echo json_encode($data_return);
-		}
-		else {
-			az_crud_delete($this->table, $id);
-		}
-
 	}
 }
