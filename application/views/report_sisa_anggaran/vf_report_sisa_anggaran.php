@@ -30,7 +30,7 @@
         </div>
 
         <div>
-            <button class="btn btn-info btn-filter-evaluasi" id="btn_top_filter" type="button"><i class="fa fa-search"></i> &nbsp;Filter</button>
+            <button class="btn btn-info btn-filter-sisa-anggaran" id="btn_top_filter" type="button"><i class="fa fa-search"></i> &nbsp;Filter</button>
             <!-- <button class="btn btn-print-neraca btn-default"><i class="fa fa-print"></i> Cetak</button> -->
         </div>
     </div>

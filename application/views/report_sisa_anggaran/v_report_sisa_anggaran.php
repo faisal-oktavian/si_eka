@@ -123,11 +123,11 @@
                                                         <tr>
                                                             <td colspan="2"><?php // echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_subkategori'];?></td>
                                                             <td style="padding-left: 30px;"><?php echo $ds_value['nama_subkategori']; ?></td>
-                                                            <td align="center"><?php echo $ds_value['volume']; ?></td>
+                                                            <td align="center"><?php echo az_thousand_separator($ds_value['volume']); ?></td>
                                                             <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
                                                             <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
                                                             <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
-                                                            <td align="center"><?php echo $ds_value['sisa_volume']; ?></td>
+                                                            <td align="center"><?php echo az_thousand_separator($ds_value['sisa_volume']); ?></td>
                                                         </tr>
                                             <?php
                                                     }
@@ -147,11 +147,11 @@
                                                                 <?php // echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'].'.'.$ss_value['no_rekening_subkategori'];?>
                                                                 </td>
                                                                 <td style="padding-left: 50px;"><?php echo $ss_value['nama_subkategori'];?></td>
-                                                                <td align="center"><?php echo $ss_value['volume'];?></td>
+                                                                <td align="center"><?php echo az_thousand_separator($ss_value['volume']);?></td>
                                                                 <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                                                                 <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                                                                 <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
-                                                                <td align="center"><?php echo $ds_value['sisa_volume']; ?></td>
+                                                                <td align="center"><?php echo az_thousand_separator($ss_value['sisa_volume']); ?></td>
                                                             </tr>
                                             <?php
                                                         }
