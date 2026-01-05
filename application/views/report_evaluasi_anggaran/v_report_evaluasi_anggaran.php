@@ -147,12 +147,12 @@
                                                                     </td>
                                                                     <td align="center"><?php echo $ds_value['volume']; ?></td>
                                                                     <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
-                                                                    <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
-                                                                    <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
-                                                                    <td align="right"><?php echo az_thousand_separator($ds_value['realisasi_sampai_tw1']); ?></td>
-                                                                    <td align="right"><?php echo az_thousand_separator($ds_value['realisasi_sampai_tw2']); ?></td>
-                                                                    <td align="right"><?php echo az_thousand_separator($ds_value['realisasi_sampai_tw3']); ?></td>
-                                                                    <td align="right"><?php echo az_thousand_separator($ds_value['realisasi_sampai_tw4']); ?></td>
+                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
+                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
+                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw1']); ?></td>
+                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw2']); ?></td>
+                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw3']); ?></td>
+                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw4']); ?></td>
                                                                 </tr>
                                                         <?php
                                                             }
