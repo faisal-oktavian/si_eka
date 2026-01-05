@@ -668,6 +668,7 @@ class Evaluasi_anggaran extends CI_Controller {
 					'tahun_anggaran' => $tahun_anggaran,
 					'idpaket_belanja' => $idpaket_belanja,
 					'idsub_kategori' => $ds_value->idsub_kategori,
+					'idpaket_belanja_detail_sub' => $ds_value->idpaket_belanja_detail_sub,
 				);
 
 				$get_tw_sebelumnya = $this->get_tw_sebelumnya($arr_tw_sebelumnya);
@@ -923,6 +924,7 @@ class Evaluasi_anggaran extends CI_Controller {
 						'tahun_anggaran' => $tahun_anggaran,
 						'idpaket_belanja' => $idpaket_belanja,
 						'idsub_kategori' => $dss_value->idsub_kategori,
+						'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
 					);
 
 					$get_tw_sebelumnya = $this->get_tw_sebelumnya($arr_tw_sebelumnya);
@@ -936,29 +938,56 @@ class Evaluasi_anggaran extends CI_Controller {
 				for ($i=0; $i < 3; $i++) {
 					$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
 
-					$this->db->where('transaction.status', 1);
-					$this->db->where('transaction_detail.status', 1);
-					$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
-					$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
-					$this->db->where('transaction_detail.iduraian', $dss_value->idsub_kategori);
-					$this->db->where('transaction.transaction_status != "DRAFT" ');
-					$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-					$this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
-					MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
-					$trxd = $this->db->get('transaction_detail');
-					// echo "<pre>"; print_r($this->db->last_query());
+					$this->db->where('purchase_plan.status', 1);
+					$this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
+					$this->db->where('purchase_plan_detail.status', 1);
+					$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+					$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
+					$this->db->where('budget_realization_detail.idsub_kategori = "'.$dss_value->idsub_kategori.'" ');
+					$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $dss_value->idpaket_belanja_detail_sub);
 
-					if ($trxd->num_rows() > 0) {
+					$this->db->where('contract_detail.status', 1);
+					$this->db->where('contract.status', 1);
+					$this->db->where('budget_realization.status', 1);
+					$this->db->where('budget_realization_detail.status', 1);
+					$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+					$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+					$this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+					$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+					$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+					$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+
+					$this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
+					MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
+					$p_plan_d = $this->db->get('purchase_plan');
+					// echo "<pre>"; print_r($this->db->last_query());
+				
+
+					
+					// $this->db->where('transaction.status', 1);
+					// $this->db->where('transaction_detail.status', 1);
+					// $this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
+					// $this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+					// $this->db->where('transaction_detail.iduraian', $dss_value->idsub_kategori);
+					// $this->db->where('transaction.transaction_status != "DRAFT" ');
+					// $this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
+					// $this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
+					// MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
+					// $trxd = $this->db->get('transaction_detail');
+					
+
+					if ($p_plan_d->num_rows() > 0) {
 						if ($i == 0) {
-							$tanggal_bulan_ke_1 		= $trxd->row()->transaction_date;
-							$penyedia_bulan_ke_1 		= $trxd->row()->penyedia;
-							$volume_bulan_ke_1 			= $trxd->row()->volume;
-							$laki_bulan_ke_1 			= $trxd->row()->laki;
-							$perempuan_bulan_ke_1 		= $trxd->row()->perempuan;
-							$harga_satuan_bulan_ke_1 	= $trxd->row()->harga_satuan;
-							$ppn_bulan_ke_1 			= $trxd->row()->ppn;
-							$pph_bulan_ke_1 			= $trxd->row()->pph;
-							$total_bulan_ke_1 			= $trxd->row()->total;
+							$tanggal_bulan_ke_1 		= $p_plan_d->row()->purchase_plan_date;
+							$penyedia_bulan_ke_1 		= $p_plan_d->row()->provider;
+							$volume_bulan_ke_1 			= $p_plan_d->row()->volume;
+							$laki_bulan_ke_1 			= $p_plan_d->row()->male;
+							$perempuan_bulan_ke_1 		= $p_plan_d->row()->female;
+							$harga_satuan_bulan_ke_1 	= $p_plan_d->row()->unit_price;
+							$ppn_bulan_ke_1 			= $p_plan_d->row()->ppn;
+							$pph_bulan_ke_1 			= $p_plan_d->row()->pph;
+							$total_bulan_ke_1 			= $p_plan_d->row()->total;
 
 							$grand_bulan_ke_1 += $total_bulan_ke_1;
 							$realisasi_lk += $laki_bulan_ke_1;
@@ -967,15 +996,15 @@ class Evaluasi_anggaran extends CI_Controller {
 							$realisasi_rp += $total_bulan_ke_1;
 						}
 						else if ($i == 1) {
-							$tanggal_bulan_ke_2 		= $trxd->row()->transaction_date;
-							$penyedia_bulan_ke_2 		= $trxd->row()->penyedia;
-							$volume_bulan_ke_2 			= $trxd->row()->volume;
-							$laki_bulan_ke_2 			= $trxd->row()->laki;
-							$perempuan_bulan_ke_2 		= $trxd->row()->perempuan;
-							$harga_satuan_bulan_ke_2 	= $trxd->row()->harga_satuan;
-							$ppn_bulan_ke_2 			= $trxd->row()->ppn;
-							$pph_bulan_ke_2 			= $trxd->row()->pph;
-							$total_bulan_ke_2 			= $trxd->row()->total;
+							$tanggal_bulan_ke_2 		= $p_plan_d->row()->purchase_plan_date;
+							$penyedia_bulan_ke_2 		= $p_plan_d->row()->provider;
+							$volume_bulan_ke_2 			= $p_plan_d->row()->volume;
+							$laki_bulan_ke_2 			= $p_plan_d->row()->male;
+							$perempuan_bulan_ke_2 		= $p_plan_d->row()->female;
+							$harga_satuan_bulan_ke_2 	= $p_plan_d->row()->unit_price;
+							$ppn_bulan_ke_2 			= $p_plan_d->row()->ppn;
+							$pph_bulan_ke_2 			= $p_plan_d->row()->pph;
+							$total_bulan_ke_2 			= $p_plan_d->row()->total;
 
 							$grand_bulan_ke_2 += $total_bulan_ke_2;
 							$realisasi_lk += $laki_bulan_ke_2;
@@ -984,15 +1013,15 @@ class Evaluasi_anggaran extends CI_Controller {
 							$realisasi_rp += $total_bulan_ke_2;
 						}
 						else if ($i == 2) {
-							$tanggal_bulan_ke_3 		= $trxd->row()->transaction_date;
-							$penyedia_bulan_ke_3 		= $trxd->row()->penyedia;
-							$volume_bulan_ke_3 			= $trxd->row()->volume;
-							$laki_bulan_ke_3 			= $trxd->row()->laki;
-							$perempuan_bulan_ke_3 		= $trxd->row()->perempuan;
-							$harga_satuan_bulan_ke_3 	= $trxd->row()->harga_satuan;
-							$ppn_bulan_ke_3 			= $trxd->row()->ppn;
-							$pph_bulan_ke_3 			= $trxd->row()->pph;
-							$total_bulan_ke_3 			= $trxd->row()->total;
+							$tanggal_bulan_ke_3 		= $p_plan_d->row()->purchase_plan_date;
+							$penyedia_bulan_ke_3 		= $p_plan_d->row()->provider;
+							$volume_bulan_ke_3 			= $p_plan_d->row()->volume;
+							$laki_bulan_ke_3 			= $p_plan_d->row()->male;
+							$perempuan_bulan_ke_3 		= $p_plan_d->row()->female;
+							$harga_satuan_bulan_ke_3 	= $p_plan_d->row()->unit_price;
+							$ppn_bulan_ke_3 			= $p_plan_d->row()->ppn;
+							$pph_bulan_ke_3 			= $p_plan_d->row()->pph;
+							$total_bulan_ke_3 			= $p_plan_d->row()->total;
 
 							$grand_bulan_ke_3 += $total_bulan_ke_3;
 							$realisasi_lk += $laki_bulan_ke_3;
@@ -1174,6 +1203,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$tahun_anggaran = $the_data['tahun_anggaran'];
 		$idpaket_belanja = $the_data['idpaket_belanja'];
 		$idsub_kategori = $the_data['idsub_kategori'];
+		$idpaket_belanja_detail_sub = $the_data['idpaket_belanja_detail_sub'];
 
 		$realisasi_lk_sebelumnya = 0;
 		$realisasi_pr_sebelumnya = 0;
@@ -1193,24 +1223,50 @@ class Evaluasi_anggaran extends CI_Controller {
 		$filter_bulan = $tahun_anggaran.'-'.$sampai_bulan;
 		$awal_tahun = $tahun_anggaran.'-01-01';
 
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction_detail.status', 1);
-		$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") >= "'.Date('Y-m', strtotime($awal_tahun)).'"');
-		$this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") <= "'.Date('Y-m', strtotime($filter_bulan)).'"');
-		$this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
-		$this->db->where('transaction_detail.iduraian', $idsub_kategori);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
-		$this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
-		$this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
-        MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
-		$trxd = $this->db->get('transaction_detail');
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >= "'.Date('Y-m', strtotime($awal_tahun)).'"');
+		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <= "'.Date('Y-m', strtotime($filter_bulan)).'"');
+		$this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+
+		$this->db->where('contract_detail.status', 1);
+		$this->db->where('contract.status', 1);
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization_detail.status', 1);
+		$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+		$this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+
+		$this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
+		MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
+		$p_plan_d = $this->db->get('purchase_plan');
 		// echo "<pre>"; print_r($this->db->last_query());
 
-		if ($trxd->num_rows() > 0) {
-			$realisasi_lk_sebelumnya 	+= $trxd->row()->laki;
-			$realisasi_pr_sebelumnya 	+= $trxd->row()->perempuan;
-			$realisasi_vol_sebelumnya 	+= $trxd->row()->volume;
-			$realisasi_rp_sebelumnya 	+= $trxd->row()->total;
+		// $this->db->where('transaction.status', 1);
+		// $this->db->where('transaction_detail.status', 1);
+		// $this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") >= "'.Date('Y-m', strtotime($awal_tahun)).'"');
+		// $this->db->where('DATE_FORMAT(transaction.transaction_date, "%Y-%m") <= "'.Date('Y-m', strtotime($filter_bulan)).'"');
+		// $this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+		// $this->db->where('transaction_detail.iduraian', $idsub_kategori);
+		// $this->db->where('transaction.transaction_status != "DRAFT" ');
+		// $this->db->join('transaction', 'transaction.idtransaction = transaction_detail.idtransaction');
+		// $this->db->select('DATE_FORMAT(MAX(transaction.transaction_date), "%d-%m-%Y") as transaction_date, 
+        // MAX(penyedia) as penyedia, sum(volume) as volume, sum(laki) as laki, sum(perempuan) as perempuan, sum(harga_satuan) as harga_satuan, sum(ppn) as ppn, sum(pph) as pph, sum(total) as total');
+		// $trxd = $this->db->get('transaction_detail');
+		// // echo "<pre>"; print_r($this->db->last_query());
+
+		if ($p_plan_d->num_rows() > 0) {
+			$realisasi_lk_sebelumnya 	+= $p_plan_d->row()->male;
+			$realisasi_pr_sebelumnya 	+= $p_plan_d->row()->female;
+			$realisasi_vol_sebelumnya 	+= $p_plan_d->row()->volume;
+			$realisasi_rp_sebelumnya 	+= $p_plan_d->row()->total;
 		}
 
 		$return = array(
