@@ -468,7 +468,7 @@ class Report_evaluasi_anggaran extends CI_Controller {
 	function query_paket_belanja($idsub_kegiatan) {
 
 		// testing
-		$this->db->where('nama_paket_belanja = "Pengadaan Pakaian Dinas beserta Atribut Kelengkapannya" ');
+		// $this->db->where('nama_paket_belanja = "Pengadaan Pakaian Dinas beserta Atribut Kelengkapannya" ');
 
 
 		$this->db->where('paket_belanja.status', 1);
