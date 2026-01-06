@@ -88,6 +88,26 @@ class Evaluasi_anggaran extends CI_Controller {
 
 		$tahun_anggaran = azarr($the_data, 'tahun_anggaran');
 
+		
+		// Hitung total anggaran pada tahun ini
+		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->where('paket_belanja.status', 1);
+		$this->db->where('paket_belanja.is_active', 1);
+		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.$tahun_anggaran.'" ');
+		$this->db->select_sum('paket_belanja.nilai_anggaran');
+		$pb = $this->db->get('paket_belanja');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		$total_anggaran = 0;
+		if ($pb->num_rows() > 0) {
+			$total_anggaran = $pb->row()->nilai_anggaran;
+		}
+
 		$urusan_pemerintah = $this->query_urusan_pemerintah($tahun_anggaran);
 		// echo "<pre>"; print_r($this->db->last_query());
 
@@ -159,6 +179,9 @@ class Evaluasi_anggaran extends CI_Controller {
 								$total_data = 0;
 								$total_done = 0;
 								$total_potensi_sisa = 0;
+								$total_persentase_target = 0;
+								$total_persentase_realisasi = 0;
+								$total_realisasi_pb = 0;
 								foreach ($akun_belanja->result() as $pbd_key => $pbd_value) {
 									$idpaket_belanja_detail = $pbd_value->idpaket_belanja_detail;
 									$idakun_belanja = $pbd_value->idakun_belanja;
@@ -268,6 +291,8 @@ class Evaluasi_anggaran extends CI_Controller {
 										if ($p_plan->num_rows() > 0) {
 											if ($p_plan->row()->total != NULL) {
 												$nominal_realisasi = $p_plan->row()->total;
+												
+												$total_realisasi_pb += $nominal_realisasi;
 											}
 											
 											if (strlen($nominal_realisasi) > 0 && $nominal_realisasi != 0) {
@@ -330,11 +355,18 @@ class Evaluasi_anggaran extends CI_Controller {
 									$potensi_sisa = '-';
 								}
 
+								$total_persentase_target = ($nilai_anggaran / $total_anggaran) * 100;
+								$total_persentase_realisasi = ($total_realisasi_pb / $total_anggaran) * 100;
+
+
 								$arr_paket_belanja[] = array(
 									'idpaket_belanja' => $idpaket_belanja,
 									'nama_paket_belanja' => $nama_paket_belanja,
 									'nilai_anggaran' => $nilai_anggaran,
 									'potensi_sisa' => $potensi_sisa,
+									'total_realisasi_pb' => $total_realisasi_pb,
+									'total_persentase_target' => $total_persentase_target,
+									'total_persentase_realisasi' => $total_persentase_realisasi,
 									'akun_belanja' => $arr_akun_belanja,
 								);
 							}						
@@ -376,6 +408,7 @@ class Evaluasi_anggaran extends CI_Controller {
 
 		$return = array(
 			'tahun_anggaran' => $tahun_anggaran,
+			'total_anggaran' => $total_anggaran,
 			'urusan' => $arr_urusan,
 		);
 		// echo "<pre>"; print_r($return);die;

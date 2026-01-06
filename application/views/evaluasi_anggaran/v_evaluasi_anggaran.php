@@ -93,7 +93,17 @@
                         <tr>
                           <td>Potensi Sisa</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8">Rp. <?php echo $pb_value['potensi_sisa']; ?></td>
+                          <td colspan="8">Rp. <?php echo $pb_value['potensi_sisa']; ?></td> <!-- tidak perlu diformat nominal, karena sudah di format di controller -->
+                        </tr>
+                        <tr>
+                          <td>Persentase Target</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="8"><?php echo az_thousand_separator_decimal($pb_value['total_persentase_target']); ?> %</td>
+                        </tr>
+                        <tr>
+                          <td>Persentase Realisasi</td>
+                          <td class="titik-dua">:</td>
+                          <td colspan="8"><?php echo az_thousand_separator_decimal($pb_value['total_persentase_realisasi']); ?> %</td>
                         </tr>
 
                         <!-- Detail -->
