@@ -60,29 +60,31 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_bidang_urusan");
+		$this->db->order_by("bidang_urusan.nama_bidang_urusan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_bidang_urusan", $q);
-			$this->db->or_like("no_rekening_bidang_urusan", $q);
+			$this->db->like("bidang_urusan.nama_bidang_urusan", $q);
+			$this->db->or_like("bidang_urusan.no_rekening_bidang_urusan", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idbidang_urusan as id, concat(no_rekening_bidang_urusan, ' - ', nama_bidang_urusan) as text");
-		$this->db->where('status', '1');
+		$this->db->where('bidang_urusan.is_active','1');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("bidang_urusan.idbidang_urusan as id, concat(bidang_urusan.no_rekening_bidang_urusan, ' - ', bidang_urusan.nama_bidang_urusan, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
+		$this->db->where('bidang_urusan.status', '1');
 
 		$data = $this->db->get("bidang_urusan", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_bidang_urusan", $q);
-			$this->db->or_like("no_rekening_bidang_urusan", $q);
+			$this->db->like("bidang_urusan.nama_bidang_urusan", $q);
+			$this->db->or_like("bidang_urusan.no_rekening_bidang_urusan", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('bidang_urusan.is_active','1');
+		$this->db->where('bidang_urusan.status', '1');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("bidang_urusan");
 		$count = $cdata->num_rows();
 
@@ -107,29 +109,31 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_bidang_urusan");
+		$this->db->order_by("bidang_urusan.nama_bidang_urusan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_bidang_urusan", $q);
-			$this->db->or_like("no_rekening_bidang_urusan", $q);
+			$this->db->like("bidang_urusan.nama_bidang_urusan", $q);
+			$this->db->or_like("bidang_urusan.no_rekening_bidang_urusan", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idbidang_urusan as id, concat(no_rekening_bidang_urusan, ' - ', nama_bidang_urusan) as text");
-		$this->db->where('status', '1');
+		$this->db->where('bidang_urusan.idurusan_pemerintah', $parent);
+		$this->db->where('bidang_urusan.is_active','1');
+		$this->db->where('bidang_urusan.status', '1');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("bidang_urusan.idbidang_urusan as id, concat(bidang_urusan.no_rekening_bidang_urusan, ' - ', bidang_urusan.nama_bidang_urusan, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
 
 		$data = $this->db->get("bidang_urusan", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_bidang_urusan", $q);
-			$this->db->or_like("no_rekening_bidang_urusan", $q);
+			$this->db->like("bidang_urusan.nama_bidang_urusan", $q);
+			$this->db->or_like("bidang_urusan.no_rekening_bidang_urusan", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('bidang_urusan.idurusan_pemerintah', $parent);
+		$this->db->where('bidang_urusan.is_active','1');
+		$this->db->where('bidang_urusan.status', '1');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("bidang_urusan");
 		$count = $cdata->num_rows();
 
@@ -154,29 +158,33 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_program");
+		$this->db->order_by("program.nama_program");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_program", $q);
-			$this->db->or_like("no_rekening_program", $q);
+			$this->db->like("program.nama_program", $q);
+			$this->db->or_like("program.no_rekening_program", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idprogram as id, concat(no_rekening_program, ' - ', nama_program) as text");
-		$this->db->where('status', '1');
+		$this->db->where('program.is_active','1');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("program.idprogram as id, concat(program.no_rekening_program, ' - ', program.nama_program, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
+		$this->db->where('program.status', '1');
 
 		$data = $this->db->get("program", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_program", $q);
-			$this->db->or_like("no_rekening_program", $q);
+			$this->db->like("program.nama_program", $q);
+			$this->db->or_like("program.no_rekening_program", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('program.is_active','1');
+		$this->db->where('program.status', '1');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("program");
 		$count = $cdata->num_rows();
 
@@ -201,29 +209,33 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_program");
+		$this->db->order_by("program.nama_program");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_program", $q);
-			$this->db->or_like("no_rekening_program", $q);
+			$this->db->like("program.nama_program", $q);
+			$this->db->or_like("program.no_rekening_program", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idbidang_urusan', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idprogram as id, concat(no_rekening_program, ' - ', nama_program) as text");
-		$this->db->where('status', '1');
+		$this->db->where('program.idbidang_urusan', $parent);
+		$this->db->where('program.is_active','1');
+		$this->db->where('program.status', '1');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("program.idprogram as id, concat(program.no_rekening_program, ' - ', program.nama_program, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
 
 		$data = $this->db->get("program", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_program", $q);
-			$this->db->or_like("no_rekening_program", $q);
+			$this->db->like("program.nama_program", $q);
+			$this->db->or_like("program.no_rekening_program", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idbidang_urusan', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('program.idbidang_urusan', $parent);
+		$this->db->where('program.is_active','1');
+		$this->db->where('program.status', '1');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("program");
 		$count = $cdata->num_rows();
 
@@ -248,29 +260,35 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_kegiatan");
+		$this->db->order_by("kegiatan.nama_kegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_kegiatan", $q);
-			$this->db->or_like("no_rekening_kegiatan", $q);
+			$this->db->like("kegiatan.nama_kegiatan", $q);
+			$this->db->or_like("kegiatan.no_rekening_kegiatan", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idkegiatan as id, concat(no_rekening_kegiatan, ' - ', nama_kegiatan) as text");
-		$this->db->where('status', '1');
+		$this->db->where('kegiatan.is_active','1');
+		$this->db->where('kegiatan.status', '1');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("kegiatan.idkegiatan as id, concat(kegiatan.no_rekening_kegiatan, ' - ', kegiatan.nama_kegiatan, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
 
 		$data = $this->db->get("kegiatan", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_kegiatan", $q);
-			$this->db->or_like("no_rekening_kegiatan", $q);
+			$this->db->like("kegiatan.nama_kegiatan", $q);
+			$this->db->or_like("kegiatan.no_rekening_kegiatan", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('kegiatan.is_active','1');
+		$this->db->where('kegiatan.status', '1');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("kegiatan");
 		$count = $cdata->num_rows();
 
@@ -295,29 +313,35 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_kegiatan");
+		$this->db->order_by("kegiatan.nama_kegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_kegiatan", $q);
-			$this->db->or_like("no_rekening_kegiatan", $q);
+			$this->db->like("kegiatan.nama_kegiatan", $q);
+			$this->db->or_like("kegiatan.no_rekening_kegiatan", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idprogram', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idkegiatan as id, concat(no_rekening_kegiatan, ' - ', nama_kegiatan) as text");
-		$this->db->where('status', '1');
+		$this->db->where('kegiatan.idprogram', $parent);
+		$this->db->where('kegiatan.is_active','1');
+		$this->db->where('kegiatan.status', '1');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("kegiatan.idkegiatan as id, concat(kegiatan.no_rekening_kegiatan, ' - ', kegiatan.nama_kegiatan, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
 
 		$data = $this->db->get("kegiatan", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_kegiatan", $q);
-			$this->db->or_like("no_rekening_kegiatan", $q);
+			$this->db->like("kegiatan.nama_kegiatan", $q);
+			$this->db->or_like("kegiatan.no_rekening_kegiatan", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idprogram', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('kegiatan.idprogram', $parent);
+		$this->db->where('kegiatan.is_active','1');
+		$this->db->where('kegiatan.status', '1');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("kegiatan");
 		$count = $cdata->num_rows();
 
@@ -342,29 +366,37 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_subkegiatan");
+		$this->db->order_by("sub_kegiatan.nama_subkegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_subkegiatan", $q);
-			$this->db->or_like("no_rekening_subkegiatan", $q);
+			$this->db->like("sub_kegiatan.nama_subkegiatan", $q);
+			$this->db->or_like("sub_kegiatan.no_rekening_subkegiatan", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idsub_kegiatan id, concat(no_rekening_subkegiatan, ' - ', nama_subkegiatan) as text");
-		$this->db->where('status', '1');
+		$this->db->where('sub_kegiatan.is_active','1');
+		$this->db->where('sub_kegiatan.status', '1');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("sub_kegiatan.idsub_kegiatan id, concat(sub_kegiatan.no_rekening_subkegiatan, ' - ', sub_kegiatan.nama_subkegiatan, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
 
 		$data = $this->db->get("sub_kegiatan", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_subkegiatan", $q);
-			$this->db->or_like("no_rekening_subkegiatan", $q);
+			$this->db->like("sub_kegiatan.nama_subkegiatan", $q);
+			$this->db->or_like("sub_kegiatan.no_rekening_subkegiatan", $q);
 			$this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('sub_kegiatan.is_active','1');
+		$this->db->where('sub_kegiatan.status', '1');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("sub_kegiatan");
 		$count = $cdata->num_rows();
 
@@ -389,29 +421,37 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_subkegiatan");
+		$this->db->order_by("sub_kegiatan.nama_subkegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_subkegiatan", $q);
-			$this->db->or_like("no_rekening_subkegiatan", $q);
+			$this->db->like("sub_kegiatan.nama_subkegiatan", $q);
+			$this->db->or_like("sub_kegiatan.no_rekening_subkegiatan", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idkegiatan', $parent);
-		$this->db->where('is_active','1');
-		$this->db->select("idsub_kegiatan id, concat(no_rekening_subkegiatan, ' - ', nama_subkegiatan) as text");
-		$this->db->where('status', '1');
+		$this->db->where('sub_kegiatan.idkegiatan', $parent);
+		$this->db->where('sub_kegiatan.is_active','1');
+		$this->db->where('sub_kegiatan.status', '1');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->select("sub_kegiatan.idsub_kegiatan id, concat(sub_kegiatan.no_rekening_subkegiatan, ' - ', sub_kegiatan.nama_subkegiatan, ' (Tahun Anggaran ', urusan_pemerintah.tahun_anggaran_urusan, ')') as text");
 
 		$data = $this->db->get("sub_kegiatan", $limit, $offset);
 		
 		if (strlen($q) > 0) {
 			$this->db->group_start();
-			$this->db->like("nama_subkegiatan", $q);
-			$this->db->or_like("no_rekening_subkegiatan", $q);
+			$this->db->like("sub_kegiatan.nama_subkegiatan", $q);
+			$this->db->or_like("sub_kegiatan.no_rekening_subkegiatan", $q);
 			$this->db->group_end();
 		}
-		$this->db->where('idkegiatan', $parent);
-		$this->db->where('is_active','1');
-		$this->db->where('status', '1');
+		$this->db->where('sub_kegiatan.idkegiatan', $parent);
+		$this->db->where('sub_kegiatan.is_active','1');
+		$this->db->where('sub_kegiatan.status', '1');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$cdata = $this->db->get("sub_kegiatan");
 		$count = $cdata->num_rows();
 
