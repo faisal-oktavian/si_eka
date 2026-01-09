@@ -855,10 +855,25 @@ class Master_paket_belanja extends CI_Controller {
 
 		$this->load->library('form_validation');
 
-		if (aznav('role_select_ppkom_pptk') || aznav('role_special_paket_belanja')) {
-			$this->form_validation->set_rules('select_ppkom_pptk', 'Opsi PPKom/PPTK', 'required|trim|max_length[200]');
+
+		if ( aznav('role_view_paket_belanja')) {
+			// jika hak akses lihat saja
 		}
-		else {
+		else if ( aznav('role_select_ppkom_pptk') ) {
+			// jika hak akses pilih ppk / pp	
+			$this->form_validation->set_rules('select_ppkom_pptk', 'Opsi PPK/PP', 'required|trim|max_length[200]');
+		}
+		else if ( aznav('role_specification') ) {
+			// jika hak akses isi spesifikasi
+		}
+		else if ( aznav('role_special_paket_belanja') ) {
+			// jika hak akses Pilih PPK / PP, Isi Spesifikasi
+			$this->form_validation->set_rules('select_ppkom_pptk', 'Opsi PPK/PP', 'required|trim|max_length[200]');
+		}
+
+		if ( !aznav('role_view_paket_belanja') && !aznav('role_select_ppkom_pptk') && !aznav('role_specification') ) {
+			// jika hak akses bukan lihat saja, pilih ppk / pp, isi spesifikasi
+
 			$this->form_validation->set_rules('idprogram', 'Nama Program', 'required|trim|max_length[200]');
 			$this->form_validation->set_rules('idkegiatan', 'Nomor Kegiatan', 'required|trim|max_length[200]');
 			$this->form_validation->set_rules('idsub_kegiatan', 'Nomor Sub Kegiatan', 'required|trim|max_length[200]');
@@ -878,21 +893,24 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
-			if (aznav('role_select_ppkom_pptk') || aznav('role_special_paket_belanja')) {
-				$arr_data = array(
-					'select_ppkom_pptk' => $select_ppkom_pptk,
-				);
+			$arr_data = array();
+
+			if ( aznav('role_select_ppkom_pptk') ) {
+				$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
 			}
-			else {
-				$arr_data = array(
-					'idprogram' => $idprogram,
-					'idkegiatan' => $idkegiatan,
-					'idsub_kegiatan' => $idsub_kegiatan,
-					'nama_paket_belanja' => $nama_paket_belanja,
-					'nilai_anggaran' => $nilai_anggaran,
-					'status_paket_belanja' => "OK",
-				);
+			else if ( aznav('role_special_paket_belanja') ) {
+				$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
 			}
+
+			if ( !aznav('role_view_paket_belanja') && !aznav('role_select_ppkom_pptk') && !aznav('role_specification') ) {
+				$arr_data['idprogram'] = $idprogram;
+				$arr_data['idkegiatan'] = $idkegiatan;
+				$arr_data['idsub_kegiatan'] = $idsub_kegiatan;
+				$arr_data['nama_paket_belanja'] = $nama_paket_belanja;
+				$arr_data['nilai_anggaran'] = $nilai_anggaran;
+				$arr_data['status_paket_belanja'] = "OK";
+			}
+			// echo "<pre>"; print_r($arr_data);die;
 
 	    	az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
 		}
@@ -1054,14 +1072,14 @@ class Master_paket_belanja extends CI_Controller {
 
 		$this->db->where('idpaket_belanja_detail_sub', $id);
 		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
-		$this->db->select('idpaket_belanja, is_idpaket_belanja_detail_sub');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
 		$pb = $this->db->get('paket_belanja_detail_sub');
 		
 		// jika ada turunan
 		if (strlen($pb->row()->is_idpaket_belanja_detail_sub) > 0) {
-			$this->db->where('idpaket_belanja_detail_sub', $pb->row()->is_idpaket_belanja_detail_sub);
+			$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $pb->row()->is_idpaket_belanja_detail_sub);
 			$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-			$this->db->select('idpaket_belanja, is_idpaket_belanja_detail_sub');
+			$this->db->select('paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
 			$pb = $this->db->get('paket_belanja_detail_sub');
 		}
 		// echo "<pre>"; print_r($this->db->last_query());die;
