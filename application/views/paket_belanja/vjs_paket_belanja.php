@@ -47,3 +47,8 @@
 
         location.href = app_url + 'master_paket_belanja/edit/' + id + '/view_only';
 	});
+
+    jQuery('body').on('click', '.btn-copy-master_paket_belanja', function() {
+		var id = jQuery(this).attr('data_id');
+		location.href = app_url + 'master_paket_belanja/copy/' + id;
+	});

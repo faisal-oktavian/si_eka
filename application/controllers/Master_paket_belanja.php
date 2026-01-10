@@ -46,6 +46,10 @@ class Master_paket_belanja extends CI_Controller {
 		$vf = $this->load->view('paket_belanja/vf_paket_belanja', $data, true);
         $crud->set_top_filter($vf);
 
+		$crud->set_callback_edit('
+			check_copy();
+        ');
+
 		$crud = $crud->render();
 		$data['crud'] = $crud;
 		$data['active'] = 'pos';
@@ -127,6 +131,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
 			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
+			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-copy-master_paket_belanja" data_id="'.$idpaket_belanja.'"><i class="fa fa-file"></i> Copy</button>';
 
 			if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
 			&& strlen($idrole) > 0 ) {
@@ -203,6 +208,17 @@ class Master_paket_belanja extends CI_Controller {
 	}
 
 	function edit($id) {
+
+		$this->db->where('idpaket_belanja', $id);
+		$check = $this->db->get('paket_belanja');
+		if ($check->num_rows() == 0) {
+			redirect(app_url().'master_paket_belanja');
+		}
+
+		$this->add($id);
+	}
+
+	function copy($id) {
 
 		$this->db->where('idpaket_belanja', $id);
 		$check = $this->db->get('paket_belanja');
@@ -845,7 +861,10 @@ class Master_paket_belanja extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
+		$is_copy = $this->input->post('is_copy');
 		$idpaket_belanja = $this->input->post('hd_idpaket_belanja');
+		$_idpaket_belanja = $this->input->post('hd_idpaket_belanja');
+
 		$idprogram = $this->input->post("idprogram");
 		$idkegiatan = $this->input->post("idkegiatan");
 		$idsub_kegiatan = $this->input->post("idsub_kegiatan");
@@ -895,24 +914,175 @@ class Master_paket_belanja extends CI_Controller {
 		if ($err_code == 0) {
 			$arr_data = array();
 
-			if ( aznav('role_select_ppkom_pptk') ) {
-				$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
-			}
-			else if ( aznav('role_special_paket_belanja') ) {
-				$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
+			// jika menggunakan fitur copy data
+			if (strlen($is_copy) > 0) {
+				$idpaket_belanja = '';
 			}
 
-			if ( !aznav('role_view_paket_belanja') && !aznav('role_select_ppkom_pptk') && !aznav('role_specification') ) {
-				$arr_data['idprogram'] = $idprogram;
-				$arr_data['idkegiatan'] = $idkegiatan;
-				$arr_data['idsub_kegiatan'] = $idsub_kegiatan;
-				$arr_data['nama_paket_belanja'] = $nama_paket_belanja;
-				$arr_data['nilai_anggaran'] = $nilai_anggaran;
-				$arr_data['status_paket_belanja'] = "OK";
+			if (strlen($is_copy) == 0) {
+				if ( aznav('role_select_ppkom_pptk') ) {
+					$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
+				}
+				else if ( aznav('role_special_paket_belanja') ) {
+					$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
+				}
+
+				if ( !aznav('role_view_paket_belanja') && !aznav('role_select_ppkom_pptk') && !aznav('role_specification') ) {
+					$arr_data['idprogram'] = $idprogram;
+					$arr_data['idkegiatan'] = $idkegiatan;
+					$arr_data['idsub_kegiatan'] = $idsub_kegiatan;
+					$arr_data['nama_paket_belanja'] = $nama_paket_belanja;
+					$arr_data['nilai_anggaran'] = $nilai_anggaran;
+					$arr_data['status_paket_belanja'] = "OK";
+				}
 			}
+			else {
+				// jika menggunakan fitur copy data
+
+				$arr_data = array(
+					'idprogram' => $idprogram,
+					'idkegiatan' => $idkegiatan,
+					'idsub_kegiatan' => $idsub_kegiatan,
+					'nama_paket_belanja' => $nama_paket_belanja,
+					'nilai_anggaran' => $nilai_anggaran,
+					'status_paket_belanja' => "OK",
+					'select_ppkom_pptk' => $select_ppkom_pptk,
+				);
+			}
+			
 			// echo "<pre>"; print_r($arr_data);die;
 
-	    	az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
+	    	$save_paket_belanja = az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
+			$idpaket_belanja = azarr($save_paket_belanja, 'insert_id');
+
+
+			// jika menggunakan fitur copy data
+			if (strlen($is_copy) > 0) {
+				
+				// duplikat paket belanja detail
+				$this->db->where('status', 1);
+				$this->db->where('idpaket_belanja', $_idpaket_belanja);
+				$pbd = $this->db->get('paket_belanja_detail');
+
+				foreach ($pbd->result() as $key => $value) {
+					$arr_detail = array(
+						'idakun_belanja' => $value->idakun_belanja,
+						'idpaket_belanja' => $idpaket_belanja,
+					);
+
+					$save_paket_belanja_detail = az_crud_save('', 'paket_belanja_detail', $arr_detail);
+					$idpaket_belanja_detail = azarr($save_paket_belanja_detail, 'insert_id');
+
+
+					// duplikat paket belanja detail sub
+					$this->db->where('status', 1);
+					$this->db->where('is_idpaket_belanja_detail_sub IS NULL');
+					$this->db->where('idpaket_belanja', $_idpaket_belanja);
+					$this->db->where('idpaket_belanja_detail', $value->idpaket_belanja_detail);
+					$pbds = $this->db->get('paket_belanja_detail_sub');
+
+					foreach ($pbds->result() as $skey => $svalue) {
+						$arr_sub = array(
+							'idkategori'					=> $svalue->idkategori,
+							'idsub_kategori'				=> $svalue->idsub_kategori,
+							'idpaket_belanja'				=> $idpaket_belanja,
+							'idpaket_belanja_detail'		=> $idpaket_belanja_detail,
+							'is_idpaket_belanja_detail_sub'	=> null,
+							'status_detail_step'			=> null,
+							'volume'						=> $svalue->volume,
+							'volume_realization'			=> 0,
+							'idsatuan'						=> $svalue->idsatuan,
+							'harga_satuan'					=> $svalue->harga_satuan,
+							'jumlah'						=> $svalue->jumlah,
+							'is_kategori'					=> $svalue->is_kategori,
+							'is_subkategori'				=> $svalue->is_subkategori,
+							'spesifikasi'					=> $svalue->spesifikasi,
+							'link_url'						=> $svalue->link_url,
+							'rak_volume_januari'			=> $svalue->rak_volume_januari,
+							'rak_jumlah_januari'			=> $svalue->rak_jumlah_januari,
+							'rak_volume_februari'			=> $svalue->rak_volume_februari,
+							'rak_jumlah_februari'			=> $svalue->rak_jumlah_februari,
+							'rak_volume_maret'				=> $svalue->rak_volume_maret,
+							'rak_jumlah_maret'				=> $svalue->rak_jumlah_maret,
+							'rak_volume_april'				=> $svalue->rak_volume_april,
+							'rak_jumlah_april'				=> $svalue->rak_jumlah_april,
+							'rak_volume_mei'				=> $svalue->rak_volume_mei,
+							'rak_jumlah_mei'				=> $svalue->rak_jumlah_mei,
+							'rak_volume_juni'				=> $svalue->rak_volume_juni,
+							'rak_jumlah_juni'				=> $svalue->rak_jumlah_juni,
+							'rak_volume_juli'				=> $svalue->rak_volume_juli,
+							'rak_jumlah_juli'				=> $svalue->rak_jumlah_juli,
+							'rak_volume_agustus'			=> $svalue->rak_volume_agustus,
+							'rak_jumlah_agustus'			=> $svalue->rak_jumlah_agustus,
+							'rak_volume_september'			=> $svalue->rak_volume_september,
+							'rak_jumlah_september'			=> $svalue->rak_jumlah_september,
+							'rak_volume_oktober'			=> $svalue->rak_volume_oktober,
+							'rak_jumlah_oktober'			=> $svalue->rak_jumlah_oktober,
+							'rak_volume_november'			=> $svalue->rak_volume_november,
+							'rak_jumlah_november'			=> $svalue->rak_jumlah_november,
+							'rak_volume_desember'			=> $svalue->rak_volume_desember,
+							'rak_jumlah_desember'			=> $svalue->rak_jumlah_desember,
+						);
+
+						$save_sub = az_crud_save('', 'paket_belanja_detail_sub', $arr_sub);
+						$idpaket_belanja_detail_sub = azarr($save_sub, 'insert_id');
+
+
+						// duplikat paket belanja detail sub parent
+						$this->db->where('status', 1);
+						$this->db->where('is_idpaket_belanja_detail_sub IS NOT NULL');
+						$this->db->where('is_idpaket_belanja_detail_sub', $svalue->idpaket_belanja_detail_sub);
+						$pbdsp = $this->db->get('paket_belanja_detail_sub');
+
+						foreach ($pbdsp->result() as $spkey => $spvalue) {
+							$arr_sub_parent = array(
+								'idkategori'					=> $spvalue->idkategori,
+								'idsub_kategori'				=> $spvalue->idsub_kategori,
+								'idpaket_belanja'				=> null,
+								'idpaket_belanja_detail'		=> null,
+								'is_idpaket_belanja_detail_sub'	=> $idpaket_belanja_detail_sub,
+								'status_detail_step'			=> null,
+								'volume'						=> $spvalue->volume,
+								'volume_realization'			=> 0,
+								'idsatuan'						=> $spvalue->idsatuan,
+								'harga_satuan'					=> $spvalue->harga_satuan,
+								'jumlah'						=> $spvalue->jumlah,
+								'is_kategori'					=> $spvalue->is_kategori,
+								'is_subkategori'				=> $spvalue->is_subkategori,
+								'spesifikasi'					=> $spvalue->spesifikasi,
+								'link_url'						=> $spvalue->link_url,
+								'rak_volume_januari'			=> $spvalue->rak_volume_januari,
+								'rak_jumlah_januari'			=> $spvalue->rak_jumlah_januari,
+								'rak_volume_februari'			=> $spvalue->rak_volume_februari,
+								'rak_jumlah_februari'			=> $spvalue->rak_jumlah_februari,
+								'rak_volume_maret'				=> $spvalue->rak_volume_maret,
+								'rak_jumlah_maret'				=> $spvalue->rak_jumlah_maret,
+								'rak_volume_april'				=> $spvalue->rak_volume_april,
+								'rak_jumlah_april'				=> $spvalue->rak_jumlah_april,
+								'rak_volume_mei'				=> $spvalue->rak_volume_mei,
+								'rak_jumlah_mei'				=> $spvalue->rak_jumlah_mei,
+								'rak_volume_juni'				=> $spvalue->rak_volume_juni,
+								'rak_jumlah_juni'				=> $spvalue->rak_jumlah_juni,
+								'rak_volume_juli'				=> $spvalue->rak_volume_juli,
+								'rak_jumlah_juli'				=> $spvalue->rak_jumlah_juli,
+								'rak_volume_agustus'			=> $spvalue->rak_volume_agustus,
+								'rak_jumlah_agustus'			=> $spvalue->rak_jumlah_agustus,
+								'rak_volume_september'			=> $spvalue->rak_volume_september,
+								'rak_jumlah_september'			=> $spvalue->rak_jumlah_september,
+								'rak_volume_oktober'			=> $spvalue->rak_volume_oktober,
+								'rak_jumlah_oktober'			=> $spvalue->rak_jumlah_oktober,
+								'rak_volume_november'			=> $spvalue->rak_volume_november,
+								'rak_jumlah_november'			=> $spvalue->rak_jumlah_november,
+								'rak_volume_desember'			=> $spvalue->rak_volume_desember,
+								'rak_jumlah_desember'			=> $spvalue->rak_jumlah_desember,
+							);
+
+							$save_sub_parent = az_crud_save('', 'paket_belanja_detail_sub', $arr_sub_parent);
+							$idpaket_belanja_detail_sub = azarr($save_sub_parent, 'insert_id');
+						}
+					}
+				}
+			}
 		}
 
 		$return = array(
@@ -1132,6 +1302,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$pp = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		if ($pp->num_rows() > 0) {
 			$err_code++;

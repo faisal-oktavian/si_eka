@@ -53,6 +53,7 @@
                             <button class="btn btn-default btn-xs btn-edit-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
                             <button class="btn btn-danger btn-xs btn-delete-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
                             <button class="btn btn-success btn-xs btn-specification" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Isi Spesifikasi</button>
+                            <button class="btn btn-info btn-xs copy-detail btn-edit-detail" type="button" data-id="<?php echo $sub_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-file"></i> Copy</button>
                         </td>
                     </tr>
         <?php
@@ -115,6 +116,7 @@
                                 <button class="btn btn-default btn-xs btn-edit-detail" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
                                 <button class="btn btn-danger btn-xs btn-delete-detail" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-times"></i> Hapus</button>
                                 <button class="btn btn-success btn-xs btn-specification" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-pencil-alt"></i> Isi Spesifikasi</button>
+                                <button class="btn btn-info btn-xs copy-detail btn-edit-detail" type="button" data-id="<?php echo $ss_value['idpaket_belanja_detail_sub'];?>"><i class="fa fa-file"></i> Copy</button>
                             </td>
                         </tr>
         <?php

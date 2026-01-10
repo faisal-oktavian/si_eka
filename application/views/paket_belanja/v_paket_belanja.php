@@ -11,6 +11,7 @@
 <form class="form-horizontal row" id="form_paket_belanja">
 	<div class="col-md-6">
 		<input type="hidden" id="hd_idpaket_belanja" name="hd_idpaket_belanja" value="<?php echo $id;?>">
+		<input type="hidden" id="is_copy" name="is_copy">
 
 		<div class="form-group">
 			<label class="control-label col-sm-4">Nama Program</label>

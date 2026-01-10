@@ -5,6 +5,7 @@
 	<input type="hidden" id="hds_is_subkategori" name="hds_is_subkategori" class="x-hidden">
 	<input type="hidden" id="hds_idds_parent" name="hds_idds_parent" class="x-hidden">
 	<input type="hidden" id="hds_is_edit" name="hds_is_edit" class="x-hidden" value="0">
+	<input type="hidden" id="hds_is_copy" name="hds_is_copy" class="x-hidden">
 	
     <div class="form-group">
 		<label class="control-label col-md-3">Sub Kategori <red>*</red></label>

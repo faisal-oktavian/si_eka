@@ -10,6 +10,12 @@
 					} else {
 						echo "false";
 					} ?>;
+
+	var is_copy = <?php if ($this->uri->segment(2) == 'copy') {
+						echo "true";
+					} else {
+						echo "false";
+					} ?>;
 					
 	var role_ppkom_pptk = <?php if (aznav('role_select_ppkom_pptk')) {
 							echo "true";
@@ -67,6 +73,10 @@
 				jQuery('#table_onthespot').find('.btn-specification').show();
 			}, 500);
 		}
+	}
+
+	if (is_copy == true) {
+		jQuery('#form_paket_belanja').find('#is_copy').val('1');
 	}
 
     jQuery('body').on('click', '#btn_add_akun_belanja', function() {
@@ -151,10 +161,17 @@
                 if (response.err_code == 0) {
 					bootbox.alert("Data Berhasil Disimpan.");
 
-					setTimeout(function() {
-						// location.href = app_url + 'master_paket_belanja/edit/' + idpaket_belanja;
-						location.reload();
-					}, 2000);					
+					if (is_copy == true) {
+						setTimeout(function() {
+							location.href = app_url + 'master_paket_belanja';
+						}, 2000);
+					}
+					else {
+						setTimeout(function() {
+							// location.href = app_url + 'master_paket_belanja/edit/' + idpaket_belanja;
+							location.reload();
+						}, 2000);
+					}
                 }
                 else {
                     bootbox.alert(response.err_message);
@@ -364,6 +381,8 @@
 				setTimeout(function() {
 					jQuery('.kode-rekening').val(response.data.kode_rekening);
 				}, 1000);
+
+				jQuery('#hds_is_copy').val('');
 
 				if (response.data.idkategori !== null) {
 					show_modal('add_kategori');
@@ -637,3 +656,21 @@
 			error: function(response) {}
 		});
 	});
+
+
+	jQuery('body').on('click', '.copy-detail', function() {
+		setTimeout(function() {
+			jQuery('#form_add_subkategori').find('#hds_is_copy').val('1');
+			check_copy();
+		}, 1000);
+	});
+
+	function check_copy() {
+		var is_copy = jQuery('#hds_is_copy').val();
+		if (is_copy == '1') {
+			// setTimeout(function() {
+			// 	console.log('oke');
+			// }, 2000);
+			jQuery('#hds_idpb_detail_sub').val('');
+		}
+	}
