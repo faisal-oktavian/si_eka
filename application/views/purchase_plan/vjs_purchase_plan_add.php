@@ -101,6 +101,10 @@
 
 	// perhitungan total anggaran per uraian
     jQuery('#form_add').on('keyup', '.volume', function() {
+		calculate();
+	});
+
+	function calculate() {
 		var volume			=  jQuery('#volume').val();
 		var harga_satuan 	=  jQuery('#harga_satuan').val();
 
@@ -111,7 +115,7 @@
 
 		console.log('jumlah '+jumlah);
 		jQuery('#purchase_plan_detail_total').val(jumlah);
-	});
+	}
 
 	// modal simpan uraian
     jQuery('body').on('click', '.btn-action-save_uraian', function() {

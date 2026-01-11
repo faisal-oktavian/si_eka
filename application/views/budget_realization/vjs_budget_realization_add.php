@@ -324,6 +324,10 @@
 	}
 
 	jQuery('#form_add').on('keyup', '.volume, .unit-price, .ppn, .pph', function() {
+		calculate();
+	});
+
+	function calculate() {
 		var volume			=  jQuery('#volume').val();
 		var unit_price 		=  jQuery('#unit_price').val();
 		var ppn 			=  jQuery('#ppn').val() || 0;
@@ -338,7 +342,7 @@
 
 		console.log('total '+total);
 		jQuery('.total-realization-detail').val(thousand_separator(total));
-	});
+	}
 
 	function reset_form_modal() {
 		jQuery('.male').val('');

@@ -573,4 +573,28 @@ jQuery(document).ready(function(){
             jQuery(this).parents('tr').toggleClass('selected');
         }
     });
+
+    jQuery("body").on('paste', '.format-number', function (e) {
+		var clipboardData = e.originalEvent.clipboardData || window.clipboardData;
+		var pastedData = clipboardData.getData('text');
+
+		// ❌ Tolak jika mengandung karakter selain angka, koma, titik
+		if (!/^[0-9.,]+$/.test(pastedData)) {
+			e.preventDefault();
+			return;
+		}
+
+		// Stop paste default
+		e.preventDefault();
+
+		// Bersihkan pemisah lama
+		pastedData = pastedData.replace(/[.,]/g, '');
+
+		// Format ribuan
+		pastedData = thousand_separator(pastedData);
+
+		jQuery(this).val(pastedData);
+
+		calculate();
+	});
 });

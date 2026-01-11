@@ -478,6 +478,10 @@
 	});
 
 	jQuery('#form_add_subkategori').on('keyup', '.volume, .harga-satuan', function() {
+		calculate();
+	});
+
+	function calculate() {
 		var volume			=  jQuery('#volume').val();
 		var harga_satuan 	=  jQuery('#harga_satuan').val();
 
@@ -562,7 +566,7 @@
 		if (rak_volume_desember != '' && rak_volume_desember != null) {
 			jQuery('#rak_jumlah_desember').val(thousand_separator(rak_jumlah_desember));
 		}
-	});
+	}
 
 	jQuery('body').on('change', '#idsub_kategori', function() {
 		var id = jQuery(this).val();

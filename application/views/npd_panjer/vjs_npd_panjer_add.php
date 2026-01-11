@@ -229,6 +229,10 @@
 	}
 
 	jQuery('#form_add').on('keyup', '.volume, .harga-satuan, .ppn, .pph', function() {
+		calculate();
+	});
+
+	function calculate() {
 		var volume			=  jQuery('#volume').val();
 		var harga_satuan 	=  jQuery('#harga_satuan').val();
 		var ppn 			=  jQuery('#ppn').val() || 0;
@@ -243,7 +247,7 @@
 
 		console.log('total '+total);
 		jQuery('#total').val(thousand_separator(total));
-	});
+	}
 
 	jQuery('body').on('click', '.btn-action-save', function() {
 		var npd_panjer_date = jQuery('#npd_panjer_date').val();
