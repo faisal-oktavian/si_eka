@@ -67,7 +67,8 @@ class Home extends AZ_Controller {
 		for ($bulan = 1; $bulan <= 12; $bulan++) {
 
 		    // Target: total anggaran paket belanja yang aktif dan OK
-			$this->db->where('YEAR(pb.created)', $tahun_ini);
+			// $this->db->where('YEAR(pb.created)', $tahun_ini);
+			$this->db->where('YEAR(urusan_pemerintah.tahun_anggaran_urusan)', $tahun_ini);
 			$this->db->where('pb.status_paket_belanja = "OK" ');
 			$this->db->where('pb.is_active = 1');
 			$this->db->where('pb.status = 1');
@@ -89,6 +90,11 @@ class Home extends AZ_Controller {
 				)', 
 				'left', false // false = tidak di-escape (untuk subquery)
 			);
+			$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = pb.idsub_kegiatan');
+			$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+			$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+			$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+			$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 
 			if ($bulan == 1) {
 				$this->db->select('sum(rak_jumlah_januari) as nilai_anggaran');	
@@ -396,10 +402,17 @@ class Home extends AZ_Controller {
 			$this->db->where('paket_belanja.status', 1);
 			$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
 			$this->db->where('paket_belanja.is_active', 1);
-			$this->db->where('YEAR(paket_belanja.created) = "'.$tahun_ini.'" ');
+			// $this->db->where('YEAR(paket_belanja.created) = "'.$tahun_ini.'" ');
+			$this->db->where('YEAR(urusan_pemerintah.tahun_anggaran_urusan) = "'.$tahun_ini.'" ');
 			$this->db->where('paket_belanja.idpaket_belanja NOT IN ('.$data_idpaket_belanja.') ');
 			$this->db->where('paket_belanja.nilai_anggaran > 0');
-			$this->db->select('sum(nilai_anggaran) as total_yang_belum_direalisasi');
+
+			$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+			$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+			$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+			$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+			$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+			$this->db->select('sum(paket_belanja.nilai_anggaran) as total_yang_belum_direalisasi');
 			$paket_belanja = $this->db->get('paket_belanja');
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -880,10 +893,13 @@ class Home extends AZ_Controller {
 		$this->db->join('sub_kegiatan sk', 'sk.idsub_kegiatan = pb.idsub_kegiatan');
 		$this->db->join('kegiatan k', 'k.idkegiatan = sk.idkegiatan');
 		$this->db->join('program p', 'p.idprogram = k.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = p.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$this->db->join('paket_belanja_detail pbd', 'pbd.idpaket_belanja = pb.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds', 'pbds.idpaket_belanja_detail = pbd.idpaket_belanja_detail');
 
-		$this->db->where('YEAR(pb.created) = "'.$tahun_ini.'" ');
+		// $this->db->where('YEAR(pb.created) = "'.$tahun_ini.'" ');
+		$this->db->where('YEAR(urusan_pemerintah.tahun_anggaran_urusan) = "'.$tahun_ini.'" ');
 		$this->db->where('pb.status_paket_belanja', 'OK');
 		$this->db->where('pb.is_active', 1);
 		$this->db->where('pb.status', 1);
@@ -911,11 +927,14 @@ class Home extends AZ_Controller {
 		$this->db->join('sub_kegiatan sk', 'sk.idsub_kegiatan = pb.idsub_kegiatan');
 		$this->db->join('kegiatan k', 'k.idkegiatan = sk.idkegiatan');
 		$this->db->join('program p', 'p.idprogram = k.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = p.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 		$this->db->join('paket_belanja_detail pbd', 'pbd.idpaket_belanja = pb.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbds_parent.idpaket_belanja_detail = pbd.idpaket_belanja_detail');
 		$this->db->join('paket_belanja_detail_sub pbds', 'pbds.is_idpaket_belanja_detail_sub = pbds_parent.idpaket_belanja_detail_sub');
 
-		$this->db->where('YEAR(pb.created) = "'.$tahun_ini.'" ');
+		// $this->db->where('YEAR(pb.created) = "'.$tahun_ini.'" ');
+		$this->db->where('YEAR(urusan_pemerintah.tahun_anggaran_urusan) = "'.$tahun_ini.'" ');
 		$this->db->where('pb.status_paket_belanja', 'OK');
 		$this->db->where('pb.is_active', 1);
 		$this->db->where('pb.status', 1);
