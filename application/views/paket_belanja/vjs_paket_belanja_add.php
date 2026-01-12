@@ -277,6 +277,8 @@
 
 		jQuery("#idkategori").select2("val", "");
 		jQuery('#is_edit').val('0');
+
+		jQuery('#form_add_kategori input, #form_add_kategori select').val('').trigger('change.select2');
 		
 		jQuery('#hd_idpaket_belanja').val(idpaket_belanja);
 		jQuery('#hd_idpaket_belanja_detail').val(idpaket_belanja_detail);
@@ -325,7 +327,8 @@
 		jQuery("#idsub_kategori").select2("val", "");
 		jQuery('#hds_is_edit').val('0');
 
-		jQuery('#form_add_subkategori input, #form_add_subkategori select').not('.x-hidden').val('').trigger('change.select2');
+		// jQuery('#form_add_subkategori input, #form_add_subkategori select').not('.x-hidden').val('').trigger('change.select2');
+		jQuery('#form_add_subkategori input, #form_add_subkategori select').val('').trigger('change.select2');
 		
 		jQuery('#hds_idpaket_belanja').val(idpaket_belanja);
 		jQuery('#hds_idpaket_belanja_detail').val(idpaket_belanja_detail);

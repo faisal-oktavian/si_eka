@@ -397,6 +397,8 @@ class Master_paket_belanja extends CI_Controller {
 	function add_subkategori() {
 		$err_code = 0;
 		$err_message = '';
+		$idpaket_belanja = '';
+		$total_jumlah = 0;
 
 	 	$idpb_detail_sub = $this->input->post('hds_idpb_detail_sub');
 	 	$idpaket_belanja_detail = $this->input->post('hds_idpaket_belanja_detail');
@@ -950,6 +952,7 @@ class Master_paket_belanja extends CI_Controller {
 				);
 			}
 			
+			// var_dump($idpaket_belanja); echo "<pre>";
 			// echo "<pre>"; print_r($arr_data);die;
 
 	    	$save_paket_belanja = az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);

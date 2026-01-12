@@ -208,11 +208,6 @@
 				jQuery('#provider').val(response.data.provider);
 				jQuery("#idruang").append(new Option(response.data.ajax_idruang, response.data.idruang, true, true)).trigger('change.select2');
 				jQuery('#training_name').val(response.data.training_name);
-				jQuery('#volume').val(response.data.volume);
-				jQuery('#unit_price').val(thousand_separator(response.data.unit_price));
-				jQuery('#ppn').val(thousand_separator(response.data.ppn));
-				jQuery('#pph').val(thousand_separator(response.data.pph));
-				jQuery('#total_realization_detail').val(thousand_separator(response.data.total_realization_detail));
 
 				get_validate_gender(response.data.idsub_kategori);
 				get_validate_description(response.data.idsub_kategori);
@@ -225,7 +220,13 @@
 					jQuery('#realization_detail_description').val(response.data.realization_detail_description);
 					jQuery('#idruang').val(response.data.idruang);
 					jQuery('#name_training').val(response.data.name_training);
-				}, 500);
+
+					jQuery('#volume').val(response.data.volume);
+					jQuery('#unit_price').val(thousand_separator(response.data.unit_price));
+					jQuery('#ppn').val(thousand_separator(response.data.ppn));
+					jQuery('#pph').val(thousand_separator(response.data.pph));
+					jQuery('#total_realization_detail').val(thousand_separator(response.data.total_realization_detail));
+				}, 700);
 			},
 			error: function(response) {}
 		});
