@@ -131,7 +131,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
 			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
-			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-copy-master_paket_belanja" data_id="'.$idpaket_belanja.'"><i class="fa fa-file"></i> Copy</button>';
+			// $btn .= '<button class="btn btn-info btn-xs btn-copy btn-copy-master_paket_belanja" data_id="'.$idpaket_belanja.'"><i class="fa fa-file"></i> Copy</button>';
 
 			if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
 			&& strlen($idrole) > 0 ) {
