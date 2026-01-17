@@ -189,13 +189,41 @@ class Master_paket_belanja extends CI_Controller {
 		$modal3->set_action_modal(array('save_subkategori'=>'Simpan'));
 		$azapp->add_content($modal3->render());
 
-		$v_modal2 = $this->load->view('paket_belanja/v_spesifikasi_modal', $data, true);
-		$modal2 = $azapp->add_modal();
-		$modal2->set_id('add_spesifikasi');
-		$modal2->set_modal_title('Tambah Spesifikasi');
-		$modal2->set_modal($v_modal2);
-		$modal2->set_action_modal(array('save_spesifikasi'=>'Simpan'));
-		$azapp->add_content($modal2->render());
+		$v_modal4 = $this->load->view('paket_belanja/v_spesifikasi_modal', $data, true);
+		$modal4 = $azapp->add_modal();
+		$modal4->set_id('add_spesifikasi');
+		$modal4->set_modal_title('Tambah Spesifikasi');
+		$modal4->set_modal($v_modal4);
+		$modal4->set_action_modal(array('save_spesifikasi'=>'Simpan'));
+		$azapp->add_content($modal4->render());
+
+
+		// tambah master akun belanja
+		$v_modal5 = $this->load->view('paket_belanja/v_new_akunbelanja', $data, true);
+		$modal5 = $azapp->add_modal();
+		$modal5->set_id('add_new_akunbelanja');
+		$modal5->set_modal_title('Tambah Akun Belanja');
+		$modal5->set_modal($v_modal5);
+		$modal5->set_action_modal(array('save_new_akunbelanja'=>'Simpan'));
+		$azapp->add_content($modal5->render());
+
+		// tambah master kategori
+		$v_modal6 = $this->load->view('paket_belanja/v_new_kategori', $data, true);
+		$modal6 = $azapp->add_modal();
+		$modal6->set_id('add_new_kategori');
+		$modal6->set_modal_title('Tambah Kategori');
+		$modal6->set_modal($v_modal6);
+		$modal6->set_action_modal(array('save_new_kategori'=>'Simpan'));
+		$azapp->add_content($modal6->render());
+
+		// tambah master sub kategori
+		$v_modal7 = $this->load->view('paket_belanja/v_new_subkategori', $data, true);
+		$modal7 = $azapp->add_modal();
+		$modal7->set_id('add_new_subkategori');
+		$modal7->set_modal_title('Tambah Sub Kategori');
+		$modal7->set_modal($v_modal7);
+		$modal7->set_action_modal(array('save_new_subkategori'=>'Simpan'));
+		$azapp->add_content($modal7->render());
 		
 		$js = az_add_js('paket_belanja/vjs_paket_belanja_add', $data);
 		$azapp->add_js($js);
@@ -1292,6 +1320,195 @@ class Master_paket_belanja extends CI_Controller {
 			'idpaket_belanja' => $idpaket_belanja,
 		);
 		echo json_encode($return);
+	}
+
+	// duplikat fungsi save di kontroller master_akun_belanja
+	public function save_akunbelanja(){
+		$data = array();
+		$data_post = $this->input->post();
+		$idpost = azarr($data_post, 'id'.$this->table);
+		
+		$this->load->library('form_validation');
+		$this->form_validation->set_error_delimiters('', '<br>');
+
+		$this->form_validation->set_rules('no_rekening_akunbelanja', 'No Rekening ', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('nama_akun_belanja', 'Nama Akun Belanja', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
+		
+		$err_code = 0;
+		$err_message = '';
+		$idakun_belanja = '';
+		$nama_akunbelanja = '';
+
+		if ($this->form_validation->run() == TRUE){
+
+			$data_save = array(
+				'no_rekening_akunbelanja' => azarr($data_post, 'no_rekening_akunbelanja'), 
+				'nama_akun_belanja' => azarr($data_post, 'nama_akun_belanja'), 
+				'is_active' => azarr($data_post, 'is_active'),
+			);
+
+			$response_save = az_crud_save($idpost, 'akun_belanja', $data_save);
+			$err_code = azarr($response_save, 'err_code');
+			$err_message = azarr($response_save, 'err_message');
+			$insert_id = azarr($response_save, 'insert_id');
+
+			// ambil data yang baru diimpan
+			$this->db->where('idakun_belanja', $insert_id);
+			$this->db->where('is_active','1');
+			$this->db->where('status', '1');
+			$this->db->select("idakun_belanja id, concat(no_rekening_akunbelanja, ' - ', nama_akun_belanja) as text");
+			$akun_belanja = $this->db->get("akun_belanja");
+
+			if ($akun_belanja->num_rows() > 0) {
+				$idakun_belanja = $akun_belanja->row()->id;
+				$nama_akunbelanja = $akun_belanja->row()->text;
+			}
+		}
+		else {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		$data = array(
+			'idakun_belanja' => $idakun_belanja,
+			'nama_akunbelanja' => $nama_akunbelanja,
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+
+		echo json_encode($data);
+	}
+
+	// duplikat fungsi save di kontroller master_kategori
+	public function save_kategori(){
+		$data = array();
+		$data_post = $this->input->post();
+		$idpost = azarr($data_post, 'id'.$this->table);
+		
+		$this->load->library('form_validation');
+		$this->form_validation->set_error_delimiters('', '');
+
+		$this->form_validation->set_rules('nama_kategori', 'Nama Kategori', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
+		
+		$err_code = 0;
+		$err_message = '';
+		$idkategori = '';
+		$nama_kategori = '';
+
+		if($this->form_validation->run() == TRUE){
+
+			$data_save = array(
+				'nama_kategori' => azarr($data_post, 'nama_kategori'), 
+				'is_active' => azarr($data_post, 'is_active'),
+			);
+
+			$response_save = az_crud_save($idpost, 'kategori', $data_save);
+			$err_code = azarr($response_save, 'err_code');
+			$err_message = azarr($response_save, 'err_message');
+			$insert_id = azarr($response_save, 'insert_id');
+
+			// ambil data yang baru diimpan
+			$this->db->where('idkategori', $insert_id);
+			$this->db->where('is_active','1');
+			$this->db->where('status', '1');
+			$this->db->select("idkategori id, nama_kategori as text");
+			$kategori = $this->db->get("kategori");
+
+			if ($kategori->num_rows() > 0) {
+				$idkategori = $kategori->row()->id;
+				$nama_kategori = $kategori->row()->text;
+			}
+		}
+		else {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		$data = array(
+			'idkategori' => $idkategori,
+			'nama_kategori' => $nama_kategori,
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+
+		echo json_encode($data);
+	}
+
+	// duplikasi fungsi save di kontroller master_sub_kategori
+	public function save_subkategori(){
+		$data = array();
+		$data_post = $this->input->post();
+		$idpost = azarr($data_post, 'id'.$this->table);
+		$data['sMessage'] = '';
+		$idsub_kategori = '';
+		$nama_subkategori = '';
+		
+		$this->load->library('form_validation');
+		$this->form_validation->set_error_delimiters('', '<br>');
+
+		$this->form_validation->set_rules('nama_sub_kategori', 'Nama Sub Kategori', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('idsumber_dana', 'Sumber Dana', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_gender', 'Jenis Kelamin', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_description', 'Keterangan', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_room', 'Ruang', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_name_training', 'Nama Diklat', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
+		
+		$err_code = 0;
+		$err_message = '';
+
+		if($this->form_validation->run() == TRUE){
+
+			$data_save = array(
+				'nama_sub_kategori' => azarr($data_post, 'nama_sub_kategori'),
+				'idkode_rekening' => azarr($data_post, 'idkode_rekening'),
+				'idsumber_dana' => azarr($data_post, 'idsumber_dana'),
+				'is_active' => azarr($data_post, 'is_active'),
+				'is_gender' => azarr($data_post, 'is_gender'),
+				'is_description' => azarr($data_post, 'is_description'),
+				'is_room' => azarr($data_post, 'is_room'),
+				'is_name_training' => azarr($data_post, 'is_name_training'),
+			);
+
+			$response_save = az_crud_save($idpost, 'sub_kategori', $data_save);
+			$err_code = azarr($response_save, 'err_code');
+			$err_message = azarr($response_save, 'err_message');
+			$insert_id = azarr($response_save, 'insert_id');
+
+
+			// ambil data yang baru diimpan
+			$this->db->where('idsub_kategori', $insert_id);
+			$this->db->where('sub_kategori.is_active','1');
+			$this->db->where('sub_kategori.status', '1');
+			$this->db->select("sub_kategori.idsub_kategori id, 
+			CONCAT(
+				sub_kategori.nama_sub_kategori, ' (',
+				IFNULL(SUBSTRING_INDEX(kode_rekening.kode_rekening, '-', 1), ''), ')'
+			) AS text");
+			$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
+			$sub_kategori = $this->db->get("sub_kategori");
+
+			if ($sub_kategori->num_rows() > 0) {
+				$idsub_kategori = $sub_kategori->row()->id;
+				$nama_subkategori = $sub_kategori->row()->text;
+			}
+		}
+		else {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		$data = array(
+			'idsub_kategori' => $idsub_kategori,
+			'nama_subkategori' => $nama_subkategori,
+			'err_code' => $err_code,
+			'err_message' => $err_message,
+		);
+
+		echo json_encode($data);
 	}
 
 	function validasi_realisasi($idpaket_belanja) {

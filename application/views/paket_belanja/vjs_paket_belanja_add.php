@@ -681,3 +681,100 @@
 			jQuery('#hds_idpb_detail_sub').val('');
 		}
 	}
+
+	
+	// tambah akun belanja baru
+	jQuery('body').on('click', '.btn-new-akunbelanja', function() {
+		show_modal('add_new_akunbelanja');
+
+		jQuery('#form_new_akunbelanja input, #form_new_akunbelanja select').val('').trigger('change.select2');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_new_akunbelanja', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja/save_akunbelanja',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_new_akunbelanja').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_new_akunbelanja');
+
+					jQuery("#idakun_belanja.select2-ajax").append(new Option(response.nama_akunbelanja, response.idakun_belanja, true, true)).trigger('change');
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+	// tambah kategori baru
+	jQuery('body').on('click', '.btn-new-kategori', function() {
+		show_modal('add_new_kategori');
+
+		jQuery('#form_new_kategori input, #form_new_kategori select').val('').trigger('change.select2');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_new_kategori', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja/save_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_new_kategori').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_new_kategori');
+
+					jQuery("#idkategori.select2-ajax").append(new Option(response.nama_kategori, response.idkategori, true, true)).trigger('change');
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+	// tambah sub kategori baru
+	jQuery('body').on('click', '.btn-new-subkategori', function() {
+		show_modal('add_new_subkategori');
+
+		jQuery('#form_new_subkategori input, #form_new_subkategori select').val('').trigger('change.select2');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_new_subkategori', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja/save_subkategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_new_subkategori').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_new_subkategori');
+
+					jQuery("#idsub_kategori.select2-ajax").append(new Option(response.nama_subkategori, response.idsub_kategori, true, true)).trigger('change');
+				}
+			},
+			error: function(response) {}
+		});
+	});

@@ -1,3 +1,16 @@
+<style type="text/css">
+	.sub-kategori > .select2-container {
+		max-width: 530px !important;
+		width: 100% !important;
+	}
+
+	.sub-kategori > .select2-selection__rendered {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+</style>
+
 <form class="form-horizontal" id="form_add_subkategori">
 	<input type="hidden" id="hds_idpb_detail_sub" name="hds_idpb_detail_sub" class="x-hidden">
 	<input type="hidden" id="hds_idpaket_belanja_detail" name="hds_idpaket_belanja_detail" class="x-hidden">
@@ -10,7 +23,19 @@
     <div class="form-group">
 		<label class="control-label col-md-3">Sub Kategori <red>*</red></label>
 		<div class="col-md-8">
-			<?php echo az_select_nama_subkategori();?>
+			
+			<table width="100%">
+                <tbody>
+					<tr>
+                        <td class="sub-kategori">
+							<?php echo az_select_nama_subkategori();?>
+						</td>
+                        <td width="10px" style="padding-left:5px;">
+							<button class="btn btn-default btn-new-subkategori" type="button"><i class="fa fa-plus"></i></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 	<div class="form-group">

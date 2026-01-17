@@ -10,7 +10,18 @@
     <div class="form-group">
 		<label class="control-label col-md-3">Kategori</label>
 		<div class="col-md-8">
-			<?php echo az_select_nama_kategori();?>
+			<table width="100%">
+                <tbody>
+					<tr>
+                        <td class="sub-kategori">
+							<?php echo az_select_nama_kategori();?>
+						</td>
+                        <td width="10px" style="padding-left:5px;">
+							<button class="btn btn-default btn-new-kategori" type="button"><i class="fa fa-plus"></i></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </form>
