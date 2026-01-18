@@ -15,7 +15,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("nama_urusan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, nama_urusan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("nama_urusan", $q);
@@ -60,7 +60,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("bidang_urusan.nama_bidang_urusan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, bidang_urusan.nama_bidang_urusan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("bidang_urusan.nama_bidang_urusan", $q);
@@ -109,7 +109,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("bidang_urusan.nama_bidang_urusan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, bidang_urusan.nama_bidang_urusan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("bidang_urusan.nama_bidang_urusan", $q);
@@ -158,7 +158,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("program.nama_program");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, program.nama_program");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("program.nama_program", $q);
@@ -209,7 +209,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("program.nama_program");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, program.nama_program");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("program.nama_program", $q);
@@ -260,7 +260,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("kegiatan.nama_kegiatan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, kegiatan.nama_kegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("kegiatan.nama_kegiatan", $q);
@@ -313,7 +313,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("kegiatan.nama_kegiatan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, kegiatan.nama_kegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("kegiatan.nama_kegiatan", $q);
@@ -366,7 +366,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("sub_kegiatan.nama_subkegiatan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, sub_kegiatan.nama_subkegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("sub_kegiatan.nama_subkegiatan", $q);
@@ -421,7 +421,7 @@ class Data extends CI_Controller {
 		$offset = ($page - 1) * $limit;
 		
 		// var_dump($parent);die();
-		$this->db->order_by("sub_kegiatan.nama_subkegiatan");
+		$this->db->order_by("urusan_pemerintah.tahun_anggaran_urusan DESC, sub_kegiatan.nama_subkegiatan");
 		if (strlen($q) > 0) {
 			$this->db->group_start();
 			$this->db->like("sub_kegiatan.nama_subkegiatan", $q);
