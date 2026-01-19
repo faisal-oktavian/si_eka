@@ -365,15 +365,27 @@ class Purchase_plan extends CI_Controller {
     function select_uraian() {
 		$idpaket_belanja_detail_sub = $this->input->post('idpaket_belanja_detail_sub');
 
+		// cek dulu apakah uraian ini satuannya LS atau bukan
+		$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
+		$this->db->select('satuan.nama_satuan');
+		$pbds_check = $this->db->get('paket_belanja_detail_sub');
+
+		$satuan_uraian = $pbds_check->row()->nama_satuan;
+
+
         $this->db->where(' (pbds_parent.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" OR pbds_child.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'") ');
         $this->db->where('pb.status', 1);
 		// $this->db->where('pb.status_paket_belanja = "OK" ');
 		$this->db->where('pbd.status', 1);
 
-        $this->db->group_start();
-		$this->db->where('pbds_parent.volume >= pbds_parent.volume_realization');
-        $this->db->or_where('pbds_child.volume >= pbds_child.volume_realization');
-        $this->db->group_end();
+		
+		if ($satuan_uraian != "LS") {
+			$this->db->group_start();
+			$this->db->where('pbds_parent.volume >= pbds_parent.volume_realization');
+			$this->db->or_where('pbds_child.volume >= pbds_child.volume_realization');
+			$this->db->group_end();
+		}
 
 		
         $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
@@ -501,9 +513,12 @@ class Purchase_plan extends CI_Controller {
 				if ($data_utama->row()->volume < (floatval($data_realisasi->row()->total_volume) + floatval($volume))) {
 					$sisa_volume = $data_utama->row()->volume - floatval($data_realisasi->row()->total_volume);
 
-					$err_code++;
-					$err_message = "Volume yang direalisasikan melebihi volume dari DPA. <br>";
-					$err_message .= "Sisa Volume yang bisa diinput yaitu : ".$sisa_volume;
+					// jika satuannya LS maka volumenya diloloskan, hanya validasi di harga saja
+					if ($data_utama->row()->satuan != "LS") {
+						$err_code++;
+						$err_message = "Volume yang direalisasikan melebihi volume dari DPA. <br>";
+						$err_message .= "Sisa Volume yang bisa diinput yaitu : ".$sisa_volume;
+					}
 				}
 				// var_dump($data_utama->row()->volume.' < ('.floatval($data_realisasi->row()->total_volume).' + '.floatval($volume).')'); echo "<br><br>";
 			}
@@ -1040,9 +1055,11 @@ class Purchase_plan extends CI_Controller {
 		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+		$this->db->join('satuan sp', 'sp.idsatuan = pbds_parent.idsatuan','left');
+		$this->db->join('satuan sc', 'sc.idsatuan = pbds_child.idsatuan','left');
 
 		if (strlen($add_select) > 0) {
-			$this->db->group_by('pb.idpaket_belanja, pb.nama_paket_belanja, pbd.idpaket_belanja_detail, detail_sub_id, idsub_kategori, volume, idsatuan, harga_satuan, jumlah');
+			$this->db->group_by('pb.idpaket_belanja, pb.nama_paket_belanja, pbd.idpaket_belanja_detail, detail_sub_id, idsub_kategori, volume, idsatuan, harga_satuan, jumlah, satuan');
 		}
 
 		$this->db->select('pb.idpaket_belanja,
@@ -1053,7 +1070,8 @@ class Purchase_plan extends CI_Controller {
 			COALESCE(pbds_child.volume, pbds_parent.volume) AS volume,
 			COALESCE(pbds_child.idsatuan, pbds_parent.idsatuan) AS idsatuan,
 			COALESCE(pbds_child.harga_satuan, pbds_parent.harga_satuan) AS harga_satuan,
-			COALESCE(pbds_child.jumlah, pbds_parent.jumlah) AS jumlah'.$add_select);
+			COALESCE(pbds_child.jumlah, pbds_parent.jumlah) AS jumlah, 
+			COALESCE(sp.nama_satuan, sc.nama_satuan) AS satuan'.$add_select);
 		$pb = $this->db->get('paket_belanja pb');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
