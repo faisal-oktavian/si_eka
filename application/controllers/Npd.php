@@ -701,6 +701,18 @@ class Npd extends CI_Controller {
 				}
 			}	
 		}
+
+		// validasi apakah sudah ada npd detail
+		if ($err_code == 0) {
+			$this->db->where('idnpd', $idnpd);
+			$this->db->where('status', 1);
+			$npd_detail = $this->db->get('npd_detail');
+
+			if ($npd_detail->num_rows() == 0) {
+				$err_code++;
+				$err_message = "Tidak ada data NPD.";
+			}
+		}
 		
 		if ($err_code == 0) {
 

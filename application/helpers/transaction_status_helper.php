@@ -155,6 +155,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		$ci->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$ci->db->update('paket_belanja_detail_sub', $arr_update);
+		// echo "<pre>"; print_r($ci->db->last_query());die;
 
 		$ret = array(
 			'err_code' => $err_code,

@@ -579,8 +579,28 @@ class Purchase_plan extends CI_Controller {
 						$err_message .= "Anda bisa mengedit uraian yang telah diinput.";
 					}
 				}
+
+
+				if ($err_code == 0) {
+					$this->db->where('purchase_plan.idpurchase_plan',$idpurchase_plan);
+					if (strlen($idpurchase_plan_detail) > 0) {
+						$this->db->where('purchase_plan_detail.idpurchase_plan_detail', $idpurchase_plan_detail);
+					}
+					$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+					$purchase_plan = $this->db->get('purchase_plan');
+					// echo "<pre>"; print_r($this->db->last_query()); die;
+
+					if ($purchase_plan->num_rows() > 0) {
+						$status = $purchase_plan->row()->purchase_plan_status;
+						$idsub = $purchase_plan->row()->idpaket_belanja_detail_sub;
+						if ($status != "DRAFT") {
+							// hitung total volume yang sudah terealisasi
+							calculate_realisasi_volume($idsub, null, $idpurchase_plan_detail);
+						}
+					}
+				}
 			}
-            
+
 			if ($err_code == 0) {
 				//purchase plan detail
 				$arr_plan_detail = array(
@@ -801,6 +821,18 @@ class Purchase_plan extends CI_Controller {
 					$err_message = "Data tidak bisa diedit atau dihapus.";
 				}
 			}	
+		}
+
+		// validasi apakah ada detail rencana pengadaan
+		if ($err_code == 0) {
+			$this->db->where('idpurchase_plan', $idpurchase_plan);
+			$this->db->where('status', 1);
+			$purchase_plan_detail = $this->db->get('purchase_plan_detail');
+
+			if ($purchase_plan_detail->num_rows() == 0) {
+				$err_code++;
+				$err_message = "Tidak ada detail rencana pengadaan.";
+			}
 		}
 
 		if ($err_code == 0) {

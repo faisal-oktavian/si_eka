@@ -618,6 +618,18 @@ class Purchase_contract extends CI_Controller {
 			}	
 		}
 
+		// validasi apakah ada data kontrak pengadaan
+		if ($err_code == 0) {
+			$this->db->where('idcontract', $idcontract);
+			$this->db->where('status', 1);
+			$contract = $this->db->get('contract_detail');
+
+			if ($contract->num_rows() == 0) {
+				$err_code++;
+				$err_message = "Tidak ada data kontrak pengadaan.";
+			}
+		}
+
 		if ($err_code == 0) {
 	    	$arr_data = array(
 	    		'contract_date' => $contract_date,
