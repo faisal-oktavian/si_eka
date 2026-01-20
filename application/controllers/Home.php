@@ -32,9 +32,15 @@ class Home extends AZ_Controller {
 		$tahun_ini = date('Y');
 		// $tahun_ini = "2024";
 
+		
+		// GRAFIK POTENSI SISA ANGGARAN
+		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
+		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
+		$realisasi_anggaran = $sudah_dibayar;
+
 
 		// GRAFIK REALISASI ANGGARAN
-		$grafik_realisasi_anggaran = $this->grafik_realisasi_anggaran($tahun_ini);
+		$grafik_realisasi_anggaran = $this->grafik_realisasi_anggaran($tahun_ini, $total_anggaran);
 		$sudah_dibayar = $grafik_realisasi_anggaran['sudah_dibayar'];
 		$menunggu_pembayaran = $grafik_realisasi_anggaran['menunggu_pembayaran'];
 		$npd = $grafik_realisasi_anggaran['npd'];
@@ -43,13 +49,6 @@ class Home extends AZ_Controller {
 		$kontrak_pengadaan = $grafik_realisasi_anggaran['kontrak_pengadaan'];
 		$proses_pengadaan = $grafik_realisasi_anggaran['proses_pengadaan'];
 		$belum_direalisasi = $grafik_realisasi_anggaran['belum_direalisasi'];
-
-
-
-		// GRAFIK POTENSI SISA ANGGARAN
-		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
-		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
-		$realisasi_anggaran = $sudah_dibayar;
 
 
 		// GRAFIK REALISASI ANGGARAN PER SUMBER DANA
@@ -275,7 +274,7 @@ class Home extends AZ_Controller {
 		echo $app->render();	
 	}
 
-	function grafik_realisasi_anggaran($tahun_ini) {
+	function grafik_realisasi_anggaran($tahun_ini, $total_anggaran = 0) {
 		$sudah_dibayar = 0;
 		$menunggu_pembayaran = 0;
 		$npd = 0;
@@ -381,44 +380,45 @@ class Home extends AZ_Controller {
 
 
 		// Belum Direalisasi
-			// ambil data paket belanja yang sudah masuk di rencana pengadaan
-			$this->db->where('purchase_plan.status', 1);
-			$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
-			$this->db->where('purchase_plan_detail.status', 1);
-			$this->db->where('YEAR(purchase_plan.purchase_plan_date) = "'.$tahun_ini.'" ');
-			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
-			$this->db->group_by('purchase_plan_detail.idpaket_belanja');
-			$this->db->select('purchase_plan_detail.idpaket_belanja');
-			$pp = $this->db->get('purchase_plan');
-			// echo "<pre>"; print_r($this->db->last_query()); die;
+			$belum_direalisasi = $total_anggaran - ( floatval($sudah_dibayar) + floatval($menunggu_pembayaran) + floatval($npd) + floatval($sudah_diverifikasi) + floatval($menunggu_verifikasi) + floatval($kontrak_pengadaan) + floatval($proses_pengadaan) );
+			// // ambil data paket belanja yang sudah masuk di rencana pengadaan
+			// $this->db->where('purchase_plan.status', 1);
+			// $this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+			// $this->db->where('purchase_plan_detail.status', 1);
+			// $this->db->where('YEAR(purchase_plan.purchase_plan_date) = "'.$tahun_ini.'" ');
+			// $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+			// $this->db->group_by('purchase_plan_detail.idpaket_belanja');
+			// $this->db->select('purchase_plan_detail.idpaket_belanja');
+			// $pp = $this->db->get('purchase_plan');
+			// // echo "<pre>"; print_r($this->db->last_query()); die;
 
-			$arr_idpaket_belanja = array();
-			foreach ($pp->result() as $key => $value) {
-				$arr_idpaket_belanja[] = $value->idpaket_belanja;
-			}
-			$data_idpaket_belanja = '"'.implode(' ", " ', $arr_idpaket_belanja).'"';
+			// $arr_idpaket_belanja = array();
+			// foreach ($pp->result() as $key => $value) {
+			// 	$arr_idpaket_belanja[] = $value->idpaket_belanja;
+			// }
+			// $data_idpaket_belanja = '"'.implode(' ", " ', $arr_idpaket_belanja).'"';
 
-			// hitung total nilai anggaran di paket belanja
-			$this->db->where('paket_belanja.status', 1);
-			$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
-			$this->db->where('paket_belanja.is_active', 1);
-			// $this->db->where('YEAR(paket_belanja.created) = "'.$tahun_ini.'" ');
-			$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.$tahun_ini.'" ');
-			$this->db->where('paket_belanja.idpaket_belanja NOT IN ('.$data_idpaket_belanja.') ');
-			$this->db->where('paket_belanja.nilai_anggaran > 0');
+			// // hitung total nilai anggaran di paket belanja
+			// $this->db->where('paket_belanja.status', 1);
+			// $this->db->where('paket_belanja.status_paket_belanja = "OK" ');
+			// $this->db->where('paket_belanja.is_active', 1);
+			// // $this->db->where('YEAR(paket_belanja.created) = "'.$tahun_ini.'" ');
+			// $this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.$tahun_ini.'" ');
+			// $this->db->where('paket_belanja.idpaket_belanja NOT IN ('.$data_idpaket_belanja.') ');
+			// $this->db->where('paket_belanja.nilai_anggaran > 0');
 
-			$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-			$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
-			$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
-			$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
-			$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
-			$this->db->select('sum(paket_belanja.nilai_anggaran) as total_yang_belum_direalisasi');
-			$paket_belanja = $this->db->get('paket_belanja');
-			// echo "<pre>"; print_r($this->db->last_query()); die;
+			// $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+			// $this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+			// $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+			// $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+			// $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+			// $this->db->select('sum(paket_belanja.nilai_anggaran) as total_yang_belum_direalisasi');
+			// $paket_belanja = $this->db->get('paket_belanja');
+			// // echo "<pre>"; print_r($this->db->last_query()); die;
 
-			if ($paket_belanja->num_rows() > 0) {
-				$belum_direalisasi = $paket_belanja->row()->total_yang_belum_direalisasi;
-			}
+			// if ($paket_belanja->num_rows() > 0) {
+			// 	$belum_direalisasi = $paket_belanja->row()->total_yang_belum_direalisasi;
+			// }
 
 
 		$return = array(
