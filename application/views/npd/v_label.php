@@ -204,12 +204,12 @@
             </tr>
             <tr>
                 <td style="width:50%; text-align:center; border:none;">
-                    <b><u>dr. NINIS HERLINA KIRANASARI</u></b><br>
-                    NIP. 19690108 200003 2 003
+                    <b><u>dr. EDY CAHYONO</u></b><br>
+                    NIP. 19730105 201001 1 007
                 </td>
                 <td style="width:50%; text-align:center; border:none;">
-                    <b><u>dr. LUCKY MURNIASH FITRI IKA MUHERI</u></b><br>
-                    NIP. 19790826 201410 2 001
+                    <b><u>HARI PURNOMO, S.Kep,NS,M.Kes</u></b><br>
+                    NIP. 19710306 199303 1 004
                 </td>
             </tr>
         </table>
