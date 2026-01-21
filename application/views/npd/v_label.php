@@ -45,8 +45,9 @@
                 text-align: center;
                 font-weight: bold;
                 /* margin: 20px 0; */
-                text-decoration: underline;
+                /* text-decoration: underline; */
                 font-size: 20px;    
+                margin-top: 10px;
             }
             .title-number {
                 font-weight: bold;
@@ -80,6 +81,20 @@
             .ttd-pptk {
                 margin-top: 80px;
             }
+
+
+            .ttd-row {
+    display: flex;
+    justify-content: center; /* posisi tengah halaman */
+    gap: 180px;              /* jarak kiri-kanan */
+    margin-top: 50px;
+}
+
+.ttd {
+    text-align: left;
+    /* border-left: 4px solid red; */
+    padding-left: 12px;
+}
         </style>
     </head>
 
@@ -93,15 +108,19 @@
                 <h2>RUMAH SAKIT UMUM DAERAH SUMBERGLAGAH</h2>
                 <p>Dusun Sumberglagah, Desa Tanjungkenongo, Kecamatan Pacet, Kabupaten Mojokerto, Jawa Timur 61374<br>
                 Telepon (0321) 690441, Faksimile: (0321) 690137<br>
-                Laman: <a href="https://rssumberglagah.jatimprov.go.id/" target="_blank">www.rssumberglagah.jatimprov.go.id</a> Pos-el:rsudsumberglagah@jatimprov.go.id</p>
+                <!-- Laman: <a href="https://rssumberglagah.jatimprov.go.id/" target="_blank">www.rssumberglagah.jatimprov.go.id</a> Pos-el:rsudsumberglagah@jatimprov.go.id</p> -->
+                Laman: www.rssumberglagah.jatimprov.go.id &nbsp;&nbsp; Pos-el:rsudsumberglagah@jatimprov.go.id</p>
             </div>
             <div class="header-line"></div>
         </div>
 
         <div class="title">NOTA PENCAIRAN DANA (NPD)</div>
         <div class="title-number">
-            <p>Nomor: <?php echo $nomor_surat;?></p>
-            <p>Tanggal: <?php echo $npd_date;?></p>
+            <!-- <p>Nomor: <?php echo $nomor_surat;?></p>
+            <p>Tanggal: <?php echo $npd_date;?></p> -->
+
+            <div>Nomor: <?php echo $nomor_surat;?></div>
+            <div>Tanggal: <?php echo $npd_date;?></div>
         </div>
 
         <table class="no-border">
@@ -189,29 +208,23 @@
             </table>
         </div>
 
-        <table style="width:100%; margin-top:50px; border:none; vertical-align:top;">
-            <tr>
-                <td style="width:50%; text-align:center; border:none;">
-                    Pengguna Anggaran
-                    <br>
-                    Kuasa Pengguna Anggaran
-                </td>
-                <td style="width:50%; text-align:center; border:none;">
-                    Pejabat Pelaksana Teknis Kegiatan (PPTK)
-                </td>
-            </tr>
-            <tr style="height: 80px;"> 
-            </tr>
-            <tr>
-                <td style="width:50%; text-align:center; border:none;">
-                    <b><u>dr. EDY CAHYONO</u></b><br>
-                    NIP. 19730105 201001 1 007
-                </td>
-                <td style="width:50%; text-align:center; border:none;">
-                    <b><u>HARI PURNOMO, S.Kep,NS,M.Kes</u></b><br>
-                    NIP. 19710306 199303 1 004
-                </td>
-            </tr>
-        </table>
+        <div class="ttd-row">
+            <div class="ttd">
+                Pengguna Anggaran<br>
+                Kuasa Pengguna Anggaran
+                <br><br><br><br><br><br>
+                dr. Edy Cahyono<br>
+                Pembina Tingkat I (IV/b)<br>
+                NIP 197301052010011007
+            </div>
+
+            <div class="ttd">
+                Pejabat Pelaksana Teknis Kegiatan (PPTK)
+                <br><br><br><br><br><br><br>
+                Hari Purnomo, S.Kep.Ns., M.Kes.<br>
+                Pembina (IV/a)<br>
+                NIP 197103061993031004
+            </div>
+        </div>
     </body>
 </html>

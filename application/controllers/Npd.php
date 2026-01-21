@@ -1340,7 +1340,7 @@ class Npd extends CI_Controller {
 			$numb = 1;
 
 			// Format jadi 2 digit
-			$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
+			$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/102.15/PPTK/'. $tahun_anggaran;
 
 			$this->db->where('npd_code', $npd_code);
 			$this->db->select('npd_code');
@@ -1353,7 +1353,7 @@ class Npd extends CI_Controller {
 			while($ok == 0) {
 				$numb += 1;
 
-				$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
+				$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/102.15/PPTK/'. $tahun_anggaran;
 
 				$this->db->where('npd_code', $npd_code);
 				$this->db->select('npd_code');
@@ -1368,7 +1368,7 @@ class Npd extends CI_Controller {
 			$last = $data->row()->no_urut;
 			$numb = $last + 1;
 
-			$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
+			$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/102.15/PPTK/'. $tahun_anggaran;
 
 			$this->db->where('npd_code', $npd_code);
 			$this->db->select('npd_code');
@@ -1381,7 +1381,7 @@ class Npd extends CI_Controller {
 			while($ok == 0) {
 				$numb += 1;
 
-				$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/PPTK/'. $tahun_anggaran;
+				$npd_code = $kode_surat_NPD .'/'. Date('m'). '.' . str_pad($numb, 2, '0', STR_PAD_LEFT) .'/102.15/PPTK/'. $tahun_anggaran;
 
 				$this->db->where('npd_code', $npd_code);
 				$this->db->select('npd_code');
