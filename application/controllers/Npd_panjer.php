@@ -226,10 +226,20 @@ class Npd_panjer extends CI_Controller {
     function search_paket_belanja() {
 		$keyword = $this->input->get("term");
 
-		$this->db->order_by("nama_paket_belanja");
-		$this->db->where('status', 1);
-		$this->db->like('nama_paket_belanja', $keyword);
-		$this->db->select("idpaket_belanja as id, nama_paket_belanja as text");
+		
+		// data yang ditampilkan adalah data pada tahun berjalan
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
+		$this->db->where('paket_belanja.status', 1);
+		
+		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		
+		$this->db->order_by("paket_belanja.nama_paket_belanja");
+		$this->db->like('paket_belanja.nama_paket_belanja', $keyword);
+		$this->db->select("paket_belanja.idpaket_belanja as id, paket_belanja.nama_paket_belanja as text");
 
 		$data = $this->db->get("paket_belanja");
 
