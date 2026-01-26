@@ -67,6 +67,10 @@
         text-align: center;
         color: white;
     }
+
+	#idpaket_belanja_filter {
+		display: none;
+	}
 </style>
 <?php
 	if (aznav('role_table')) {
