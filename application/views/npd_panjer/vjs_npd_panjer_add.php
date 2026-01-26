@@ -243,7 +243,8 @@
 		ppn 			= remove_separator(ppn);
 		pph 			= remove_separator(pph);
 
-  		var total = (parseFloat(volume) * parseFloat(harga_satuan)) + parseFloat(ppn) - parseFloat(pph);
+  		// var total = (parseFloat(volume) * parseFloat(harga_satuan)) + parseFloat(ppn) - parseFloat(pph);
+  		var total = (parseFloat(volume) * parseFloat(harga_satuan));
 
 		console.log('total '+total);
 		jQuery('#total').val(thousand_separator(total));
@@ -349,6 +350,7 @@
 					jQuery('#ppn').val(thousand_separator(response.data.ppn));
 					jQuery('#pph').val(thousand_separator(response.data.pph));
 					jQuery('#total').val(thousand_separator(response.data.total));
+					jQuery('#remains_budget').val(thousand_separator(response.data.remains_budget));
 					
 					get_validate_gender(response.data.iduraian);
 					get_validate_description(response.data.iduraian);
@@ -412,7 +414,10 @@
 				id: the_id
 			},
 			success: function(response) {
-				jQuery('#npd_panjer_code').val(response.npd_panjer.npd_panjer_code);
+				// jQuery('#npd_panjer_code').val(response.npd_panjer.npd_panjer_code);
+				jQuery('#npd_panjer_number').val(response.npd_panjer.npd_panjer_number);
+				jQuery('#field_activity').val(response.npd_panjer.field_activity);
+				jQuery('#activity').val(response.npd_panjer.activity);
 				jQuery('#iduser_created').val(response.npd_panjer.iduser_created);
 				jQuery('#user_name').val(response.npd_panjer.user_created);
 				jQuery('#npd_panjer_date').val(response.npd_panjer.txt_npd_panjer_date);

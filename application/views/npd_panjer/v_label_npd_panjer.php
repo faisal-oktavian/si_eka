@@ -7,7 +7,8 @@
             body {
                 font-family: Arial, sans-serif;
                 font-size: 12px;
-                margin: 20px 60px;
+                /* margin: 20px 60px; */
+                margin: 20px 40px;
             }
             .kop-container {
                 position: relative;
@@ -45,8 +46,9 @@
                 text-align: center;
                 font-weight: bold;
                 /* margin: 20px 0; */
-                text-decoration: underline;
-                font-size: 20px;    
+                /* text-decoration: underline; */
+                font-size: 20px; 
+                margin-top: 10px;   
             }
             .title-number {
                 font-weight: bold;
@@ -80,6 +82,19 @@
             .ttd-pptk {
                 margin-top: 80px;
             }
+
+            .ttd-row {
+                display: flex;
+                justify-content: center; /* posisi tengah halaman */
+                gap: 180px;              /* jarak kiri-kanan */
+                margin-top: 10px;
+            }
+
+            .ttd {
+                text-align: left;
+                /* border-left: 4px solid red; */
+                padding-left: 12px;
+            }
         </style>
     </head>
 
@@ -93,14 +108,15 @@
                 <h2>RUMAH SAKIT UMUM DAERAH SUMBERGLAGAH</h2>
                 <p>Dusun Sumberglagah, Desa Tanjungkenongo, Kecamatan Pacet, Kabupaten Mojokerto, Jawa Timur 61374<br>
                 Telepon (0321) 690441, Faksimile: (0321) 690137<br>
-                Laman: <a href="https://rssumberglagah.jatimprov.go.id/" target="_blank">www.rssumberglagah.jatimprov.go.id</a> Pos-el:rsudsumberglagah@jatimprov.go.id</p>
+                <!-- Laman: <a href="https://rssumberglagah.jatimprov.go.id/" target="_blank">www.rssumberglagah.jatimprov.go.id</a> Pos-el:rsudsumberglagah@jatimprov.go.id</p> -->
+                Laman: www.rssumberglagah.jatimprov.go.id &nbsp;&nbsp; Pos-el:rsudsumberglagah@jatimprov.go.id</p>
             </div>
             <div class="header-line"></div>
         </div>
 
         <div class="title">SURAT PENGAJUAN PANJAR KEGIATAN</div>
         <div class="title-number">
-            <p>Nomor: </p>
+            <div>Nomor: <?php echo $npd_panjer_number; ?></div>
         </div>
 
         <table class="no-border">
@@ -131,16 +147,14 @@
             <p>&emsp;&emsp;&emsp;&emsp;&emsp; Dengan ini pula menyatakan dengan sebenarnya bahwa uang sejumlah tersebut digunakan untuk keperluan sebagai berikut :</p>
 
             <!-- table bidang -->
-            <table class="no-border" style="margin-top: 0 !important;">
+            <table class="no-border">
                 <tr>
                     <td width="100">Bidang</td>
-                    <td width="10">:</td>
-                    <td></td>
+                    <td>: <?php echo $field_activity; ?></td>
                 </tr>
                 <tr>
                     <td>Kegiatan</td>
-                    <td>:</td>
-                    <td></td>
+                    <td>: <?php echo $activity; ?></td>
                 </tr>
             </table>
 
@@ -149,85 +163,88 @@
             <table>
                 <thead>
                     <tr>
-                        <th width="30">No. </th>
-                        <th width="150">Kode Rekening</th>
-                        <th width="200">Uraian</th>
-                        <th width="70">Jumlah (Rp)</th>
-                        <th width=auto>Keterangan</th>
+                        <th>Kode rekening (No)</th>
+                        <th>Uraian</th>
+                        <th>Total Anggaran</th>
+                        <th>Sisa Anggaran</th>
+                        <th>Total Sekarang</th>
+                        <th>Sisa Akhir</th>
+                        <th>Keterangan</th>
                     </tr>
                 </thead>
                 
                 <tbody>
                     <?php 
-                        $no = 0;
                         foreach ($arr_data as $key => $value) {
-                            $no++;
                     ?>
-                            <tr>
-                                <td style="text-align: center;"><?php echo $no; ?></td>
-                                <td><?php echo $value['kode_rekening'];?></td>
-                                <td><?php echo $value['nama_uraian'];?></td>
-                                <td style="text-align: right;"><?php echo az_thousand_separator($value['total']);?></td>
-                                <td><?php echo $value['description_detail'];?></td>
+                            <tr style="font-weight: bold;">
+                                <td rowspan="<?php echo $value['total_data']; ?>" style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
+                                <td colspan="6"><?php echo $value['nama_akun_belanja'];?></td>
                             </tr>
+                    <?php   
+                            $space = "padding-left:15px;";
+                            $space_detail = "padding-left:15px;";
+                            foreach ($value['arr_detail'] as $key_sub => $value_sub) {
+                                if ($value_sub['nama_kategori'] != "") {
+
+                                    $space_detail = "padding-left:30px;";
+                    ?>
+                                    <tr>
+                                        <td colspan="6" style="font-weight:bold; <?php echo $space; ?>">
+                                            <?php echo $value_sub['nama_kategori'];?></td>
+                                    </tr>
                     <?php
+                                }
+                                foreach ($value_sub['arr_detail_sub'] as $key_ds => $value_ds) {
+                    ?>
+                                    <tr>
+                                        <td style="<?php echo $space_detail; ?>">
+                                            <?php echo $value_ds['nama_sub_kategori'];?>
+                                            <br>
+                                            <?php echo $value_ds['nomor_kode_rekening'];?>
+                                        </td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_sekarang']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_akhir']);?></td>
+                                        <td><?php echo $value_ds['realization_detail_description'];?></td>
+                                    </tr>
+                    <?php
+                                }
+                            }
                         }
                     ?>
-
-                    <tr style="font-weight: bold;">
-                        <td colspan="3" style="text-align: center;">Total</td>
-                        <td style="text-align: right;"><?php echo az_thousand_separator($total_realisasi);?></td>
-                        <td></td>
                 </tbody>
             </table>
             <p>&emsp;&emsp;&emsp;&emsp;&emsp; Panjar tersebut akan segera di pertanggungjawabkan selambat - lambatnya 5 (lima) hari setelah kegiatan dilaksanakan. Demikian surat pengajuan panjar ini di buat.</p>
         </div>
+        
+        <div style="margin-top: 30px; text-align: right; padding-right:5px">Mojokerto, <?php echo $npd_panjer_date; ?><br></div>
+        <div class="ttd-row">
+            <div class="ttd">
+                Bendahara Pengeluaran Pembantu
+                <br><br><br><br><br><br>
+                Iktia Dewi Shinta, A.Md<br>
+                NIP 199406282022042001
+            </div>
 
-        <table style="width:100%; margin-top:0px; border:none; vertical-align:top;">
-            <tr>
-                <td style="width:50%; text-align:center; border:none;">
-                </td>
-                <td style="width:50%; text-align:center; border:none;">
-                    Mojokerto, <?php echo $npd_panjer_date; ?>
-                </td>
-            </tr>
-            <tr>
-                <td style="width:50%; text-align:center; border:none;">
-                    Bendahara Pengeluaran Pembantu
-                </td>
-                <td style="width:50%; text-align:center; border:none;">
-                    Pelaksana Kegiatan
-                </td>
-            </tr>
-            <tr style="height: 50px;"> 
-            </tr>
-            <tr>
-                <td style="width:50%; text-align:center; border:none;">
-                    <b><u>IKTIA DEWI SHINTA, A.Md</u></b><br>
-                    NIP. 19940628 202204 2 001
-                </td>
-                <td style="width:50%; text-align:center; border:none;">
-                    <b><u>DWI LINA NUR W., SE, MM.</u></b><br>
-                    NIP. 19710914 200901 2 001
-                </td>
-            </tr>
-
-            <tr style="height: 50px;">
-                <td style="width:50%; text-align:center; border:none;" colspan=2>
-                    Persetujuan,
-                    <br>
-                    Kuasa Pengguna Anggaran
-                </td>
-            </tr>
-            <tr style="height: 50px;"> 
-            </tr>
-            <tr>
-                <td style="width:50%; text-align:center; border:none;" colspan=2>
-                    <b><u>dr. NINIS HERLINA KIRANASARI</u></b><br>
-                    NIP. 19690108 200003 2 003
-                </td>
-            </tr>
-        </table>
+            <div class="ttd">
+                Pelaksana Kegiatan
+                <br><br><br><br><br><br>
+                Dwi Lina Nur W., SE, MM.<br>
+                NIP 197109142009012001
+            </div>
+        </div>
+        <div class="ttd-row">
+            <div class="ttd">
+                Persetujuan, <br>
+                Kuasa Pengguna Anggaran
+                <br><br><br><br><br><br>
+                dr. Edy Cahyono<br>
+                Pembina Tingkat I (IV/b)<br>
+                NIP 197301052010011007
+            </div>
+        </div>
     </body>
 </html>
 

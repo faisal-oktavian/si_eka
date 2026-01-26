@@ -2335,3 +2335,14 @@ ALTER TABLE `budget_realization`
 	CHANGE COLUMN `realization_description` `realization_description` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `updated_status`,
 	ADD COLUMN `log_date_description` DATETIME NULL DEFAULT NULL COMMENT 'untuk catat perubahan pengisian keterangan verifikasi' AFTER `realization_description`;
 
+ALTER TABLE `npd_panjer`
+	ADD COLUMN `npd_panjer_number` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nomor npd panjar' AFTER `npd_panjer_code`,
+	ADD COLUMN `field_activity` VARCHAR(200) NULL DEFAULT NULL COMMENT 'bidang kegiatan' AFTER `npd_panjer_number`,
+	ADD COLUMN `activity` VARCHAR(200) NULL DEFAULT NULL COMMENT 'kegiatan' AFTER `field_activity`,
+	ADD INDEX `npd_panjer_number` (`npd_panjer_number`),
+	ADD INDEX `field_activity` (`field_activity`),
+	ADD INDEX `activity` (`activity`);
+
+ALTER TABLE `npd_panjer_detail`
+	ADD COLUMN `remains_budget` DOUBLE NULL DEFAULT NULL COMMENT 'sisa anggaran' AFTER `total`,
+	ADD INDEX `remains_budget` (`remains_budget`);

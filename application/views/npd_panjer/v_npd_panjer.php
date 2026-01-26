@@ -2,12 +2,12 @@
 	<div class="col-md-6">
 		<input type="hidden" id="hd_idnpd_panjer" name="hd_idnpd_panjer" value="<?php echo $id;?>">
 		
-		<div class="form-group">
+		<!-- <div class="form-group">
 			<label class="control-label col-md-4">Nomor NPD</label>
 			<div class="col-md-8">
 				<input type="text" class="form-control" placeholder="Nomor NPD (Otomatis)" id="npd_panjer_code" disabled>
 			</div>
-		</div>
+		</div> -->
 		
 		<div class="form-group">
 			<label class="control-label col-md-4">Nama</label>
@@ -26,6 +26,25 @@
 					<span class="glyphicon glyphicon-calendar"></span>
 					</span>
 				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-md-4">Nomor NPD Panjar <red>*</red></label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" name="npd_panjer_number" id="npd_panjer_number">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-md-4">Bidang <red>*</red></label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" name="field_activity" id="field_activity">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-md-4">Kegiatan <red>*</red></label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" name="activity" id="activity">
 			</div>
 		</div>
 	</div>

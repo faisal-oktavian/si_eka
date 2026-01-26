@@ -128,6 +128,15 @@
                 </div>
             </div>
         </div>
+        <div class="form-group">
+            <label class="control-label col-md-3">Sisa Anggaran</label>
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon">Rp. </span>
+                    <input type="text" class="form-control format-number txt-right" id="remains_budget" name="remains_budget"/>
+                </div>
+            </div>
+        </div>
     </div>
 	<div class="form-group description">
 		<label class="control-label col-md-3">Keterangan</label>
