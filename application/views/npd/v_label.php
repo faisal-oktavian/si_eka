@@ -185,14 +185,19 @@
                                     $space_detail = "padding-left:30px;";
                     ?>
                                     <tr>
-                                        <td colspan="6" style="font-weight:bold; <?php echo $space; ?>"><?php echo $value_sub['nama_kategori'];?></td>
+                                        <td colspan="6" style="font-weight:bold; <?php echo $space; ?>">
+                                            <?php echo $value_sub['nama_kategori'];?></td>
                                     </tr>
                     <?php
                                 }
                                 foreach ($value_sub['arr_detail_sub'] as $key_ds => $value_ds) {
                     ?>
                                     <tr>
-                                        <td style="<?php echo $space_detail; ?>"><?php echo $value_ds['nama_sub_kategori'];?></td>
+                                        <td style="<?php echo $space_detail; ?>">
+                                            <?php echo $value_ds['nama_sub_kategori'];?>
+                                            <br>
+                                            <?php echo $value_ds['nomor_kode_rekening'];?>
+                                        </td>
                                         <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_anggaran']);?></td>
                                         <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_anggaran']);?></td>
                                         <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_sekarang']);?></td>

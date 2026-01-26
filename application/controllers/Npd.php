@@ -1134,6 +1134,7 @@ class Npd extends CI_Controller {
 				status_paket_belanja, 
 				akun_belanja.no_rekening_akunbelanja, 
 				paket_belanja.idpaket_belanja, 
+				paket_belanja.nilai_anggaran,
 				akun_belanja.idakun_belanja, 
 				concat( "(", program.no_rekening_program, ") ", program.nama_program) as nama_program, 
 				concat( "(", program.no_rekening_program, ".", kegiatan.no_rekening_kegiatan, ") ", kegiatan.nama_kegiatan) as nama_kegiatan,
@@ -1150,6 +1151,7 @@ class Npd extends CI_Controller {
 			$total_data = 0;
 			foreach ($pb_detail->result() as $key => $value) {
 				$idpaket_belanja_detail = $value->idpaket_belanja_detail;
+				$nilai_anggaran = $value->nilai_anggaran;
 				// $idpaket_belanja_detail_sub = $value->idpaket_belanja_detail_sub;
 
 				$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail = "'.$idpaket_belanja_detail.'" ');
@@ -1193,8 +1195,9 @@ class Npd extends CI_Controller {
 					$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 					$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 					$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+					$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 					
-					$this->db->select('npd.idnpd, paket_belanja_detail_sub.idpaket_belanja_detail_sub, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, paket_belanja_detail_sub.jumlah AS total_anggaran, "" AS sisa_anggaran, budget_realization_detail.total_realization_detail AS total_sekarang, "" AS sisa_akhir, budget_realization_detail.realization_detail_description AS realization_detail_description');
+					$this->db->select('npd.idnpd, paket_belanja_detail_sub.idpaket_belanja_detail_sub, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.jumlah AS total_anggaran, "" AS sisa_anggaran, budget_realization_detail.total_realization_detail AS total_sekarang, "" AS sisa_akhir, budget_realization_detail.realization_detail_description AS realization_detail_description');
 					$npd = $this->db->get('npd');
 					// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -1235,22 +1238,25 @@ class Npd extends CI_Controller {
 						$the_filter = array(
 							'npd_date_created' => $npd_date_created,
 							'idpaket_belanja' => $idpaket_belanja,
-							'iduraian' => $n_value->idsub_kategori,
+							'total_anggaran' => $n_value->total_anggaran,
+							'idpaket_belanja_detail_sub' => $n_value->idpaket_belanja_detail_sub,
 							'idnpd' => $n_value->idnpd,
 						);
 
 						$sisa_anggaran = $this->calculate_sisa_anggaran($the_filter);
 
 						// $sisa_anggaran = 0;
-						$sisa_akhir = $n_value->total_anggaran - ($sisa_anggaran + $n_value->total_sekarang);
+						$sisa_akhir = $sisa_anggaran - $n_value->total_sekarang;
 
 						$arr_detail_sub[] = array(
 							'idpaket_belanja' => $idpaket_belanja,
 							'iduraian' => $n_value->idsub_kategori,
 							'idpaket_belanja_detail' => $idpaket_belanja_detail,
 							'idpaket_belanja_detail_sub' => $n_value->idpaket_belanja_detail_sub,
+							'nomor_kode_rekening' => $n_value->kode_rekening,
 							'nama_sub_kategori' => $n_value->nama_sub_kategori,
-							'total_anggaran' => $n_value->total_anggaran,
+							'total_anggaran' => $nilai_anggaran,
+							// 'total_anggaran' => $n_value->total_anggaran,
 							'sisa_anggaran' => $sisa_anggaran,
 							'total_sekarang' => $n_value->total_sekarang,
 							'sisa_akhir' => $sisa_akhir,
@@ -1438,39 +1444,49 @@ class Npd extends CI_Controller {
 	function calculate_sisa_anggaran($the_data) {
 		$npd_date_created = azarr($the_data, 'npd_date_created');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja');
-		$iduraian = azarr($the_data, 'iduraian');
+		$total_anggaran = azarr($the_data, 'total_anggaran');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub');
 		$idnpd = azarr($the_data, 'idnpd');
 
+
 		$this->db->where('date(npd.npd_date_created) < "'.Date('Y-m-d H:i:s', strtotime($npd_date_created)).'"');
-		$this->db->where('transaction_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
-		$this->db->where('transaction_detail.iduraian = "'.$iduraian.'" ');
+		$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'"  ');
+		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'"');
 		$this->db->where('npd.idnpd != "'.$idnpd.'" ');
 
-		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('npd.status = 1 ');
-		$this->db->where('npd_detail.status = 1 ');
-		$this->db->where('verification.status = 1 ');
-		$this->db->where('verification_detail.status = 1 ');
-		$this->db->where('transaction.status = 1 ');
-		$this->db->where('transaction_detail.status = 1 ');
+		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA"');
+		$this->db->where('npd.status = 1');
+		$this->db->where('npd_detail.status = 1');
+		$this->db->where('verification.status = 1');
+		$this->db->where('budget_realization.status = 1');
+		$this->db->where('budget_realization_detail.status = 1');
+		$this->db->where('contract_detail.status = 1');
+		$this->db->where('contract.status = 1');
+		$this->db->where('purchase_plan.status = 1');
+		$this->db->where('purchase_plan_detail.status = 1');
 
 		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
 		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
-		$this->db->join('verification_detail', 'verification_detail.idverification = verification.idverification');
-		$this->db->join('transaction', 'transaction.idtransaction = verification_detail.idtransaction');
-		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 
-		$this->db->group_by('transaction_detail.iduraian');
-		$this->db->order_by('iduraian');
-		
-		$this->db->select('SUM(transaction_detail.total) AS total_per_uraian');
+		$this->db->group_by('purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->order_by('idpaket_belanja_detail_sub');
+
+		$this->db->select('SUM(purchase_plan_detail.purchase_plan_detail_total) AS total_per_uraian');
 		$npd = $this->db->get('npd');
 		
-		$sisa_anggaran = azobj($npd->row(), 'total_per_uraian');
+		$realisasi_anggaran = azobj($npd->row(), 'total_per_uraian');
 
-		if ($sisa_anggaran == null) {
-			$sisa_anggaran = 0;
+		if ($realisasi_anggaran == null) {
+			$realisasi_anggaran = 0;
 		}
+
+		$sisa_anggaran = $total_anggaran - $realisasi_anggaran;
 
 		// echo "<pre>"; print_r($sisa_anggaran);die;
 
