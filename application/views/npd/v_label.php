@@ -84,17 +84,17 @@
 
 
             .ttd-row {
-    display: flex;
-    justify-content: center; /* posisi tengah halaman */
-    gap: 180px;              /* jarak kiri-kanan */
-    margin-top: 50px;
-}
+                display: flex;
+                justify-content: center; /* posisi tengah halaman */
+                gap: 180px;              /* jarak kiri-kanan */
+                margin-top: 50px;
+            }
 
-.ttd {
-    text-align: left;
-    /* border-left: 4px solid red; */
-    padding-left: 12px;
-}
+            .ttd {
+                text-align: left;
+                /* border-left: 4px solid red; */
+                padding-left: 12px;
+            }
         </style>
     </head>
 
