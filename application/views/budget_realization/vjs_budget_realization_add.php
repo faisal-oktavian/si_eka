@@ -339,7 +339,8 @@
 		ppn 			= remove_separator(ppn);
 		pph 			= remove_separator(pph);
 
-  		var total = (parseFloat(volume) * parseFloat(unit_price)) + parseFloat(ppn) - parseFloat(pph);
+  		// var total = (parseFloat(volume) * parseFloat(unit_price)) + parseFloat(ppn) - parseFloat(pph);
+  		var total = (parseFloat(volume) * parseFloat(unit_price));
 
 		console.log('total '+total);
 		jQuery('.total-realization-detail').val(thousand_separator(total));
