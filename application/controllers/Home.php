@@ -964,14 +964,14 @@ class Home extends AZ_Controller {
 
 
 		// query realisasi
-		$this->db->where('transaction.status', 1);
-		$this->db->where('transaction.transaction_status != "DRAFT" ');
-		$this->db->where('transaction_detail.status', 1);
-		$this->db->where('YEAR(transaction.transaction_date)', $tahun_ini);
-		$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('YEAR(purchase_plan.purchase_plan_date)', $tahun_ini);
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$this->db->group_by('idpaket_belanja');
 		$this->db->select('idpaket_belanja');
-		$this->db->get('transaction');
+		$this->db->get('purchase_plan');
 		$last_query_where = $this->db->last_query();
 		// echo "<pre>"; print_r($last_query_where); die;
 		
