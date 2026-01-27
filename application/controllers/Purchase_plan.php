@@ -324,8 +324,27 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
 		
 		$this->db->group_start();
-        $this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
-        $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
+        // $this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
+        // $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
+		
+		// jika nama satuannya LS maka tidak perlu pengecekan volume > volume realisasi
+		$this->db->where('
+			(
+				s_parent.nama_satuan = "LS"
+				OR (
+					s_parent.nama_satuan != "LS"
+					AND pbds_parent.volume > pbds_parent.volume_realization
+				)
+			)
+			OR
+			(
+				s_child.nama_satuan = "LS"
+				OR (
+					s_child.nama_satuan != "LS"
+					AND pbds_child.volume > pbds_child.volume_realization
+				)
+			)
+		');
         $this->db->group_end();
 
         $this->db->group_start();
@@ -339,6 +358,8 @@ class Purchase_plan extends CI_Controller {
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left', false); // false ← PENTING: jangan escape!
         $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
         $this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
+        $this->db->join('satuan s_child', 's_child.idsatuan = pbds_child.idsatuan', 'left');
+		$this->db->join('satuan s_parent', 's_parent.idsatuan = pbds_parent.idsatuan', 'left');
 		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = pb.idsub_kegiatan');
 		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
 		$this->db->join('program', 'program.idprogram = kegiatan.idprogram');

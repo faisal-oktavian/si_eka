@@ -576,6 +576,7 @@ class Budget_realization extends CI_Controller {
 				'idpaket_belanja' => $data_idpaket_belanja,
 				'transaction_date' => $realization_date,
 				'idpurchase_plan_detail' => $data_idpurchase_plan_detail,
+				'idbudget_realization_detail' => $idbudget_realization_detail,
 			);
 			// var_dump($the_filter);die;
 
@@ -588,11 +589,11 @@ class Budget_realization extends CI_Controller {
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 
 			// validasi apakah jumlah yang sudah direalisasikan melebihi jumlah yang sudah ditentukan
-			if ($data_utama->row()->jumlah < (floatval($data_realisasi->row()->purchase_plan_detail_total) + floatval($total_realization_detail))) {
+			if ($data_utama->row()->jumlah < (floatval($data_realisasi->row()->total_realization_detail) + floatval($total_realization_detail))) {
 				$err_code++;
 				$err_message = "Total Biaya yang direalisasikan melebihi jumlah dari DPA.";
 			}
-			// var_dump($data_utama->row()->jumlah.' < ('.floatval($data_realisasi->row()->purchase_plan_detail_total).' + '.floatval($total_realization_detail).')'); echo "<br><br>";
+			// var_dump($data_utama->row()->jumlah.' < ('.floatval($data_realisasi->row()->total_realization_detail).' + '.floatval($total_realization_detail).')'); echo "<br><br>";
 		}
 
 		// validasi tanggal realisasi tidak boleh melebihi tanggal hari ini
@@ -1427,34 +1428,60 @@ class Budget_realization extends CI_Controller {
 
 	function get_data_rencana($the_data) {
 		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
-		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$transaction_date = azarr($the_data, 'transaction_date', '');
-		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail', '');
+		$idbudget_realization_detail = azarr($the_data, 'idbudget_realization_detail', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
 		$format_month = date("m", strtotime($transaction_date));
 
-		// menampilkan data rencana yang sudah ada sampai dengan tanggal inputan
-		$this->db->where('purchase_plan.status', 1);
-		$this->db->where('purchase_plan_detail.status', 1);
-		if (strlen($idpurchase_plan_detail) > 0) {
-			$this->db->where('purchase_plan_detail.idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
+		
+		// baca data yang sudah direalisasikan karena efek satuan LS bisa ke konversi
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization.realization_status != "DRAFT" ');
+		$this->db->where('budget_realization_detail.status', 1);
+		$this->db->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") >=', $format_year . '-01');
+		$this->db->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") <=', $format_year . '-' . $format_month);
+		$this->db->where('budget_realization_detail.idsub_kategori', $idsub_kategori);
+		// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		if (strlen($idbudget_realization_detail) > 0) {
+			$this->db->where('budget_realization_detail.idbudget_realization_detail != "'.$idbudget_realization_detail.'" ');
 		}
-		$this->db->where('paket_belanja_detail_sub.idsub_kategori', $idsub_kategori);
-		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
-		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >=', $format_year . '-01');
-		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <=', $format_year . '-' . $format_month);
-		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
-		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		
 
 		$this->db->select('
-			count(purchase_plan.idpurchase_plan), 
-			sum( COALESCE(purchase_plan_detail.volume_realization, purchase_plan_detail.volume) ) as total_volume,
-			sum(purchase_plan_detail.purchase_plan_detail_total) as purchase_plan_detail_total
+			count(budget_realization_detail.idbudget_realization_detail), 
+			sum(budget_realization_detail.volume) as total_volume,
+			sum(budget_realization_detail.total_realization_detail) as total_realization_detail
 		');
-		$data = $this->db->get('purchase_plan');
+
+		$data = $this->db->get('budget_realization');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+
+
+		// // menampilkan data rencana yang sudah ada sampai dengan tanggal inputan
+		// $this->db->where('purchase_plan.status', 1);
+		// $this->db->where('purchase_plan_detail.status', 1);
+		// if (strlen($idpurchase_plan_detail) > 0) {
+		// 	$this->db->where('purchase_plan_detail.idpurchase_plan_detail != "'.$idpurchase_plan_detail.'" ');
+		// }
+		// $this->db->where('paket_belanja_detail_sub.idsub_kategori', $idsub_kategori);
+		// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		// $this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >=', $format_year . '-01');
+		// $this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <=', $format_year . '-' . $format_month);
+		// $this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+
+		// $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		// $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+
+		// $this->db->select('
+		// 	count(purchase_plan.idpurchase_plan), 
+		// 	sum( COALESCE(purchase_plan_detail.volume_realization, purchase_plan_detail.volume) ) as total_volume,
+		// 	sum(purchase_plan_detail.purchase_plan_detail_total) as purchase_plan_detail_total
+		// ');
+		// $data = $this->db->get('purchase_plan');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
 		return $data;
