@@ -472,7 +472,7 @@ class Npd_panjer extends CI_Controller {
 			
 
 			// jika dicentang maka pengecekannya inputannya langsung dibandingkan dengan total keseluruhan volume dan total anggaran
-			if (!aznav('role_bypass')) {
+			// if (!aznav('role_bypass')) {
 
 				// validasi apakah volume inputan + volume yang sudah direalisasikan melebihi volume RAK
 				if ( (floatval($volume) + floatval($data_realisasi->row()->total_volume)) > floatval($data_rak->row()->total_rak_volume) ) {
@@ -489,7 +489,7 @@ class Npd_panjer extends CI_Controller {
 				}
 				// var_dump( '('.floatval($total).' + '.floatval($data_realisasi->row()->total_realisasi).') > '.floatval($data_rak->row()->total_rak_jumlah) ); echo "<br><br>";
 
-			}
+			// }
 
 		
 			if ($err_code == 0) {

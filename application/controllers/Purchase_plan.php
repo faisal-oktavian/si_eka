@@ -257,55 +257,58 @@ class Purchase_plan extends CI_Controller {
             $query_or = " OR ";
         }
 
-        for ($i=1; $i <= $month_now; $i++) { 
-            if ($i == 1) {
-                $query_where .= "pbds_parent.rak_volume_januari IS NOT NULL OR pbds_child.rak_volume_januari IS NOT NULL";
-            }
-            else if ($i == 2) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_februari IS NOT NULL OR pbds_child.rak_volume_februari IS NOT NULL";
-            }
-            else if ($i == 3) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_maret IS NOT NULL OR pbds_child.rak_volume_maret IS NOT NULL";
-            }
-            else if ($i == 4) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_april IS NOT NULL OR pbds_child.rak_volume_april IS NOT NULL";
-            }
-            else if ($i == 5) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_mei IS NOT NULL OR pbds_child.rak_volume_mei IS NOT NULL";
-            }
-            else if ($i == 6) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_juni IS NOT NULL OR pbds_child.rak_volume_juni IS NOT NULL";
-            }
-            else if ($i == 7) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_juli IS NOT NULL OR pbds_child.rak_volume_juli IS NOT NULL";
-            }
-            else if ($i == 8) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_agustus IS NOT NULL OR pbds_child.rak_volume_agustus IS NOT NULL";
-            }
-            else if ($i == 9) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_september IS NOT NULL OR pbds_child.rak_volume_september IS NOT NULL";
-            }
-            else if ($i == 10) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_oktober IS NOT NULL OR pbds_child.rak_volume_oktober IS NOT NULL";
-            }
-            else if ($i == 11) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_november IS NOT NULL OR pbds_child.rak_volume_november IS NOT NULL";
-            }
-            else if ($i == 12) {
-                $query_where .= $query_or;
-                $query_where .= "pbds_parent.rak_volume_desember IS NOT NULL OR pbds_child.rak_volume_desember IS NOT NULL";
-            }
-        }
+		// kondisi ini tidak berlaku jika user memiliki akses bisa rencana pengadaan sebelum bulan RAK
+		if (!aznav('role_bypass')) {
+			for ($i=1; $i <= $month_now; $i++) { 
+				if ($i == 1) {
+					$query_where .= "pbds_parent.rak_volume_januari IS NOT NULL OR pbds_child.rak_volume_januari IS NOT NULL";
+				}
+				else if ($i == 2) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_februari IS NOT NULL OR pbds_child.rak_volume_februari IS NOT NULL";
+				}
+				else if ($i == 3) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_maret IS NOT NULL OR pbds_child.rak_volume_maret IS NOT NULL";
+				}
+				else if ($i == 4) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_april IS NOT NULL OR pbds_child.rak_volume_april IS NOT NULL";
+				}
+				else if ($i == 5) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_mei IS NOT NULL OR pbds_child.rak_volume_mei IS NOT NULL";
+				}
+				else if ($i == 6) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_juni IS NOT NULL OR pbds_child.rak_volume_juni IS NOT NULL";
+				}
+				else if ($i == 7) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_juli IS NOT NULL OR pbds_child.rak_volume_juli IS NOT NULL";
+				}
+				else if ($i == 8) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_agustus IS NOT NULL OR pbds_child.rak_volume_agustus IS NOT NULL";
+				}
+				else if ($i == 9) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_september IS NOT NULL OR pbds_child.rak_volume_september IS NOT NULL";
+				}
+				else if ($i == 10) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_oktober IS NOT NULL OR pbds_child.rak_volume_oktober IS NOT NULL";
+				}
+				else if ($i == 11) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_november IS NOT NULL OR pbds_child.rak_volume_november IS NOT NULL";
+				}
+				else if ($i == 12) {
+					$query_where .= $query_or;
+					$query_where .= "pbds_parent.rak_volume_desember IS NOT NULL OR pbds_child.rak_volume_desember IS NOT NULL";
+				}
+			}
+		}
 
         // ambil data paket belanja dan uraian yang belum masuk ke step rencana pengadaan
 		if ($role_name == "ppk") {
@@ -315,7 +318,9 @@ class Purchase_plan extends CI_Controller {
 			$this->db->where('pb.select_ppkom_pptk = "PP" ');
 		}
 
-        $this->db->where(' ('.$query_where.') ');
+		if (strlen($query_where) > 0) {
+			$this->db->where(' ('.$query_where.') ');
+		}
 		$this->db->where('pb.status', 1);
 		$this->db->where('pb.status_paket_belanja != "DRAFT" ');
 		$this->db->where('pbd.status', 1);
