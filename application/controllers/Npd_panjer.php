@@ -475,18 +475,18 @@ class Npd_panjer extends CI_Controller {
 			// if (!aznav('role_bypass')) {
 
 				// validasi apakah volume inputan + volume yang sudah direalisasikan melebihi volume RAK
-				if ( (floatval($volume) + floatval($data_realisasi->row()->total_volume)) > floatval($data_rak->row()->total_rak_volume) ) {
-					$err_code++;
-					$err_message = "Volume yang diinputkan melebihi volume RAK pada bulan yang dipilih.";
-				}
+				// if ( (floatval($volume) + floatval($data_realisasi->row()->total_volume)) > floatval($data_rak->row()->total_rak_volume) ) {
+				// 	$err_code++;
+				// 	$err_message = "Volume yang diinputkan melebihi volume RAK pada bulan yang dipilih.";
+				// }
 				// var_dump('('.floatval($volume).' + '.floatval($data_realisasi->row()->total_volume).') > '.floatval($data_rak->row()->total_rak_volume)); echo "<br><br>";
 				
 
 				// validasi apakah jumlah inputan + jumlah yang sudah direalisasikan melebihi jumlah RAK
-				if ( (floatval($total) + floatval($data_realisasi->row()->total_realisasi)) > floatval($data_rak->row()->total_rak_jumlah) ) {
-					$err_code++;
-					$err_message = "Total yang diinputkan melebihi jumlah RAK pada bulan yang dipilih.";
-				}
+				// if ( (floatval($total) + floatval($data_realisasi->row()->total_realisasi)) > floatval($data_rak->row()->total_rak_jumlah) ) {
+				// 	$err_code++;
+				// 	$err_message = "Total yang diinputkan melebihi jumlah RAK pada bulan yang dipilih.";
+				// }
 				// var_dump( '('.floatval($total).' + '.floatval($data_realisasi->row()->total_realisasi).') > '.floatval($data_rak->row()->total_rak_jumlah) ); echo "<br><br>";
 
 			// }
