@@ -18,7 +18,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="control-label col-md-4">Tanggal NPD Panjer <red>*</red></label>
+			<label class="control-label col-md-4">Tanggal NPD Panjar <red>*</red></label>
 			<div class="col-md-8">
 				<div class="input-group az-datetime">
 					<input type="text" class="form-control" id="npd_panjer_date" name="npd_panjer_date" />
