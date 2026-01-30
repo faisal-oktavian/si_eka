@@ -152,6 +152,7 @@
 		jQuery('.ppn').val('');
 		jQuery('.pph').val('');
 		jQuery('#total').val('');
+		jQuery('#remains_budget').val('');
 		jQuery('#npd_detail_description').val('');
 	}
 
