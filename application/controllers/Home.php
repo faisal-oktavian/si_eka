@@ -33,12 +33,6 @@ class Home extends AZ_Controller {
 		// $tahun_ini = "2024";
 
 		
-		// GRAFIK POTENSI SISA ANGGARAN
-		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
-		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
-		$realisasi_anggaran = $sudah_dibayar;
-
-
 		// GRAFIK REALISASI ANGGARAN
 		$grafik_realisasi_anggaran = $this->grafik_realisasi_anggaran($tahun_ini, $total_anggaran);
 		$sudah_dibayar = $grafik_realisasi_anggaran['sudah_dibayar'];
@@ -49,6 +43,12 @@ class Home extends AZ_Controller {
 		$kontrak_pengadaan = $grafik_realisasi_anggaran['kontrak_pengadaan'];
 		$proses_pengadaan = $grafik_realisasi_anggaran['proses_pengadaan'];
 		$belum_direalisasi = $grafik_realisasi_anggaran['belum_direalisasi'];
+
+		
+		// GRAFIK POTENSI SISA ANGGARAN
+		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
+		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
+		$realisasi_anggaran = $sudah_dibayar;
 
 
 		// GRAFIK REALISASI ANGGARAN PER SUMBER DANA
