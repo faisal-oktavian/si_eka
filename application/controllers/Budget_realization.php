@@ -560,15 +560,15 @@ class Budget_realization extends CI_Controller {
 			$err_message = validation_errors();
 		}
 
-		// validasi jumlah laki-laki & perempuan tidak boleh lebih dari volume
-		if ($err_code == 0) {
-			if ($validate_gender) {
-				if (floatval($volume) != (floatval($male) + floatval($female)) ) {
-					$err_code++;
-					$err_message = "Jumlah inputan total laki-laki dan perempuan tidak sama dengan inputan volume.";
-				}
-			}
-		}
+		// // validasi jumlah laki-laki & perempuan tidak boleh lebih dari volume
+		// if ($err_code == 0) {
+		// 	if ($validate_gender) {
+		// 		if (floatval($volume) != (floatval($male) + floatval($female)) ) {
+		// 			$err_code++;
+		// 			$err_message = "Jumlah inputan total laki-laki dan perempuan tidak sama dengan inputan volume.";
+		// 		}
+		// 	}
+		// }
 
 		if ($err_code == 0) {			
 			$the_filter = array(
