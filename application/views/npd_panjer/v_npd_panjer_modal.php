@@ -56,7 +56,8 @@
         <div class="form-group">
             <label class="control-label col-md-3">Uraian <red>*</red></label>
             <div class="col-md-8">
-                <input type="hidden" id="helper_iduraian">
+                <input type="hidden" id="helper_iduraian" name="helper_iduraian">
+                <input type="hidden" id="idpaket_belanja_detail_sub" name="idpaket_belanja_detail_sub">
                 <select class="form-control" name="iduraian" id="iduraian"></select>
             </div>
         </div>

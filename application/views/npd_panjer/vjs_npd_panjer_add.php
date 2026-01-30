@@ -94,6 +94,8 @@
 	jQuery('body').on('change', '#iduraian', function() {
 		var idpaket_belanja = jQuery('#idpaket_belanja').val();
 		var iduraian = jQuery(this).val();
+		// var idpaket_belanja_detail_sub = jQuery(this).attr('data-idsub');
+		var idpaket_belanja_detail_sub = jQuery(this).find('option:selected').attr('data-idsub');
 
 		reset_form_modal();
 		
@@ -113,12 +115,18 @@
 
 					jQuery(response.results).each(function(adata, bdata) {
 						console.log(bdata);
-						var opt = "<option value='"+bdata.iduraian+"' data-id='"+bdata.iduraian+"' class='input-gender'>"+bdata.nama_uraian+"</option>";
+						var opt = "<option value='"+bdata.iduraian+"' data-id='"+bdata.iduraian+"' data-idsub='"+bdata.idpaket_belanja_detail_sub+"' class='input-gender'>"+bdata.nama_uraian+"</option>";
 
 						jQuery('#iduraian').append(opt);
 					});
 					if (iduraian != undefined) {
-						jQuery('#iduraian').val(iduraian)
+						jQuery('#iduraian').val(iduraian);
+						jQuery('#helper_iduraian').val(iduraian);
+						jQuery('#idpaket_belanja_detail_sub').val(idpaket_belanja_detail_sub);
+
+
+						console.log('iduraian '+iduraian);
+						console.log('idpaket_belanja_detail_sub '+idpaket_belanja_detail_sub);
 					}
 					else {
 						console.log('jos');

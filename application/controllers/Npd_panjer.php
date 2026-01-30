@@ -344,10 +344,12 @@ class Npd_panjer extends CI_Controller {
 		$validate_room = false;
 		$validate_name_training = false;
 
+		// var_dump($_POST);die;
 
 	 	$idnpd_panjer = $this->input->post('idnpd_panjer');
 	 	$idnpd_panjer_detail = $this->input->post('idnpd_panjer_detail');
 		$idpaket_belanja = $this->input->post('idpaket_belanja');
+		$idpaket_belanja_detail_sub = $this->input->post('idpaket_belanja_detail_sub');
 	 	$penyedia = $this->input->post('penyedia');
 	 	$iduraian = $this->input->post('iduraian');
 	 	$idruang = $this->input->post('idruang');
@@ -453,6 +455,7 @@ class Npd_panjer extends CI_Controller {
 			$the_filter = array(
 				'iduraian' => $iduraian,
 				'idpaket_belanja' => $idpaket_belanja,
+				'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
 				'npd_panjer_date' => $npd_panjer_date,
 				'idnpd_panjer_detail' => $idnpd_panjer_detail,
 			);
@@ -560,6 +563,7 @@ class Npd_panjer extends CI_Controller {
 				$arr_npd_panjer_detail = array(
 					'idnpd_panjer' => $idnpd_panjer,
 					'idpaket_belanja' => $idpaket_belanja,
+					'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
 					'penyedia' => $penyedia,
 					'iduraian' => $iduraian,
 					'idruang' => $idruang,
@@ -878,6 +882,7 @@ class Npd_panjer extends CI_Controller {
 
 					$this->db->where('npd_panjer_detail.idnpd_panjer', $idnpd_panjer);
 					$this->db->where('npd_panjer_detail.iduraian', $idsub_kategori);
+					$this->db->where('npd_panjer_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 					$this->db->where('npd_panjer_detail.status = "1" ');
 
 					$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = npd_panjer_detail.iduraian');
@@ -1078,6 +1083,7 @@ class Npd_panjer extends CI_Controller {
 	function get_data_utama($the_data) {
 		$iduraian = azarr($the_data, 'iduraian', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 		$add_select = azarr($the_data, 'add_select', '');
 
 		// menampilkan data utama dari paket belanja
@@ -1086,6 +1092,7 @@ class Npd_panjer extends CI_Controller {
 		$this->db->where('pbd.status', 1);
 		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
 		$this->db->where('(pbds_child.idsub_kategori = "'.$iduraian.'" OR pbds_parent.idsub_kategori = "'.$iduraian.'")');
+		$this->db->where('(pbds_child.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" OR pbds_parent.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'")');
 		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
@@ -1112,6 +1119,7 @@ class Npd_panjer extends CI_Controller {
 	function get_data_rak($the_data) {
 		$iduraian = azarr($the_data, 'iduraian', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 		$npd_panjer_date = azarr($the_data, 'npd_panjer_date', '');
 
 		$format_date = date("n", strtotime($npd_panjer_date));
@@ -1194,6 +1202,7 @@ class Npd_panjer extends CI_Controller {
 		$the_filter = array(
 			'iduraian' => $iduraian,
 			'idpaket_belanja' => $idpaket_belanja,
+			'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
 			'npd_panjer_date' => $npd_panjer_date,
 			'add_select' => ', ' .$add_query_volume . ', ' . $add_query_jumlah, // digunakan untuk menyisipkan query tambahan pada select di fungsi get_data_utama
 		);
@@ -1208,6 +1217,7 @@ class Npd_panjer extends CI_Controller {
 	function get_data_realisasi($the_data) {
 		$iduraian = azarr($the_data, 'iduraian', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 		$npd_panjer_date = azarr($the_data, 'npd_panjer_date', '');
 		$idnpd_panjer_detail = azarr($the_data, 'idnpd_panjer_detail', '');
 
@@ -1222,6 +1232,7 @@ class Npd_panjer extends CI_Controller {
 		}
 		$this->db->where('npd_panjer_detail.iduraian', $iduraian);
 		$this->db->where('npd_panjer_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('npd_panjer_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$this->db->where('DATE_FORMAT(npd_panjer.npd_panjer_date, "%Y-%m") >=', $format_year . '-01');
 		$this->db->where('DATE_FORMAT(npd_panjer.npd_panjer_date, "%Y-%m") <=', $format_year . '-' . $format_month);
 		$this->db->where('npd_panjer.npd_panjer_status !=', 'DRAFT');

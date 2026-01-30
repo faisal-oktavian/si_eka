@@ -2346,3 +2346,7 @@ ALTER TABLE `npd_panjer`
 ALTER TABLE `npd_panjer_detail`
 	ADD COLUMN `remains_budget` DOUBLE NULL DEFAULT NULL COMMENT 'sisa anggaran' AFTER `total`,
 	ADD INDEX `remains_budget` (`remains_budget`);
+
+ALTER TABLE `npd_panjer_detail`
+	ADD COLUMN `idpaket_belanja_detail_sub` INT(10) NULL DEFAULT NULL AFTER `idpaket_belanja`,
+	ADD INDEX `idpaket_belanja_detail_sub` (`idpaket_belanja_detail_sub`);
