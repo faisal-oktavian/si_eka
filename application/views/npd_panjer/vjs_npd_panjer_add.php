@@ -353,6 +353,8 @@
 				setTimeout(function() {
 					jQuery('#penyedia').val(response.data.penyedia);
 					jQuery('#iduraian').val(response.data.iduraian);
+					jQuery('#helper_iduraian').val(response.data.iduraian);
+					jQuery('#idpaket_belanja_detail_sub').val(response.data.idpaket_belanja_detail_sub);
 					jQuery('#volume').val(response.data.volume);
 					jQuery('#harga_satuan').val(thousand_separator(response.data.harga_satuan));
 					jQuery('#ppn').val(thousand_separator(response.data.ppn));
@@ -369,7 +371,8 @@
 						jQuery('#laki').val(response.data.laki);
 						jQuery('#perempuan').val(response.data.perempuan);
 						jQuery('#npd_detail_description').val(response.data.npd_detail_description);
-						jQuery('#idruang').val(response.data.idruang);
+						// jQuery('#idruang').val(response.data.idruang);
+						jQuery("#idruang.select2-ajax").append(new Option(response.data.nama_ruang, response.data.idruang, true, true)).trigger('change.select2');
 						jQuery('#name_training').val(response.data.name_training);
 					}, 500);
 				}, 1000);

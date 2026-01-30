@@ -283,6 +283,7 @@ class Npd_panjer extends CI_Controller {
 		$this->db->where('paket_belanja_detail_sub.status', 1);
 		$this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail = paket_belanja_detail.idpaket_belanja_detail');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
 		$pb_detail = $this->db->get('paket_belanja_detail');
         // echo "<pre>"; print_r($this->db->last_query()); die;
@@ -294,13 +295,14 @@ class Npd_panjer extends CI_Controller {
 			$this->db->where('paket_belanja_detail_sub.status', 1);
 			$this->db->where('is_idpaket_belanja_detail_sub', $value->idpaket_belanja_detail_sub);
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
+			$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
 			$dss = $this->db->get('paket_belanja_detail_sub');
 
 			if ($dss->num_rows() == 0) {
 				$arr_data[] = array(
 					'idpaket_belanja_detail_sub' => $value->idpaket_belanja_detail_sub,
 					'iduraian' => $value->idsub_kategori,
-					'nama_uraian' => $value->nama_sub_kategori,
+					'nama_uraian' => $value->nama_sub_kategori.' ['.$value->volume.' '.$value->nama_satuan.' @'.az_thousand_separator($value->harga_satuan).']',
 					'is_gender' =>$value->is_gender,
 				);
 			}
@@ -321,7 +323,7 @@ class Npd_panjer extends CI_Controller {
 					$arr_data[] = array(
 						'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
 						'iduraian' => $dss_value->idsub_kategori,
-						'nama_uraian' => $nama_kategori.$dss_value->nama_sub_kategori,
+						'nama_uraian' => $nama_kategori.$dss_value->nama_sub_kategori.' ['.$dss_value->volume.' '.$dss_value->nama_satuan.' @'.az_thousand_separator($dss_value->harga_satuan).']',
 						'is_gender' =>$dss_value->is_gender,
 					);
 				}
@@ -712,7 +714,8 @@ class Npd_panjer extends CI_Controller {
 		
 		$this->db->where('idnpd_panjer_detail', $id);
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = npd_panjer_detail.iduraian');
-		$this->db->select('npd_panjer_detail.idpaket_belanja, npd_panjer_detail.penyedia, npd_panjer_detail.iduraian, sub_kategori.nama_sub_kategori, npd_panjer_detail.volume, npd_panjer_detail.harga_satuan, npd_panjer_detail.ppn, npd_panjer_detail.pph, npd_panjer_detail.total, npd_panjer_detail.npd_detail_description, npd_panjer_detail.laki, npd_panjer_detail.perempuan, npd_panjer_detail.idruang, npd_panjer_detail.name_training, npd_panjer_detail.remains_budget');
+		$this->db->join('ruang', 'ruang.idruang = npd_panjer_detail.idruang', 'left');
+		$this->db->select('npd_panjer_detail.idpaket_belanja, npd_panjer_detail.penyedia, npd_panjer_detail.iduraian, sub_kategori.nama_sub_kategori, npd_panjer_detail.volume, npd_panjer_detail.harga_satuan, npd_panjer_detail.ppn, npd_panjer_detail.pph, npd_panjer_detail.total, npd_panjer_detail.npd_detail_description, npd_panjer_detail.laki, npd_panjer_detail.perempuan, npd_panjer_detail.idruang, npd_panjer_detail.name_training, npd_panjer_detail.remains_budget, ruang.nama_ruang, npd_panjer_detail.idpaket_belanja_detail_sub');
 		$trxd = $this->db->get('npd_panjer_detail')->result_array();
 
 		$ret = array(
@@ -1014,9 +1017,12 @@ class Npd_panjer extends CI_Controller {
         $this->db->where('npd_panjer_detail.idnpd_panjer', $idnpd_panjer);
 		$this->db->join('npd_panjer', 'npd_panjer.idnpd_panjer = npd_panjer_detail.idnpd_panjer');
 		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = npd_panjer_detail.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = npd_panjer_detail.idpaket_belanja_detail_sub', 'left');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = npd_panjer_detail.iduraian');
-		$this->db->select('npd_panjer_detail.idnpd_panjer_detail, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori as nama_uraian, npd_panjer_detail.volume, npd_panjer_detail.harga_satuan, npd_panjer_detail.total, npd_panjer.npd_panjer_status, npd_panjer.total_realisasi');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
+		$this->db->select('npd_panjer_detail.idnpd_panjer_detail, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori as nama_uraian, npd_panjer_detail.volume, npd_panjer_detail.harga_satuan, npd_panjer_detail.total, npd_panjer.npd_panjer_status, npd_panjer.total_realisasi, satuan.nama_satuan');
         $panjer_detail = $this->db->get('npd_panjer_detail');
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
         $data['detail'] = $panjer_detail->result_array();
 		$data['total_realisasi'] = $panjer_detail->row()->total_realisasi;

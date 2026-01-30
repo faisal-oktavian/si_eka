@@ -3,7 +3,11 @@
 ?>
 		<tr>
 			<td><?php echo $value['nama_paket_belanja'];?></td>
-			<td><?php echo $value['nama_uraian'];?></td>
+			<td>
+				<?php echo $value['nama_uraian'];?>
+				<br>
+				<small><i><?php echo $value['volume'].' '.$value['nama_satuan'].' @'.az_thousand_separator($value['harga_satuan']);?></i></small>
+			</td>
 			<td align="center"><?php echo az_thousand_separator($value['volume']);?></td>
 			<td align="right">Rp <?php echo az_thousand_separator($value['harga_satuan']);?></td>
 			<td align="right">Rp <?php echo az_thousand_separator($value['total']);?></td>
