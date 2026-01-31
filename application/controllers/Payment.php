@@ -465,7 +465,7 @@ class Payment extends CI_Controller {
 				$data_pembayaran['total_pay'] = $total_pay_debt - $lack;
 				$data_pembayaran['total_debt'] = 0;
 			}
-			echo "<pre>"; print_r($data_pembayaran); die;
+			// echo "<pre>"; print_r($data_pembayaran); die;
 			
 			az_crud_save($idnpd, 'npd', $data_pembayaran);
 
