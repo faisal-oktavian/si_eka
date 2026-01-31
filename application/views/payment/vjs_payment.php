@@ -29,6 +29,8 @@
 				// jQuery('#total_debt').val(thousand_separator(res.total_lack));
 				jQuery('#lack').val(thousand_separator(res.total_lack));
 				// jQuery('#total_return').val(thousand_separator(res.total_return));
+
+				jQuery('#payment_description').val(res.description);
 			}
 		});
 	});

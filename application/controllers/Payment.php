@@ -283,6 +283,7 @@ class Payment extends CI_Controller {
 		$total_cicilan = 0;
 		$total_lack = 0;
 		$total_anggaran = 0;
+		$description = '';
 
 		$this->db->where('idnpd', $id);
 		$this->db->select('total_anggaran');
@@ -290,6 +291,29 @@ class Payment extends CI_Controller {
 		
 		if ($npd->num_rows() > 0) {
 			$total_anggaran = $npd->row()->total_anggaran;
+
+			// ambil keterangan realisasi anggaran
+			$this->db->where('npd.idnpd', $id);
+			$this->db->where('npd.npd_status != "DRAFT" ');
+			$this->db->where('npd.status', 1);
+			$this->db->where('npd_detail.status', 1);
+			$this->db->where('verification.status', 1);
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
+
+			$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+			$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+
+			$this->db->group_by('budget_realization_detail.idbudget_realization, budget_realization_detail.realization_detail_description');
+			$this->db->select('budget_realization_detail.idbudget_realization, budget_realization_detail.realization_detail_description');
+
+			$desc_npd = $this->db->get('npd');
+
+			if ($desc_npd->num_rows() > 0) {
+				$description = $desc_npd->row()->realization_detail_description;
+			}
 		} 
 		else {
 			$total_anggaran = 0;
@@ -302,6 +326,7 @@ class Payment extends CI_Controller {
 			'total_anggaran' => $total_anggaran,
 			'total_cicilan' => $total_cicilan,
 			'total_lack' => $total_lack,
+			'description' => $description,
 		);
 
 		echo json_encode($data);
@@ -440,7 +465,7 @@ class Payment extends CI_Controller {
 				$data_pembayaran['total_pay'] = $total_pay_debt - $lack;
 				$data_pembayaran['total_debt'] = 0;
 			}
-			// echo "<pre>"; print_r($data_pembayaran); die;
+			echo "<pre>"; print_r($data_pembayaran); die;
 			
 			az_crud_save($idnpd, 'npd', $data_pembayaran);
 
