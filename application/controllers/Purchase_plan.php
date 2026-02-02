@@ -324,6 +324,13 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where('pb.status', 1);
 		$this->db->where('pb.status_paket_belanja != "DRAFT" ');
 		$this->db->where('pbd.status', 1);
+		
+		// minta dobel where
+		$this->db->group_start();
+        $this->db->like('pb.nama_paket_belanja', $keyword);
+        $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
+        $this->db->or_like('sk_parent.nama_sub_kategori', $keyword);
+        $this->db->group_end();
 
 		// data yang ditampilkan adalah data pada tahun berjalan
 		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
