@@ -80,7 +80,7 @@ class Purchase_contract extends CI_Controller {
 		$contract_code = $this->input->get('contract_code');
 		$contract_status = $this->input->get('vf_contract_status');
 
-        $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as type_code, "" as detail, contract_status, user_created.name as user_input, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor');
+        $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as type_code, "" as detail, contract_status, user_created.name as user_input, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, contract.iduser_created');
         $crud->set_select_table('idcontract, txt_contract_date, contract_code, type_code, detail, contract_status, user_input');
         $crud->set_sorting('contract_code, contract_status, user_input');
         $crud->set_filter('contract_code, contract_status, user_input');
@@ -252,6 +252,12 @@ class Purchase_contract extends CI_Controller {
             }
 
 			if (aznav('role_view_purchase_contract') && strlen($idrole) > 0) {
+				$is_view_only = true;
+			}
+
+			// cek apakah data yg ditampilkan adalah data milik user itu sendiri
+			$iduser_created = azarr($data, 'iduser_created');
+			if ( ($this->session->userdata('iduser') != $iduser_created) && ($this->session->userdata('username') != 'superadmin' || strlen($idrole) > 1) ) {
 				$is_view_only = true;
 			}
 

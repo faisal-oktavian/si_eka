@@ -76,7 +76,7 @@ class Budget_realization extends CI_Controller {
 		$realization_code = $this->input->get('vf_realization_code');
 		$realization_status = $this->input->get('vf_realization_status');
 
-        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, realization_status, user.name as user_created');
+        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, realization_status, user.name as user_created, budget_realization.iduser_created');
 		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, realization_status, user_created');
 
         $crud->set_sorting('realization_date, realization_code, total_realization, realization_status');
@@ -230,6 +230,12 @@ class Budget_realization extends CI_Controller {
             }
 
 			if (aznav('role_view_budget_realization') && strlen($idrole) > 0) {
+				$is_view_only = true;
+			}
+
+			// cek apakah data yg ditampilkan adalah data milik user itu sendiri
+			$iduser_created = azarr($data, 'iduser_created');
+			if ( ($this->session->userdata('iduser') != $iduser_created) && ($this->session->userdata('username') != 'superadmin' || strlen($idrole) > 1) ) {
 				$is_view_only = true;
 			}
 

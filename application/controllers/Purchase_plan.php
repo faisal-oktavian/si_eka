@@ -76,7 +76,7 @@ class Purchase_plan extends CI_Controller {
 		$purchase_plan_code = $this->input->get('vf_purchase_plan_code');
 		$purchase_plan_status = $this->input->get('vf_purchase_plan_status');
 
-        $crud->set_select('purchase_plan.idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created');        
+        $crud->set_select('purchase_plan.idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created, purchase_plan.iduser_created');        
         $crud->set_select_table('idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
         $crud->set_sorting('purchase_plan_date, purchase_plan_code, purchase_plan_status');
         $crud->set_filter('purchase_plan_date, purchase_plan_code, purchase_plan_status');
@@ -202,6 +202,12 @@ class Purchase_plan extends CI_Controller {
 				else if ($role_name == "pp" && $data_role_name != "pp") {
 					$is_view_only = true;
 				}
+			}
+
+			// cek apakah data yg ditampilkan adalah data milik user itu sendiri
+			$iduser_created = azarr($data, 'iduser_created');
+			if ( ($this->session->userdata('iduser') != $iduser_created) && ($this->session->userdata('username') != 'superadmin' || strlen($idrole) > 1) ) {
+				$is_view_only = true;
 			}
 
 			if ($is_view_only) {
