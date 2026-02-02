@@ -328,7 +328,7 @@ class Purchase_plan extends CI_Controller {
 		// data yang ditampilkan adalah data pada tahun berjalan
 		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
 		
-		$this->db->group_start();
+		// $this->db->group_start();
         // $this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
         // $this->db->or_where('pbds_child.volume > pbds_child.volume_realization');
 		
@@ -350,20 +350,21 @@ class Purchase_plan extends CI_Controller {
 				)
 			)
 		');
-        $this->db->group_end();
+        // $this->db->group_end();
 
         $this->db->group_start();
         $this->db->like('pb.nama_paket_belanja', $keyword);
         $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
         $this->db->or_like('sk_parent.nama_sub_kategori', $keyword);
         $this->db->group_end();
+		$this->db->where('pb.nama_paket_belanja IS NOT NULL');
 		
-        $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
-		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail', 'left', false); // false ← PENTING: jangan escape!
-		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left', false); // false ← PENTING: jangan escape!
-        $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
-        $this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
-        $this->db->join('satuan s_child', 's_child.idsatuan = pbds_child.idsatuan', 'left');
+		$this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail', 'left');
+		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
+		$this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
+		$this->db->join('sub_kategori sk_parent', 'sk_parent.idsub_kategori = pbds_parent.idsub_kategori', 'left');
+		$this->db->join('satuan s_child', 's_child.idsatuan = pbds_child.idsatuan', 'left');
 		$this->db->join('satuan s_parent', 's_parent.idsatuan = pbds_parent.idsatuan', 'left');
 		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = pb.idsub_kegiatan');
 		$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
@@ -373,12 +374,21 @@ class Purchase_plan extends CI_Controller {
 
         $this->db->order_by("nama_paket_belanja");
 
-		$this->db->select('COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS id,
-            CONCAT( "[",
-                pb.nama_paket_belanja,
-                "] ",
-                COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori)
-            ) AS text');
+		$this->db->select('
+			COALESCE(pbds_child.idpaket_belanja_detail_sub, pbds_parent.idpaket_belanja_detail_sub) AS id, 
+			CONCAT( "[", `pb`.`nama_paket_belanja`, "] ", COALESCE(sk_child.nama_sub_kategori, sk_parent.nama_sub_kategori), 
+			" -> [", 
+			COALESCE(pbds_parent.volume, pbds_child.volume), 
+			COALESCE(s_parent.nama_satuan, s_child.nama_satuan),
+			" @",
+			FORMAT(
+				COALESCE(pbds_parent.harga_satuan, pbds_child.harga_satuan),
+				0,
+				"id_ID"
+			),
+			"]" ) AS text
+		', false);
+
 		$data = $this->db->get('paket_belanja pb');
         // echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -414,7 +424,7 @@ class Purchase_plan extends CI_Controller {
 		}
 
 		
-        $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+        $this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
         $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
@@ -678,7 +688,7 @@ class Purchase_plan extends CI_Controller {
 		// $this->db->where('pb.status_paket_belanja = "OK" ');
 		$this->db->where('pbd.status', 1);
 		
-        $this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+        $this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
         $this->db->join('sub_kategori sk_child', 'sk_child.idsub_kategori = pbds_child.idsub_kategori', 'left');
@@ -1110,7 +1120,7 @@ class Purchase_plan extends CI_Controller {
 		// menampilkan data utama dari paket belanja
 		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
 		$this->db->where('(pbds_child.idsub_kategori = "'.$idsub_kategori.'" OR pbds_parent.idsub_kategori = "'.$idsub_kategori.'")');
-		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
+		$this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
 		$this->db->join('satuan sp', 'sp.idsatuan = pbds_parent.idsatuan','left');
