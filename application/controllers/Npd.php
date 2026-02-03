@@ -21,7 +21,7 @@ class Npd extends CI_Controller {
 		$this->load->helper('az_role');
 		$idrole = $this->session->userdata('idrole');
 
-		$crud->set_column(array('#', 'Tanggal NPD', 'Nomor NPD', 'Keterangan', 'Detail', 'Status NPD', 'User Input', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal NPD', 'Nomor NPD', 'Keterangan', 'Detail', 'Total Kwitansi', 'Status NPD', 'User Input', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -79,13 +79,13 @@ class Npd extends CI_Controller {
 		$npd_code = $this->input->get('npd_code');
 		$npd_status = $this->input->get('vf_npd_status');
 
-        $crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, npd_code, "" as type_code, "" as detail, npd_status, user_created.name as user_input');
+        $crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, npd_code, "" as type_code, "" as detail, npd.total_anggaran, npd_status, user_created.name as user_input');
 
-        $crud->set_select_table('idnpd, txt_date_input, npd_code, type_code, detail, npd_status, user_input');
+        $crud->set_select_table('idnpd, txt_date_input, npd_code, type_code, detail, total_anggaran, npd_status, user_input');
         $crud->set_sorting('npd_code, npd_status, user_input');
         $crud->set_filter('npd_code, npd_status, user_input');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , center, center');
+		$crud->set_select_align(', , , , right, center, center');
 
         $crud->add_join_manual('user user_created', 'npd.iduser_created = user_created.iduser', 'left');
         
@@ -136,6 +136,7 @@ class Npd extends CI_Controller {
 		$table .=			"<th width='200px'>Uraian</th>";
 		$table .=			"<th width='50px'>Volume</th>";
 		$table .=			"<th width='150px'>Keterangan</th>";
+		$table .=			"<th width='150px'>Total Detail</th>";
 		$table .=		"</tr>";
 		$table .=	"</thead>";
 		$table .=	"<tbody>";
@@ -174,6 +175,7 @@ class Npd extends CI_Controller {
 				$table .=		"<td align='left'>".$c_value->nama_sub_kategori."</td>";
 				$table .=		"<td align='center'>".az_thousand_separator($c_value->volume)."</td>";
 				$table .= 		"<td align='left'>".$c_value->realization_detail_description."</td>";
+				$table .= 		"<td align='right'>".az_thousand_separator($c_value->total_realization_detail)."</td>";
 				$table .=	"</tr>";
 			}
 		}
@@ -227,6 +229,10 @@ class Npd extends CI_Controller {
 			}
 
 			return $text;
+		}
+
+		if ($key == 'total_anggaran') {
+			return az_thousand_separator($value);
 		}
 
 		if ($key == 'npd_status') {
@@ -307,7 +313,7 @@ class Npd extends CI_Controller {
 
 		// get data document
 		$document = $azapp->add_crud();
-		$document->set_column(array('#', "Tanggal Verifikasi", "Nomor Dokumen", "Detail"));
+		$document->set_column(array('#', "Tanggal Verifikasi", "Nomor Dokumen", "Detail", "Total Kwitansi"));
 		$document->set_th_class(array('', '', '', '', '', '', '', '', ''));
 		$document->set_width('auto, 100px, 100px, auto');
 		$document->set_id($this->controller . '2');
@@ -348,9 +354,9 @@ class Npd extends CI_Controller {
 		$idnpd = $this->input->get('idnpd');
 
 
-		$crud_document->set_select('verification.idverification, verification.idverification as txt_idverification, date_format(verification.confirm_verification_date, "%d-%m-%Y %H:%i:%s") AS txt_confirm_verification_date, verification.verification_code, "" AS detail');
+		$crud_document->set_select('verification.idverification, verification.idverification as txt_idverification, date_format(verification.confirm_verification_date, "%d-%m-%Y %H:%i:%s") AS txt_confirm_verification_date, verification.verification_code, "" AS detail, total_realization');
 		
-		$crud_document->set_select_table('idverification, txt_idverification, txt_confirm_verification_date, verification_code, detail');
+		$crud_document->set_select_table('idverification, txt_idverification, txt_confirm_verification_date, verification_code, detail, total_realization');
 
         $crud_document->set_sorting('confirm_verification_date, verification_code');
         $crud_document->set_filter('confirm_verification_date, verification_code');
@@ -360,6 +366,7 @@ class Npd extends CI_Controller {
 
 		$crud_document->add_join_manual('user user_realization', 'user_realization.iduser = verification.iduser_created');
         $crud_document->add_join_manual('user user_verification', 'user_verification.iduser = verification.iduser_verification', 'left');
+		$crud_document->add_join_manual('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization', 'left');
         
 		$crud_document->add_where("verification.status = '1' ");
 		$crud_document->add_where("YEAR(verification.verification_date_created) = '".Date('Y')."' ");
@@ -384,6 +391,10 @@ class Npd extends CI_Controller {
 			return $id;
 		}
 
+		if ($key == "total_realization") {
+			return az_thousand_separator($value);
+		}
+
 		if ($key == 'detail') {
             $this->db->where('verification.idverification', $idverification);
 			$this->db->where('budget_realization.status', 1);
@@ -399,7 +410,7 @@ class Npd extends CI_Controller {
 			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-			$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail');
+			$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description');
 			$budget_realization = $this->db->get('verification');
             // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -411,6 +422,8 @@ class Npd extends CI_Controller {
 			$table .=			"<th width='180px'>Paket Belanja</th>";
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='60px'>Volume</th>";
+			$table .=			"<th width='60px'>Keterangan</th>";
+			$table .=			"<th width='60px'>Total Detail</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -422,6 +435,8 @@ class Npd extends CI_Controller {
 				$table .= 		"<td>".$value['nama_paket_belanja']."</td>";
 				$table .= 		"<td>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
+				$table .= 		"<td>".$value['realization_detail_description']."</td>";
+				$table .= 		"<td align='center'>".az_thousand_separator($value['total_realization_detail'])."</td>";
 				$table .= "</tr>";
             }
 			
@@ -1064,6 +1079,7 @@ class Npd extends CI_Controller {
                     'nama_paket_belanja' => $c_value->nama_paket_belanja,
                     'nama_sub_kategori' => $c_value->nama_sub_kategori,
                     'volume' => $c_value->volume,
+                    'total' => $c_value->total_realization_detail,
                 );
             }
 

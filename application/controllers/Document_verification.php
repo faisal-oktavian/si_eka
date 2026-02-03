@@ -19,7 +19,7 @@ class Document_verification extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tanggal Realisasi', 'Tanggal Verifikasi Dokumen', 'Nomor Dokumen', 'Keterangan', 'Detail', 'Status', 'Status Verifikasi', 'Keterangan Verifikasi', 'User Realisasi', 'User Verifikasi', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Tanggal Verifikasi Dokumen', 'Nomor Dokumen', 'Keterangan', 'Detail', 'Total Kwitansi', 'Status', 'Status Verifikasi', 'Keterangan Verifikasi', 'User Realisasi', 'User Verifikasi', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -88,9 +88,9 @@ class Document_verification extends CI_Controller {
 		$realization_code = $this->input->get('vf_realization_code');
 		$realization_status = $this->input->get('vf_realization_status');
 
-		$crud->set_select('budget_realization.idbudget_realization, verification.idverification, date_format(budget_realization.realization_date, "%d-%m-%Y %H:%i:%s") AS txt_realization_date, date_format(verification.confirm_verification_date, "%d-%m-%Y %H:%i:%s") AS txt_confirm_verification_date, budget_realization.realization_code, "" as type_code, "" AS detail, budget_realization.realization_status, verification.status_approve, budget_realization.realization_description, verification.verification_description, user_realization.name AS user_realization, user_verification.name AS user_verification');
+		$crud->set_select('budget_realization.idbudget_realization, verification.idverification, date_format(budget_realization.realization_date, "%d-%m-%Y %H:%i:%s") AS txt_realization_date, date_format(verification.confirm_verification_date, "%d-%m-%Y %H:%i:%s") AS txt_confirm_verification_date, budget_realization.realization_code, "" as type_code, "" AS detail, budget_realization.total_realization, budget_realization.realization_status, verification.status_approve, budget_realization.realization_description, verification.verification_description, user_realization.name AS user_realization, user_verification.name AS user_verification');
 		
-		$crud->set_select_table('idbudget_realization, txt_realization_date, txt_confirm_verification_date, realization_code, type_code, detail, realization_status, status_approve, realization_description, user_realization, user_verification');
+		$crud->set_select_table('idbudget_realization, txt_realization_date, txt_confirm_verification_date, realization_code, type_code, detail, total_realization, realization_status, status_approve, realization_description, user_realization, user_verification');
 
         $crud->set_sorting('realization_code, realization_status, status_approve, realization_description, user_realization, user_verification');
         $crud->set_filter('realization_code, realization_status, status_approve, realization_description, user_realization, user_verification');
@@ -158,7 +158,7 @@ class Document_verification extends CI_Controller {
 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor');
+		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, budget_realization_detail.total_realization_detail');
 		$budget_realization = $this->db->get('budget_realization');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -173,6 +173,7 @@ class Document_verification extends CI_Controller {
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='60px'>Volume</th>";
 			$table .=			"<th width='150px'>Keterangan</th>";
+			$table .=			"<th width='150px'>Total Detail</th";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -185,6 +186,7 @@ class Document_verification extends CI_Controller {
 				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
 				$table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
+				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";
 				$table .= "</tr>";
             }
 			
@@ -218,6 +220,10 @@ class Document_verification extends CI_Controller {
 			}
 
 			return $text;
+		}
+
+		if ($key == "total_realization") {
+			return az_thousand_separator($value);
 		}
 
 		if ($key == 'realization_status') {

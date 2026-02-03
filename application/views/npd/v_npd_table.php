@@ -11,6 +11,7 @@
                             <th width="300px">Nama Paket Belanja</th>
 			                <th width="200px">Uraian</th>
 			                <th width="50px">Volume</th>
+			                <th width="50px">Total Detail</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -22,6 +23,7 @@
                             <td><?php echo $dvalue['nama_paket_belanja'];?></td>
                             <td><?php echo $dvalue['nama_sub_kategori'];?></td>
                             <td align="center"><?php echo az_thousand_separator($dvalue['volume']);?></td>
+                            <td align="right"><?php echo az_thousand_separator($dvalue['total']);?></td>
                         </tr>
                 <?php
                     }

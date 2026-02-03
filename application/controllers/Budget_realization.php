@@ -82,7 +82,7 @@ class Budget_realization extends CI_Controller {
         $crud->set_sorting('realization_date, realization_code, total_realization, realization_status');
         $crud->set_filter('realization_date, realization_code, total_realization, realization_status');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(' , , , right, center');
+		$crud->set_select_align(' , , , , right, center');
 
         $crud->add_join_manual('user', 'budget_realization.iduser_created = user.iduser');
         // $crud->add_join_manual('budget_realization_detail', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
@@ -190,6 +190,7 @@ class Budget_realization extends CI_Controller {
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='60px'>Volume</th>";
 			$table .=			"<th width='150px'>Keterangan</th>";
+			$table .=			"<th width='150px'>Total Detail</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -202,6 +203,7 @@ class Budget_realization extends CI_Controller {
 				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
 				$table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
+				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";
 				$table .= "</tr>";
             }
 			
@@ -314,7 +316,7 @@ class Budget_realization extends CI_Controller {
         $crud_contract->set_sorting('contract_code');
         $crud_contract->set_filter('contract_code');
 		$crud_contract->set_id($this->controller . '2');
-		$crud_contract->set_select_align(', , , center');
+		$crud_contract->set_select_align(', , , right, center');
 		$crud_contract->set_custom_first_column(true);
 
         $crud_contract->add_join_manual('user user_created', 'contract.iduser_created = user_created.iduser', 'left');
@@ -368,7 +370,7 @@ class Budget_realization extends CI_Controller {
                 $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
                 $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume,  purchase_plan_detail.purchase_plan_detail_total');
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -379,6 +381,7 @@ class Budget_realization extends CI_Controller {
                         'nama_paket_belanja' => $c_value->nama_paket_belanja,
                         'nama_sub_kategori' => $c_value->nama_sub_kategori,
                         'volume' => $c_value->volume,
+                        'total' => $c_value->purchase_plan_detail_total,
                     );
                 }
 
@@ -395,6 +398,7 @@ class Budget_realization extends CI_Controller {
 			$table .=			"<th width='300px;'>Nama Paket Belanja</th>";
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='50px'>Volume</th>";
+			$table .=			"<th width='50px'>Total Detail</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -406,6 +410,7 @@ class Budget_realization extends CI_Controller {
                     $table .=       "<td>".$dvalue['nama_paket_belanja']."</td>";
                     $table .=       "<td>".$dvalue['nama_sub_kategori']."</td>";
                     $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";
+                    $table .=       "<td align='right'>".az_thousand_separator($dvalue['total'])."</td>";
                     $table .= "</tr>";
                 }
 			}

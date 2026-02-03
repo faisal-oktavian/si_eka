@@ -169,7 +169,8 @@
                 </thead>
                 
                 <tbody>
-                    <?php 
+                    <?php
+                        $grand_total_sekarang = 0; 
                         foreach ($arr_data as $key => $value) {
                     ?>
                             <tr style="font-weight: bold;">
@@ -191,6 +192,7 @@
                     <?php
                                 }
                                 foreach ($value_sub['arr_detail_sub'] as $key_ds => $value_ds) {
+                                    $grand_total_sekarang += $value_ds['total_sekarang'];
                     ?>
                                     <tr>
                                         <td style="<?php echo $space_detail; ?>">
@@ -209,6 +211,15 @@
                             }
                         }
                     ?>
+                    <tr style="font-weight: bold;">
+                        <td rowspan="<?php echo $value['total_data']; ?>" style="vertical-align:top;"></td>
+                        <td>Total</td>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align: right;"><?php echo az_thousand_separator($grand_total_sekarang); ?></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

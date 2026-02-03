@@ -144,6 +144,7 @@ class Payment extends CI_Controller {
 		$table .=			"<th width='200px'>Uraian</th>";
 		$table .=			"<th width='50px'>Volume</th>";
 		$table .=			"<th width='150px'>Keterangan</th>";
+		$table .=			"<th width='150px'>Total Detail</th>";
 		$table .=		"</tr>";
 		$table .=	"</thead>";
 		$table .=	"<tbody>";
@@ -177,6 +178,7 @@ class Payment extends CI_Controller {
 				$table .=		"<td align='left'>".$c_value->nama_sub_kategori."</td>";
 				$table .=		"<td align='center'>".az_thousand_separator($c_value->volume)."</td>";
 				$table .= 		"<td align='left'>".$c_value->realization_detail_description."</td>";
+				$table .= 		"<td align='right'>".az_thousand_separator($c_value->total_realization_detail)."</td>";
 				$table .=	"</tr>";
 			}
 		}

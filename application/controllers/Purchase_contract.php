@@ -172,7 +172,7 @@ class Purchase_contract extends CI_Controller {
                 $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
                 $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total');
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -190,6 +190,7 @@ class Purchase_contract extends CI_Controller {
                         'nama_paket_belanja' => $c_value->nama_paket_belanja,
                         'nama_sub_kategori' => $c_value->nama_sub_kategori,
                         'volume' => $c_value->volume,
+                        'total' => $c_value->purchase_plan_detail_total,
                     );
                 }
 
@@ -206,6 +207,7 @@ class Purchase_contract extends CI_Controller {
 			$table .=			"<th width='300px;'>Nama Paket Belanja</th>";
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='50px'>Volume</th>";
+			$table .=			"<th width='50px'>Total Detail</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
 			$table .=	"<tbody>";
@@ -217,6 +219,7 @@ class Purchase_contract extends CI_Controller {
                     $table .=       "<td align='left'>".$dvalue['nama_paket_belanja']."</td>";
                     $table .=       "<td align='left'>".$dvalue['nama_sub_kategori']."</td>";
                     $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";
+                    $table .=       "<td align='right'>".az_thousand_separator($dvalue['total'])."</td>";
                     $table .= "</tr>";
                 }
 			}
@@ -286,7 +289,7 @@ class Purchase_contract extends CI_Controller {
 
 		// get data purchase_plan
 		$purchase_plan = $azapp->add_crud();
-		$purchase_plan->set_column(array('#', "Tanggal Rencana", "Nomor Rencana", "Detail"));
+		$purchase_plan->set_column(array('#', "Tanggal Rencana", "Nomor Rencana", "Detail", "Total Kwitansi"));
 		$purchase_plan->set_th_class(array('', '', '', '', '', '', '', '', ''));
 		$purchase_plan->set_width('auto, 100px, 100px, auto');
 		$purchase_plan->set_id($this->controller . '2');
@@ -325,12 +328,12 @@ class Purchase_contract extends CI_Controller {
 		$this->load->library('AZApp');
 		$crud_plan = $this->azapp->add_crud();
 
-		$crud_plan->set_select('purchase_plan.idpurchase_plan, purchase_plan.idpurchase_plan as txt_idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created');        
-        $crud_plan->set_select_table('idpurchase_plan, txt_idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
+		$crud_plan->set_select('purchase_plan.idpurchase_plan, purchase_plan.idpurchase_plan as txt_idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created, purchase_plan.total_budget');        
+        $crud_plan->set_select_table('idpurchase_plan, txt_idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, total_budget, purchase_plan_status, user_created');
         $crud_plan->set_sorting('purchase_plan_date, purchase_plan_code, purchase_plan_status');
         $crud_plan->set_filter('purchase_plan_date, purchase_plan_code, purchase_plan_status');
 		$crud_plan->set_id($this->controller . '2');
-		$crud_plan->set_select_align(' , , , center');
+		$crud_plan->set_select_align(' , , , right');
 		$crud_plan->set_custom_first_column(true);
 
         $crud_plan->add_join_manual('user', 'purchase_plan.iduser_created = user.iduser');
@@ -365,7 +368,7 @@ class Purchase_contract extends CI_Controller {
 			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total');
 			$purchase_plan = $this->db->get('purchase_plan');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -374,6 +377,7 @@ class Purchase_contract extends CI_Controller {
 			$html .= 		'<th width="320px">Nama Paket Belanja</th>';
 			$html .= 		'<th width="200px">Uraian</th>';
 			$html .= 		'<th width="80px">Volume</th>';
+			$html .= 		'<th width="80px">Total Detail</th>';
 			$html .= 	'</tr>';
 
 			foreach ($purchase_plan->result() as $key => $value) {
@@ -381,12 +385,17 @@ class Purchase_contract extends CI_Controller {
 				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
 				$html .= 	'<td>'.$value->nama_sub_kategori.'</td>';
 				$html .= 	'<td align="center">'.$value->volume.'</td>';
+				$html .= 	'<td align="right">'.az_thousand_separator($value->purchase_plan_detail_total).'</td>';
 				$html .= '</tr>';
 			}
 
 			$html .= '</table>';
 
 			return $html;
+		}
+
+		if ($key == "total_budget") {
+			return az_thousand_separator($value);
 		}
 
 		return $value;
@@ -965,7 +974,7 @@ class Purchase_contract extends CI_Controller {
             $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
             $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-            $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+            $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total');
             $contract_detail = $this->db->get('contract_detail');
             // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -975,6 +984,7 @@ class Purchase_contract extends CI_Controller {
                     'nama_paket_belanja' => $c_value->nama_paket_belanja,
                     'nama_sub_kategori' => $c_value->nama_sub_kategori,
                     'volume' => $c_value->volume,
+                    'total' => $c_value->purchase_plan_detail_total,
                 );
             }
 
