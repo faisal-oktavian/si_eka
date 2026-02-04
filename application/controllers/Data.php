@@ -824,7 +824,7 @@ class Data extends CI_Controller {
 		$this->db->where('purchase_plan_detail.status', '1');
 		$this->db->where('paket_belanja.status', '1');
 		$this->db->where('paket_belanja_detail_sub.status', '1');
-		$this->db->where('sub_kategori.status', '1');
+		// $this->db->where('sub_kategori.status', '1');
 		$this->db->where('contract.contract_status IN ("KONTRAK PENGADAAN", "DITOLAK VERIFIKATOR") ');
 		$this->db->where("YEAR(contract.created) = '".Date('Y')."' ");
 		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
