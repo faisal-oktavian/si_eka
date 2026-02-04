@@ -85,7 +85,7 @@ class Purchase_contract extends CI_Controller {
         $crud->set_sorting('contract_code, contract_status, user_input');
         $crud->set_filter('contract_code, contract_status, user_input');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , center');
+		$crud->set_select_align(', , , , center');
 
         $crud->add_join_manual('user user_created', 'contract.iduser_created = user_created.iduser', 'left');
         

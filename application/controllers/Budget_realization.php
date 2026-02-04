@@ -20,7 +20,7 @@ class Budget_realization extends CI_Controller {
 		$this->load->helper('az_role');
 		$idrole = $this->session->userdata('idrole');
 
-		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Realisasi', 'Keterangan', 'Detail', 'Total Realisasi', 'Status', 'Admin', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal Realisasi', 'Nomor Realisasi', 'Keterangan', 'Detail', 'Total Realisasi', 'Keterangan Uraian', 'Status', 'Admin', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -76,13 +76,13 @@ class Budget_realization extends CI_Controller {
 		$realization_code = $this->input->get('vf_realization_code');
 		$realization_status = $this->input->get('vf_realization_status');
 
-        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, realization_status, user.name as user_created, budget_realization.iduser_created');
-		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, realization_status, user_created');
+        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, "" as description, realization_status, user.name as user_created, budget_realization.iduser_created');
+		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, description, realization_status, user_created');
 
         $crud->set_sorting('realization_date, realization_code, total_realization, realization_status');
         $crud->set_filter('realization_date, realization_code, total_realization, realization_status');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(' , , , , right, center');
+		$crud->set_select_align(' , , , , right, , center');
 
         $crud->add_join_manual('user', 'budget_realization.iduser_created = user.iduser');
         // $crud->add_join_manual('budget_realization_detail', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
@@ -150,6 +150,10 @@ class Budget_realization extends CI_Controller {
 			return $status;
 		}
 
+		if ($key == "description") {
+			return $budget_realization_limit->row()->realization_detail_description;
+		}
+
 		if ($key == "type_code") {
 			$contract_spt = $budget_realization->row()->contract_spt;
 			$contract_invitation_number = $budget_realization->row()->contract_invitation_number;
@@ -189,7 +193,7 @@ class Budget_realization extends CI_Controller {
 			$table .=			"<th width='180px'>Paket Belanja</th>";
 			$table .=			"<th width='200px'>Uraian</th>";
 			$table .=			"<th width='60px'>Volume</th>";
-			$table .=			"<th width='150px'>Keterangan</th>";
+			// $table .=			"<th width='150px'>Keterangan</th>";
 			$table .=			"<th width='150px'>Total Detail</th>";
 			$table .=		"</tr>";
 			$table .=	"</thead>";
@@ -202,7 +206,7 @@ class Budget_realization extends CI_Controller {
 				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
-				$table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
+				// $table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";
 				$table .= "</tr>";
             }

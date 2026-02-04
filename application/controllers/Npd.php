@@ -21,7 +21,7 @@ class Npd extends CI_Controller {
 		$this->load->helper('az_role');
 		$idrole = $this->session->userdata('idrole');
 
-		$crud->set_column(array('#', 'Tanggal NPD', 'Nomor NPD', 'Keterangan', 'Detail', 'Total Kwitansi', 'Status NPD', 'User Input', azlang('Action')));
+		$crud->set_column(array('#', 'Tanggal NPD', 'Nomor NPD', 'Keterangan', 'Detail', 'Total Kwitansi', 'Keterangan Uraian', 'Status NPD', 'User Input', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
@@ -79,13 +79,13 @@ class Npd extends CI_Controller {
 		$npd_code = $this->input->get('npd_code');
 		$npd_status = $this->input->get('vf_npd_status');
 
-        $crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, npd_code, "" as type_code, "" as detail, npd.total_anggaran, npd_status, user_created.name as user_input');
+        $crud->set_select('npd.idnpd, date_format(npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, npd_code, "" as type_code, "" as detail, npd.total_anggaran, "" as description, npd_status, user_created.name as user_input');
 
-        $crud->set_select_table('idnpd, txt_date_input, npd_code, type_code, detail, total_anggaran, npd_status, user_input');
+        $crud->set_select_table('idnpd, txt_date_input, npd_code, type_code, detail, total_anggaran, description, npd_status, user_input');
         $crud->set_sorting('npd_code, npd_status, user_input');
         $crud->set_filter('npd_code, npd_status, user_input');
 		$crud->set_id($this->controller);
-		$crud->set_select_align(', , , , right, center, center');
+		$crud->set_select_align(', , , , right, , center');
 
         $crud->add_join_manual('user user_created', 'npd.iduser_created = user_created.iduser', 'left');
         
@@ -135,7 +135,7 @@ class Npd extends CI_Controller {
 		$table .=			"<th width='300px'>Nama Paket Belanja</th>";
 		$table .=			"<th width='200px'>Uraian</th>";
 		$table .=			"<th width='50px'>Volume</th>";
-		$table .=			"<th width='150px'>Keterangan</th>";
+		// $table .=			"<th width='150px'>Keterangan</th>";
 		$table .=			"<th width='150px'>Total Detail</th>";
 		$table .=		"</tr>";
 		$table .=	"</thead>";
@@ -174,7 +174,7 @@ class Npd extends CI_Controller {
 				$table .=		"<td align='left'>".$c_value->nama_paket_belanja."</td>";
 				$table .=		"<td align='left'>".$c_value->nama_sub_kategori."</td>";
 				$table .=		"<td align='center'>".az_thousand_separator($c_value->volume)."</td>";
-				$table .= 		"<td align='left'>".$c_value->realization_detail_description."</td>";
+				// $table .= 		"<td align='left'>".$c_value->realization_detail_description."</td>";
 				$table .= 		"<td align='right'>".az_thousand_separator($c_value->total_realization_detail)."</td>";
 				$table .=	"</tr>";
 			}
@@ -194,6 +194,10 @@ class Npd extends CI_Controller {
 			}
 
 			return $table;
+		}
+
+		if ($key == "description") {
+			return $verification_limit->row()->realization_detail_description;
 		}
 
 		if ($key == "type_code") {
