@@ -520,7 +520,7 @@ class Budget_realization extends CI_Controller {
 
 		// validasi apakah inputan laki-laki dan perempuan wajib diisi
 		if (strlen($data_idsub_kategori) > 0) {
-			$this->db->where('status', 1);
+			// $this->db->where('status', 1);
 			$this->db->where('idsub_kategori', $data_idsub_kategori);
 			$this->db->select('is_gender, is_description, is_room, is_name_training');
 			$sub_kategori = $this->db->get('sub_kategori');
