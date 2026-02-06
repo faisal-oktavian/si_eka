@@ -1,9 +1,56 @@
 <?php
 	$idrole = $this->session->userdata('idrole');
+
+	$role_view_paket_belanja = false; // hanya lihat data
+    $role_select_ppkom_pptk = false; // pilih ppk / pp
+    $role_specification = false; // Bisa Isi Spesifikasi
+    $role_special_paket_belanja = false; // Bisa Pilih PPK / PP, Isi Spesifikasi
+
+    if (aznav('role_view_paket_belanja')) {
+        $role_view_paket_belanja = true;
+    }
+    if (aznav('role_select_ppkom_pptk')) {
+        $role_select_ppkom_pptk = true;
+    }
+    if (aznav('role_specification')) {
+        $role_specification = true;
+    }
+    if (aznav('role_special_paket_belanja')) {
+        $role_special_paket_belanja = true;
+    }
 ?>
 
 <div  style="margin-top:10px;">
-	<a href="<?php echo app_url();?>master_paket_belanja/add" class="btn-add_paket_belanja"><button class="btn btn-default" type="button"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button></a>
+	<?php 
+		$btn_add_paket_belanja = false;
+
+		if ($role_view_paket_belanja) {
+			// jika hanya lihat data saja
+			$btn_add_paket_belanja = false;
+		}
+		else if ($role_select_ppkom_pptk) {
+			// jika bisa pilih ppk / pp
+			$btn_add_paket_belanja = false;
+		}
+		else if ($role_specification) {
+			// jika hanya bisa isi spesifikasi
+			$btn_add_paket_belanja = false;
+		}
+		else if ($role_special_paket_belanja) {
+			// jika bisa pilih ppk / pp dan isi spesifikasi
+			$btn_add_paket_belanja = true;	
+		}
+		else {
+			// jika bisa buka akses semuanya
+			$btn_add_paket_belanja = true;
+		}
+		
+		if ($btn_add_paket_belanja) {
+	?>
+			<a href="<?php echo app_url();?>master_paket_belanja/add" class="btn-add_paket_belanja"><button class="btn btn-default" type="button"><i class="fa fa-plus"></i> Tambah Paket Belanja</i></button></a>
+	<?php
+		}
+	?>
 </div>
 
 <hr>
@@ -66,7 +113,36 @@
 	<div class="col-md-12">
 		<hr>
 		<div style="margin-bottom:10px;">
-			<button class="btn btn-primary btn-xs" type="button" id="btn_add_akun_belanja"><i class="fa fa-plus"></i> Tambah Akun Belanja</i></button>
+			<?php 
+				$btn_add_akun_belanja = false;
+
+				if ($role_view_paket_belanja) {
+					// jika hanya lihat data saja
+					$btn_add_akun_belanja = false;
+				}
+				else if ($role_select_ppkom_pptk) {
+					// jika bisa pilih ppk / pp
+					$btn_add_akun_belanja = false;
+				}
+				else if ($role_specification) {
+					// jika hanya bisa isi spesifikasi
+					$btn_add_akun_belanja = false;
+				}
+				else if ($role_special_paket_belanja) {
+					// jika bisa pilih ppk / pp dan isi spesifikasi
+					$btn_add_akun_belanja = true;
+				}
+				else {
+					// jika bisa buka akses semuanya
+					$btn_add_akun_belanja = true;
+				}
+				
+				if ($btn_add_akun_belanja) {
+			?>
+					<button class="btn btn-primary btn-xs" type="button" id="btn_add_akun_belanja"><i class="fa fa-plus"></i> Tambah Akun Belanja</i></button>
+			<?php
+				}
+			?>
 		</div>
 		<table class="table table-bordered table-condensed" id="table_onthespot">
 			<thead>
@@ -85,7 +161,36 @@
 		<hr>
 		<div style="margin-bottom:10px;">
 			<a href="<?php echo app_url();?>master_paket_belanja"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a>
-			<button class="btn btn-primary" type="button" id="btn_save_paket_belanja"><i class="fa fa-save"></i> Simpan</i></button>
+			<?php 
+				$btn_save_paket_belanja = false;
+
+				if ($role_view_paket_belanja) {
+					// jika hanya lihat data saja
+					$btn_save_paket_belanja = false;
+				}
+				else if ($role_select_ppkom_pptk) {
+					// jika bisa pilih ppk / pp
+					$btn_save_paket_belanja = true;
+				}
+				else if ($role_specification) {
+					// jika hanya bisa isi spesifikasi
+					$btn_save_paket_belanja = false;
+				}
+				else if ($role_special_paket_belanja) {
+					// jika bisa pilih ppk / pp dan isi spesifikasi
+					$btn_save_paket_belanja = true;
+				}
+				else {
+					// jika bisa buka akses semuanya
+					$btn_save_paket_belanja = true;
+				}
+
+				if ($btn_save_paket_belanja) {
+			?>
+					<button class="btn btn-primary" type="button" id="btn_save_paket_belanja"><i class="fa fa-save"></i> Simpan</i></button>
+			<?php
+				}
+			?>
 		</div>
 	</div>
 </form>

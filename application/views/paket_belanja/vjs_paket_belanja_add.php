@@ -37,16 +37,16 @@
 
 	var idrole = "<?php echo $this->session->userdata('idrole'); ?>";
 
-	// set default hide tombol spesifikasi
-	if (idrole != "" && idrole != null) {
+	// // set default hide tombol spesifikasi
+	// if (idrole != "" && idrole != null) {
 
-		// jika hak akses "Bisa Pilih PPK / PP, Isi Spesifikasi" tidak dicentang
-		if (role_special_paket_belanja == false) {
-			setTimeout(function() {
-				jQuery('#table_onthespot').find('.btn-specification').hide();
-			}, 500);	
-		}
-	}
+	// 	// jika hak akses "Bisa Pilih PPK / PP, Isi Spesifikasi" tidak dicentang
+	// 	if (role_special_paket_belanja == false) {
+	// 		setTimeout(function() {
+	// 			jQuery('#table_onthespot').find('.btn-specification').hide();
+	// 		}, 500);	
+	// 	}
+	// }
 
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {

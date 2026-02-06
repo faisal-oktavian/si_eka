@@ -341,6 +341,13 @@ class Master_paket_belanja extends CI_Controller {
 			$err_code++;
 			$err_message = validation_errors();
 		}
+		
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
 
 		if ($err_code == 0) {
 			if (strlen($idpaket_belanja) == 0) {
@@ -396,6 +403,13 @@ class Master_paket_belanja extends CI_Controller {
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
 			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
 		}
 
 		if ($err_code == 0) {
@@ -512,6 +526,13 @@ class Master_paket_belanja extends CI_Controller {
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
 			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
 		}
 
 		// cek apakah inputan volume rak per bulannya melebihi volume
@@ -669,6 +690,13 @@ class Master_paket_belanja extends CI_Controller {
 		if ($this->form_validation->run() == FALSE) {
 			$err_code++;
 			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
 		}
 		
 		if ($err_code == 0) {
@@ -942,6 +970,13 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+
+		if ($err_code == 0) {
 			$arr_data = array();
 
 			// jika menggunakan fitur copy data
@@ -1135,6 +1170,13 @@ class Master_paket_belanja extends CI_Controller {
 		$err_message = $data_validasi['err_message'];
 		
 		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+
+		if ($err_code == 0) {
 			// cek apakah ada detailnya?
 			$this->db->where('idpaket_belanja', $id);
 			$this->db->where('status', 1);
@@ -1206,6 +1248,13 @@ class Master_paket_belanja extends CI_Controller {
 
 		$err_code = $data_validasi['err_code'];
 		$err_message = $data_validasi['err_message'];
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
 
 		if ($err_code == 0) {
 			// cek apakah ada detail dari akun belanja ini?
@@ -1291,6 +1340,13 @@ class Master_paket_belanja extends CI_Controller {
 
 		$err_code = $data_validasi['err_code'];
 		$err_message = $data_validasi['err_message'];
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
 		
 		if ($err_code == 0) {
 			// cek apakah ada detail dari akun belanja ini?
@@ -1340,7 +1396,19 @@ class Master_paket_belanja extends CI_Controller {
 		$idakun_belanja = '';
 		$nama_akunbelanja = '';
 
-		if ($this->form_validation->run() == TRUE){
+		if ($this->form_validation->run() == FALSE){
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+
+		if ($err_code == 0) {
 
 			$data_save = array(
 				'no_rekening_akunbelanja' => azarr($data_post, 'no_rekening_akunbelanja'), 
@@ -1364,10 +1432,6 @@ class Master_paket_belanja extends CI_Controller {
 				$idakun_belanja = $akun_belanja->row()->id;
 				$nama_akunbelanja = $akun_belanja->row()->text;
 			}
-		}
-		else {
-			$err_code++;
-			$err_message = validation_errors();
 		}
 
 		$data = array(
@@ -1397,8 +1461,20 @@ class Master_paket_belanja extends CI_Controller {
 		$idkategori = '';
 		$nama_kategori = '';
 
-		if($this->form_validation->run() == TRUE){
+		if ($this->form_validation->run() == FALSE){
+			$err_code++;
+			$err_message = validation_errors();
+		}
 
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+		
+		if ($err_code == 0) {
+			
 			$data_save = array(
 				'nama_kategori' => azarr($data_post, 'nama_kategori'), 
 				'is_active' => azarr($data_post, 'is_active'),
@@ -1420,10 +1496,6 @@ class Master_paket_belanja extends CI_Controller {
 				$idkategori = $kategori->row()->id;
 				$nama_kategori = $kategori->row()->text;
 			}
-		}
-		else {
-			$err_code++;
-			$err_message = validation_errors();
 		}
 
 		$data = array(
@@ -1460,7 +1532,19 @@ class Master_paket_belanja extends CI_Controller {
 		$err_code = 0;
 		$err_message = '';
 
-		if($this->form_validation->run() == TRUE){
+		if ($this->form_validation->run() == FALSE){
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+
+		if ($err_code == 0) {
 
 			$data_save = array(
 				'nama_sub_kategori' => azarr($data_post, 'nama_sub_kategori'),
@@ -1495,10 +1579,6 @@ class Master_paket_belanja extends CI_Controller {
 				$idsub_kategori = $sub_kategori->row()->id;
 				$nama_subkategori = $sub_kategori->row()->text;
 			}
-		}
-		else {
-			$err_code++;
-			$err_message = validation_errors();
 		}
 
 		$data = array(
