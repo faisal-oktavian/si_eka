@@ -31,6 +31,10 @@ class Home extends AZ_Controller {
 		
 		$tahun_ini = date('Y');
 		// $tahun_ini = "2024";
+		
+
+		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
+		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
 
 		
 		// GRAFIK REALISASI ANGGARAN
@@ -46,7 +50,7 @@ class Home extends AZ_Controller {
 
 		
 		// GRAFIK POTENSI SISA ANGGARAN
-		$grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
+		// $grafik_potensi_sisa_anggaran = $this->grafik_potensi_sisa_anggaran($tahun_ini);
 		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
 		$realisasi_anggaran = $sudah_dibayar;
 
@@ -381,6 +385,8 @@ class Home extends AZ_Controller {
 
 		// Belum Direalisasi
 			$belum_direalisasi = $total_anggaran - ( floatval($sudah_dibayar) + floatval($menunggu_pembayaran) + floatval($npd) + floatval($sudah_diverifikasi) + floatval($menunggu_verifikasi) + floatval($kontrak_pengadaan) + floatval($proses_pengadaan) );
+
+			// var_dump($total_anggaran.' - ( '.floatval($sudah_dibayar).' + '.floatval($menunggu_pembayaran).' + '.floatval($npd).' + '.floatval($sudah_diverifikasi).' + '.floatval($menunggu_verifikasi).' + '.floatval($kontrak_pengadaan).' + '.floatval($proses_pengadaan).' ) = '.$belum_direalisasi);
 			// // ambil data paket belanja yang sudah masuk di rencana pengadaan
 			// $this->db->where('purchase_plan.status', 1);
 			// $this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
@@ -635,7 +641,7 @@ class Home extends AZ_Controller {
 			COALESCE(pbds_child.rak_jumlah_november, pbds_parent.rak_jumlah_november) AS rak_jumlah_november,
 			COALESCE(pbds_child.rak_jumlah_desember, pbds_parent.rak_jumlah_desember) AS rak_jumlah_desember'.$query_develop);
 		$capaian_target = $this->db->get('paket_belanja pb');
-		// echo "<pre>"; print_r($this->db->last_query()); die;	
+		// echo "<pre>"; print_r($this->db->last_query());
 		
 
 		// // cek data

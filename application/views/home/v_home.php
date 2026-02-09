@@ -313,7 +313,7 @@
 			var persen_kontrak_pengadaan = total ? Math.round( (nominal_kontrak_pengadaan / total * 100) * 100) / 100 : 0;
 			var persen_proses_pengadaan = total ? Math.round( (nominal_proses_pengadaan / total * 100) * 100) / 100 : 0;
 
-			var persen_belum_direalisasi = total ? 100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan) : 0;
+			var persen_belum_direalisasi = total ? Math.round((100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan)) * 100) / 100 : 0;
 
 			function formatRupiah(angka) {
 				return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
