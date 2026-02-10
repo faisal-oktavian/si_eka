@@ -171,63 +171,40 @@
                 <tbody>
                     <?php
                         $grand_total_sekarang = 0; 
-                        foreach ($arr_akun_belanja as $key => $value) {
+                        foreach ($arr_data as $key => $value) {
                     ?>
                             <tr style="font-weight: bold;">
-                                <td style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
-                                <td colspan="6"><?php echo $value['nama_akunbelanja'];?></td>
+                                <td rowspan="<?php echo $value['total_data']; ?>" style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
+                                <td colspan="6"><?php echo $value['nama_akun_belanja'];?></td>
                             </tr>
-                    <?php
+                    <?php   
                             $space = "padding-left:15px;";
                             $space_detail = "padding-left:15px;";
+                            foreach ($value['arr_detail'] as $key_sub => $value_sub) {
+                                if ($value_sub['nama_kategori'] != "") {
 
-                            foreach ($value['arr_kategori'] as $dkey => $dvalue) {
-                                if (strlen($dvalue['idkategori']) > 0) {
                                     $space_detail = "padding-left:30px;";
-                                    // jika ada kategorinya 
                     ?>
                                     <tr>
-                                        <td></td>
                                         <td colspan="6" style="font-weight:bold; <?php echo $space; ?>">
-                                            <?php echo $dvalue['nama_kategori'];?>
-                                        </td>
+                                            <?php echo $value_sub['nama_kategori'];?></td>
                                     </tr>
                     <?php
-                                    foreach ($dvalue['arr_subkategori'] as $skey => $svalue) {
-                                        $grand_total_sekarang += $svalue['total_sekarang'];
-                    ?>
-                                        <tr>
-                                            <td></td>
-                                            <td style="<?php echo $space_detail; ?>">
-                                                <?php echo $svalue['nama_sub_kategori'];?>
-                                                <br>
-                                                <?php echo $svalue['kode_rekening_sub'];?>
-                                            </td>
-                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['total_anggaran']);?></td>
-                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['sisa_anggaran']);?></td>
-                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['total_sekarang']);?></td>
-                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['sisa_akhir']);?></td>
-                                            <td><?php echo $svalue['realization_detail_description'];?></td>
-                                        </tr>
-                    <?php
-                                    }
                                 }
-                                else {
-                                    // jika hanya sub kategori
-                                    $grand_total_sekarang += $dvalue['total_sekarang'];
+                                foreach ($value_sub['arr_detail_sub'] as $key_ds => $value_ds) {
+                                    $grand_total_sekarang += $value_ds['total_sekarang'];
                     ?>
                                     <tr>
-                                        <td></td>
-                                        <td style="<?php echo $space; ?>">
-                                            <?php echo $dvalue['nama_sub_kategori'];?>
+                                        <td style="<?php echo $space_detail; ?>">
+                                            <?php echo $value_ds['nama_sub_kategori'];?>
                                             <br>
-                                            <?php echo $dvalue['kode_rekening_sub'];?>
+                                            <?php echo $value_ds['nomor_kode_rekening'];?>
                                         </td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['total_anggaran']);?></td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['sisa_anggaran']);?></td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['total_sekarang']);?></td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['sisa_akhir']);?></td>
-                                        <td><?php echo $dvalue['realization_detail_description'];?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_sekarang']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_akhir']);?></td>
+                                        <td><?php echo $value_ds['realization_detail_description'];?></td>
                                     </tr>
                     <?php
                                 }
@@ -235,7 +212,7 @@
                         }
                     ?>
                     <tr style="font-weight: bold;">
-                        <td></td>
+                        <td rowspan="<?php echo $value['total_data']; ?>" style="vertical-align:top;"></td>
                         <td>Total</td>
                         <td></td>
                         <td></td>
@@ -249,19 +226,19 @@
 
         <div class="ttd-row">
             <div class="ttd">
-                <!-- Pengguna Anggaran<br> -->
+                Pengguna Anggaran<br>
                 Kuasa Pengguna Anggaran
-                <br><br><br><br><br><br><br>
+                <br><br><br><br><br><br>
                 dr. Edy Cahyono<br>
-                Pembina Tingkat I IV/b<br>
+                Pembina Tingkat I (IV/b)<br>
                 NIP 197301052010011007
             </div>
 
             <div class="ttd">
-                Pejabat Pelaksana Teknis Kegiatan
+                Pejabat Pelaksana Teknis Kegiatan (PPTK)
                 <br><br><br><br><br><br><br>
                 Hari Purnomo, S.Kep.Ns., M.Kes.<br>
-                Pembina IV/a<br>
+                Pembina (IV/a)<br>
                 NIP 197103061993031004
             </div>
         </div>
