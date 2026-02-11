@@ -610,6 +610,8 @@ class Budget_realization extends CI_Controller {
 			}
 			// var_dump($data_utama->row()->jumlah.' < ('.floatval($data_realisasi->row()->total_realization_detail).' + '.floatval($total_realization_detail).')'); echo "<br><br>";
 		}
+// var_dump($err_message);die;
+
 
 		// validasi tanggal realisasi tidak boleh melebihi tanggal hari ini
 		if ($err_code == 0) {
@@ -1444,6 +1446,7 @@ class Budget_realization extends CI_Controller {
 	function get_data_rencana($the_data) {
 		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
 		$transaction_date = azarr($the_data, 'transaction_date', '');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$idbudget_realization_detail = azarr($the_data, 'idbudget_realization_detail', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
@@ -1461,14 +1464,36 @@ class Budget_realization extends CI_Controller {
 		if (strlen($idbudget_realization_detail) > 0) {
 			$this->db->where('budget_realization_detail.idbudget_realization_detail != "'.$idbudget_realization_detail.'" ');
 		}
+		/*
+		|--------------------------------------------------------------------------
+		| LOGIKA KHUSUS SATUAN LS
+		|--------------------------------------------------------------------------
+		| (satuan.nama_satuan = 'LS')
+		| OR
+		| (satuan.nama_satuan != 'LS' AND purchase_plan_detail.idpaket_belanja = ?)
+		*/
+		$this->db->group_start();
+			$this->db->where('satuan.nama_satuan', 'LS');
+			$this->db->or_group_start();
+				$this->db->where('satuan.nama_satuan !=', 'LS');
+				$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+			$this->db->group_end();
+		$this->db->group_end();
 
 		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
 		
 
 		$this->db->select('
 			count(budget_realization_detail.idbudget_realization_detail), 
 			sum(budget_realization_detail.volume) as total_volume,
-			sum(budget_realization_detail.total_realization_detail) as total_realization_detail
+			sum(budget_realization_detail.total_realization_detail) as total_realization_detail,
+			max(satuan.nama_satuan) as nama_satuan
 		');
 
 		$data = $this->db->get('budget_realization');
