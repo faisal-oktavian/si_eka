@@ -47,6 +47,7 @@ class Budget_realization extends CI_Controller {
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('vf_realization_code', 'vf_realization_code');
 		$crud->add_aodata('vf_realization_status', 'vf_realization_status');
+		$crud->add_aodata('iduser_created', 'iduser_created');
 
 		$vf = $this->load->view('budget_realization/vf_budget_realization', $data, true);
         $crud->set_top_filter($vf);
@@ -75,6 +76,7 @@ class Budget_realization extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$realization_code = $this->input->get('vf_realization_code');
 		$realization_status = $this->input->get('vf_realization_status');
+		$iduser_created = $this->input->get('iduser_created');
 
         $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, "" as description, realization_status, user.name as user_created, budget_realization.iduser_created');
 		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, description, realization_status, user_created');
@@ -98,6 +100,9 @@ class Budget_realization extends CI_Controller {
 		}
 		if (strlen($realization_status) > 0) {
 			$crud->add_where('budget_realization.realization_status = "' . $realization_status . '"');
+		}
+		if (strlen($iduser_created) > 0) {
+			$crud->add_where('budget_realization.iduser_created = "' . $iduser_created . '"');
 		}
 
 		$crud->add_where("budget_realization.status = 1");

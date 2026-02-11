@@ -881,4 +881,44 @@ class Data extends CI_Controller {
 		// echo "<pre>"; print_r($results);die;
 		echo json_encode($results);
 	}
+
+	public function get_user_admin(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("name");
+		if (strlen($q) > 0) {
+			$this->db->like("name", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->select("iduser as id, name as text");
+		$this->db->where('status', '1');
+		$this->db->where('idrole IS NOT NULL');
+
+		$data = $this->db->get("user", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->like("name", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$this->db->where('idrole IS NOT NULL');
+		$cdata = $this->db->get("user");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
 }	

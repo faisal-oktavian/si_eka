@@ -47,6 +47,7 @@ class Purchase_plan extends CI_Controller {
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('vf_purchase_plan_code', 'vf_purchase_plan_code');
 		$crud->add_aodata('vf_purchase_plan_status', 'vf_purchase_plan_status');
+		$crud->add_aodata('iduser_created', 'iduser_created');
 
 		$vf = $this->load->view('purchase_plan/vf_purchase_plan', $data, true);
         $crud->set_top_filter($vf);
@@ -75,6 +76,7 @@ class Purchase_plan extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$purchase_plan_code = $this->input->get('vf_purchase_plan_code');
 		$purchase_plan_status = $this->input->get('vf_purchase_plan_status');
+		$iduser_created = $this->input->get('iduser_created');
 
         $crud->set_select('purchase_plan.idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created, purchase_plan.iduser_created');        
         $crud->set_select_table('idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
@@ -94,6 +96,9 @@ class Purchase_plan extends CI_Controller {
 		}
 		if (strlen($purchase_plan_status) > 0) {
 			$crud->add_where('purchase_plan.purchase_plan_status = "' . $purchase_plan_status . '"');
+		}
+		if (strlen($iduser_created) > 0) {
+			$crud->add_where('purchase_plan.iduser_created = "' . $iduser_created . '"');
 		}
 
 		$crud->add_where("purchase_plan.status = 1");

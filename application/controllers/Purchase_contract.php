@@ -44,6 +44,7 @@ class Purchase_contract extends CI_Controller {
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('contract_code', 'contract_code');
 		$crud->add_aodata('vf_contract_status', 'vf_contract_status');
+		$crud->add_aodata('iduser_created', 'iduser_created');
 
 		$vf = $this->load->view('purchase_contract/vf_purchase_contract', $data, true);
         $crud->set_top_filter($vf);
@@ -79,6 +80,7 @@ class Purchase_contract extends CI_Controller {
 		$date2 = $this->input->get('date2');
 		$contract_code = $this->input->get('contract_code');
 		$contract_status = $this->input->get('vf_contract_status');
+		$iduser_created = $this->input->get('iduser_created');
 
         $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as type_code, "" as detail, contract_status, user_created.name as user_input, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, contract.iduser_created');
         $crud->set_select_table('idcontract, txt_contract_date, contract_code, type_code, detail, contract_status, user_input');
@@ -98,6 +100,9 @@ class Purchase_contract extends CI_Controller {
 		}
 		if (strlen($contract_status) > 0) {
 			$crud->add_where('contract.contract_status = "' . $contract_status . '"');
+		}
+		if (strlen($iduser_created) > 0) {
+			$crud->add_where('contract.iduser_created = "' . $iduser_created . '"');
 		}
 
 		$crud->add_where("contract.status = 1");

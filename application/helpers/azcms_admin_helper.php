@@ -482,3 +482,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $select->render();
         }
     }
+
+    if(!function_exists('az_select_user_admin')){
+        function az_select_user_admin($id = 'user_created', $class='', $attr='user_created') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_user_admin');
+            $select->set_placeholder('Pilih Admin');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.iduser_created'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }
