@@ -205,7 +205,7 @@ class Budget_realization extends CI_Controller {
 				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
-				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
+				$table .= 		"<td align='center'>".az_thousand_separator_decimal($value['volume'])."</td>";
 				// $table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";
 				$table .= "</tr>";
@@ -413,7 +413,7 @@ class Budget_realization extends CI_Controller {
                     $table .=       "<td>".$dvalue['purchase_plan_code']."</td>";
                     $table .=       "<td>".$dvalue['nama_paket_belanja']."</td>";
                     $table .=       "<td>".$dvalue['nama_sub_kategori']."</td>";
-                    $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";
+                    $table .=       "<td align='center'>".az_thousand_separator_decimal($dvalue['volume'])."</td>";
                     $table .=       "<td align='right'>".az_thousand_separator($dvalue['total'])."</td>";
                     $table .= "</tr>";
                 }
@@ -508,7 +508,8 @@ class Budget_realization extends CI_Controller {
 		$pph = az_crud_number($this->input->post('pph'));
 		$realization_detail_description = $this->input->post('realization_detail_description');
 
-		$total_realization_detail = (floatval($volume) * floatval($unit_price)) + floatval($ppn) - floatval($pph);
+		// $total_realization_detail = (floatval($volume) * floatval($unit_price)) + floatval($ppn) - floatval($pph);
+		$total_realization_detail = (floatval($volume) * floatval($unit_price));
 
 
 		$this->load->library('form_validation');

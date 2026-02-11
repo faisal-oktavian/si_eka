@@ -192,7 +192,7 @@
 				search_uraian(response.data.detail_sub_id);
 		
 				setTimeout(function() {
-					jQuery('#volume').val(response.data.volume);
+					jQuery('#volume').val(thousand_separator_decimal(response.data.volume));
 					jQuery('#purchase_plan_detail_total').val(response.data.purchase_plan_detail_total);
 					jQuery('#idpurchase_plan').val(response.data.idpurchase_plan);
 				}, 500);

@@ -127,7 +127,7 @@
                                                             <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
                                                             <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
                                                             <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
-                                                            <td align="center"><?php echo az_thousand_separator($ds_value['sisa_volume']); ?></td>
+                                                            <td align="center"><?php echo az_thousand_separator_decimal($ds_value['sisa_volume']); ?></td>
                                                         </tr>
                                             <?php
                                                     }
@@ -151,7 +151,7 @@
                                                                 <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                                                                 <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                                                                 <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
-                                                                <td align="center"><?php echo az_thousand_separator($ss_value['sisa_volume']); ?></td>
+                                                                <td align="center"><?php echo az_thousand_separator_decimal($ss_value['sisa_volume']); ?></td>
                                                             </tr>
                                             <?php
                                                         }

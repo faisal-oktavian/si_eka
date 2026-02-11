@@ -123,7 +123,7 @@
                 get_validate_name_training(response.idsub_kategori);
 
 				setTimeout(function() {
-					jQuery('.volume').val(thousand_separator(response.volume));
+					jQuery('.volume').val(thousand_separator_decimal(response.volume));
 					jQuery('.unit-price').val(thousand_separator(response.unit_price));
 					jQuery('.total-realization-detail').val(thousand_separator(response.total_realization_detail));
 				}, 500);
@@ -338,7 +338,8 @@
 		unit_price 		= remove_separator(unit_price);
 		ppn 			= remove_separator(ppn);
 		pph 			= remove_separator(pph);
-
+	console.log('volume '+volume);
+	console.log('unit_price '+unit_price);
   		// var total = (parseFloat(volume) * parseFloat(unit_price)) + parseFloat(ppn) - parseFloat(pph);
   		var total = (parseFloat(volume) * parseFloat(unit_price));
 

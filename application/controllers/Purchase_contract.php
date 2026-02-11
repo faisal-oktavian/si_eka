@@ -218,7 +218,7 @@ class Purchase_contract extends CI_Controller {
                     $table .=       "<td align='left'>".$dvalue['purchase_plan_code']."</td>";
                     $table .=       "<td align='left'>".$dvalue['nama_paket_belanja']."</td>";
                     $table .=       "<td align='left'>".$dvalue['nama_sub_kategori']."</td>";
-                    $table .=       "<td align='center'>".az_thousand_separator($dvalue['volume'])."</td>";
+                    $table .=       "<td align='center'>".az_thousand_separator_decimal($dvalue['volume'])."</td>";
                     $table .=       "<td align='right'>".az_thousand_separator($dvalue['total'])."</td>";
                     $table .= "</tr>";
                 }
@@ -384,7 +384,7 @@ class Purchase_contract extends CI_Controller {
 				$html .= '<tr>';
 				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
 				$html .= 	'<td>'.$value->nama_sub_kategori.'</td>';
-				$html .= 	'<td align="center">'.$value->volume.'</td>';
+				$html .= 	'<td align="center">'.az_thousand_separator_decimal($value->volume).'</td>';
 				$html .= 	'<td align="right">'.az_thousand_separator($value->purchase_plan_detail_total).'</td>';
 				$html .= '</tr>';
 			}

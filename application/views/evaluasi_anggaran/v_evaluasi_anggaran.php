@@ -155,7 +155,7 @@
                                       <br>
                                       <?php echo $ds_value['kode_rekening']; ?>
                                     </td>
-                                    <td align="center"><?php echo $ds_value['volume']; ?></td>
+                                    <td align="center"><?php echo az_thousand_separator($ds_value['volume']); ?></td>
                                     <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
                                     <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
                                     <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
@@ -187,7 +187,7 @@
                                             <br>
                                             <?php echo $ss_value['kode_rekening'];?>
                                           </td>
-                                          <td align="center"><?php echo $ss_value['volume'];?></td>
+                                          <td align="center"><?php echo az_thousand_separator($ss_value['volume']);?></td>
                                           <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                                           <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                                           <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>

@@ -224,13 +224,13 @@
             <!-- realisasi tw saat ini -->
             <td class="col-lk bold abu_abu" align="center"><?php echo az_thousand_separator($data['grand_realisasi_lk']); ?></td>
             <td class="col-pr bold abu_abu" align="center"><?php echo az_thousand_separator($data['grand_realisasi_pr']); ?></td>
-            <td class="col-vol bold" align="center"><?php echo az_thousand_separator($data['grand_realisasi_vol']); ?></td>
+            <td class="col-vol bold" align="center"><?php echo az_thousand_separator_decimal($data['grand_realisasi_vol']); ?></td>
             <td class="col-rp bold" align="right">Rp. <?php echo az_thousand_separator($data['grand_realisasi_rp']); ?></td>
 
             <!-- total realisasi sampai tw saat ini -->
             <td class="col-lk bold abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($data['grand_realisasi_lk_sampai']); ?></td>
             <td class="col-pr bold abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($data['grand_realisasi_pr_sampai']); ?></td>
-            <td class="col-vol bold <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($data['grand_realisasi_vol_sampai']); ?></td>
+            <td class="col-vol bold <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator_decimal($data['grand_realisasi_vol_sampai']); ?></td>
             <td class="col-rp bold <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right">Rp. <?php echo az_thousand_separator($data['grand_realisasi_rp_sampai']); ?></td>
             
             <?php
@@ -245,7 +245,7 @@
             
             <!-- sisa realisasi -->
             <td class="col-persentase bold abu_abu" align="right"><?php echo az_thousand_separator($data['grand_capaian_sampai']); ?> %</td>
-            <td class="col-sisa-vol bold" align="center"><?php echo az_thousand_separator($data['grand_sisa_vol']); ?></td>
+            <td class="col-sisa-vol bold" align="center"><?php echo az_thousand_separator_decimal($data['grand_sisa_vol']); ?></td>
             <td class="col-sisa-rp bold" align="right" style="background-color: <?php echo $bg_color_rp;?>;">Rp. <?php echo az_thousand_separator($data['grand_sisa_rp']); ?></td>
         </tr>
 
@@ -336,13 +336,13 @@
                         <!-- realisasi tw sebelumnya -->
                         <td class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sebelumnya']); ?></td>
                         <td class="col-pr <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_pr_sebelumnya']); ?></td>
-                        <td class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sebelumnya']); ?></td>
+                        <td class="col-vol <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator_decimal($value['realisasi_vol_sebelumnya']); ?></td>
                         <td class="col-rp <?php echo $hide_col_realisasi_sebelumnya; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sebelumnya']); ?></td>
                         
                         <!-- Bulan ke 1 -->
                         <td <?php echo $bulan1; ?> class="bulan1 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_1']; ?></td>
                         <td <?php echo $bulan1; ?> class="bulan1 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_1']; ?></td>
-                        <td <?php echo $bulan1; ?> class="bulan1 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_1']); ?></td>
+                        <td <?php echo $bulan1; ?> class="bulan1 col-vol" align="center"><?php echo az_thousand_separator_decimal($value['volume_bulan_ke_1']); ?></td>
                         <td <?php echo $bulan1; ?> class="bulan1 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_1']); ?></td>
                         <td <?php echo $bulan1; ?> class="bulan1 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_1']); ?></td>
                         <td <?php echo $bulan1; ?> class="bulan1 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_1']); ?></td>
@@ -353,7 +353,7 @@
                         <!-- Bulan ke 2 -->
                         <td <?php echo $bulan2; ?> class="bulan2 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_2']; ?></td>
                         <td <?php echo $bulan2; ?> class="bulan2 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_2']; ?></td>
-                        <td <?php echo $bulan2; ?> class="bulan2 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_2']); ?></td>
+                        <td <?php echo $bulan2; ?> class="bulan2 col-vol" align="center"><?php echo az_thousand_separator_decimal($value['volume_bulan_ke_2']); ?></td>
                         <td <?php echo $bulan2; ?> class="bulan2 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_2']); ?></td>
                         <td <?php echo $bulan2; ?> class="bulan2 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_2']); ?></td>
                         <td <?php echo $bulan2; ?> class="bulan2 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_2']); ?></td>
@@ -364,7 +364,7 @@
                         <!-- Bulan ke 3 -->
                         <td <?php echo $bulan3; ?> class="bulan3 col-tanggal" align="left"><?php echo $value['tanggal_bulan_ke_3']; ?></td>
                         <td <?php echo $bulan3; ?> class="bulan3 col-penyedia" align="left"><?php echo $value['penyedia_bulan_ke_3']; ?></td>
-                        <td <?php echo $bulan3; ?> class="bulan3 col-vol" align="center"><?php echo az_thousand_separator($value['volume_bulan_ke_3']); ?></td>
+                        <td <?php echo $bulan3; ?> class="bulan3 col-vol" align="center"><?php echo az_thousand_separator_decimal($value['volume_bulan_ke_3']); ?></td>
                         <td <?php echo $bulan3; ?> class="bulan3 col-lk" align="center"><?php echo az_thousand_separator($value['laki_bulan_ke_3']); ?></td>
                         <td <?php echo $bulan3; ?> class="bulan3 col-pr" align="center"><?php echo az_thousand_separator($value['perempuan_bulan_ke_3']); ?></td>
                         <td <?php echo $bulan3; ?> class="bulan3 col-harga" align="right">Rp. <?php echo az_thousand_separator($value['harga_satuan_bulan_ke_3']); ?></td>
@@ -375,13 +375,13 @@
                         <!-- realisasi tw saat ini -->
                         <td class="col-lk abu_abu" align="center"><?php echo az_thousand_separator($value['realisasi_lk']); ?></td>
                         <td class="col-pr abu_abu" align="center"><?php echo az_thousand_separator($value['realisasi_pr']); ?></td>
-                        <td class="col-vol" align="center"><?php echo az_thousand_separator($value['realisasi_vol']); ?></td>
+                        <td class="col-vol" align="center"><?php echo az_thousand_separator_decimal($value['realisasi_vol']); ?></td>
                         <td class="col-rp" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp']); ?></td>
 
                         <!-- total realisasi sampai tw saat ini -->
                         <td class="col-lk abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sampai']); ?></td>
                         <td class="col-pr abu_abu <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_pr_sampai']); ?></td>
-                        <td class="col-vol <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_vol_sampai']); ?></td>
+                        <td class="col-vol <?php echo $hide_col_realisasi_sampai_tw; ?>" align="center"><?php echo az_thousand_separator_decimal($value['realisasi_vol_sampai']); ?></td>
                         <td class="col-rp <?php echo $hide_col_realisasi_sampai_tw; ?>" align="right">Rp. <?php echo az_thousand_separator($value['realisasi_rp_sampai']); ?></td>
 
 
@@ -397,7 +397,7 @@
 
                         <!-- sisa realisasi -->
                         <td class="col-persentase abu_abu" align="right"><?php echo az_thousand_separator($value['capaian_sampai']); ?> %</td>
-                        <td class="col-sisa-vol" align="center"><?php echo az_thousand_separator($value['sisa_vol']); ?></td>
+                        <td class="col-sisa-vol" align="center"><?php echo az_thousand_separator_decimal($value['sisa_vol']); ?></td>
                         <td class="col-sisa-rp" align="right" style="background-color: <?php echo $bg_color_rp;?>;">Rp. <?php echo az_thousand_separator($value['sisa_rp']); ?></td>
                     </tr>
         <?php

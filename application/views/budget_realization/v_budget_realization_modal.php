@@ -94,7 +94,7 @@
         <div class="form-group">
             <label class="control-label col-md-3">Volume <red>*</red></label>
             <div class="col-md-8">
-                <input type="text" class="form-control format-number txt-right volume" id="volume" name="volume"/>
+                <input type="text" class="form-control format-number-decimal txt-right volume" id="volume" name="volume"/>
             </div>
         </div>
         <div class="gender hide">

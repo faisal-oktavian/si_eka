@@ -107,6 +107,24 @@ class Report_realisasi_anggaran extends CI_Controller {
 
 	function custom_style($key, $value, $data) {
 
+		if ($key == 'volume') {
+			$volume = az_thousand_separator_decimal($value);
+
+			return $volume;
+		}
+
+		if ($key == 'male') {
+			$male = az_thousand_separator($value);
+
+			return $male;
+		}
+		
+		if ($key == 'female') {
+			$female = az_thousand_separator($value);
+
+			return $female;
+		}
+
 		if ($key == 'unit_price') {
 			$unit_price = az_thousand_separator($value);
 

@@ -6,7 +6,7 @@
 			<td><?php echo $value['purchase_plan_code'];?></td>
 			<td><?php echo $value['nama_paket_belanja'];?></td>
 			<td><?php echo $value['nama_sub_kategori'];?></td>
-			<td align="center"><?php echo az_thousand_separator($value['volume']);?></td>
+			<td align="center"><?php echo az_thousand_separator_decimal($value['volume']);?></td>
 			<td align="right">Rp <?php echo az_thousand_separator($value['unit_price']);?></td>
 			<td align="right">Rp <?php echo az_thousand_separator($value['ppn']);?></td>
 			<td align="right">Rp <?php echo az_thousand_separator($value['pph']);?></td>

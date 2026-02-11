@@ -184,7 +184,7 @@ class Document_verification extends CI_Controller {
 				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
-				$table .= 		"<td align='center'>".az_thousand_separator($value['volume'])."</td>";
+				$table .= 		"<td align='center'>".az_thousand_separator_decimal($value['volume'])."</td>";
 				// $table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";
 				$table .= "</tr>";
