@@ -114,8 +114,18 @@
             foreach ($arr_data as $key => $value) {
                 
                 $bold = '';
+                $space = '';
                 if ($value['is_bold'] == 1) {
-                    $bold = 'style="font-weight:bold;" ';
+                    $bold = ' font-weight:bold;';
+                }
+                if ($value['is_sub'] == 1) {
+                    $space = 'padding-left:20px;';
+                }
+                else if ($value['is_sub'] == 2) {
+                    $space = 'padding-left:40px;';
+                }
+                else {
+                    $space = 'padding-left:0px;';
                 }
 
 
@@ -123,7 +133,7 @@
                 if (strlen($value['idkategori']) > 0 || $value['is_nama_akun_belanja'] == 1) {
         ?>
                     <tr>
-                        <td class="col-uraian" <?php echo $bold; ?> ><?php echo $value['nama_kategori']; ?></td>
+                        <td class="col-uraian" style="<?php echo $bold.$space; ?>" ><?php echo $value['nama_kategori']; ?></td>
 
                         <td colspan="36"></td>
 
@@ -180,7 +190,7 @@
                 else {
         ?>
                     <tr>
-                        <td class="col-uraian" <?php echo $bold; ?> ><?php echo $value['nama_subkategori']; ?></td>
+                        <td class="col-uraian" style="<?php echo $bold.$space; ?>" ><?php echo $value['nama_subkategori']; ?></td>
                         
                         <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_januari']); ?></td>
                         <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_januari']); ?></td>

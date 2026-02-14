@@ -255,6 +255,11 @@
                 $bulan2 = '';
                 $bulan3 = '';
 
+                $space = 'padding-left:20px';
+                if ($value['is_sub'] == 2) {
+                    $space = 'padding-left:40px';
+                }
+
                 if ($value['text_decoration_bulan_ke_1'] != "") {
                     $bulan1 = 'style="'.$value['text_decoration_bulan_ke_1'].'" ';
                 }
@@ -268,7 +273,7 @@
                 if (strlen($value['idkategori']) > 0) {
         ?>
                     <tr>
-                        <td class="col-uraian"><b><?php echo $value['nama_kategori']; ?></b></td>
+                        <td class="col-uraian" style="<?php echo $space; ?>"><b><?php echo $value['nama_kategori']; ?></b></td>
                         
                         <!-- realisasi tw sebelumnya -->
                         <td class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"></td>
@@ -331,7 +336,7 @@
                 else {
         ?>  
                     <tr>
-                        <td class="col-uraian"><?php echo $value['nama_subkategori']; ?></td>
+                        <td class="col-uraian" style="<?php echo $space; ?>"><?php echo $value['nama_subkategori']; ?></td>
                         
                         <!-- realisasi tw sebelumnya -->
                         <td class="col-lk <?php echo $hide_col_realisasi_sebelumnya; ?>" align="center"><?php echo az_thousand_separator($value['realisasi_lk_sebelumnya']); ?></td>

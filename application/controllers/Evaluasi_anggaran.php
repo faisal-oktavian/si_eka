@@ -539,7 +539,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 		$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 		$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.rak_volume_januari, paket_belanja_detail_sub.rak_volume_februari, paket_belanja_detail_sub.rak_volume_maret, paket_belanja_detail_sub.rak_volume_april, paket_belanja_detail_sub.rak_volume_mei, paket_belanja_detail_sub.rak_volume_juni, paket_belanja_detail_sub.rak_volume_juli, paket_belanja_detail_sub.rak_volume_agustus, paket_belanja_detail_sub.rak_volume_september, paket_belanja_detail_sub.rak_volume_oktober, paket_belanja_detail_sub.rak_volume_november, paket_belanja_detail_sub.rak_volume_desember, paket_belanja_detail_sub.rak_jumlah_januari, paket_belanja_detail_sub.rak_jumlah_februari, paket_belanja_detail_sub.rak_jumlah_maret, paket_belanja_detail_sub.rak_jumlah_april, paket_belanja_detail_sub.rak_jumlah_mei, paket_belanja_detail_sub.rak_jumlah_juni, paket_belanja_detail_sub.rak_jumlah_juli, paket_belanja_detail_sub.rak_jumlah_agustus, paket_belanja_detail_sub.rak_jumlah_september, paket_belanja_detail_sub.rak_jumlah_oktober, paket_belanja_detail_sub.rak_jumlah_november, paket_belanja_detail_sub.rak_jumlah_desember'.$query_category);
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.rak_volume_januari, paket_belanja_detail_sub.rak_volume_februari, paket_belanja_detail_sub.rak_volume_maret, paket_belanja_detail_sub.rak_volume_april, paket_belanja_detail_sub.rak_volume_mei, paket_belanja_detail_sub.rak_volume_juni, paket_belanja_detail_sub.rak_volume_juli, paket_belanja_detail_sub.rak_volume_agustus, paket_belanja_detail_sub.rak_volume_september, paket_belanja_detail_sub.rak_volume_oktober, paket_belanja_detail_sub.rak_volume_november, paket_belanja_detail_sub.rak_volume_desember, paket_belanja_detail_sub.rak_jumlah_januari, paket_belanja_detail_sub.rak_jumlah_februari, paket_belanja_detail_sub.rak_jumlah_maret, paket_belanja_detail_sub.rak_jumlah_april, paket_belanja_detail_sub.rak_jumlah_mei, paket_belanja_detail_sub.rak_jumlah_juni, paket_belanja_detail_sub.rak_jumlah_juli, paket_belanja_detail_sub.rak_jumlah_agustus, paket_belanja_detail_sub.rak_jumlah_september, paket_belanja_detail_sub.rak_jumlah_oktober, paket_belanja_detail_sub.rak_jumlah_november, paket_belanja_detail_sub.rak_jumlah_desember'.$query_category);
 		$paket_belanja_detail_sub = $this->db->get('paket_belanja_detail_sub');
 
 		return $paket_belanja_detail_sub;
@@ -862,6 +862,7 @@ class Evaluasi_anggaran extends CI_Controller {
 				'nama_kategori' 				=> $ds_value->nama_kategori,
 				'idsub_kategori'	 			=> $ds_value->idsub_kategori,
 				'nama_subkategori' 				=> $ds_value->nama_sub_kategori,
+				'is_sub'						=> 1,
 
 				// realisasi tw sebelumnya
 				'realisasi_lk_sebelumnya'		=> $realisasi_lk_sebelumnya,
@@ -1115,11 +1116,17 @@ class Evaluasi_anggaran extends CI_Controller {
 					$text_decoration_bulan_ke_3 = 'color: red;';
 				}
 
+				$is_sub = 1;
+				if (strlen($dss_value->is_idpaket_belanja_detail_sub) > 0) {
+					$is_sub = 2;
+				}
+
 				$arr_detail[] = array(
 					'idkategori' 					=> '',
 					'nama_kategori' 				=> '',
 					'idsub_kategori'	 			=> $dss_value->idsub_kategori,
 					'nama_subkategori' 				=> $dss_value->nama_sub_kategori,
+					'is_sub'						=> $is_sub,
 
 					// realisasi tw sebelumnya
 					'realisasi_lk_sebelumnya'		=> $realisasi_lk_sebelumnya,
@@ -1577,6 +1584,7 @@ class Evaluasi_anggaran extends CI_Controller {
 					'nama_subkategori' 		=> '',
 					'is_nama_akun_belanja'	=> 1,
 					'is_bold'				=> 1,
+					'is_sub'				=> 0,
 
 					'rak_januari' 			=> 0,
 					'realisasi_januari'		=> 0,
@@ -1625,6 +1633,7 @@ class Evaluasi_anggaran extends CI_Controller {
 				'nama_subkategori' 		=> $ds_value->nama_sub_kategori,
 				'is_nama_akun_belanja'	=> 0,
 				'is_bold'				=> $is_bold,
+				'is_sub' 				=> 1,
 
 				'rak_januari' 			=> $rak_januari,
 				'realisasi_januari'		=> $realisasi_januari,
@@ -1870,6 +1879,11 @@ class Evaluasi_anggaran extends CI_Controller {
 					}
 				}
 
+				$is_sub = 1;
+				if (strlen($dss_value->is_idpaket_belanja_detail_sub) > 0) {
+					$is_sub = 2;
+				}
+
 				// simpan data uraian ke dalam array
 				$arr_data[] = array(
 					'idkategori' 			=> '',
@@ -1878,6 +1892,7 @@ class Evaluasi_anggaran extends CI_Controller {
 					'nama_subkategori' 		=> $dss_value->nama_sub_kategori,
 					'is_nama_akun_belanja'	=> 0,
 					'is_bold'				=> $is_bold,
+					'is_sub' 				=> $is_sub,
 
 					'rak_januari' 			=> $rak_januari,
 					'realisasi_januari'		=> $realisasi_januari,
