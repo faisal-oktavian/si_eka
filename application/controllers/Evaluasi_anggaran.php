@@ -1364,10 +1364,12 @@ class Evaluasi_anggaran extends CI_Controller {
 		// paket belanja
 		$this->db->where('paket_belanja_detail.idpaket_belanja_detail', $idpaket_belanja_detail);
 		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
-		$this->db->select('paket_belanja_detail.idpaket_belanja, akun_belanja.nama_akun_belanja');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
+		$this->db->select('paket_belanja_detail.idpaket_belanja, akun_belanja.nama_akun_belanja, paket_belanja.nama_paket_belanja');
 		$pb_detail = $this->db->get('paket_belanja_detail');
 		$idpaket_belanja = $pb_detail->row()->idpaket_belanja;
 		$nama_akun_belanja = $pb_detail->row()->nama_akun_belanja;
+		$nama_paket_belanja = $pb_detail->row()->nama_paket_belanja;
 
 		// Kategori / Sub Kategori
 		$paket_belanja_detail = $this->query_paket_belanja_detail($idpaket_belanja_detail);
@@ -1934,6 +1936,7 @@ class Evaluasi_anggaran extends CI_Controller {
 			}
 		}
 
+		$data['nama_paket_belanja'] = $nama_paket_belanja;
 		$data['arr_data'] = $arr_data;
 		// echo "<pre>"; print_r($data);die();
 

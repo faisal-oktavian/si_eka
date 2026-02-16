@@ -52,6 +52,7 @@
         font-size: 14px;
     }
 </style>
+<h3 class="text-center">Histori RAK - <?php echo $nama_paket_belanja; ?></h3>
 
 <table id="selectedColumn" class="table table-hover table-bordered table-sm table-condensed" cellspacing="0" width="100%" data-ordering="false">
     <thead>
