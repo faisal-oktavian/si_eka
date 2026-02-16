@@ -260,13 +260,13 @@
 											<div id="label-kontrak-pengadaan" style="font-size:15px;"></div>
 										</div>
 									</div>
-									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+									<!-- <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
 										<span style="display:inline-block;width:18px;height:18px;background:#FFCC00;margin-right:10px;border-radius:4px;"></span>
 										<div>
 											<div style="font-weight:600;">Proses Pengadaan</div>
 											<div id="label-proses-pengadaan" style="font-size:15px;"></div>
 										</div>
-									</div>
+									</div> -->
 									<div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;">
 										<span style="display:inline-block;width:18px;height:18px;background:#f44336;margin-right:10px;border-radius:4px;"></span>
 										<div>
@@ -301,7 +301,11 @@
 			var nominal_proses_pengadaan = <?php echo isset($proses_pengadaan) ? $proses_pengadaan : 0; ?>;
 			var nominal_belum_direalisasi = <?php echo isset($belum_direalisasi) ? $belum_direalisasi : 0; ?>;
 
-			var total = nominal_sudah_dibayar + nominal_menunggu_pembayaran + nominal_npd + nominal_sudah_diverifikasi + nominal_menunggu_verifikasi + nominal_kontrak_pengadaan + nominal_proses_pengadaan + nominal_belum_direalisasi;
+			// opsi proses pengadaan dilebur menjadi 1 di belum direalisasi
+			var new_nominal_belum_direalisasi = nominal_belum_direalisasi + nominal_proses_pengadaan;
+
+			// var total = nominal_sudah_dibayar + nominal_menunggu_pembayaran + nominal_npd + nominal_sudah_diverifikasi + nominal_menunggu_verifikasi + nominal_kontrak_pengadaan + nominal_proses_pengadaan + nominal_belum_direalisasi;
+			var total = nominal_sudah_dibayar + nominal_menunggu_pembayaran + nominal_npd + nominal_sudah_diverifikasi + nominal_menunggu_verifikasi + nominal_kontrak_pengadaan + new_nominal_belum_direalisasi;
 
 			// var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 
@@ -313,7 +317,8 @@
 			var persen_kontrak_pengadaan = total ? Math.round( (nominal_kontrak_pengadaan / total * 100) * 100) / 100 : 0;
 			var persen_proses_pengadaan = total ? Math.round( (nominal_proses_pengadaan / total * 100) * 100) / 100 : 0;
 
-			var persen_belum_direalisasi = total ? Math.round((100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan)) * 100) / 100 : 0;
+			// var persen_belum_direalisasi = total ? Math.round((100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan)) * 100) / 100 : 0;
+			var persen_belum_direalisasi = total ? Math.round((100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan)) * 100) / 100 : 0;
 
 			function formatRupiah(angka) {
 				return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -325,11 +330,12 @@
 			document.getElementById('label-sudah-diverifikasi').innerText = persen_sudah_diverifikasi + '% (' + formatRupiah(nominal_sudah_diverifikasi) + ')';
 			document.getElementById('label-menunggu-verifikasi').innerText = persen_menunggu_verifikasi + '% (' + formatRupiah(nominal_menunggu_verifikasi) + ')';
 			document.getElementById('label-kontrak-pengadaan').innerText = persen_kontrak_pengadaan + '% (' + formatRupiah(nominal_kontrak_pengadaan) + ')';
-			document.getElementById('label-proses-pengadaan').innerText = persen_proses_pengadaan + '% (' + formatRupiah(nominal_proses_pengadaan) + ')';
+			// document.getElementById('label-proses-pengadaan').innerText = persen_proses_pengadaan + '% (' + formatRupiah(nominal_proses_pengadaan) + ')';
 			
 			
 			// document.getElementById('label-belum-dibayar').innerText = persen_belum_dibayar + '% (' + formatRupiah(nominal_belum_dibayar) + ')';
-			document.getElementById('label-belum-direalisasi').innerText = persen_belum_direalisasi + '% (' + formatRupiah(nominal_belum_direalisasi) + ')';
+			// document.getElementById('label-belum-direalisasi').innerText = persen_belum_direalisasi + '% (' + formatRupiah(nominal_belum_direalisasi) + ')';
+			document.getElementById('label-belum-direalisasi').innerText = persen_belum_direalisasi + '% (' + formatRupiah(new_nominal_belum_direalisasi) + ')';
 
 			var ctx = document.getElementById('pieAnggaranChart').getContext('2d');
 			var pieAnggaranChart = new Chart(ctx, {
@@ -354,7 +360,7 @@
 							nominal_menunggu_verifikasi,
 							nominal_kontrak_pengadaan,
 							nominal_proses_pengadaan,
-							nominal_belum_direalisasi
+							new_nominal_belum_direalisasi
 						],
 						backgroundColor: [
 							'#28A745',
