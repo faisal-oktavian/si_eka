@@ -86,7 +86,7 @@ class Budget_realization extends CI_Controller {
 		$realization_status = $this->input->get('vf_realization_status');
 		$iduser_created = $this->input->get('iduser_created');
 
-        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, "" as description, realization_status, user.name as user_created, budget_realization.iduser_created');
+        $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, "" as description, realization_status, user.name as user_created, budget_realization.iduser_created, budget_realization.notes');
 		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, description, realization_status, user_created');
 
         $crud->set_sorting('realization_date, realization_code, total_realization, realization_status');
@@ -190,6 +190,14 @@ class Budget_realization extends CI_Controller {
 			else if (strlen($contract_honor) > 0) {
 				$text = "Gaji/Honor : ".$contract_honor." ";
 			}
+
+			
+			$notes = azarr($data, 'notes');
+			if (strlen($notes) > 0) {
+				$text .= "<hr style='border-top: 2px solid #000000'>";
+				$text .= "Catatan : ".$notes." ";
+			}
+
 
 			return $text;
 		}
@@ -988,6 +996,7 @@ class Budget_realization extends CI_Controller {
 		$idbudget_realization = $this->input->post("hd_idbudget_realization");
 		$realization_date = az_crud_date($this->input->post("realization_date"));
 		$iduser_created = $this->input->post("iduser_created");
+		$notes = $this->input->post("notes");
 
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('realization_date', 'Tanggal Realisasi', 'required|trim|max_length[200]');
@@ -1030,6 +1039,7 @@ class Budget_realization extends CI_Controller {
 	    		'realization_date' => $realization_date,
 	    		'realization_status' => "MENUNGGU VERIFIKASI",
 	    		'iduser_created' => $iduser_created,
+	    		'notes' => $notes,
 	    	);
 
 	    	az_crud_save($idbudget_realization, 'budget_realization', $arr_data);

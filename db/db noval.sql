@@ -2350,3 +2350,6 @@ ALTER TABLE `npd_panjer_detail`
 ALTER TABLE `npd_panjer_detail`
 	ADD COLUMN `idpaket_belanja_detail_sub` INT(10) NULL DEFAULT NULL AFTER `idpaket_belanja`,
 	ADD INDEX `idpaket_belanja_detail_sub` (`idpaket_belanja_detail_sub`);
+
+ALTER TABLE `budget_realization`
+	ADD COLUMN `notes` TEXT NULL DEFAULT NULL COMMENT 'untuk inputan catatan (catatan tambahan, adendum, dll.)' AFTER `realization_description`;
