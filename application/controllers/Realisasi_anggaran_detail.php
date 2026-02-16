@@ -507,7 +507,7 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		}
 
 
-	// SUDAH DIVERIFIKASI
+	// BELUM DIVERIFIKASI
 		public function belum_diverifikasi() {		
 			$this->load->library('AZApp');
 			$azapp = $this->azapp;
@@ -745,7 +745,7 @@ class Realisasi_anggaran_detail extends CI_Controller {
 		}
 
 
-	// KONTRAK PENGADAAN
+	// RENCANA PENGADAAN
 		public function proses_pengadaan() {		
 			$this->load->library('AZApp');
 			$azapp = $this->azapp;
@@ -1003,16 +1003,33 @@ class Realisasi_anggaran_detail extends CI_Controller {
 
 
 			// query realisasi
-			$this->db->where('transaction.status', 1);
-			$this->db->where('transaction.transaction_status != "DRAFT" ');
-			$this->db->where('transaction_detail.status', 1);
-			$this->db->where('YEAR(transaction.transaction_date)', $tahun_ini);
-			$this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+			// $this->db->where('transaction.status', 1);
+			// $this->db->where('transaction.transaction_status != "DRAFT" ');
+			// $this->db->where('transaction_detail.status', 1);
+			// $this->db->where('YEAR(transaction.transaction_date)', $tahun_ini);
+			// $this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+			// $this->db->group_by('idpaket_belanja');
+			// $this->db->select('idpaket_belanja');
+			// $this->db->get('transaction');
+			// $last_query_where = $this->db->last_query();
+
+			$this->db->where('contract.status', 1);
+			$this->db->where('contract_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan_detail.status', 1);
+			$this->db->where('contract.contract_status != "DRAFT" ');
+			$this->db->where('YEAR(contract.contract_date) = "'.$tahun_ini.'" ');
+
+			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 			$this->db->group_by('idpaket_belanja');
 			$this->db->select('idpaket_belanja');
-			$this->db->get('transaction');
+			$this->db->get('contract');
 			$last_query_where = $this->db->last_query();
-			// echo "<pre>"; print_r($last_query_where); die;
+			echo "<pre>"; print_r($last_query_where); die;
+
+// CARA PERHITUNGAN DATA YANG SUDAH DIREALISASIKAN BELUM SESUAI (HARUS BACA DETAIL KEGIATANNYA JUGA, TIDAK LANGSUNG PUKUL RATA DI PAKET BELANJANYA)
 			
 
 			// $query = array_merge($last_query1, $last_query2);

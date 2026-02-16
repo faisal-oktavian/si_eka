@@ -422,7 +422,7 @@
 					} else if (idx === 6) {
 						window.open('<?= site_url("realisasi_anggaran_detail/proses_pengadaan") ?>', '_blank');
 					} else if (idx === 7) {
-						window.open('<?= site_url("realisasi_anggaran_detail/belum_direalisasi") ?>', '_blank');
+						// window.open('<?= site_url("realisasi_anggaran_detail/belum_direalisasi") ?>', '_blank');
 					}
 				}
 			};
