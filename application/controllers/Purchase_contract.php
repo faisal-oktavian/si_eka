@@ -177,7 +177,7 @@ class Purchase_contract extends CI_Controller {
                 $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
                 $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total');
+                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -190,10 +190,30 @@ class Purchase_contract extends CI_Controller {
 
                 $arr_detail = array();
                 foreach ($contract_detail_limit->result() as $key => $c_value) {
+					$kategori = '';
+
+					// cek apakah ada kategorinya
+					if (strlen($c_value->is_idpaket_belanja_detail_sub) > 0) {
+						$this->db->where('idpaket_belanja_detail_sub', $c_value->is_idpaket_belanja_detail_sub);
+						$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori');
+						$this->db->select('kategori.nama_kategori');
+						$check_kategori = $this->db->get('paket_belanja_detail_sub');
+
+						if ($check_kategori->num_rows() > 0) {
+							$kategori = $check_kategori->row()->nama_kategori;
+						}
+					}
+
+					$uraian = $c_value->nama_sub_kategori;
+					if (strlen($kategori) > 0) {
+						$uraian = "<b>".$kategori."</b> <br>";
+						$uraian .= $c_value->nama_sub_kategori;
+					}
+
                     $arr_detail[] = array(
                         'purchase_plan_code' => $value->purchase_plan_code,
                         'nama_paket_belanja' => $c_value->nama_paket_belanja,
-                        'nama_sub_kategori' => $c_value->nama_sub_kategori,
+                        'nama_sub_kategori' => $uraian,
                         'volume' => $c_value->volume,
                         'total' => $c_value->purchase_plan_detail_total,
                     );

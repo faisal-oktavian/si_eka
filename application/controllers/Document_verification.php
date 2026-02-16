@@ -158,7 +158,7 @@ class Document_verification extends CI_Controller {
 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, budget_realization_detail.total_realization_detail');
+		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, budget_realization_detail.total_realization_detail, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
 		$budget_realization = $this->db->get('budget_realization');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -179,11 +179,31 @@ class Document_verification extends CI_Controller {
 			$table .=	"<tbody>";
 
             foreach ($budget_realization->result_array() as $key => $value) {
+				$kategori = '';
+
+				// cek apakah ada kategorinya
+				if (strlen($value['is_idpaket_belanja_detail_sub']) > 0) {
+					$this->db->where('idpaket_belanja_detail_sub', $value['is_idpaket_belanja_detail_sub']);
+					$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori');
+					$this->db->select('kategori.nama_kategori');
+					$check_kategori = $this->db->get('paket_belanja_detail_sub');
+
+					if ($check_kategori->num_rows() > 0) {
+						$kategori = $check_kategori->row()->nama_kategori;
+					}
+				}
+
+				$uraian = $value['nama_sub_kategori'];
+				if (strlen($kategori) > 0) {
+					$uraian = "<b>".$kategori."</b> <br>";
+					$uraian .= $value['nama_sub_kategori'];
+				}
+
 				$table .= "<tr>";
 				$table .= 		"<td align='left'>".$value['contract_code']."</td>";
 				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
-				$table .= 		"<td align='left'>".$value['nama_sub_kategori']."</td>";
+				$table .= 		"<td align='left'>".$uraian."</td>";
 				$table .= 		"<td align='center'>".az_thousand_separator_decimal($value['volume'])."</td>";
 				// $table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";

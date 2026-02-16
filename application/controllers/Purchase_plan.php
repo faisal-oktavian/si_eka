@@ -134,7 +134,7 @@ class Purchase_plan extends CI_Controller {
 			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
 			$purchase_plan = $this->db->get('purchase_plan');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -153,9 +153,29 @@ class Purchase_plan extends CI_Controller {
 			$html .= 	'</tr>';
 
 			foreach ($purchase_plan_limit->result() as $key => $value) {
+				$kategori = '';
+
+				// cek apakah ada kategorinya
+				if (strlen($value->is_idpaket_belanja_detail_sub) > 0) {
+					$this->db->where('idpaket_belanja_detail_sub', $value->is_idpaket_belanja_detail_sub);
+					$this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori');
+					$this->db->select('kategori.nama_kategori');
+					$check_kategori = $this->db->get('paket_belanja_detail_sub');
+
+					if ($check_kategori->num_rows() > 0) {
+						$kategori = $check_kategori->row()->nama_kategori;
+					}
+				}
+
+				$uraian = $value->nama_sub_kategori;
+				if (strlen($kategori) > 0) {
+					$uraian = "<b>".$kategori."</b> <br>";
+					$uraian .= $value->nama_sub_kategori;
+				}
+
 				$html .= '<tr>';
 				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
-				$html .= 	'<td>'.$value->nama_sub_kategori.'</td>';
+				$html .= 	'<td>'.$uraian.'</td>';
 				$html .= 	'<td align="center">'.$value->volume.'</td>';
 				$html .= '</tr>';
 			}
