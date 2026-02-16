@@ -75,6 +75,13 @@
 		</div>
 	</div>
 
+	<div class="form-group">
+		<label class="control-label col-md-3"></label>
+		<div class="col-md-8">
+			<div class="akumulasi_jumlah_rak" style="font-weight: bold; text-align: right;"></div>
+		</div>
+	</div>
+
 	<hr>
 
 	<div class="form-group">
@@ -86,7 +93,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_januari" name="rak_jumlah_januari" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_januari" name="rak_jumlah_januari" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -100,7 +107,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_februari" name="rak_jumlah_februari" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_februari" name="rak_jumlah_februari" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -114,7 +121,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_maret" name="rak_jumlah_maret" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_maret" name="rak_jumlah_maret" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -128,7 +135,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_april" name="rak_jumlah_april" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_april" name="rak_jumlah_april" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -142,7 +149,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_mei" name="rak_jumlah_mei" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_mei" name="rak_jumlah_mei" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -156,7 +163,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_juni" name="rak_jumlah_juni" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_juni" name="rak_jumlah_juni" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -170,7 +177,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_juli" name="rak_jumlah_juli" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_juli" name="rak_jumlah_juli" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -184,7 +191,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_agustus" name="rak_jumlah_agustus" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_agustus" name="rak_jumlah_agustus" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -198,7 +205,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_september" name="rak_jumlah_september" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_september" name="rak_jumlah_september" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -212,7 +219,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_oktober" name="rak_jumlah_oktober" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_oktober" name="rak_jumlah_oktober" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -226,7 +233,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_november" name="rak_jumlah_november" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_november" name="rak_jumlah_november" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
@@ -240,7 +247,7 @@
 			<div class="col-md-8">
 				<div class="input-group">
 					<span class="input-group-addon">Rp. </span>
-					<input type="text" class="form-control format-number txt-right jumlah" id="rak_jumlah_desember" name="rak_jumlah_desember" placeholder="Jumlah"/>
+					<input type="text" class="form-control format-number txt-right calc-jumlah" id="rak_jumlah_desember" name="rak_jumlah_desember" placeholder="Jumlah"/>
 				</div>
 			</div>
 		</div>
