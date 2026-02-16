@@ -52,6 +52,14 @@ class Budget_realization extends CI_Controller {
 		$vf = $this->load->view('budget_realization/vf_budget_realization', $data, true);
         $crud->set_top_filter($vf);
 
+		$v_modal = $this->load->view('budget_realization/v_description_modal', '', true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('description');
+		$modal->set_modal_title('Keterangan');
+		$modal->set_modal($v_modal);
+		$modal->set_action_modal(array('save_description'=>'Simpan'));
+		$azapp->add_content($modal->render());
+
 		$crud = $crud->render();
 		$data['crud'] = $crud;
 		$data['active'] = 'budget_realization';
@@ -121,6 +129,7 @@ class Budget_realization extends CI_Controller {
 		$realization_status = azarr($data, 'realization_status');
 		$read_more = false;
 		$is_view_only = false;
+		$is_btn_description = false;
 
 		$this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
 		$this->db->where('budget_realization.status', 1);
@@ -238,23 +247,31 @@ class Budget_realization extends CI_Controller {
 
 			if (in_array($realization_status, $arr_validation) ) {
 				$is_view_only = true;
+				$is_btn_description = true;
             }
 
 			if (aznav('role_view_budget_realization') && strlen($idrole) > 0) {
 				$is_view_only = true;
+				$is_btn_description = false;
 			}
 
 			// cek apakah data yg ditampilkan adalah data milik user itu sendiri
 			$iduser_created = azarr($data, 'iduser_created');
 			if ( ($this->session->userdata('iduser') != $iduser_created) && ($this->session->userdata('username') != 'superadmin' || strlen($idrole) > 1) ) {
 				$is_view_only = true;
+				$is_btn_description = false;
 			}
 
 			if ($is_view_only) {
 				$btn = '<button class="btn btn-info btn-xs btn-view-only-budget-realization" data_id="'.$idbudget_realization.'"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button>';
 			}
+			
+			$btn_description = '';
+			if ($is_btn_description) {
+				$btn_description = '<button class="btn btn-success btn-xs btn-edit-description" data_id="'.$idbudget_realization.'"><span class="glyphicon glyphicon-pencil"></span> Edit Keterangan</button>';
+			}
 
-			return $btn;
+			return $btn.$btn_description;
 		}
 
 		return $value;
@@ -1039,6 +1056,36 @@ class Budget_realization extends CI_Controller {
 		$return = array(
 			'err_code' => $err_code,
 			'err_message' => $err_message
+		);
+		echo json_encode($return);
+	}
+
+	function save_description() {
+		$err_code = 0;
+		$err_message = '';
+
+		
+		$idbudget_realization = $this->input->post("idbudget_realization");
+		$realization_detail_description = $this->input->post("realization_detail_description");
+
+		if (strlen($idbudget_realization) == 0) {
+			$err_code++;
+			$err_message = 'Invalid ID';
+		}
+
+		if ($err_code == 0) {
+			$arr_data = array(
+				'realization_detail_description' => $realization_detail_description,
+			);
+
+			$this->db->where('status', 1);
+			$this->db->where('idbudget_realization', $idbudget_realization);
+			$this->db->update('budget_realization_detail', $arr_data);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
 		);
 		echo json_encode($return);
 	}

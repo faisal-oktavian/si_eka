@@ -44,3 +44,30 @@
 
         location.href = app_url + 'budget_realization/edit/' + id + '/view_only';
 	});
+
+	jQuery('body').on('click', '.btn-edit-description', function() {
+		var id = jQuery(this).attr('data_id');
+		console.log(id);
+		show_modal('description');
+		jQuery('#form_description').find('#idbudget_realization').val(id);
+	});
+
+	jQuery('body').on('click', '.btn-action-save_description', function() {
+		// show_loading();
+		jQuery.ajax({
+			url: app_url + 'budget_realization/save_description',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_description').serialize(),
+			success: function(response) {
+				hide_loading();
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					location.reload();
+				}
+			},
+			error: function(response) {}
+		});
+	});
