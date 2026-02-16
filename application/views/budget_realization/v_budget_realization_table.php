@@ -1,4 +1,10 @@
 <?php
+	$role_view_purchase_plan = false; // hanya lihat data
+
+    if (aznav('role_view_purchase_plan')) {
+        $role_view_purchase_plan = true;
+    }
+
 	foreach ((array) $detail as $key => $value) {
 ?>
 		<tr>
@@ -13,11 +19,13 @@
 			<td align="right">Rp <?php echo az_thousand_separator($value['total_realization_detail']);?></td>
 			<td>
 				<?php 
-					// if (in_array($value['transaction_status'], array('DRAFT', 'MENUNGGU VERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) { 
+					// if (in_array($value['transaction_status'], array('DRAFT', 'MENUNGGU VERIFIKASI', 'DITOLAK VERIFIKATOR') ) ) {
+					if (!$role_view_purchase_plan) { 
 				?>
 						<button class="btn btn-default btn-xs btn-edit-order" type="button" data-id="<?php echo $value['idbudget_realization_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
 						<button class="btn btn-danger btn-xs btn-delete-order" type="button" data-id="<?php echo $value['idbudget_realization_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
 				<?php
+					}
 					// }
 				?>
 			</td>

@@ -1,3 +1,11 @@
+<?php
+	$role_view_purchase_contract = false; // hanya lihat data
+
+    if (aznav('role_view_purchase_contract')) {
+        $role_view_purchase_contract = true;
+    }
+?>
+
 <form class="form-horizontal row" id="form_contract" style="margin-top: 20px;">
 	<div class="col-md-6">
 		<input type="hidden" id="hd_idcontract" name="hd_idcontract" value="<?php echo $id;?>">
@@ -65,7 +73,13 @@
 	<div class="col-md-12">
 		<hr>
 		<div style="margin-bottom:10px;">
-			<button class="btn btn-primary btn-xs" type="button" id="btn_add_contract"><i class="fa fa-plus"></i> Tambah Rencana Pengadaan</i></button>
+			<?php
+				if (!$role_view_purchase_contract) {
+			?>
+					<button class="btn btn-primary btn-xs" type="button" id="btn_add_contract"><i class="fa fa-plus"></i> Tambah Rencana Pengadaan</i></button>
+			<?php
+				}
+			?>
 		</div>
 		<table class="table table-bordered table-condensed" id="table_dokumen">
 			<thead>
@@ -81,7 +95,13 @@
 		<hr>
 		<div style="margin-bottom:10px;">
 			<a href="<?php echo app_url();?>purchase_contract"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a>
-			<button class="btn btn-primary" type="button" id="btn_save_contract"><i class="fa fa-save"></i> Simpan</i></button>
+			<?php
+				if (!$role_view_purchase_contract) {
+			?>
+					<button class="btn btn-primary" type="button" id="btn_save_contract"><i class="fa fa-save"></i> Simpan</i></button>
+			<?php
+				}
+			?>
 		</div>
 	</div>
 </form>

@@ -1,4 +1,10 @@
 <?php
+    $role_view_purchase_contract = false; // hanya lihat data
+
+    if (aznav('role_view_purchase_contract')) {
+        $role_view_purchase_contract = true;
+    }
+
 	foreach ((array) $arr_data as $key => $value) {
 ?>
 		<tr>
@@ -32,10 +38,12 @@
 			<td>
 				<?php 
 					if (in_array($value['contract_status'], array('DRAFT', 'KONTRAK PENGADAAN') ) ) {
+                        if (!$role_view_purchase_contract) {
 				?>
-						<button class="btn btn-default btn-xs btn-edit-dokumen" type="button" data-id="<?php echo $value['idcontract_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
-						<button class="btn btn-danger btn-xs btn-delete-dokumen" type="button" data-id="<?php echo $value['idcontract_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
+                            <button class="btn btn-default btn-xs btn-edit-dokumen" type="button" data-id="<?php echo $value['idcontract_detail'];?>"><i class="fa fa-pencil-alt"></i> Edit</button>
+                            <button class="btn btn-danger btn-xs btn-delete-dokumen" type="button" data-id="<?php echo $value['idcontract_detail'];?>"><i class="fa fa-times"></i> Hapus</button>
 				<?php
+                        }
 					}
 				?>
 			</td>

@@ -1,3 +1,11 @@
+<?php
+	$role_view_budget_realization = false; // hanya lihat data
+
+    if (aznav('role_view_budget_realization')) {
+        $role_view_budget_realization = true;
+    }
+?>
+
 <form class="form-horizontal row" id="form_realization" style="margin-top: 20px;">
 	<div class="col-md-6">
 		<input type="hidden" id="hd_idbudget_realization" name="hd_idbudget_realization" value="<?php echo $id;?>">
@@ -40,7 +48,13 @@
 	<div class="col-md-12">
 		<hr>
 		<div style="margin-bottom:10px;">
-			<button class="btn btn-primary btn-xs" type="button" id="btn_add_contract"><i class="fa fa-plus"></i> Tambah Kontrak</i></button>
+			<?php
+				if (!$role_view_budget_realization) {
+			?>
+					<button class="btn btn-primary btn-xs" type="button" id="btn_add_contract"><i class="fa fa-plus"></i> Tambah Kontrak</i></button>
+			<?php
+				}
+			?>
 		</div>
 		<table class="table table-bordered table-condensed" id="table_realization">
 			<thead>
@@ -63,7 +77,13 @@
 		<hr>
 		<div style="margin-bottom:10px;">
 			<a href="<?php echo app_url();?>budget_realization"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a>
-			<button class="btn btn-primary" type="button" id="btn_save_realization"><i class="fa fa-save"></i> Simpan</i></button>
+			<?php
+				if (!$role_view_budget_realization) {
+			?>
+					<button class="btn btn-primary" type="button" id="btn_save_realization"><i class="fa fa-save"></i> Simpan</i></button>
+			<?php
+				}
+			?>
 		</div>
 	</div>
 </form>

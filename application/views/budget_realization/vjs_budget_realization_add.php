@@ -8,7 +8,7 @@
 	jQuery(document).ready(function() {
 		if (is_viewonly == true) {
 
-			jQuery('#form_realization').find('input, select').prop('disabled', true);
+			jQuery('#form_realization').find('input, select, textarea').prop('disabled', true);
             jQuery('#btn_add_contract, #btn_save_realization').hide();
 
 			setTimeout(function() {
