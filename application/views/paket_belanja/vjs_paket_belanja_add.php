@@ -579,6 +579,9 @@
 	});
 
 	function calculate_rak() {
+		var total = jQuery('#jumlah').val();
+		total = remove_separator(total) || 0;
+
 		var rak_jumlah_januari		=  jQuery('#rak_jumlah_januari').val();
 		var rak_jumlah_februari		=  jQuery('#rak_jumlah_februari').val();
 		var rak_jumlah_maret		=  jQuery('#rak_jumlah_maret').val();
@@ -608,7 +611,16 @@
 		akumulasi_jumlah_rak = parseFloat(rak_jumlah_januari) + parseFloat(rak_jumlah_februari) + parseFloat(rak_jumlah_maret) + parseFloat(rak_jumlah_april) + parseFloat(rak_jumlah_mei) + parseFloat(rak_jumlah_juni) + parseFloat(rak_jumlah_juli) + parseFloat(rak_jumlah_agustus) + parseFloat(rak_jumlah_september) + parseFloat(rak_jumlah_oktober) + parseFloat(rak_jumlah_november) + parseFloat(rak_jumlah_desember);
 
 		console.log('akumulasi_jumlah_rak '+akumulasi_jumlah_rak);
-		jQuery('.akumulasi_jumlah_rak').html('Rp. '+thousand_separator(akumulasi_jumlah_rak));
+		console.log('total '+total);
+		if (akumulasi_jumlah_rak < total) {
+			jQuery('.akumulasi_jumlah_rak').html('<span style="color:red;">Rp. '+thousand_separator(akumulasi_jumlah_rak)+'</span>');
+		}
+		else if (akumulasi_jumlah_rak > total) {
+			jQuery('.akumulasi_jumlah_rak').html('<span style="color:green;">Rp. '+thousand_separator(akumulasi_jumlah_rak)+'</span>');
+		}
+		else {
+			jQuery('.akumulasi_jumlah_rak').html('Rp. '+thousand_separator(akumulasi_jumlah_rak));
+		}
 	}
 
 	jQuery('body').on('change', '#idsub_kategori', function() {

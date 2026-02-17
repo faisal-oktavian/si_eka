@@ -539,32 +539,55 @@ class Master_paket_belanja extends CI_Controller {
 		if ($err_code == 0) {
 			$total_rak_volume = floatval($rak_volume_januari) + floatval($rak_volume_februari) + floatval($rak_volume_maret) + floatval($rak_volume_april) + floatval($rak_volume_mei) + floatval($rak_volume_juni) + floatval($rak_volume_juli) + floatval($rak_volume_agustus) + floatval($rak_volume_september) + floatval($rak_volume_oktober) + floatval($rak_volume_november) + floatval($rak_volume_desember);
 			
-			if ($total_rak_volume > $volume) {
-				$err_code++;
-				$err_message = 'Total volume rak per bulan tidak boleh melebihi volume';
-			}
-		}
+			
+			// cek jika diupdate satuan LS tidak perlu validasi ini
+			$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+			$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
+			$this->db->select('satuan.nama_satuan');
+			$sub = $this->db->get('paket_belanja_detail_sub');
 
-		// validasi volume yang diinput tidak boleh kurang dari total volume yang sudah masuk di rencana pengadaan
-		if ($err_code == 0) {
-			if (strlen($idpb_detail_sub) > 0) {
-				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
-				$this->db->where('purchase_plan_detail.status', 1);
-				$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
-				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
-				$pp_detail = $this->db->get('purchase_plan_detail');
-	
-				if ($pp_detail->num_rows() > 0) {
-					$existing_volume = $pp_detail->row()->volume;
-	
-					if ($volume < $existing_volume) {
-						$err_code++;
-						$err_message = 'Volume tidak boleh kurang dari volume yang sudah masuk di rencana pengadaan';
-					}
+			$is_ls = false;
+			if ($sub->num_rows() > 0) {
+				$nama_satuan = $sub->row()->nama_satuan;
+
+				if ($nama_satuan == "LS") {
+					$is_ls = true;
+				}
+			}
+
+			if (!$is_ls) {
+				if ($total_rak_volume > $volume) {
+					$err_code++;
+					$err_message = 'Total volume rak per bulan tidak boleh melebihi volume';
 				}
 			}
 		}
 
+		
+		// validasi volume yang diinput tidak boleh kurang dari total volume yang sudah masuk di rencana pengadaan
+		if ($err_code == 0) {
+			// cek jika diupdate satuan LS tidak perlu validasi ini
+			if (!$is_ls) {
+
+				if (strlen($idpb_detail_sub) > 0) {
+					$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+					$this->db->where('purchase_plan_detail.status', 1);
+					$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+					$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
+					$pp_detail = $this->db->get('purchase_plan_detail');
+		
+					if ($pp_detail->num_rows() > 0) {
+						$existing_volume = $pp_detail->row()->volume;
+		
+						if ($volume < $existing_volume) {
+							$err_code++;
+							$err_message = 'Volume tidak boleh kurang dari volume yang sudah masuk di rencana pengadaan';
+						}
+					}
+				}
+			}
+		}
+		
 		if ($err_code == 0) {
 
 			// jika variabel ini terisi maka tidak perlu simpan id paket belanja detail
