@@ -79,6 +79,7 @@
 		<label class="control-label col-md-3"></label>
 		<div class="col-md-8">
 			<div class="akumulasi_jumlah_rak" style="font-weight: bold; text-align: right;"></div>
+			<div class="selisih_akumulasi_jumlah_rak" style="font-weight: bold; text-align: right;"></div>
 		</div>
 	</div>
 
