@@ -1782,7 +1782,8 @@ class Npd extends CI_Controller {
 		$this->db->group_by('purchase_plan_detail.idpaket_belanja_detail_sub');
 		$this->db->order_by('idpaket_belanja_detail_sub');
 
-		$this->db->select('SUM(purchase_plan_detail.purchase_plan_detail_total) AS total_per_uraian');
+		// $this->db->select('SUM(purchase_plan_detail.purchase_plan_detail_total) AS total_per_uraian');
+		$this->db->select('SUM(budget_realization_detail.total_realization_detail) AS total_per_uraian');
 		$npd = $this->db->get('npd');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
