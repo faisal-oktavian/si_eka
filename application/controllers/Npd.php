@@ -1769,6 +1769,7 @@ class Npd extends CI_Controller {
 		$this->db->where('contract.status = 1');
 		$this->db->where('purchase_plan.status = 1');
 		$this->db->where('purchase_plan_detail.status = 1');
+		$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
 
 		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
 		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
