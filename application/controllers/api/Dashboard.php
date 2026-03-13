@@ -5,10 +5,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * API Controller untuk mengekspor data grafik dari dashboard.
  *
  * URL contoh:
- *  - http://domain.com/api_dashboard/get_dashboard_data
- *  - http://domain.com/api_dashboard/get_dashboard_data?tahun=2026
+ *  - http://domain.com/api/dashboard/get_dashboard_data
+ *  - http://domain.com/api/dashboard/get_dashboard_data?tahun=2026
  */
-class Api_dashboard extends CI_Controller {
+class Dashboard extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('Dashboard_model');
