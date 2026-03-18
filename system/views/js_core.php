@@ -334,6 +334,48 @@ function thousand_separator_decimal(x) {
     }
 }
 
+// untuk format decimal tanpa dibulatkan, angka dibelakang koma asli
+function thousand_separator_decimal_all(x) {
+    if (x == null) {
+        return x;
+    }
+
+    if (typeof x !== 'undefined') {
+
+        if (x === '') {
+            x = '0';
+        }
+
+        // pastikan string
+        x = x.toString();
+
+        // bersihkan selain angka & titik
+        x = x.replace(/[^0-9.]/g, '');
+
+        // pastikan hanya 1 titik desimal
+        let parts = x.split('.');
+        if (parts.length > 2) {
+            x = parts[0] + '.' + parts.slice(1).join('');
+        }
+
+        let intPart = '';
+        let decPart = '';
+
+        if (x.includes('.')) {
+            let split = x.split('.');
+            intPart = split[0];
+            decPart = split[1]; // TANPA BATAS
+        } else {
+            intPart = x;
+        }
+
+        // format ribuan
+        intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        return decPart ? intPart + ',' + decPart : intPart;
+    }
+}
+
 function get_thousand_separator_decimal(x) {
      if (x == null) {
         return x;
@@ -597,4 +639,57 @@ jQuery(document).ready(function(){
 
 		calculate();
 	});
+
+    // untuk format decimal tanpa dibulatkan, angka dibelakang koma asli
+    var typingTimerDecimalAll;
+    var doneTypingIntervalDecimalAll = 300;
+
+    jQuery("body").on('keyup', '.format-decimal-all', function () {
+        var the = jQuery(this);
+
+        clearTimeout(typingTimerDecimalAll);
+        typingTimerDecimalAll = setTimeout(function () {
+
+            let value = the.val();
+
+            if (!value) {
+                the.val('');
+                return;
+            }
+
+            // 1. Bersihkan input
+            value = value.toString();
+            value = value.replace(/Rp\s?/g, '');
+            value = value.replace(/\./g, ''); // hapus ribuan
+            value = value.replace(',', '.');  // koma jadi titik
+
+            // ambil hanya angka & titik
+            value = value.replace(/[^0-9.]/g, '');
+
+            // pastikan hanya 1 titik desimal
+            let parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+
+            // 2. Format ulang
+            let result = '';
+
+            if (value.includes('.')) {
+                let split = value.split('.');
+                let intPart = split[0];
+                let decPart = split[1];
+
+                let formattedInt = parseInt(intPart || '0', 10).toLocaleString('id-ID');
+
+                result = formattedInt + ',' + decPart;
+            } else {
+                let formattedInt = parseInt(value || '0', 10).toLocaleString('id-ID');
+                result = formattedInt;
+            }
+
+            the.val(result);
+
+        }, doneTypingIntervalDecimalAll);
+    });
 });

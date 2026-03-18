@@ -222,7 +222,7 @@
 					jQuery('#name_training').val(response.data.name_training);
 
 					jQuery('#volume').val(response.data.volume);
-					jQuery('#unit_price').val(thousand_separator(response.data.unit_price));
+					jQuery('#unit_price').val(thousand_separator_decimal_all(response.data.unit_price));
 					jQuery('#ppn').val(thousand_separator(response.data.ppn));
 					jQuery('#pph').val(thousand_separator(response.data.pph));
 					jQuery('#total_realization_detail').val(thousand_separator(response.data.total_realization_detail));
@@ -344,7 +344,7 @@
   		var total = (parseFloat(volume) * parseFloat(unit_price));
 
 		console.log('total '+total);
-		jQuery('.total-realization-detail').val(thousand_separator(total));
+		jQuery('.total-realization-detail').val(thousand_separator_decimal(total));
 	}
 
 	function reset_form_modal() {

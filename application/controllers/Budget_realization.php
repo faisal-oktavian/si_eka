@@ -562,7 +562,6 @@ class Budget_realization extends CI_Controller {
 		// $total_realization_detail = (floatval($volume) * floatval($unit_price)) + floatval($ppn) - floatval($pph);
 		$total_realization_detail = (floatval($volume) * floatval($unit_price));
 
-
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('idcontract', 'Nomor Kontrak', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('data_idsub_kategori', 'Uraian Belanja', 'required|trim|max_length[200]');
@@ -637,6 +636,16 @@ class Budget_realization extends CI_Controller {
 		// 	}
 		// }
 
+		// validasi ketika total harganya masih decimal
+		if ($err_code == 0) {
+			$is_decimal = (preg_match('/[.,](\d+)$/', $total_realization_detail, $m) && (int)$m[1] !== 0);
+
+			if ($is_decimal) {
+				$err_code++;
+				$err_message = "Total harga tidak boleh mengandung angka desimal.";
+			}
+		}
+
 		if ($err_code == 0) {			
 			$the_filter = array(
 				'idsub_kategori' => $data_idsub_kategori,
@@ -662,7 +671,7 @@ class Budget_realization extends CI_Controller {
 			}
 			// var_dump($data_utama->row()->jumlah.' < ('.floatval($data_realisasi->row()->total_realization_detail).' + '.floatval($total_realization_detail).')'); echo "<br><br>";
 		}
-// var_dump($err_message);die;
+		// var_dump($err_message);die;
 
 
 		// validasi tanggal realisasi tidak boleh melebihi tanggal hari ini

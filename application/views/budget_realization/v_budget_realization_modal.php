@@ -116,7 +116,7 @@
             <div class="col-md-8">
                 <div class="input-group">
                     <span class="input-group-addon">Rp. </span>
-                    <input type="text" class="form-control format-number txt-right unit-price" id="unit_price" name="unit_price"/>
+                    <input type="text" class="form-control format-decimal-all txt-right unit-price" id="unit_price" name="unit_price"/>
                 </div>
             </div>
         </div>

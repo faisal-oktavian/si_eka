@@ -61,6 +61,42 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
     }
 
+    // untuk format decimal tanpa dibulatkan, angka dibelakang koma asli
+    if (!function_exists('az_thousand_separator_decimal_all')) {
+        function az_thousand_separator_decimal_all($angka = '') {
+
+            if ($angka === null || $angka === '') {
+                return '';
+            }
+
+            // pastikan string (hindari float)
+            $angka = (string)$angka;
+
+            // bersihkan karakter selain angka & titik
+            $angka = preg_replace('/[^0-9.]/', '', $angka);
+
+            // pastikan hanya 1 titik desimal
+            $parts = explode('.', $angka);
+            if (count($parts) > 2) {
+                $angka = $parts[0] . '.' . implode('', array_slice($parts, 1));
+            }
+
+            // jika ada desimal
+            if (strpos($angka, '.') !== false) {
+                list($int, $dec) = explode('.', $angka);
+
+                // format ribuan
+                $int = number_format((int)$int, 0, '', '.');
+
+                // TANPA BATAS desimal (tidak di-trim)
+                return $int . ',' . $dec;
+            }
+
+            // tanpa desimal
+            return number_format((int)$angka, 0, '', '.');
+        }
+    }
+
     if(!function_exists('az_terbilang_format')){
         function az_terbilang_format($x) {
             $x = abs($x);
