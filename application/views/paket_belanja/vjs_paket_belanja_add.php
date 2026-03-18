@@ -484,6 +484,18 @@
         })
 	});
 
+	jQuery('body').on('change', '#idsatuan', function() {
+		var id = jQuery(this).val();
+		var satuan 	=  jQuery('#idsatuan option:selected').text();
+		
+		// setTimeout(function() {
+		if (id != '' && satuan != 'LS') {
+			calculate();
+			calculate_rak();
+		}
+		// }, 500);
+	});
+
 	jQuery('#form_add_subkategori').on('keyup', '.volume, .harga-satuan', function() {
 		calculate();
 		calculate_rak();
@@ -492,88 +504,92 @@
 	function calculate() {
 		var volume			=  jQuery('#volume').val();
 		var harga_satuan 	=  jQuery('#harga_satuan').val();
-
-		// var rak_volume_januari		=  jQuery('#rak_volume_januari').val();
-		// var rak_volume_februari		=  jQuery('#rak_volume_februari').val();
-		// var rak_volume_maret		=  jQuery('#rak_volume_maret').val();
-		// var rak_volume_april		=  jQuery('#rak_volume_april').val();
-		// var rak_volume_mei			=  jQuery('#rak_volume_mei').val();
-		// var rak_volume_juni			=  jQuery('#rak_volume_juni').val();
-		// var rak_volume_juli			=  jQuery('#rak_volume_juli').val();
-		// var rak_volume_agustus		=  jQuery('#rak_volume_agustus').val();
-		// var rak_volume_september	=  jQuery('#rak_volume_september').val();
-		// var rak_volume_oktober		=  jQuery('#rak_volume_oktober').val();
-		// var rak_volume_november		=  jQuery('#rak_volume_november').val();
-		// var rak_volume_desember		=  jQuery('#rak_volume_desember').val();
+		var satuan 			=  jQuery('#idsatuan option:selected').text();
+		console.log(satuan);
+		
+		var rak_volume_januari		=  jQuery('#rak_volume_januari').val();
+		var rak_volume_februari		=  jQuery('#rak_volume_februari').val();
+		var rak_volume_maret		=  jQuery('#rak_volume_maret').val();
+		var rak_volume_april		=  jQuery('#rak_volume_april').val();
+		var rak_volume_mei			=  jQuery('#rak_volume_mei').val();
+		var rak_volume_juni			=  jQuery('#rak_volume_juni').val();
+		var rak_volume_juli			=  jQuery('#rak_volume_juli').val();
+		var rak_volume_agustus		=  jQuery('#rak_volume_agustus').val();
+		var rak_volume_september	=  jQuery('#rak_volume_september').val();
+		var rak_volume_oktober		=  jQuery('#rak_volume_oktober').val();
+		var rak_volume_november		=  jQuery('#rak_volume_november').val();
+		var rak_volume_desember		=  jQuery('#rak_volume_desember').val();
 
 		volume 					= remove_separator(volume);
 		harga_satuan 			= remove_separator(harga_satuan);
-		// rak_volume_januari		= remove_separator(rak_volume_januari);
-		// rak_volume_februari		= remove_separator(rak_volume_februari);
-		// rak_volume_maret		= remove_separator(rak_volume_maret);
-		// rak_volume_april		= remove_separator(rak_volume_april);
-		// rak_volume_mei			= remove_separator(rak_volume_mei);
-		// rak_volume_juni			= remove_separator(rak_volume_juni);
-		// rak_volume_juli			= remove_separator(rak_volume_juli);
-		// rak_volume_agustus		= remove_separator(rak_volume_agustus);
-		// rak_volume_september	= remove_separator(rak_volume_september);
-		// rak_volume_oktober		= remove_separator(rak_volume_oktober);
-		// rak_volume_november		= remove_separator(rak_volume_november);
-		// rak_volume_desember		= remove_separator(rak_volume_desember);
+		rak_volume_januari		= remove_separator(rak_volume_januari);
+		rak_volume_februari		= remove_separator(rak_volume_februari);
+		rak_volume_maret		= remove_separator(rak_volume_maret);
+		rak_volume_april		= remove_separator(rak_volume_april);
+		rak_volume_mei			= remove_separator(rak_volume_mei);
+		rak_volume_juni			= remove_separator(rak_volume_juni);
+		rak_volume_juli			= remove_separator(rak_volume_juli);
+		rak_volume_agustus		= remove_separator(rak_volume_agustus);
+		rak_volume_september	= remove_separator(rak_volume_september);
+		rak_volume_oktober		= remove_separator(rak_volume_oktober);
+		rak_volume_november		= remove_separator(rak_volume_november);
+		rak_volume_desember		= remove_separator(rak_volume_desember);
 
   		var jumlah 					= volume * harga_satuan;
-		// var rak_jumlah_januari		= rak_volume_januari * harga_satuan;
-		// var rak_jumlah_februari		= rak_volume_februari * harga_satuan;
-		// var rak_jumlah_maret		= rak_volume_maret * harga_satuan;
-		// var rak_jumlah_april		= rak_volume_april * harga_satuan;
-		// var rak_jumlah_mei			= rak_volume_mei * harga_satuan;
-		// var rak_jumlah_juni			= rak_volume_juni * harga_satuan;
-		// var rak_jumlah_juli			= rak_volume_juli * harga_satuan;
-		// var rak_jumlah_agustus		= rak_volume_agustus * harga_satuan;
-		// var rak_jumlah_september	= rak_volume_september * harga_satuan;
-		// var rak_jumlah_oktober		= rak_volume_oktober * harga_satuan;
-		// var rak_jumlah_november		= rak_volume_november * harga_satuan;
-		// var rak_jumlah_desember		= rak_volume_desember * harga_satuan;
+		var rak_jumlah_januari		= rak_volume_januari * harga_satuan;
+		var rak_jumlah_februari		= rak_volume_februari * harga_satuan;
+		var rak_jumlah_maret		= rak_volume_maret * harga_satuan;
+		var rak_jumlah_april		= rak_volume_april * harga_satuan;
+		var rak_jumlah_mei			= rak_volume_mei * harga_satuan;
+		var rak_jumlah_juni			= rak_volume_juni * harga_satuan;
+		var rak_jumlah_juli			= rak_volume_juli * harga_satuan;
+		var rak_jumlah_agustus		= rak_volume_agustus * harga_satuan;
+		var rak_jumlah_september	= rak_volume_september * harga_satuan;
+		var rak_jumlah_oktober		= rak_volume_oktober * harga_satuan;
+		var rak_jumlah_november		= rak_volume_november * harga_satuan;
+		var rak_jumlah_desember		= rak_volume_desember * harga_satuan;
 
 		console.log('jumlah '+jumlah);
 		jQuery('#jumlah').val(thousand_separator(jumlah));
 		
-		// if (rak_volume_januari != '' && rak_volume_januari != null) {
-		// 	jQuery('#rak_jumlah_januari').val(thousand_separator(rak_jumlah_januari));
-		// }
-		// if (rak_volume_februari != '' && rak_volume_februari != null) {
-		// 	jQuery('#rak_jumlah_februari').val(thousand_separator(rak_jumlah_februari));
-		// }
-		// if (rak_volume_maret != '' && rak_volume_maret != null) {
-		// 	jQuery('#rak_jumlah_maret').val(thousand_separator(rak_jumlah_maret));
-		// }
-		// if (rak_volume_april != '' && rak_volume_april != null) {
-		// 	jQuery('#rak_jumlah_april').val(thousand_separator(rak_jumlah_april));
-		// }
-		// if (rak_volume_mei != '' && rak_volume_mei != null) {
-		// 	jQuery('#rak_jumlah_mei').val(thousand_separator(rak_jumlah_mei));
-		// }
-		// if (rak_volume_juni != '' && rak_volume_juni != null) {
-		// 	jQuery('#rak_jumlah_juni').val(thousand_separator(rak_jumlah_juni));
-		// }
-		// if (rak_volume_juli != '' && rak_volume_juli != null) {
-		// 	jQuery('#rak_jumlah_juli').val(thousand_separator(rak_jumlah_juli));
-		// }
-		// if (rak_volume_agustus != '' && rak_volume_agustus != null) {
-		// 	jQuery('#rak_jumlah_agustus').val(thousand_separator(rak_jumlah_agustus));
-		// }
-		// if (rak_volume_september != '' && rak_volume_september != null) {
-		// 	jQuery('#rak_jumlah_september').val(thousand_separator(rak_jumlah_september));
-		// }
-		// if (rak_volume_oktober != '' && rak_volume_oktober != null) {
-		// 	jQuery('#rak_jumlah_oktober').val(thousand_separator(rak_jumlah_oktober));
-		// }
-		// if (rak_volume_november != '' && rak_volume_november != null) {
-		// 	jQuery('#rak_jumlah_november').val(thousand_separator(rak_jumlah_november));
-		// }
-		// if (rak_volume_desember != '' && rak_volume_desember != null) {
-		// 	jQuery('#rak_jumlah_desember').val(thousand_separator(rak_jumlah_desember));
-		// }
+		if (satuan != 'LS') {
+			if (rak_volume_januari != '' && rak_volume_januari != null) {
+				jQuery('#rak_jumlah_januari').val(thousand_separator(rak_jumlah_januari));
+			}
+			if (rak_volume_februari != '' && rak_volume_februari != null) {
+				jQuery('#rak_jumlah_februari').val(thousand_separator(rak_jumlah_februari));
+			}
+			if (rak_volume_maret != '' && rak_volume_maret != null) {
+				jQuery('#rak_jumlah_maret').val(thousand_separator(rak_jumlah_maret));
+			}
+			if (rak_volume_april != '' && rak_volume_april != null) {
+				jQuery('#rak_jumlah_april').val(thousand_separator(rak_jumlah_april));
+			}
+			if (rak_volume_mei != '' && rak_volume_mei != null) {
+				jQuery('#rak_jumlah_mei').val(thousand_separator(rak_jumlah_mei));
+			}
+			if (rak_volume_juni != '' && rak_volume_juni != null) {
+				jQuery('#rak_jumlah_juni').val(thousand_separator(rak_jumlah_juni));
+			}
+			if (rak_volume_juli != '' && rak_volume_juli != null) {
+				jQuery('#rak_jumlah_juli').val(thousand_separator(rak_jumlah_juli));
+			}
+			if (rak_volume_agustus != '' && rak_volume_agustus != null) {
+				jQuery('#rak_jumlah_agustus').val(thousand_separator(rak_jumlah_agustus));
+			}
+			if (rak_volume_september != '' && rak_volume_september != null) {
+				jQuery('#rak_jumlah_september').val(thousand_separator(rak_jumlah_september));
+			}
+			if (rak_volume_oktober != '' && rak_volume_oktober != null) {
+				jQuery('#rak_jumlah_oktober').val(thousand_separator(rak_jumlah_oktober));
+			}
+			if (rak_volume_november != '' && rak_volume_november != null) {
+				jQuery('#rak_jumlah_november').val(thousand_separator(rak_jumlah_november));
+			}
+			if (rak_volume_desember != '' && rak_volume_desember != null) {
+				jQuery('#rak_jumlah_desember').val(thousand_separator(rak_jumlah_desember));
+			}
+		}
 	}
 
 	jQuery('#form_add_subkategori').on('keyup', '.calc-jumlah', function() {
