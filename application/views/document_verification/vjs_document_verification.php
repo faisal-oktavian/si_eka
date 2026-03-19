@@ -21,7 +21,13 @@
 					bootbox.alert(response.err_message);
 				}
 				else {
-					location.reload();
+					// location.reload();
+					hide_modal('document_verification');
+
+					var table = $('#document_verification').DataTable();
+
+					// reload data dari server
+					table.draw(false);
 				}
 			},
 			error: function(response) {}
@@ -50,7 +56,13 @@
 					bootbox.alert(response.err_message);
 				}
 				else {
-					location.reload();
+					// location.reload();
+					hide_modal('description');
+
+					var table = $('#document_verification').DataTable();
+
+					// reload data dari server
+					table.draw(false);
 				}
 			},
 			error: function(response) {}
