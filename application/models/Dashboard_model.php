@@ -136,20 +136,29 @@ class Dashboard_model extends CI_Model {
         $running = 0;
 
         for ($bulan = 1; $bulan <= 12; $bulan++) {
+            // $this->db->reset_query();
+            // $this->db->where('purchase_plan.status', 1);
+            // $this->db->where('purchase_plan_status != "DRAFT" ');
+            // $this->db->where('YEAR(purchase_plan_date)', $tahun);
+            // $this->db->where('MONTH(purchase_plan_date)', $bulan);
+            // $this->db->group_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
+            // $this->db->select('SUM(total_budget) AS total');
+            // $query = $this->db->get('purchase_plan');
+
             $this->db->reset_query();
-            $this->db->where('purchase_plan.status', 1);
-            $this->db->where('purchase_plan_status != "DRAFT" ');
-            $this->db->where('YEAR(purchase_plan_date)', $tahun);
-            $this->db->where('MONTH(purchase_plan_date)', $bulan);
-            $this->db->group_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
-            $this->db->select('SUM(total_budget) AS total');
-            $query = $this->db->get('purchase_plan');
+            $this->db->where('npd.status', 1);
+            $this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+            $this->db->where('YEAR(npd.confirm_payment_date)', $tahun);
+            $this->db->where('MONTH(npd.confirm_payment_date)', $bulan);
+            $this->db->group_by('YEAR(npd.confirm_payment_date), MONTH(npd.confirm_payment_date)');
+            $this->db->select('sum(total_pay) as total');
+            $query = $this->db->get('npd');
 
             $total = 0;
             if ($query->num_rows() > 0) {
                 $total = floatval($query->row()->total);
             }
-
+            
             if ($cumulative) {
                 $running += $total;
                 $out[] = $running;
@@ -409,9 +418,20 @@ class Dashboard_model extends CI_Model {
             $cumulative_target += isset($target_per_bulan[$bulan - 1]) ? $target_per_bulan[$bulan - 1] : 0;
             $cumulative_realisasi += isset($realisasi_bulanan[$bulan - 1]) ? $realisasi_bulanan[$bulan - 1] : 0;
 
-            $arr_TargetPerBulan[] = $total_anggaran ? round(($cumulative_target / $total_anggaran) * 100) : 0;
-            $arr_RealisasiPerBulan[] = $total_anggaran ? round(($cumulative_realisasi / $total_anggaran) * 100) : 0;
+            $arr_TargetPerBulan[] = $total_anggaran 
+                ? round(($cumulative_target / $total_anggaran) * 100, 2) 
+                : 0;
+
+            $arr_RealisasiPerBulan[] = $total_anggaran 
+                ? round(($cumulative_realisasi / $total_anggaran) * 100, 2) 
+                : 0;
         }
+        
+        // echo "<pre>";
+        // print_r($arr_TargetPerBulan);
+        // echo "<br>";
+        // print_r($arr_RealisasiPerBulan);
+        // die;
 
         return [
             'arr_TargetPerBulan' => $arr_TargetPerBulan,
