@@ -178,36 +178,57 @@
                         foreach ($arr_data as $key => $value) {
                     ?>
                             <tr style="font-weight: bold;">
-                                <td rowspan="<?php echo $value['total_data']; ?>" style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
-                                <td colspan="6"><?php echo $value['nama_akun_belanja'];?></td>
+                                <td style="vertical-align:top;"><?php echo $value['no_rekening_akunbelanja'];?></td>
+                                <td colspan="6"><?php echo $value['nama_akunbelanja'];?></td>
                             </tr>
                     <?php   
                             $space = "padding-left:15px;";
                             $space_detail = "padding-left:15px;";
-                            foreach ($value['arr_detail'] as $key_sub => $value_sub) {
-                                if ($value_sub['nama_kategori'] != "") {
 
+                            foreach ($value['arr_kategori'] as $dkey => $dvalue) {
+                                if (strlen($dvalue['idkategori']) > 0) {
                                     $space_detail = "padding-left:30px;";
+                                    // jika ada kategorinya 
                     ?>
                                     <tr>
+                                        <td></td>
                                         <td colspan="6" style="font-weight:bold; <?php echo $space; ?>">
-                                            <?php echo $value_sub['nama_kategori'];?></td>
+                                            <?php echo $dvalue['nama_kategori'];?></td>
                                     </tr>
                     <?php
+                                    foreach ($dvalue['arr_subkategori'] as $skey => $svalue) {
+                    ?>
+                                        <tr>
+                                            <td></td>
+                                            <td style="<?php echo $space_detail; ?>">
+                                                <?php echo $svalue['nama_sub_kategori'];?>
+                                                <br>
+                                                <?php echo $svalue['kode_rekening_sub'];?>
+                                            </td>
+                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['total_anggaran']);?></td>
+                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['sisa_anggaran']);?></td>
+                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['total_sekarang']);?></td>
+                                            <td style="text-align: right;"><?php echo az_thousand_separator($svalue['sisa_akhir']);?></td>
+                                            <td><?php echo $svalue['realization_detail_description'];?></td>
+                                        </tr>
+                    <?php
+                                    }
                                 }
-                                foreach ($value_sub['arr_detail_sub'] as $key_ds => $value_ds) {
+                                else {
+                                    // jika hanya sub kategori
                     ?>
                                     <tr>
-                                        <td style="<?php echo $space_detail; ?>">
-                                            <?php echo $value_ds['nama_sub_kategori'];?>
+                                        <td></td>
+                                        <td style="<?php echo $space; ?>">
+                                            <?php echo $dvalue['nama_sub_kategori'];?>
                                             <br>
-                                            <?php echo $value_ds['nomor_kode_rekening'];?>
+                                            <?php echo $dvalue['kode_rekening_sub'];?>
                                         </td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_anggaran']);?></td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_anggaran']);?></td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['total_sekarang']);?></td>
-                                        <td style="text-align: right;"><?php echo az_thousand_separator($value_ds['sisa_akhir']);?></td>
-                                        <td><?php echo $value_ds['realization_detail_description'];?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['total_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['sisa_anggaran']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['total_sekarang']);?></td>
+                                        <td style="text-align: right;"><?php echo az_thousand_separator($dvalue['sisa_akhir']);?></td>
+                                        <td><?php echo $dvalue['realization_detail_description'];?></td>
                                     </tr>
                     <?php
                                 }
@@ -231,8 +252,8 @@
             <div class="ttd">
                 Pelaksana Kegiatan
                 <br><br><br><br><br><br>
-                Dwi Lina Nur W., SE, MM.<br>
-                NIP 197109142009012001
+                Hari Purnomo, S.Kep.Ns., M.Kes.<br>
+                NIP 197103061993031004
             </div>
         </div>
         <div class="ttd-row">
