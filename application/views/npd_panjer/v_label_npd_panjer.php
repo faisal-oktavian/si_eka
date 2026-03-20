@@ -143,7 +143,7 @@
         </table>
 
         <div class="table-container">
-            <p>&emsp;&emsp;&emsp;&emsp;&emsp; Sehubungan dengan kegiatan yang akan segera dilaksanakan, kami mengajukan dan panjar kegiatan sebesar Rp. <?php echo az_thousand_separator($total_realisasi); ?>,- (<?php echo terbilang($total_realisasi); ?>)</p>
+            <p>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; Sehubungan dengan kegiatan yang akan segera dilaksanakan, kami mengajukan dan panjar kegiatan sebesar Rp. <?php echo az_thousand_separator($total_realisasi); ?>,- (<?php echo terbilang($total_realisasi); ?>)</p>
             <p>&emsp;&emsp;&emsp;&emsp;&emsp; Dengan ini pula menyatakan dengan sebenarnya bahwa uang sejumlah tersebut digunakan untuk keperluan sebagai berikut :</p>
 
             <!-- table bidang -->
