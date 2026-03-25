@@ -44,3 +44,8 @@
 
         location.href = app_url + 'purchase_plan/edit/' + id + '/view_only';
 	});
+
+	jQuery('body').on('click', '.btn-excel', function() {
+		var param = jQuery('.purchase-plan').serialize();
+		window.open(app_url + 'purchase_plan/excel?'+param, '_blank');
+	});

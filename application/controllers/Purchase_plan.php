@@ -52,6 +52,9 @@ class Purchase_plan extends CI_Controller {
 		$vf = $this->load->view('purchase_plan/vf_purchase_plan', $data, true);
         $crud->set_top_filter($vf);
 
+		$btn = " <button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button>";
+		$crud->set_btn_top_custom($btn);
+
 		$crud = $crud->render();
 		$data['crud'] = $crud;
 		$data['active'] = 'purchase_plan';
@@ -1312,5 +1315,84 @@ class Purchase_plan extends CI_Controller {
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
 		return $data;
+	}
+
+	function excel() {
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$vf_purchase_plan_code = $this->input->get('vf_purchase_plan_code');
+		$vf_purchase_plan_status = $this->input->get('vf_purchase_plan_status');
+		$iduser_created = $this->input->get('iduser_created');
+
+		// $sess_idoutlet = $this->session->userdata('idoutlet');
+		// if (strlen($idoutlet) == 0) {
+		// 	$idoutlet = $sess_idoutlet;
+		// }
+		
+		// if (strlen($idoutlet) > 0) {
+		// 	$this->db->where('user.idoutlet = "'.$idoutlet.'"');
+		// }
+		// if (strlen($idemployee_division) > 0) {
+		// 	$this->db->where('user.idemployee_division = "'.$idemployee_division.'"');
+		// }
+		// if (strlen($iduser) > 0) {
+		// 	$this->db->where('user.iduser = "'.$iduser.'"');
+		// }
+		// $this->db->select('idpunishment, user.nik, user.name as user_name, punishment_type, punishment_date, punishment_description, user_create.name as user_create_name, punishment.iduser,  employee_division.employee_division_name AS divisi, date_format(punishment_start_date, "%d-%m-%Y") as start_date, date_format(punishment_end_date, "%d-%m-%Y") as end_date');
+		// $this->db->where('punishment.punishment_date >= "'.Date('Y-m-d', strtotime($date1)).'"');
+		// $this->db->where('punishment.punishment_date <= "'.Date('Y-m-d', strtotime($date2)).'"');
+		// $this->db->join('user', 'punishment.iduser=user.iduser','left');
+		// $this->db->join('outlet', 'user.idoutlet = outlet.idoutlet', 'left');
+		// $this->db->join('role', 'user.idrole = role.idrole');
+		// $this->db->join('user user_create', 'punishment.iduser_create = user_create.iduser', 'left');
+		// $this->db->join('employee_division', 'user.idemployee_division = employee_division.idemployee_division','left');
+		// $this->db->where('role.name != "administrator"');
+		// $this->db->where("punishment.status > 0");
+		// $this->db->order_by('punishment_date asc');
+		// $data = $this->db->get($this->table);
+		// echo"<pre>";print_r($this->db->last_query());die;
+
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$azapp->add_phpexcel();
+
+		$file_excel = APPPATH . "assets/excel/rekap_rencana_pengadaan.xlsx";
+		echo "<pre>"; print_r($file_excel); die;
+
+		$phpexcel = PHPExcel_IOFactory::load($file_excel);
+		$sheet0 = $phpexcel->setActiveSheetIndex(0);
+
+		$i = 0;
+		$start_row = 6;
+
+		$styleArray11 = array(
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
+		
+		$sheet->setCellValue("A3", $date1. ' s/d ' . $date2);
+		foreach ($data->result() as $key => $value) {
+			$sheet->setCellValue("A" . ($start_row + $i), ($i + 1));
+			$sheet->setCellValue("B" . ($start_row + $i), $value->purchase_plan_date);
+			$sheet->setCellValue("C" . ($start_row + $i), $value->purchase_plan_code);
+			$sheet->setCellValue("D" . ($start_row + $i), $value->nama_paket_belanja);
+			$sheet->setCellValue("E" . ($start_row + $i), $value->nama_sub_kategori);
+			$sheet->setCellValue("F" . ($start_row + $i), $value->volume);
+			$sheet->setCellValue("G" . ($start_row + $i), $value->purchase_plan_status);
+			$sheet->setCellValue("H" . ($start_row + $i), $value->name);
+			$i++;
+		}
+
+		$sheet->getStyle("A" . $start_row . ":H" . ($start_row + $i - 1))->applyFromArray($styleArray11);
+		//write file and download
+		$filename = 'Rekap Rencana Pengadaan' . Date('d-m-Y H:i:s') . '.xls';
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+		$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
+		$objWriter->save('php://output');
 	}
 }
