@@ -69,7 +69,7 @@ class Home extends AZ_Controller {
 		$realisasi_per_bulan = [];
 
 		$target_per_bulan = $this->dashboard->get_target_per_bulan($tahun_ini);
-		$realisasi_per_bulan = $this->dashboard->get_realisasi_per_bulan($tahun_ini);
+		$realisasi_per_bulan = $this->dashboard->get_realisasi_per_bulan($tahun_ini, false);
 
 
 		// Grafik Line Persentase Capaian Target & Realisasi Anggaran per Bulan
