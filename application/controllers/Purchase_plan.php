@@ -28,6 +28,9 @@ class Purchase_plan extends CI_Controller {
 			$crud->set_btn_add(false);
 		}
 
+		$btn = " <button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button>";
+		$crud->set_btn_top_custom($btn);
+
 		$date1 = $azapp->add_datetime();
 		$date1->set_id('date1');
 		$date1->set_name('date1');
@@ -51,9 +54,6 @@ class Purchase_plan extends CI_Controller {
 
 		$vf = $this->load->view('purchase_plan/vf_purchase_plan', $data, true);
         $crud->set_top_filter($vf);
-
-		$btn = " <button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button>";
-		$crud->set_btn_top_custom($btn);
 
 		$crud = $crud->render();
 		$data['crud'] = $crud;
