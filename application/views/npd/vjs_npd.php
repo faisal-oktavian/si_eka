@@ -74,3 +74,8 @@
 		var id = jQuery(this).attr('data_id');
 		location.href = app_url + 'npd/edit/' + id + '/view_only';
 	});
+
+	jQuery('body').on('click', '.btn-excel', function() {
+		var param = jQuery('.npd').serialize();
+		window.open(app_url + 'npd/excel?'+param, '_blank');
+	});
