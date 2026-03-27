@@ -68,3 +68,8 @@
 			error: function(response) {}
 		});
 	});
+
+	jQuery('body').on('click', '.btn-excel', function() {
+		var param = jQuery('.document-verification').serialize();
+		window.open(app_url + 'document_verification/excel?'+param, '_blank');
+	});
