@@ -214,7 +214,11 @@ class Payment extends CI_Controller {
 		}
 
 		if ($key == "description") {
-			return $verification->row()->realization_detail_description;
+			$description = "";
+			if ($verification->num_rows() > 0) {
+				$description = $verification->row()->realization_detail_description;
+			}
+			return $description;
 		}
 
 		if ($key == "type_code") {
