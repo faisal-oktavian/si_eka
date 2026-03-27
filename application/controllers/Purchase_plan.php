@@ -1320,47 +1320,56 @@ class Purchase_plan extends CI_Controller {
 	function excel() {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$vf_purchase_plan_code = $this->input->get('vf_purchase_plan_code');
-		$vf_purchase_plan_status = $this->input->get('vf_purchase_plan_status');
+		$purchase_plan_code = $this->input->get('vf_purchase_plan_code');
+		$purchase_plan_status = $this->input->get('vf_purchase_plan_status');
 		$iduser_created = $this->input->get('iduser_created');
 
-		// $sess_idoutlet = $this->session->userdata('idoutlet');
-		// if (strlen($idoutlet) == 0) {
-		// 	$idoutlet = $sess_idoutlet;
-		// }
-		
-		// if (strlen($idoutlet) > 0) {
-		// 	$this->db->where('user.idoutlet = "'.$idoutlet.'"');
-		// }
-		// if (strlen($idemployee_division) > 0) {
-		// 	$this->db->where('user.idemployee_division = "'.$idemployee_division.'"');
-		// }
-		// if (strlen($iduser) > 0) {
-		// 	$this->db->where('user.iduser = "'.$iduser.'"');
-		// }
-		// $this->db->select('idpunishment, user.nik, user.name as user_name, punishment_type, punishment_date, punishment_description, user_create.name as user_create_name, punishment.iduser,  employee_division.employee_division_name AS divisi, date_format(punishment_start_date, "%d-%m-%Y") as start_date, date_format(punishment_end_date, "%d-%m-%Y") as end_date');
-		// $this->db->where('punishment.punishment_date >= "'.Date('Y-m-d', strtotime($date1)).'"');
-		// $this->db->where('punishment.punishment_date <= "'.Date('Y-m-d', strtotime($date2)).'"');
-		// $this->db->join('user', 'punishment.iduser=user.iduser','left');
-		// $this->db->join('outlet', 'user.idoutlet = outlet.idoutlet', 'left');
-		// $this->db->join('role', 'user.idrole = role.idrole');
-		// $this->db->join('user user_create', 'punishment.iduser_create = user_create.iduser', 'left');
-		// $this->db->join('employee_division', 'user.idemployee_division = employee_division.idemployee_division','left');
-		// $this->db->where('role.name != "administrator"');
-		// $this->db->where("punishment.status > 0");
-		// $this->db->order_by('punishment_date asc');
-		// $data = $this->db->get($this->table);
-		// echo"<pre>";print_r($this->db->last_query());die;
+        
+        if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $this->db->where('date(purchase_plan.purchase_plan_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $this->db->where('date(purchase_plan.purchase_plan_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($purchase_plan_code) > 0) {
+			$this->db->where('purchase_plan.purchase_plan_code = "' . $purchase_plan_code . '"');
+		}
+		if (strlen($purchase_plan_status) > 0) {
+			$this->db->where('purchase_plan.purchase_plan_status = "' . $purchase_plan_status . '"');
+		}
+		if (strlen($iduser_created) > 0) {
+			$this->db->where('purchase_plan.iduser_created = "' . $iduser_created . '"');
+		}
+
+		$this->db->where("purchase_plan.status = 1");
+		$this->db->where("purchase_plan.purchase_plan_status != 'DRAFT' ");
+
+		$this->db->join('user', 'purchase_plan.iduser_created = user.iduser');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail_sub.idpaket_belanja');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		$this->db->order_by('purchase_plan_date desc');
+
+		$this->db->select('purchase_plan.idpurchase_plan, 
+		date_format(purchase_plan.purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, 
+		purchase_plan.purchase_plan_code,
+		paket_belanja.nama_paket_belanja,
+		sub_kategori.nama_sub_kategori,
+		purchase_plan_detail.volume,
+		purchase_plan.purchase_plan_status,
+		user.name as user_name');
+
+		$data = $this->db->get('purchase_plan');
+		// echo"<pre>"; print_r($this->db->last_query()); die;
 
 		$this->load->library('AZApp');
 		$azapp = $this->azapp;
 		$azapp->add_phpexcel();
 
 		$file_excel = APPPATH . "assets/excel/rekap_rencana_pengadaan.xlsx";
-		echo "<pre>"; print_r($file_excel); die;
+		// echo "<pre>"; print_r($file_excel); die;
 
 		$phpexcel = PHPExcel_IOFactory::load($file_excel);
-		$sheet0 = $phpexcel->setActiveSheetIndex(0);
+		$sheet = $phpexcel->setActiveSheetIndex(0);
 
 		$i = 0;
 		$start_row = 6;
@@ -1376,13 +1385,13 @@ class Purchase_plan extends CI_Controller {
 		$sheet->setCellValue("A3", $date1. ' s/d ' . $date2);
 		foreach ($data->result() as $key => $value) {
 			$sheet->setCellValue("A" . ($start_row + $i), ($i + 1));
-			$sheet->setCellValue("B" . ($start_row + $i), $value->purchase_plan_date);
+			$sheet->setCellValue("B" . ($start_row + $i), $value->txt_purchase_plan_date);
 			$sheet->setCellValue("C" . ($start_row + $i), $value->purchase_plan_code);
 			$sheet->setCellValue("D" . ($start_row + $i), $value->nama_paket_belanja);
 			$sheet->setCellValue("E" . ($start_row + $i), $value->nama_sub_kategori);
 			$sheet->setCellValue("F" . ($start_row + $i), $value->volume);
 			$sheet->setCellValue("G" . ($start_row + $i), $value->purchase_plan_status);
-			$sheet->setCellValue("H" . ($start_row + $i), $value->name);
+			$sheet->setCellValue("H" . ($start_row + $i), $value->user_name);
 			$i++;
 		}
 
