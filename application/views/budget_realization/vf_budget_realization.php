@@ -1,4 +1,4 @@
-<form class="form-horizontal">
+<form class="form-horizontal budget-realization">
 	<div class="form-group">
 		<label class="control-label col-sm-2">Tanggal</label>
 		<div class="col-md-4">

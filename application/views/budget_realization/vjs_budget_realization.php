@@ -71,3 +71,8 @@
 			error: function(response) {}
 		});
 	});
+
+	jQuery('body').on('click', '.btn-excel', function() {
+		var param = jQuery('.budget-realization').serialize();
+		window.open(app_url + 'budget_realization/excel?'+param, '_blank');
+	});
