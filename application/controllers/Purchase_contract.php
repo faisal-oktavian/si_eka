@@ -1109,63 +1109,6 @@ class Purchase_contract extends CI_Controller {
 		return $contract_code;
 	}
 
-
-
-	///////////// tidak terpakai /////////////
-	function search_dokumen() {
-		$keyword = $this->input->get("term");
-
-		$this->db->group_start();
-		$this->db->like('paket_belanja.nama_paket_belanja', $keyword);
-		$this->db->or_like('purchase_plan.purchase_plan_code', $keyword);
-		$this->db->group_end();
-
-		$this->db->where('purchase_plan.purchase_plan_status = "PROSES PENGADAAN" ');
-		$this->db->where('purchase_plan.status', 1);
-		$this->db->where('purchase_plan_detail.status', 1);
-		$this->db->where('paket_belanja.status', 1);
-
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
-
-		$this->db->group_by('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code');
-		
-		$this->db->select('purchase_plan.idpurchase_plan as id, purchase_plan.purchase_plan_code as text');
-		$data = $this->db->get('purchase_plan');
-		// echo "<pre>"; print_r($this->db->last_query());die;
-
-		$results = array(
-			"results" => $data->result_array(),
-		);
-		echo json_encode($results);
-	}
-
-    function select_dokumen() {
-		$idpurchase_plan = $this->input->post('idpurchase_plan');
-
-		$this->db->where('purchase_plan.idpurchase_plan', $idpurchase_plan);
-		$this->db->where('purchase_plan.status', 1);
-		$this->db->where('purchase_plan_detail.status', 1);
-		$this->db->where('paket_belanja.status', 1);
-
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
-		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
-        $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
-
-		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
-		$data['purchase_plan'] = $this->db->get('purchase_plan');
-		// echo "<pre>"; print_r($this->db->last_query());die;
-
-        $view = $this->load->view('purchase_contract/v_select_document_table', $data, true);
-
-		$arr = array(
-			'data' => $view,
-            'idpurchase_plan' => $data['purchase_plan']->row()->idpurchase_plan,
-		);
-		echo json_encode($arr);
-	}
-
 	function excel() {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
@@ -1257,5 +1200,62 @@ class Purchase_contract extends CI_Controller {
 		header('Cache-Control: max-age=0');
 		$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
 		$objWriter->save('php://output');
+	}
+
+
+
+	///////////// tidak terpakai /////////////
+	function search_dokumen() {
+		$keyword = $this->input->get("term");
+
+		$this->db->group_start();
+		$this->db->like('paket_belanja.nama_paket_belanja', $keyword);
+		$this->db->or_like('purchase_plan.purchase_plan_code', $keyword);
+		$this->db->group_end();
+
+		$this->db->where('purchase_plan.purchase_plan_status = "PROSES PENGADAAN" ');
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('paket_belanja.status', 1);
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+
+		$this->db->group_by('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code');
+		
+		$this->db->select('purchase_plan.idpurchase_plan as id, purchase_plan.purchase_plan_code as text');
+		$data = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+		$results = array(
+			"results" => $data->result_array(),
+		);
+		echo json_encode($results);
+	}
+
+    function select_dokumen() {
+		$idpurchase_plan = $this->input->post('idpurchase_plan');
+
+		$this->db->where('purchase_plan.idpurchase_plan', $idpurchase_plan);
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('paket_belanja.status', 1);
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+        $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume');
+		$data['purchase_plan'] = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());die;
+
+        $view = $this->load->view('purchase_contract/v_select_document_table', $data, true);
+
+		$arr = array(
+			'data' => $view,
+            'idpurchase_plan' => $data['purchase_plan']->row()->idpurchase_plan,
+		);
+		echo json_encode($arr);
 	}
 }
