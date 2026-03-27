@@ -142,3 +142,8 @@
 			}
 		})
 	});
+
+	jQuery('body').on('click', '.btn-excel', function() {
+		var param = jQuery('.payment').serialize();
+		window.open(app_url + 'payment/excel?'+param, '_blank');
+	});

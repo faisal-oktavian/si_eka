@@ -24,6 +24,9 @@ class Payment extends CI_Controller {
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
 
+		$btn = " <button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button>";
+		$crud->set_btn_top_custom($btn);
+
 		$date1 = $azapp->add_datetime();
 		$date1->set_id('date1');
 		$date1->set_name('date1');
@@ -548,5 +551,102 @@ class Payment extends CI_Controller {
 		}
 
 		echo json_encode($ret);
+	}
+
+	function excel() {
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$npd_code = $this->input->get('npd_code');
+		$npd_status = $this->input->get('npd_status');
+
+		if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $this->db->where('date(npd.npd_date_created) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $this->db->where('date(npd.npd_date_created) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($npd_code) > 0) {
+			$this->db->where('npd.npd_code = "' . $npd_code . '"');
+		}
+		if (strlen($npd_status) > 0) {
+			$this->db->where('npd.npd_status = "' . $npd_status . '"');
+		}
+
+		$this->db->where("npd.status = 1");
+		$this->db->where("npd.npd_status IN ('MENUNGGU PEMBAYARAN', 'SUDAH DIBAYAR BENDAHARA')");
+
+		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+		
+		$this->db->order_by('npd_date_created desc');
+
+		$this->db->select('npd.idnpd, 
+			date_format(npd.npd_date_created, "%d-%m-%Y %H:%i:%s") as txt_date_input, 
+			date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, 
+			npd.npd_code,
+			verification.idbudget_realization,
+			"" as realization_detail_description,
+			npd.total_anggaran,
+			npd.total_pay
+			');
+
+		$data = $this->db->get('npd');
+		// echo"<pre>"; print_r($this->db->last_query()); die;
+
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$azapp->add_phpexcel();
+
+		$file_excel = APPPATH . "assets/excel/rekap_pembayaran.xlsx";
+		// echo "<pre>"; print_r($file_excel); die;
+
+		$phpexcel = PHPExcel_IOFactory::load($file_excel);
+		$sheet = $phpexcel->setActiveSheetIndex(0);
+
+		$i = 0;
+		$start_row = 6;
+		$grand_total_anggaran = 0;
+
+		$styleArray11 = array(
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
+		
+		$sheet->setCellValue("A3", $date1. ' s/d ' . $date2);
+		foreach ($data->result() as $key => $value) {
+			$this->db->where('budget_realization.idbudget_realization', $value->idbudget_realization);
+			$this->db->where('budget_realization.status', 1);
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+			$this->db->select('budget_realization_detail.realization_detail_description');
+			$br_detail = $this->db->get('budget_realization');
+
+			$desc = '';
+			if ($br_detail->num_rows() > 0) {
+				$desc = $br_detail->row()->realization_detail_description;
+			}
+
+
+			$sheet->setCellValue("A" . ($start_row + $i), ($i + 1));
+			$sheet->setCellValue("B" . ($start_row + $i), $value->txt_date_input);
+			$sheet->setCellValue("C" . ($start_row + $i), $value->txt_confirm_payment_date);
+			$sheet->setCellValue("D" . ($start_row + $i), $value->npd_code);
+			$sheet->setCellValue("E" . ($start_row + $i), $desc);
+			$sheet->setCellValue("F" . ($start_row + $i), $value->total_anggaran);
+			$sheet->setCellValue("G" . ($start_row + $i), $value->total_pay);
+
+			$grand_total_anggaran += $value->total_anggaran;
+			$i++;
+		}
+		$sheet->setCellValue("G" . ($start_row + $i), $grand_total_anggaran);
+		
+		$sheet->getStyle("A" . $start_row . ":G" . ($start_row + $i - 1))->applyFromArray($styleArray11);
+		//write file and download
+		$filename = 'Rekap Pembayaran' . Date('d-m-Y H:i:s') . '.xls';
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+		$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
+		$objWriter->save('php://output');
 	}
 }
