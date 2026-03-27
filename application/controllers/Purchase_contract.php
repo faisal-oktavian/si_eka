@@ -24,6 +24,16 @@ class Purchase_contract extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
+		
+		$idrole = $this->session->userdata('idrole');
+
+		$btn = '';
+		if (!aznav('role_view_purchase_contract') || strlen($idrole) == 0) {
+			$btn .= "<button class='btn btn-primary az-btn-primary btn-add-contract' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
+		}
+
+		$btn .= " <button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button>";
+		$crud->set_btn_top_custom($btn);
 
 		$date1 = $azapp->add_datetime();
 		$date1->set_id('date1');
@@ -48,13 +58,6 @@ class Purchase_contract extends CI_Controller {
 
 		$vf = $this->load->view('purchase_contract/vf_purchase_contract', $data, true);
         $crud->set_top_filter($vf);
-
-        $idrole = $this->session->userdata('idrole');
-
-		if (!aznav('role_view_purchase_contract') || strlen($idrole) == 0) {
-			$btn = "<button class='btn btn-primary az-btn-primary btn-add-contract' type='button'><span class='glyphicon glyphicon-plus'></span> Tambah</button>";
-			$crud->set_btn_top_custom($btn);
-		}
 
 		$crud = $crud->render();
 		$data['crud'] = $crud;
@@ -1161,5 +1164,98 @@ class Purchase_contract extends CI_Controller {
             'idpurchase_plan' => $data['purchase_plan']->row()->idpurchase_plan,
 		);
 		echo json_encode($arr);
+	}
+
+	function excel() {
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$contract_code = $this->input->get('contract_code');
+		$contract_status = $this->input->get('vf_contract_status');
+		$iduser_created = $this->input->get('iduser_created');
+        
+        if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $this->db->where('date(contract.contract_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $this->db->where('date(contract.contract_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($contract_code) > 0) {
+			$this->db->where('contract.contract_code = "' . $contract_code . '"');
+		}
+		if (strlen($contract_status) > 0) {
+			$this->db->where('contract.contract_status = "' . $contract_status . '"');
+		}
+		if (strlen($iduser_created) > 0) {
+			$this->db->where('contract.iduser_created = "' . $iduser_created . '"');
+		}
+
+		$this->db->where("contract.status = 1");
+		$this->db->where("contract.contract_status != 'DRAFT' ");
+
+		$this->db->join('user', 'contract.iduser_created = user.iduser', 'left');
+		$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail_sub.idpaket_belanja');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		
+		$this->db->order_by('contract_date desc');
+
+		$this->db->select('contract.idcontract, 
+			date_format(contract.contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, 
+			contract.contract_code,
+			purchase_plan.purchase_plan_code,
+			paket_belanja.nama_paket_belanja,
+			sub_kategori.nama_sub_kategori,
+			purchase_plan_detail.volume,
+			contract.contract_status,
+			user.name as user_name
+			');
+
+		$data = $this->db->get('contract');
+		// echo"<pre>"; print_r($this->db->last_query()); die;
+
+		$this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$azapp->add_phpexcel();
+
+		$file_excel = APPPATH . "assets/excel/rekap_kontrak_pengadaan.xlsx";
+		// echo "<pre>"; print_r($file_excel); die;
+
+		$phpexcel = PHPExcel_IOFactory::load($file_excel);
+		$sheet = $phpexcel->setActiveSheetIndex(0);
+
+		$i = 0;
+		$start_row = 6;
+
+		$styleArray11 = array(
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
+		
+		$sheet->setCellValue("A3", $date1. ' s/d ' . $date2);
+		foreach ($data->result() as $key => $value) {
+			$sheet->setCellValue("A" . ($start_row + $i), ($i + 1));
+			$sheet->setCellValue("B" . ($start_row + $i), $value->txt_contract_date);
+			$sheet->setCellValue("C" . ($start_row + $i), $value->contract_code);
+			$sheet->setCellValue("D" . ($start_row + $i), $value->purchase_plan_code);
+			$sheet->setCellValue("E" . ($start_row + $i), $value->nama_paket_belanja);
+			$sheet->setCellValue("F" . ($start_row + $i), $value->nama_sub_kategori);
+			$sheet->setCellValue("G" . ($start_row + $i), $value->volume);
+			$sheet->setCellValue("H" . ($start_row + $i), $value->contract_status);
+			$sheet->setCellValue("I" . ($start_row + $i), $value->user_name);
+			$i++;
+		}
+
+		$sheet->getStyle("A" . $start_row . ":I" . ($start_row + $i - 1))->applyFromArray($styleArray11);
+		//write file and download
+		$filename = 'Rekap Kontrak Pengadaan' . Date('d-m-Y H:i:s') . '.xls';
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+		$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
+		$objWriter->save('php://output');
 	}
 }

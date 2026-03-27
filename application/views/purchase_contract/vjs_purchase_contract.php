@@ -43,3 +43,8 @@
 		var id = jQuery(this).attr('data_id');
 		location.href = app_url + 'purchase_contract/edit/' + id + '/view_only';
 	});
+
+	jQuery('body').on('click', '.btn-excel', function() {
+		var param = jQuery('.purchase-contract').serialize();
+		window.open(app_url + 'purchase_contract/excel?'+param, '_blank');
+	});
