@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+
 class Npd extends CI_Controller {
 	public function __construct() {	
         parent::__construct();
@@ -1853,20 +1857,20 @@ class Npd extends CI_Controller {
 		$file_excel = APPPATH . "assets/excel/rekap_npd.xlsx";
 		// echo "<pre>"; print_r($file_excel); die;
 
-		$phpexcel = PHPExcel_IOFactory::load($file_excel);
-		$sheet = $phpexcel->setActiveSheetIndex(0);
+		$spreadsheet = IOFactory::load($file_excel);
+		$sheet = $spreadsheet->getActiveSheet();
 
 		$i = 0;
 		$start_row = 6;
 		$grand_total_anggaran = 0;
 
-		$styleArray11 = array(
-			'borders' => array(
-				'allborders' => array(
-					'style' => PHPExcel_Style_Border::BORDER_THIN
-				)
-			)
-		);
+		$styleArray11 = [
+			'borders' => [
+				'allBorders' => [
+					'style' => Border::BORDER_THIN
+				]
+			]
+		];
 		
 		$sheet->setCellValue("A3", $date1. ' s/d ' . $date2);
 		foreach ($data->result() as $key => $value) {
@@ -1894,12 +1898,16 @@ class Npd extends CI_Controller {
 		$sheet->setCellValue("E" . ($start_row + $i), $grand_total_anggaran);
 		
 		$sheet->getStyle("A" . $start_row . ":E" . ($start_row + $i - 1))->applyFromArray($styleArray11);
-		//write file and download
-		$filename = 'Rekap Nota Pencairan Dana' . Date('d-m-Y H:i:s') . '.xls';
-		header('Content-Type: application/vnd.ms-excel');
+
+		// OUTPUT
+		$filename = 'Rekap Nota Pencairan Dana ' . date('d-m-Y H-i-s') . '.xlsx';
+
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment;filename="' . $filename . '"');
 		header('Cache-Control: max-age=0');
-		$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel5');
-		$objWriter->save('php://output');
+
+		$writer = new Xlsx($spreadsheet);
+		$writer->save('php://output');
+		exit;
 	}
 }
