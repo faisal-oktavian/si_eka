@@ -24,8 +24,6 @@ class Payment extends CI_Controller {
 		$crud->set_default_url(true);
 		$crud->set_btn_add(false);
 
-		$btn = " <button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button>";
-		$crud->set_btn_top_custom($btn);
 
 		$date1 = $azapp->add_datetime();
 		$date1->set_id('date1');
@@ -49,6 +47,65 @@ class Payment extends CI_Controller {
 
 		$vf = $this->load->view('payment/vf_payment', $data, true);
         $crud->set_top_filter($vf);
+
+
+		// $this->db->where('npd_date_created >= "'.Date('Y-m').'-01"');
+		// $this->db->where('npd_date_created <= "'.Date('Y-m-t').'"');
+
+
+		$this->db->where('npd_status = "MENUNGGU PEMBAYARAN"');
+		$this->db->where('status', 1);
+		$this->db->where('npd_date_created >= "2026-01-01 00:00:00" ');
+		$this->db->select('sum(total_anggaran) as total');
+		$query_belum_dibayar = $this->db->get('npd');
+
+		$this->db->where('npd_status = "SUDAH DIBAYAR BENDAHARA"');
+		$this->db->where('status', 1);
+		$this->db->where('npd_date_created >= "2026-01-01 00:00:00" ');
+		$this->db->select('sum(total_anggaran) as total');
+		$query_sudah_dibayar = $this->db->get('npd');
+
+		$this->db->where('npd_status = "MENUNGGU PEMBAYARAN"');
+		$this->db->where('status', 1);
+		$this->db->where('npd_date_created >= "2026-01-01 00:00:00" ');
+		$this->db->select('count(idnpd) as total_data');
+		$query_data_belum_dibayar = $this->db->get('npd');
+
+		$this->db->where('npd_status = "SUDAH DIBAYAR BENDAHARA"');
+		$this->db->where('status', 1);
+		$this->db->where('npd_date_created >= "2026-01-01 00:00:00" ');
+		$this->db->select('count(idnpd) as total_data');
+		$query_data_sudah_dibayar = $this->db->get('npd');
+
+		$total_belum_dibayar = 0;
+		$total_sudah_dibayar = 0;
+		$total_data_belum_dibayar = 0;
+		$total_data_sudah_dibayar = 0;
+
+		if ($query_belum_dibayar->num_rows() > 0) {
+			$total_belum_dibayar = $query_belum_dibayar->row()->total;
+		}
+		if ($query_sudah_dibayar->num_rows() > 0) {
+			$total_sudah_dibayar = $query_sudah_dibayar->row()->total;
+		}
+		if ($query_data_belum_dibayar->num_rows() > 0) {
+			$total_data_belum_dibayar = $query_data_belum_dibayar->row()->total_data;
+		}
+		if ($query_data_sudah_dibayar->num_rows() > 0) {
+			$total_data_sudah_dibayar = $query_data_sudah_dibayar->row()->total_data;
+		}
+
+		$crud->set_btn_top_custom("
+			<table>
+				<tr>
+					<td><button class='btn btn-success btn-excel' type='button' id='btn_export'><i class='fa fa-file-excel'></i> Export</button></td>
+					<td style='padding-left:10px;'><div class='btn btn-default disabled' style='background-color:#ff5722; color:#FFF;'>Belum Dibayar : <span id='all_total_debt'>".az_thousand_separator($total_belum_dibayar)."</span></div></td>
+					<td style='padding-left:10px;'><div class='btn btn-default disabled' style='background-color:#ff5722; color:#FFF;'>Sudah Dibayar : <span id='all_total_debt'>".az_thousand_separator($total_sudah_dibayar)."</span></div></td>
+					<td style='padding-left:10px;'><div class='btn btn-default disabled' style='background-color:#ff5722; color:#FFF;'>Total Data Belum Dibayar : <span id='all_total_debt'>".az_thousand_separator($total_data_belum_dibayar)."</span></div></td>
+					<td style='padding-left:10px;'><div class='btn btn-default disabled' style='background-color:#ff5722; color:#FFF;'>Total Data Sudah Dibayar : <span id='all_total_debt'>".az_thousand_separator($total_data_sudah_dibayar)."</span></div></td>
+				</tr>
+			</table>
+			");
 
 		$crud = $crud->render();
 		$data['crud'] = $crud;
