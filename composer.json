@@ -12,7 +12,7 @@
 	},
 	"require": {
 		"php": ">=5.3.7",
-		"phpoffice/phpspreadsheet": "^1.28"
+		"phpoffice/phpspreadsheet": "1.28"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
@@ -25,7 +25,10 @@
     },
 	"config": {
 		"platform": {
-			"php": "8.0.0"
+			"php": "7.4.24"
+		},
+		"audit": {
+			"block-insecure": false
 		}
 	}
 }
