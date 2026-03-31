@@ -70,11 +70,11 @@
                 background-color: #7cf8f7f0;
             }
             .no-border {
-                margin-top: 20px;;
+                /* margin-top: 20px; */
             }
             .no-border td {
                 border: none;
-                padding: 3px 5px;
+                padding: 0px 5px;
             }
             .ttd-direktur {
                 margin-top: 80px;
@@ -94,6 +94,9 @@
                 text-align: left;
                 /* border-left: 4px solid red; */
                 padding-left: 12px;
+            }
+            .table-container{
+                margin-top: 10px;
             }
         </style>
     </head>
@@ -121,7 +124,7 @@
 
         <table class="no-border">
             <tr>
-                <td width="100">PPTK</td>
+                <td width="80">PPTK</td>
                 <td>: <?php echo $pptk; ?></td>
             </tr>
             <tr>
@@ -141,15 +144,15 @@
                 <td>: <?php echo $nomor_dpa; ?></td>
             </tr>
         </table>
-
+<!-- &emsp; -->
         <div class="table-container">
-            <p>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; Sehubungan dengan kegiatan yang akan segera dilaksanakan, kami mengajukan dan panjar kegiatan sebesar Rp. <?php echo az_thousand_separator($total_realisasi); ?>,- (<?php echo terbilang($total_realisasi); ?>)</p>
-            <p>&emsp;&emsp;&emsp;&emsp;&emsp; Dengan ini pula menyatakan dengan sebenarnya bahwa uang sejumlah tersebut digunakan untuk keperluan sebagai berikut :</p>
+            <p style="margin: 0px 5px;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; Sehubungan dengan kegiatan yang akan segera dilaksanakan, kami mengajukan dan panjar kegiatan sebesar Rp. <?php echo az_thousand_separator($total_realisasi); ?>,- (<?php echo terbilang($total_realisasi); ?>)</p>
+            <p style="margin: 0px 5px;">Dengan ini pula menyatakan dengan sebenarnya bahwa uang sejumlah tersebut digunakan untuk keperluan sebagai berikut :</p>
 
             <!-- table bidang -->
             <table class="no-border">
                 <tr>
-                    <td width="100">Bidang</td>
+                    <td width="80">Bidang</td>
                     <td>: <?php echo $field_activity; ?></td>
                 </tr>
                 <tr>
@@ -237,7 +240,7 @@
                     ?>
                 </tbody>
             </table>
-            <p>&emsp;&emsp;&emsp;&emsp;&emsp; Panjar tersebut akan segera di pertanggungjawabkan selambat - lambatnya 5 (lima) hari setelah kegiatan dilaksanakan. Demikian surat pengajuan panjar ini di buat.</p>
+            <p style="margin: 10px 5px;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; Panjar tersebut akan segera di pertanggungjawabkan selambat - lambatnya 5 (lima) hari setelah kegiatan dilaksanakan. Demikian surat pengajuan panjar ini di buat.</p>
         </div>
         
         <div style="margin-top: 30px; text-align: right; padding-right:5px">Mojokerto, <?php echo $npd_panjer_date; ?><br></div>
