@@ -1447,14 +1447,14 @@ class Evaluasi_anggaran extends CI_Controller {
 					$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
 					
 					$this->db->where('purchase_plan.status', 1);
-					$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');					
-					$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+					$this->db->where('contract.status', 1);
+					$this->db->where('contract_detail.status', 1);
+					$this->db->where('contract.contract_status != "DRAFT" ');					
+					$this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
 					$this->db->where('purchase_plan_detail.status', 1);
 					$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$ds_value->idpaket_belanja_detail_sub.'" ');
 					$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$ds_value->idpaket_belanja.'" ');
 					$this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-					$this->db->where('contract.status', 1);
-					$this->db->where('contract_detail.status', 1);
 					$this->db->where('budget_realization_detail.status', 1);
 					$this->db->where('budget_realization.status', 1);
 					
