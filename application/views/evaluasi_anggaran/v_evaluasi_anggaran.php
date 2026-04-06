@@ -28,6 +28,9 @@
     text-align: center;
     width: 20px;
   }
+  .dev{
+    display: none;
+  }
 </style>
 
 <!-- filter -->
@@ -130,8 +133,11 @@
                               <td style="font-weight:bold;" colspan="2"><?php echo $ab_value['no_rekening_akunbelanja']; ?></td>
                               <td style="font-weight:bold;" colspan="4"><?php echo $ab_value['nama_akun_belanja']; ?></td>
                               <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_jumlah']); ?></td>
-                              <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_sisa_anggaran']); ?></td>
-                              <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator($ab_value['total_persentase']); ?>%</td>
+                              <td style="font-weight:bold; text-align:right;">
+                                  Rp. <?php echo az_thousand_separator($ab_value['total_sisa_anggaran']); ?>
+                                <div style="color:red" class="dev">total realisasi : <?php echo az_thousand_separator($ab_value['total_realisasi']); ?></div>
+                              </td>
+                              <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator_decimal($ab_value['total_persentase']); ?>%</td>
                               <td style="text-align: center;">
                                 <!-- <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button> -->
                                 <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>" data_tw="1"><span class="glyphicon glyphicon-eye-open"></span> TW1</button>
@@ -158,7 +164,10 @@
                                     <td align="center"><?php echo az_thousand_separator($ds_value['volume']); ?></td>
                                     <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
                                     <td align="right"><?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
-                                    <td align="right"><?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
+                                    <td align="right">
+                                      <?php echo az_thousand_separator($ds_value['jumlah']); ?>
+                                      <div style="color: red;" class="dev"><?php echo az_thousand_separator($ds_value['nominal_realisasi']); ?></div>
+                                    </td>
                                     <td></td>
                                     <td></td>
                                     <td align="center">
