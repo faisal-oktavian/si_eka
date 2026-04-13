@@ -151,7 +151,7 @@ class Budget_realization extends CI_Controller {
 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+		$this->db->select('budget_realization.idbudget_realization, budget_realization.total_realization, budget_realization_detail.idbudget_realization_detail, contract.contract_code, purchase_plan.purchase_plan_code, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, budget_realization_detail.volume, budget_realization_detail.unit_price, budget_realization_detail.ppn, budget_realization_detail.pph, budget_realization_detail.total_realization_detail, budget_realization_detail.realization_detail_description, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub,paket_belanja_detail_sub.idpaket_belanja_detail_sub');
 		$budget_realization = $this->db->get('budget_realization');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -255,6 +255,7 @@ class Budget_realization extends CI_Controller {
 				// $table .= 		"<td>".$value['purchase_plan_code']."</td>";
 				$table .= 		"<td align='left'>".$value['nama_paket_belanja']."</td>";
 				$table .= 		"<td align='left'>".$uraian."</td>";
+				// $table .= 		"<td align='left'>".$uraian."<br><div style='color:red;'> ".$value['idpaket_belanja_detail_sub']."</div></td>";
 				$table .= 		"<td align='center'>".az_thousand_separator_decimal($value['volume'])."</td>";
 				// $table .= 		"<td align='left'>".$value['realization_detail_description']."</td>";
 				$table .= 		"<td align='right'>".az_thousand_separator($value['total_realization_detail'])."</td>";

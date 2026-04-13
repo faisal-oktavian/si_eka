@@ -46,9 +46,21 @@
         color: #fff !important;
     }
     th.col-month, td.col-month { 
+        width: 450px; 
+        min-width: 450px;
+        text-align: center;
+        font-size: 14px;
+    }
+    th.col-month-target, td.col-month-target { 
         width: 150px; 
         min-width: 150px;
         text-align: center;
+        font-size: 14px;
+    }
+    th.col-month-realization, td.col-month-realization { 
+        width: 300px; 
+        min-width: 300px;
+        /* text-align: center; */
         font-size: 14px;
     }
 </style>
@@ -58,56 +70,44 @@
     <thead>
         <tr>
             <th rowspan="2" class="col-uraian col-uraian-title">Uraian</th>
-            <th colspan="3" class="col-month">Januari</th>
-            <th colspan="3" class="col-month">Februari</th>
-            <th colspan="3" class="col-month">Maret</th>
-            <th colspan="3" class="col-month">April</th>
-            <th colspan="3" class="col-month">Mei</th>
-            <th colspan="3" class="col-month">Juni</th>
-            <th colspan="3" class="col-month">Juli</th>
-            <th colspan="3" class="col-month">Agustus</th>
-            <th colspan="3" class="col-month">September</th>
-            <th colspan="3" class="col-month">Oktober</th>
-            <th colspan="3" class="col-month">November</th>
-            <th colspan="3" class="col-month">Desember</th>
+            <th colspan="2" class="col-month">Januari</th>
+            <th colspan="2" class="col-month">Februari</th>
+            <th colspan="2" class="col-month">Maret</th>
+            <th colspan="2" class="col-month">April</th>
+            <th colspan="2" class="col-month">Mei</th>
+            <th colspan="2" class="col-month">Juni</th>
+            <th colspan="2" class="col-month">Juli</th>
+            <th colspan="2" class="col-month">Agustus</th>
+            <th colspan="2" class="col-month">September</th>
+            <th colspan="2" class="col-month">Oktober</th>
+            <th colspan="2" class="col-month">November</th>
+            <th colspan="2" class="col-month">Desember</th>
         </tr>
         <tr>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
-            <th class="col-month">Target</th>
-            <th class="col-month">Realisasi</th>
-            <th class="col-month">Status Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Target</th>
+            <th class="col-month-realization">Realisasi</th>
         </tr>
     </thead>
     <tbody>
@@ -136,7 +136,7 @@
                     <tr>
                         <td class="col-uraian" style="<?php echo $bold.$space; ?>" ><?php echo $value['nama_kategori']; ?></td>
 
-                        <td colspan="36"></td>
+                        <td colspan="24"></td>
 
                         <!-- <td class="col-month"><?php echo $value['rak_januari']; ?></td>
                         <td class="col-month"><?php echo $value['realisasi_januari']; ?></td>
@@ -193,53 +193,306 @@
                     <tr>
                         <td class="col-uraian" style="<?php echo $bold.$space; ?>" ><?php echo $value['nama_subkategori']; ?></td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_januari']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_januari']); ?></td>
-                        <td class="col-month"><?php echo $value['januari']; ?></td>
+                        <!-- januari -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_januari']); ?></td>
+                        <td class="col-month-realization">
+                            <table style="width: 100%;">
+                                <?php 
+                                    foreach ($value['realisasi_januari'] as $key => $value_realisasi_januari) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:0px; text-align:right;">
+                                                Rp.
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_januari);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:0px;">
+                                                <?php 
+                                                    echo $value['januari'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
 
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_februari']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_februari']); ?></td>
-                        <td class="col-month"><?php echo $value['februari']; ?></td>
+                        <!-- februari -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_februari']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_februari'] as $key => $value_realisasi_februari) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_februari);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['februari'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
 
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_maret']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_maret']); ?></td>
-                        <td class="col-month"><?php echo $value['maret']; ?></td>
+                        <!-- maret -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_maret']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_maret'] as $key => $value_realisasi_maret) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_maret);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['maret'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_april']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_april']); ?></td>
-                        <td class="col-month"><?php echo $value['april']; ?></td>
+                        <!-- april -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_april']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_april'] as $key => $value_realisasi_april) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_april);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['april'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
 
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_mei']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_mei']); ?></td>
-                        <td class="col-month"><?php echo $value['mei']; ?></td>
+                        <!-- mei -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_mei']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_mei'] as $key => $value_realisasi_mei) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_mei);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['mei'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
 
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_juni']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_juni']); ?></td>
-                        <td class="col-month"><?php echo $value['juni']; ?></td>
+                        <!-- juni -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_juni']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_juni'] as $key => $value_realisasi_juni) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_juni);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['juni'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_juli']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_juli']); ?></td>
-                        <td class="col-month"><?php echo $value['juli']; ?></td>
+                        <!-- juli -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_juli']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_juli'] as $key => $value_realisasi_juli) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_juli);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['juli'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_agustus']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_agustus']); ?></td>
-                        <td class="col-month"><?php echo $value['agustus']; ?></td>
+                        <!-- agustus -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_agustus']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_agustus'] as $key => $value_realisasi_agustus) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_agustus);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['agustus'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_september']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_september']); ?></td>
-                        <td class="col-month"><?php echo $value['september']; ?></td>
+                        <!-- september -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_september']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_september'] as $key => $value_realisasi_september) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_september);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['september'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_oktober']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_oktober']); ?></td>
-                        <td class="col-month"><?php echo $value['oktober']; ?></td>
+                        <!-- oktober -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_oktober']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_oktober'] as $key => $value_realisasi_oktober) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_oktober);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['oktober'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_november']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_november']); ?></td>
-                        <td class="col-month"><?php echo $value['november']; ?></td>
+                        <!-- november -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_november']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_november'] as $key => $value_realisasi_november) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_november);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['november'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                         
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['rak_desember']); ?></td>
-                        <td class="col-month">Rp. <?php echo az_thousand_separator($value['realisasi_desember']); ?></td>
-                        <td class="col-month"><?php echo $value['desember']; ?></td>
+                        <!-- desember -->
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_desember']); ?></td>
+                        <td class="col-month-realization">
+                            <table>
+                                <?php 
+                                    foreach ($value['realisasi_desember'] as $key => $value_realisasi_desember) {
+                                ?>
+                                        <tr>
+                                            <td style="padding:3px; border:none;">
+                                                <?php
+                                                    echo az_thousand_separator($value_realisasi_desember);
+                                                ?>
+                                            </td>
+                                            <td style="padding:3px; border:none;">
+                                                <?php 
+                                                    echo $value['desember'][$key];
+                                                ?>
+                                            </td>
+                                        </tr>
+                                <?php
+                                    }
+                                ?>
+                            </table>
+                        </td>
                     </tr>
         <?php
                 }
