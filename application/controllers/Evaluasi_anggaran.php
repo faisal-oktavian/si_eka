@@ -1496,7 +1496,7 @@ class Evaluasi_anggaran extends CI_Controller {
 			if (strlen($ds_value->idsub_kategori) > 0) {
 
 				// looping untuk mengambil data dari januari sampai desember
-				for ($i=0; $i < 1; $i++) {
+				for ($i=0; $i < 12; $i++) {
 
 					$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
 					
