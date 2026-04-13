@@ -201,7 +201,7 @@
                                     foreach ($value['realisasi_januari'] as $key => $value_realisasi_januari) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:0px; text-align:right;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 Rp.
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_januari);
@@ -227,12 +227,12 @@
                                     foreach ($value['realisasi_februari'] as $key => $value_realisasi_februari) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_februari);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['februari'][$key];
                                                 ?>
@@ -252,12 +252,12 @@
                                     foreach ($value['realisasi_maret'] as $key => $value_realisasi_maret) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_maret);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['maret'][$key];
                                                 ?>
@@ -277,12 +277,12 @@
                                     foreach ($value['realisasi_april'] as $key => $value_realisasi_april) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_april);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['april'][$key];
                                                 ?>
@@ -302,12 +302,12 @@
                                     foreach ($value['realisasi_mei'] as $key => $value_realisasi_mei) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_mei);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['mei'][$key];
                                                 ?>
@@ -327,12 +327,12 @@
                                     foreach ($value['realisasi_juni'] as $key => $value_realisasi_juni) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_juni);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['juni'][$key];
                                                 ?>
@@ -352,12 +352,12 @@
                                     foreach ($value['realisasi_juli'] as $key => $value_realisasi_juli) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_juli);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['juli'][$key];
                                                 ?>
@@ -377,12 +377,12 @@
                                     foreach ($value['realisasi_agustus'] as $key => $value_realisasi_agustus) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_agustus);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['agustus'][$key];
                                                 ?>
@@ -402,12 +402,12 @@
                                     foreach ($value['realisasi_september'] as $key => $value_realisasi_september) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_september);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['september'][$key];
                                                 ?>
@@ -427,12 +427,12 @@
                                     foreach ($value['realisasi_oktober'] as $key => $value_realisasi_oktober) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_oktober);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['oktober'][$key];
                                                 ?>
@@ -452,12 +452,12 @@
                                     foreach ($value['realisasi_november'] as $key => $value_realisasi_november) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_november);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['november'][$key];
                                                 ?>
@@ -477,12 +477,12 @@
                                     foreach ($value['realisasi_desember'] as $key => $value_realisasi_desember) {
                                 ?>
                                         <tr>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px; text-align:right; width:130px;">
                                                 <?php
                                                     echo az_thousand_separator($value_realisasi_desember);
                                                 ?>
                                             </td>
-                                            <td style="padding:3px; border:none;">
+                                            <td style="padding:3px; border:0px;">
                                                 <?php 
                                                     echo $value['desember'][$key];
                                                 ?>
