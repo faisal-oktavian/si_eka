@@ -347,8 +347,13 @@ class Evaluasi_anggaran extends CI_Controller {
 									$total_sisa_anggaran = $total_jumlah - $total_realisasi;
 									$total_potensi_sisa += $total_sisa_anggaran;
 
+									$_total_jumlah = $total_jumlah;
+									if ($total_jumlah == 0) {
+										$_total_jumlah = 1;
+									}
+
 									// if ( (strlen($total_realisasi) > 0 && $total_realisasi != 0) && (strlen($total_jumlah) > 0 && $total_jumlah != 0) ) {
-										$total_persentase = ($total_sisa_anggaran / $total_jumlah) * 100;
+										$total_persentase = ($total_sisa_anggaran / $_total_jumlah) * 100;
 									// }
 
 									$arr_akun_belanja[] = array(
