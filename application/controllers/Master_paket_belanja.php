@@ -572,6 +572,7 @@ class Master_paket_belanja extends CI_Controller {
 				if (strlen($idpb_detail_sub) > 0) {
 					$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
 					$this->db->where('purchase_plan_detail.status', 1);
+					$this->db->where('purchase_plan.status', 1);
 					$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 					$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 					$pp_detail = $this->db->get('purchase_plan_detail');
@@ -1345,21 +1346,22 @@ class Master_paket_belanja extends CI_Controller {
 
 		$this->db->where('idpaket_belanja_detail_sub', $id);
 		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
-		$this->db->select('paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail_sub');
 		$pb = $this->db->get('paket_belanja_detail_sub');
 		
 		// jika ada turunan
 		if (strlen($pb->row()->is_idpaket_belanja_detail_sub) > 0) {
 			$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $pb->row()->is_idpaket_belanja_detail_sub);
 			$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-			$this->db->select('paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+			$this->db->select('paket_belanja_detail_sub.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail_sub');
 			$pb = $this->db->get('paket_belanja_detail_sub');
 		}
 		// echo "<pre>"; print_r($this->db->last_query());die;
 		
 		$idpaket_belanja = $pb->row()->idpaket_belanja;
+		$idpaket_belanja_detail_sub = $pb->row()->idpaket_belanja_detail_sub;
 
-		$data_validasi = $this->validasi_realisasi($idpaket_belanja); 
+		$data_validasi = $this->validasi_realisasi($idpaket_belanja, $idpaket_belanja_detail_sub); 
 
 		$err_code = $data_validasi['err_code'];
 		$err_message = $data_validasi['err_message'];
@@ -1614,12 +1616,15 @@ class Master_paket_belanja extends CI_Controller {
 		echo json_encode($data);
 	}
 
-	function validasi_realisasi($idpaket_belanja) {
+	function validasi_realisasi($idpaket_belanja, $idpaket_belanja_detail_sub = null) {
 		$err_code = 0;
 		$err_message = '';
 
 		// cek apakah paket belanja ini sudah masuk di rencana pengadaan
 		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		}
 		$this->db->where('purchase_plan_detail.status', 1);
 		$this->db->where('purchase_plan.status', 1);
 		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
