@@ -172,41 +172,45 @@ class Budget_realization extends CI_Controller {
 		}
 
 		if ($key == "description") {
-			return $budget_realization_limit->row()->realization_detail_description;
+			if ($budget_realization->num_rows() > 0) {
+				return $budget_realization_limit->row()->realization_detail_description;
+			}
 		}
 
 		if ($key == "type_code") {
-			$contract_spt = $budget_realization->row()->contract_spt;
-			$contract_invitation_number = $budget_realization->row()->contract_invitation_number;
-			$contract_sp = $budget_realization->row()->contract_sp;
-			$contract_spk = $budget_realization->row()->contract_spk;
-			$contract_honor = $budget_realization->row()->contract_honor;
-			
-			if (strlen($contract_spt) > 0) {
-				$text = "No. SPT : ".$contract_spt." ";
-			}
-			else if (strlen($contract_invitation_number) > 0) {
-				$text = "No. Undangan : ".$contract_invitation_number." ";
-			}
-			else if (strlen($contract_sp) > 0) {
-				$text = "No. SP : ".$contract_sp." ";
-			}
-			else if (strlen($contract_spk) > 0) {
-				$text = "No. SPK : ".$contract_spk." ";
-			}
-			else if (strlen($contract_honor) > 0) {
-				$text = "Gaji/Honor : ".$contract_honor." ";
-			}
+			if ($budget_realization->num_rows() > 0) {
+				$contract_spt = $budget_realization->row()->contract_spt;
+				$contract_invitation_number = $budget_realization->row()->contract_invitation_number;
+				$contract_sp = $budget_realization->row()->contract_sp;
+				$contract_spk = $budget_realization->row()->contract_spk;
+				$contract_honor = $budget_realization->row()->contract_honor;
+				
+				if (strlen($contract_spt) > 0) {
+					$text = "No. SPT : ".$contract_spt." ";
+				}
+				else if (strlen($contract_invitation_number) > 0) {
+					$text = "No. Undangan : ".$contract_invitation_number." ";
+				}
+				else if (strlen($contract_sp) > 0) {
+					$text = "No. SP : ".$contract_sp." ";
+				}
+				else if (strlen($contract_spk) > 0) {
+					$text = "No. SPK : ".$contract_spk." ";
+				}
+				else if (strlen($contract_honor) > 0) {
+					$text = "Gaji/Honor : ".$contract_honor." ";
+				}
 
-			
-			$notes = azarr($data, 'notes');
-			if (strlen($notes) > 0) {
-				$text .= "<hr style='border-top: 2px solid #000000'>";
-				$text .= "Catatan : ".$notes." ";
+				
+				$notes = azarr($data, 'notes');
+				if (strlen($notes) > 0) {
+					$text .= "<hr style='border-top: 2px solid #000000'>";
+					$text .= "Catatan : ".$notes." ";
+				}
+
+
+				return $text;
 			}
-
-
-			return $text;
 		}
 
 		if ($key == 'detail') {
