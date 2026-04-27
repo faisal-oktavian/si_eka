@@ -248,7 +248,9 @@
 					success: function(response) {
 						hide_loading();
 						if(response.err_code == 0) {
-							bootbox.alert(response.message);
+							if (response.message != "") {
+								bootbox.alert(response.message);
+							}
 							generate_transaction(response.idbudget_realization);
 						} 
 						else {
