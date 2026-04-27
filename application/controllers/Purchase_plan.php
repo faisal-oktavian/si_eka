@@ -559,6 +559,7 @@ class Purchase_plan extends CI_Controller {
 				'idpaket_belanja' => $idpaket_belanja,
 				'transaction_date' => $purchase_plan_date,
 				'idpurchase_plan_detail' => $idpurchase_plan_detail,
+				'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
 			);
 			// var_dump($the_filter);die;
 
@@ -1161,10 +1162,12 @@ class Purchase_plan extends CI_Controller {
 		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$add_select = azarr($the_data, 'add_select', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 
 		// menampilkan data utama dari paket belanja
 		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
 		$this->db->where('(pbds_child.idsub_kategori = "'.$idsub_kategori.'" OR pbds_parent.idsub_kategori = "'.$idsub_kategori.'")');
+		$this->db->where('(pbds_child.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" OR pbds_parent.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'")');
 		$this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
