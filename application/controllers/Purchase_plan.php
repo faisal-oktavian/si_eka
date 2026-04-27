@@ -369,9 +369,6 @@ class Purchase_plan extends CI_Controller {
         $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
         $this->db->or_like('sk_parent.nama_sub_kategori', $keyword);
         $this->db->group_end();
-
-		// data yang ditampilkan adalah data pada tahun berjalan
-		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
 		
 		// $this->db->group_start();
         // $this->db->where('pbds_parent.volume > pbds_parent.volume_realization');
@@ -396,6 +393,9 @@ class Purchase_plan extends CI_Controller {
 			)
 		');
         // $this->db->group_end();
+
+		// data yang ditampilkan adalah data pada tahun berjalan
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
 
         $this->db->group_start();
         $this->db->like('pb.nama_paket_belanja', $keyword);
