@@ -854,9 +854,9 @@ class Evaluasi_anggaran extends CI_Controller {
 			$grand_realisasi_vol_sampai += $realisasi_vol_sampai;
 			$grand_realisasi_rp_sampai += $realisasi_rp_sampai;
 
-			if (strlen($ds_value->idkategori) == 0) {
+			if (strlen($ds_value->idkategori) == 0 && $jumlah_anggaran != 0) {
 				$capaian_sampai = ($realisasi_rp_sampai / $jumlah_anggaran) * 100;
-				$capaian_sampai = round($capaian_sampai);
+				$capaian_sampai = round($capaian_sampai);	
 			}
 			else {
 				$capaian_sampai = 0;
