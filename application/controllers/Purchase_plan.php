@@ -365,9 +365,13 @@ class Purchase_plan extends CI_Controller {
 		
 		// minta dobel where
 		$this->db->group_start();
-        $this->db->like('pb.nama_paket_belanja', $keyword);
-        $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
-        $this->db->or_like('sk_parent.nama_sub_kategori', $keyword);
+			$this->db->where("
+				(pb.nama_paket_belanja LIKE '%".$keyword."%' ESCAPE '!' AND urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."')
+				OR  
+				(sk_child.nama_sub_kategori LIKE '%".$keyword."%' ESCAPE '!' AND urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."')
+				OR  
+				(sk_parent.nama_sub_kategori LIKE '%".$keyword."%' ESCAPE '!' AND urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."')
+			");
         $this->db->group_end();
 		
 		// $this->db->group_start();
@@ -394,15 +398,19 @@ class Purchase_plan extends CI_Controller {
 		');
         // $this->db->group_end();
 
-		// data yang ditampilkan adalah data pada tahun berjalan
-		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
-
         $this->db->group_start();
-        $this->db->like('pb.nama_paket_belanja', $keyword);
-        $this->db->or_like('sk_child.nama_sub_kategori', $keyword);
-        $this->db->or_like('sk_parent.nama_sub_kategori', $keyword);
+			$this->db->where("
+				(pb.nama_paket_belanja LIKE '%".$keyword."%' ESCAPE '!' AND urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."')
+				OR  
+				(sk_child.nama_sub_kategori LIKE '%".$keyword."%' ESCAPE '!' AND urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."')
+				OR  
+				(sk_parent.nama_sub_kategori LIKE '%".$keyword."%' ESCAPE '!' AND urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."')
+			");
         $this->db->group_end();
 		$this->db->where('pb.nama_paket_belanja IS NOT NULL');
+
+		// data yang ditampilkan adalah data pada tahun berjalan
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
 		
 		$this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail', 'left');
