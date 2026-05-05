@@ -1220,6 +1220,8 @@ class Purchase_plan extends CI_Controller {
 		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$transaction_date = azarr($the_data, 'transaction_date', '');
+		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 
 		$format_date = date("n", strtotime($transaction_date));
 
@@ -1302,6 +1304,8 @@ class Purchase_plan extends CI_Controller {
 			'idsub_kategori' => $idsub_kategori,
 			'idpaket_belanja' => $idpaket_belanja,
 			'transaction_date' => $transaction_date,
+			'idpurchase_plan_detail' => $idpurchase_plan_detail,
+			'idpaket_belanja_detail_sub' => $idpaket_belanja_detail_sub,
 			'add_select' => ', ' .$add_query_volume . ', ' . $add_query_jumlah, // digunakan untuk menyisipkan query tambahan pada select di fungsi get_data_utama
 		);
 
@@ -1317,6 +1321,7 @@ class Purchase_plan extends CI_Controller {
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$transaction_date = azarr($the_data, 'transaction_date', '');
 		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
 		$format_month = date("m", strtotime($transaction_date));
@@ -1329,6 +1334,7 @@ class Purchase_plan extends CI_Controller {
 		}
 		$this->db->where('paket_belanja_detail_sub.idsub_kategori', $idsub_kategori);
 		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >=', $format_year . '-01');
 		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <=', $format_year . '-' . $format_month);
 		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
