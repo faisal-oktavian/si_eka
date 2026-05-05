@@ -54,6 +54,7 @@ class Budget_realization extends CI_Controller {
 		$crud->add_aodata('date2', 'date2');
 		$crud->add_aodata('vf_realization_code', 'vf_realization_code');
 		$crud->add_aodata('vf_realization_status', 'vf_realization_status');
+		$crud->add_aodata('idpaket_belanja_detail_sub', 'idpaket_belanja_detail_sub');
 		$crud->add_aodata('iduser_created', 'iduser_created');
 
 		$vf = $this->load->view('budget_realization/vf_budget_realization', $data, true);
@@ -92,6 +93,7 @@ class Budget_realization extends CI_Controller {
 		$realization_code = $this->input->get('vf_realization_code');
 		$realization_status = $this->input->get('vf_realization_status');
 		$iduser_created = $this->input->get('iduser_created');
+		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
 
         $crud->set_select('budget_realization.idbudget_realization, date_format(realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, realization_code, "" as type_code, "" as detail, total_realization, "" as description, realization_status, user.name as user_created, budget_realization.iduser_created, budget_realization.notes');
 		$crud->set_select_table('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, description, realization_status, user_created');
@@ -102,7 +104,14 @@ class Budget_realization extends CI_Controller {
 		$crud->set_select_align(' , , , , right, , center');
 
         $crud->add_join_manual('user', 'budget_realization.iduser_created = user.iduser');
-        // $crud->add_join_manual('budget_realization_detail', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
+        $crud->add_join_manual('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$crud->add_join_manual('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$crud->add_join_manual('contract', 'contract.idcontract = contract_detail.idcontract');
+		$crud->add_join_manual('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$crud->add_join_manual('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$crud->add_join_manual('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
+		$crud->add_join_manual('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 		
         // $crud->set_group_by('transaction.idtransaction, transaction.transaction_date, realization_code, paket_belanja.nama_paket_belanja, total_realisasi, user.name');
         
@@ -119,10 +128,16 @@ class Budget_realization extends CI_Controller {
 		if (strlen($iduser_created) > 0) {
 			$crud->add_where('budget_realization.iduser_created = "' . $iduser_created . '"');
 		}
+		if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$crud->add_where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
+		}
 
 		$crud->add_where("budget_realization.status = 1");
 		// $crud->add_where("budget_realization_detail.status = 1");
 		$crud->add_where("budget_realization.realization_status != 'DRAFT' ");
+		$crud->add_where("purchase_plan_detail.status = 1");
+
+		$crud->set_group_by('idbudget_realization, txt_realization_date, realization_code, type_code, detail, total_realization, description, realization_status, user_created');
 
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
@@ -665,6 +680,7 @@ class Budget_realization extends CI_Controller {
 				'transaction_date' => $realization_date,
 				'idpurchase_plan_detail' => $data_idpurchase_plan_detail,
 				'idbudget_realization_detail' => $idbudget_realization_detail,
+				'idpaket_belanja_detail_sub' => $data_idpaket_belanja_detail_sub,
 			);
 			// var_dump($the_filter);die;
 
@@ -1521,10 +1537,12 @@ class Budget_realization extends CI_Controller {
 		$idsub_kategori = azarr($the_data, 'idsub_kategori', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$add_select = azarr($the_data, 'add_select', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 
 		// menampilkan data utama dari paket belanja
 		$this->db->where('pb.idpaket_belanja = "'.$idpaket_belanja.'" ');
 		$this->db->where('(pbds_child.idsub_kategori = "'.$idsub_kategori.'" OR pbds_parent.idsub_kategori = "'.$idsub_kategori.'")');
+		$this->db->where('(pbds_child.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" OR pbds_parent.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'")');
 		$this->db->join('paket_belanja_detail pbd', 'paket_belanja_detail pbd ON pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail','left');
 		$this->db->join('paket_belanja_detail_sub pbds_child', 'pbds_parent.idpaket_belanja_detail_sub = pbds_child.is_idpaket_belanja_detail_sub', 'left');
@@ -1553,6 +1571,7 @@ class Budget_realization extends CI_Controller {
 		$transaction_date = azarr($the_data, 'transaction_date', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$idbudget_realization_detail = azarr($the_data, 'idbudget_realization_detail', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja$idpaket_belanja_detail_sub', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
 		$format_month = date("m", strtotime($transaction_date));
@@ -1565,6 +1584,7 @@ class Budget_realization extends CI_Controller {
 		$this->db->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") >=', $format_year . '-01');
 		$this->db->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") <=', $format_year . '-' . $format_month);
 		$this->db->where('budget_realization_detail.idsub_kategori', $idsub_kategori);
+		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
 		if (strlen($idbudget_realization_detail) > 0) {
 			$this->db->where('budget_realization_detail.idbudget_realization_detail != "'.$idbudget_realization_detail.'" ');
