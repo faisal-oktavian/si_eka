@@ -921,4 +921,79 @@ class Data extends CI_Controller {
 		);
 		echo json_encode($results);
 	}
+
+	public function get_paket_belanja_detail_sub(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		$this->db->order_by("paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori");
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("paket_belanja.nama_paket_belanja", $q);
+			$this->db->or_like("sub_kategori.nama_sub_kategori", $q);
+			$this->db->group_end();
+		}
+		$this->db->where('paket_belanja.status', '1');
+		$this->db->where('paket_belanja.status_paket_belanja != "DRAFT" ');
+		$this->db->where('paket_belanja_detail_sub.status', '1');
+		$this->db->where('program.status', '1');
+		$this->db->where('bidang_urusan.status', '1');
+		$this->db->where('urusan_pemerintah.status', '1');
+		$this->db->where('sub_kategori.status', '1');
+		$this->db->where("urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."' ");
+		// $this->db->where("urusan_pemerintah.tahun_anggaran_urusan = '2025' ");
+
+		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja = paket_belanja.idpaket_belanja');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		
+		$this->db->select('
+			paket_belanja_detail_sub.idpaket_belanja_detail_sub as id, 
+			concat(paket_belanja.nama_paket_belanja, " → ", sub_kategori.nama_sub_kategori) as text');
+		$data = $this->db->get("paket_belanja", $limit, $offset);
+		// echo "<pre>"; print_r($this->db->last_query());die;
+		
+		if (strlen($q) > 0) {
+			$this->db->group_start();
+			$this->db->like("paket_belanja.nama_paket_belanja", $q);
+			$this->db->or_like("sub_kategori.nama_sub_kategori", $q);
+			$this->db->group_end();
+		}
+		$this->db->where('paket_belanja.status', '1');
+		$this->db->where('paket_belanja.status_paket_belanja != "DRAFT" ');
+		$this->db->where('paket_belanja_detail_sub.status', '1');
+		$this->db->where('program.status', '1');
+		$this->db->where('bidang_urusan.status', '1');
+		$this->db->where('urusan_pemerintah.status', '1');
+		$this->db->where('sub_kategori.status', '1');
+		$this->db->where("urusan_pemerintah.tahun_anggaran_urusan = '".Date('Y')."' ");
+		// $this->db->where("urusan_pemerintah.tahun_anggaran_urusan = '2025' ");
+
+		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja = paket_belanja.idpaket_belanja');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		$cdata = $this->db->get("paket_belanja");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+
+		// echo "<pre>"; print_r($results);die;
+		echo json_encode($results);
+	}
 }	

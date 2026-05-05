@@ -503,3 +503,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $select->render();
         }
     }
+
+    if(!function_exists('az_select_uraian')){
+        function az_select_uraian($id = 'paket_belanja_detail_sub', $class='', $attr='paket_belanja_detail_sub') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_paket_belanja_detail_sub');
+            $select->set_placeholder('Pilih Uraian');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idpaket_belanja_detail_sub'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }

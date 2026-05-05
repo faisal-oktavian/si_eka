@@ -55,6 +55,7 @@ class Purchase_plan extends CI_Controller {
 		$crud->add_aodata('vf_purchase_plan_code', 'vf_purchase_plan_code');
 		$crud->add_aodata('vf_purchase_plan_status', 'vf_purchase_plan_status');
 		$crud->add_aodata('iduser_created', 'iduser_created');
+		$crud->add_aodata('idpaket_belanja_detail_sub', 'idpaket_belanja_detail_sub');
 
 		$vf = $this->load->view('purchase_plan/vf_purchase_plan', $data, true);
         $crud->set_top_filter($vf);
@@ -84,6 +85,7 @@ class Purchase_plan extends CI_Controller {
 		$purchase_plan_code = $this->input->get('vf_purchase_plan_code');
 		$purchase_plan_status = $this->input->get('vf_purchase_plan_status');
 		$iduser_created = $this->input->get('iduser_created');
+		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
 
         $crud->set_select('purchase_plan.idpurchase_plan, date_format(purchase_plan_date, "%d-%m-%Y %H:%i:%s") as txt_purchase_plan_date, purchase_plan_code, "" as detail, purchase_plan_status, user.name as user_created, purchase_plan.iduser_created');        
         $crud->set_select_table('idpurchase_plan, txt_purchase_plan_date, purchase_plan_code, detail, purchase_plan_status, user_created');
@@ -93,6 +95,7 @@ class Purchase_plan extends CI_Controller {
 		$crud->set_select_align(' , , , center');
 
         $crud->add_join_manual('user', 'purchase_plan.iduser_created = user.iduser');
+        $crud->add_join_manual('purchase_plan_detail', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
         
         if (strlen($date1) > 0 && strlen($date2) > 0) {
             $crud->add_where('date(purchase_plan.purchase_plan_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
@@ -107,10 +110,15 @@ class Purchase_plan extends CI_Controller {
 		if (strlen($iduser_created) > 0) {
 			$crud->add_where('purchase_plan.iduser_created = "' . $iduser_created . '"');
 		}
+		if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$crud->add_where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
+			$crud->add_where('purchase_plan_detail.status = "1" ');
+		}
 
 		$crud->add_where("purchase_plan.status = 1");
 		$crud->add_where("purchase_plan.purchase_plan_status != 'DRAFT' ");
 
+		$crud->set_group_by('purchase_plan.idpurchase_plan');
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
 		$crud->set_order_by('purchase_plan_date desc');
@@ -141,7 +149,7 @@ class Purchase_plan extends CI_Controller {
 			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-			$this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+			$this->db->select('paket_belanja.idpaket_belanja, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.idsub_kategori, paket_belanja_detail_sub.idpaket_belanja_detail_sub, purchase_plan_detail.idpurchase_plan_detail');
 			$purchase_plan = $this->db->get('purchase_plan');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -181,8 +189,14 @@ class Purchase_plan extends CI_Controller {
 				}
 
 				$html .= '<tr>';
-				$html .= 	'<td>'.$value->nama_paket_belanja.'</td>';
-				$html .= 	'<td>'.$uraian.'</td>';
+				$html .= 	'<td>';
+				$html .=		$value->nama_paket_belanja;
+				// $html .=		'<div style="color:red;">'.$value->idpaket_belanja.'</div>';
+				$html .= 	'</td>';
+				$html .= 	'<td>';
+				$html .=		$uraian;
+				// $html .=		'<div style="color:red;">'.$value->idpurchase_plan_detail.'</div>';
+				$html .= 	'</td>';
 				$html .= 	'<td align="center">'.$value->volume.'</td>';
 				$html .= '</tr>';
 			}
