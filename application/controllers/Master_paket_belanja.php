@@ -863,7 +863,7 @@ class Master_paket_belanja extends CI_Controller {
 			$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
 			$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
 			$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, kategori.nama_kategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening,
-			 paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.spesifikasi');
+			 paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, akun_belanja.no_rekening_akunbelanja, paket_belanja_detail_sub.volume, paket_belanja_detail_sub.volume_realization, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.spesifikasi');
 			$pb_detail_sub = $this->db->get('paket_belanja_detail_sub');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -876,7 +876,7 @@ class Master_paket_belanja extends CI_Controller {
 				$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 				$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 				$this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
-				$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.spesifikasi');
+				$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail_sub, paket_belanja_detail_sub.idpaket_belanja_detail, paket_belanja_detail_sub.idkategori, sub_kategori.idsub_kategori, sub_kategori.nama_sub_kategori, kode_rekening.kode_rekening, paket_belanja_detail_sub.is_kategori, paket_belanja_detail_sub.is_subkategori, paket_belanja_detail_sub.volume, paket_belanja_detail_sub.volume_realization, satuan.nama_satuan, paket_belanja_detail_sub.harga_satuan, paket_belanja_detail_sub.jumlah, paket_belanja_detail_sub.spesifikasi');
 				$pd_detail_sub_sub = $this->db->get('paket_belanja_detail_sub');
 				// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -891,6 +891,7 @@ class Master_paket_belanja extends CI_Controller {
 						'is_kategori' => $dss_value->is_kategori,
 						'is_subkategori' => $dss_value->is_subkategori,
 						'volume' => $dss_value->volume,
+						'volume_realization' => $dss_value->volume_realization,
 						'nama_satuan' => $dss_value->nama_satuan,
 						'harga_satuan' => $dss_value->harga_satuan,
 						'jumlah' => $dss_value->jumlah,
@@ -911,6 +912,7 @@ class Master_paket_belanja extends CI_Controller {
 					'is_subkategori' => $ds_value->is_subkategori,
 					'no_rekening_akunbelanja' => $ds_value->no_rekening_akunbelanja,
 					'volume' => $ds_value->volume,
+					'volume_realization' => $ds_value->volume_realization,
 					'nama_satuan' => $ds_value->nama_satuan,
 					'harga_satuan' => $ds_value->harga_satuan,
 					'jumlah' => $ds_value->jumlah,

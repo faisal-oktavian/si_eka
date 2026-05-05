@@ -120,7 +120,10 @@
                                 ?>
                             </div>
                         </td>
-                        <td align="center"><?php echo $sub_value['volume'];?></td>
+                        <td align="center">
+                            <?php echo $sub_value['volume'];?>
+                            <div style="color:red;"><?php echo $sub_value['volume_realization'];?></div>
+                        </td>
                         <td align="center"><?php echo $sub_value['nama_satuan'];?></td>
                         <td align="right">Rp. <?php echo az_thousand_separator($sub_value['harga_satuan']);?></td>
                         <td align="right">Rp. <?php echo az_thousand_separator($sub_value['jumlah']);?></td>
@@ -280,7 +283,10 @@
                                     ?>
                                 </div>
                             </td>
-                            <td align="center"><?php echo $ss_value['volume'];?></td>
+                            <td align="center">
+                                <?php echo $ss_value['volume'];?>
+                                <div style="color:red;"><?php echo $ss_value['volume_realization'];?></div>
+                            </td>
                             <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                             <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                             <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
