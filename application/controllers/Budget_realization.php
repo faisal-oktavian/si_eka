@@ -1571,7 +1571,7 @@ class Budget_realization extends CI_Controller {
 		$transaction_date = azarr($the_data, 'transaction_date', '');
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$idbudget_realization_detail = azarr($the_data, 'idbudget_realization_detail', '');
-		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja$idpaket_belanja_detail_sub', '');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
 		$format_month = date("m", strtotime($transaction_date));

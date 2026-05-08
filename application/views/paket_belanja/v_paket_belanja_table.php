@@ -106,6 +106,8 @@
                                 <?php echo $sub_value['nama_subkategori'];?>
                                 <br>
                                 <?php echo $sub_value['kode_rekening'];?>
+                                <!-- <br>
+                                <div style="color:red;"><?php echo $sub_value['idpaket_belanja_detail_sub']; ?></div> -->
                                 <?php 
                                     if (!empty($sub_value['spesifikasi'])) { 
                                 ?>
@@ -122,7 +124,7 @@
                         </td>
                         <td align="center">
                             <?php echo $sub_value['volume'];?>
-                            <div style="color:red;"><?php echo $sub_value['volume_realization'];?></div>
+                            <!-- <div style="color:red;"><?php echo $sub_value['volume_realization'];?></div> -->
                         </td>
                         <td align="center"><?php echo $sub_value['nama_satuan'];?></td>
                         <td align="right">Rp. <?php echo az_thousand_separator($sub_value['harga_satuan']);?></td>
@@ -182,6 +184,8 @@
                             <div style="padding-left: 50px; font-weight:bold;">
                                 <div>
                                     <?php echo $sub_value['nama_kategori'];?>
+                                    <!-- <br>
+                                    <div style="color:red;"><?php echo $sub_value['idpaket_belanja_detail_sub']; ?></div> -->
                                 </div>
 
                                 <?php 
@@ -269,6 +273,8 @@
                                     <?php echo $ss_value['nama_subkategori'];?>
                                     <br>
                                     <?php echo $ss_value['kode_rekening'];?>
+                                    <!-- <br>
+                                    <div style="color:red;"><?php echo $ss_value['idpaket_belanja_detail_sub']; ?></div> -->
                                     <?php 
                                         if (!empty($ss_value['spesifikasi'])) {
                                     ?>
@@ -285,7 +291,7 @@
                             </td>
                             <td align="center">
                                 <?php echo $ss_value['volume'];?>
-                                <div style="color:red;"><?php echo $ss_value['volume_realization'];?></div>
+                                <!-- <div style="color:red;"><?php echo $ss_value['volume_realization'];?></div> -->
                             </td>
                             <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                             <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>

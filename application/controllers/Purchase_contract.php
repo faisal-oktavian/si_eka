@@ -59,6 +59,7 @@ class Purchase_contract extends CI_Controller {
 		$crud->add_aodata('contract_code', 'contract_code');
 		$crud->add_aodata('vf_contract_status', 'vf_contract_status');
 		$crud->add_aodata('iduser_created', 'iduser_created');
+		$crud->add_aodata('idpaket_belanja_detail_sub', 'idpaket_belanja_detail_sub');
 
 		$vf = $this->load->view('purchase_contract/vf_purchase_contract', $data, true);
         $crud->set_top_filter($vf);
@@ -88,8 +89,9 @@ class Purchase_contract extends CI_Controller {
 		$contract_code = $this->input->get('contract_code');
 		$contract_status = $this->input->get('vf_contract_status');
 		$iduser_created = $this->input->get('iduser_created');
+		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
 
-        $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as type_code, "" as detail, contract_status, user_created.name as user_input, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, contract.iduser_created');
+        $crud->set_select('contract.idcontract, date_format(contract_date, "%d-%m-%Y %H:%i:%s") as txt_contract_date, contract_code, "" as type_code, "" as detail, contract_status, user_created.name as user_input, contract_spt, contract_invitation_number, contract_sp, contract_spk, contract_honor, contract.iduser_created, date_format(contract.created, "%d-%m-%Y %H:%i:%s") as txt_created, date_format(contract.updated, "%d-%m-%Y %H:%i:%s") as txt_updated');
         $crud->set_select_table('idcontract, txt_contract_date, contract_code, type_code, detail, contract_status, user_input');
         $crud->set_sorting('contract_code, contract_status, user_input');
         $crud->set_filter('contract_code, contract_status, user_input');
@@ -97,6 +99,9 @@ class Purchase_contract extends CI_Controller {
 		$crud->set_select_align(', , , , center');
 
         $crud->add_join_manual('user user_created', 'contract.iduser_created = user_created.iduser', 'left');
+		$crud->add_join_manual('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+		$crud->add_join_manual('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$crud->add_join_manual('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
         
         if (strlen($date1) > 0 && strlen($date2) > 0) {
             $crud->add_where('date(contract.contract_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
@@ -111,6 +116,11 @@ class Purchase_contract extends CI_Controller {
 		if (strlen($iduser_created) > 0) {
 			$crud->add_where('contract.iduser_created = "' . $iduser_created . '"');
 		}
+		if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$crud->add_where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
+			$crud->add_where('purchase_plan_detail.status = "1" ');
+			$crud->add_where('contract_detail.status = "1" ');
+		}
 
 		$crud->add_where("contract.status = 1");
 		$crud->add_where("contract.contract_status != 'DRAFT' ");
@@ -118,6 +128,7 @@ class Purchase_contract extends CI_Controller {
 		$crud->set_table($this->table);
 		$crud->set_custom_style('custom_style');
 		$crud->set_order_by('contract_date desc');
+		$crud->set_group_by('contract.idcontract');
 		echo $crud->get_table();
 	}
 
@@ -134,6 +145,15 @@ class Purchase_contract extends CI_Controller {
 		$contract_sp = azarr($data, 'contract_sp');	
 		$contract_spk = azarr($data, 'contract_spk');	
 		$contract_honor = azarr($data, 'contract_honor');
+
+		// if ($key == "txt_contract_date") {
+		// 	$txt_created = azarr($data, 'txt_created');
+		// 	$txt_updated = azarr($data, 'txt_updated');
+
+		// 	$value = $value.'<br><div style="color:red;">'.$txt_created.'<br><br>'.$txt_updated.'</div>';
+
+		// 	return $value;
+		// }
 
 		if ($key == "type_code") {
 			if (strlen($contract_spt) > 0) {
@@ -184,7 +204,7 @@ class Purchase_contract extends CI_Controller {
                 $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
                 $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, purchase_plan.idpurchase_plan, paket_belanja.idpaket_belanja, paket_belanja_detail_sub.idpaket_belanja_detail_sub');
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -223,6 +243,9 @@ class Purchase_contract extends CI_Controller {
                         'nama_sub_kategori' => $uraian,
                         'volume' => $c_value->volume,
                         'total' => $c_value->purchase_plan_detail_total,
+                        'idpurchase_plan' => $c_value->idpurchase_plan,
+                        'idpaket_belanja' => $c_value->idpaket_belanja,
+                        'idpaket_belanja_detail_sub' => $c_value->idpaket_belanja_detail_sub,
                     );
                 }
 
@@ -247,9 +270,18 @@ class Purchase_contract extends CI_Controller {
 			foreach ((array) $arr_data as $key => $value) {
                 foreach ($value['arr_detail'] as $key => $dvalue) {
                     $table .= "<tr>";
-                    $table .=       "<td align='left'>".$dvalue['purchase_plan_code']."</td>";
-                    $table .=       "<td align='left'>".$dvalue['nama_paket_belanja']."</td>";
-                    $table .=       "<td align='left'>".$dvalue['nama_sub_kategori']."</td>";
+                    $table .=       "<td align='left'>";
+					$table .=			$dvalue['purchase_plan_code'];
+					// $table .=			'<div style="color:red;">idplan '.$dvalue['idpurchase_plan'].'</div>';
+					$table .= 		"</td>";
+                    $table .=       "<td align='left'>";
+					$table .= 			$dvalue['nama_paket_belanja'];
+					// $table .=			'<div style="color:red;">idpaket '.$dvalue['idpaket_belanja'].'</div>';
+					$table .= 		"</td>";
+                    $table .=       "<td align='left'>";
+					$table .= 			$dvalue['nama_sub_kategori'];
+					// $table .=			'<div style="color:red;">idpaket sub '.$dvalue['idpaket_belanja_detail_sub'].'</div>';
+					$table .= 		"</td>";
                     $table .=       "<td align='center'>".az_thousand_separator_decimal($dvalue['volume'])."</td>";
                     $table .=       "<td align='right'>".az_thousand_separator($dvalue['total'])."</td>";
                     $table .= "</tr>";

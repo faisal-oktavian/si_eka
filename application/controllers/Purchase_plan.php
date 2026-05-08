@@ -148,8 +148,13 @@ class Purchase_plan extends CI_Controller {
 			$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = purchase_plan_detail.idpaket_belanja');
 			$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 			$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+			$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+			$this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+			$this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+			$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+			$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 
-			$this->db->select('paket_belanja.idpaket_belanja, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.idsub_kategori, paket_belanja_detail_sub.idpaket_belanja_detail_sub, purchase_plan_detail.idpurchase_plan_detail');
+			$this->db->select('paket_belanja.idpaket_belanja, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, paket_belanja_detail_sub.idsub_kategori, paket_belanja_detail_sub.idpaket_belanja_detail_sub, purchase_plan_detail.idpurchase_plan_detail, paket_belanja_detail_sub.status as status_sub, sub_kategori.status as status_subkat, urusan_pemerintah.tahun_anggaran_urusan');
 			$purchase_plan = $this->db->get('purchase_plan');
 			// echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -191,11 +196,15 @@ class Purchase_plan extends CI_Controller {
 				$html .= '<tr>';
 				$html .= 	'<td>';
 				$html .=		$value->nama_paket_belanja;
-				// $html .=		'<div style="color:red;">'.$value->idpaket_belanja.'</div>';
+				// $html .=		'<div style="color:red;">idpaket belanja '.$value->idpaket_belanja.'</div>';
+				// $html .=		'<div style="color:red;">tahun anggaran '.$value->tahun_anggaran_urusan.'</div>';
 				$html .= 	'</td>';
 				$html .= 	'<td>';
 				$html .=		$uraian;
-				// $html .=		'<div style="color:red;">'.$value->idpurchase_plan_detail.'</div>';
+				// $html .=		'<div style="color:red;">idplan detail '.$value->idpurchase_plan_detail.'</div>';
+				// $html .=		'<div style="color:red;">idpaket sub '.$value->idpaket_belanja_detail_sub.'</div>';
+				// $html .=		'<div style="color:red;">status paket sub '.$value->status_sub.'</div>';
+				// $html .=		'<div style="color:red;">status subkategori '.$value->status_subkat.'</div>';
 				$html .= 	'</td>';
 				$html .= 	'<td align="center">'.$value->volume.'</td>';
 				$html .= '</tr>';
@@ -425,6 +434,13 @@ class Purchase_plan extends CI_Controller {
 
 		// data yang ditampilkan adalah data pada tahun berjalan
 		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.Date('Y').'" ');
+		$this->db->where('
+			(
+				(pbds_child.idsub_kategori IS NOT NULL AND pbds_child.status = 1)
+				OR
+				(pbds_parent.idsub_kategori IS NOT NULL AND pbds_parent.status = 1)
+			)
+		');
 		
 		$this->db->join('paket_belanja_detail pbd', 'pb.idpaket_belanja = pbd.idpaket_belanja');
 		$this->db->join('paket_belanja_detail_sub pbds_parent', 'pbd.idpaket_belanja_detail = pbds_parent.idpaket_belanja_detail', 'left');
