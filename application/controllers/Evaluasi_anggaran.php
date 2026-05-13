@@ -1347,39 +1347,51 @@ class Evaluasi_anggaran extends CI_Controller {
 
 		$rak_januari 			= 0;
 		$realisasi_januari 		= array();
+		$total_realisasi_januari = 0;
 		$januari 				= '';
 		$rak_februari			= 0;
 		$realisasi_februari		= array();
+		$total_realisasi_februari = 0;
 		$februari 				= '';
 		$rak_maret 				= 0;
 		$realisasi_maret 		= array();
+		$total_realisasi_maret = 0;
 		$maret 					= '';
 		$rak_april 				= 0;
 		$realisasi_april 		= array();
+		$total_realisasi_april = 0;
 		$april 					= '';
 		$rak_mei 				= 0;
 		$realisasi_mei 			= array();
+		$total_realisasi_mei 	= 0;
 		$mei 					= '';
 		$rak_juni 				= 0;
 		$realisasi_juni 		= array();
+		$total_realisasi_juni 	= 0;
 		$juni 					= '';
 		$rak_juli 				= 0;
 		$realisasi_juli 		= array();
+		$total_realisasi_juli 	= 0;
 		$juli 					= '';
 		$rak_agustus 			= 0;
 		$realisasi_agustus 		= array();
+		$total_realisasi_agustus = 0;
 		$agustus 				= '';
 		$rak_september 			= 0;
 		$realisasi_september 	= array();
+		$total_realisasi_september = 0;
 		$september 				= '';
 		$rak_oktober 			= 0;
 		$realisasi_oktober 		= array();
+		$total_realisasi_oktober = 0;
 		$oktober				= '';
 		$rak_november 			= 0;
 		$realisasi_november 	= array();
+		$total_realisasi_november = 0;
 		$november 				= '';
 		$rak_desember 			= 0;
 		$realisasi_desember 	= array();
+		$total_realisasi_desember = 0;
 		$desember 				= '';
 
 		// paket belanja
@@ -1404,39 +1416,51 @@ class Evaluasi_anggaran extends CI_Controller {
 
 			$rak_januari 			= 0;
 			$realisasi_januari 		= array();
+			$total_realisasi_januari = 0;
 			$januari 				= array();
 			$rak_februari			= 0;
 			$realisasi_februari		= array();
+			$total_realisasi_februari = 0;
 			$februari 				= array();
 			$rak_maret 				= 0;
 			$realisasi_maret 		= array();
+			$total_realisasi_maret 	= 0;
 			$maret 					= array();
 			$rak_april 				= 0;
 			$realisasi_april 		= array();
+			$total_realisasi_april 	= 0;
 			$april 					= array();
 			$rak_mei 				= 0;
 			$realisasi_mei 			= array();
+			$total_realisasi_mei 	= 0;
 			$mei 					= array();
 			$rak_juni 				= 0;
 			$realisasi_juni 		= array();
+			$total_realisasi_juni 	= 0;
 			$juni 					= array();
 			$rak_juli 				= 0;
 			$realisasi_juli 		= array();
+			$total_realisasi_juli 	= 0;
 			$juli 					= array();
 			$rak_agustus 			= 0;
 			$realisasi_agustus 		= array();
+			$total_realisasi_agustus = 0;
 			$agustus 				= array();
 			$rak_september 			= 0;
 			$realisasi_september 	= array();
+			$total_realisasi_september = 0;
 			$september 				= array();
 			$rak_oktober 			= 0;
 			$realisasi_oktober 		= array();
+			$total_realisasi_oktober = 0;
 			$oktober				= array();
 			$rak_november 			= 0;
 			$realisasi_november 	= array();
+			$total_realisasi_november = 0;
 			$november 				= array();
 			$rak_desember 			= 0;
 			$realisasi_desember 	= array();
+			$total_realisasi_desember = 0;
 			$desember 				= array();
 
 			$arr_ = 0;
@@ -1454,39 +1478,51 @@ class Evaluasi_anggaran extends CI_Controller {
 
 					'rak_januari' 			=> 0,
 					'realisasi_januari'		=> array(),
+					'total_realisasi_januari' => 0,
 					'januari' 				=> array(),
 					'rak_februari' 			=> 0,
 					'realisasi_februari'	=> array(),
+					'total_realisasi_februari' => 0,
 					'februari' 				=> array(),
 					'rak_maret' 			=> 0,
 					'realisasi_maret'		=> array(),
+					'total_realisasi_maret' => 0,
 					'maret' 				=> array(),
 					'rak_april' 			=> 0,
 					'realisasi_april'		=> array(),
+					'total_realisasi_april' => 0,
 					'april' 				=> array(),
 					'rak_mei' 				=> 0,
 					'realisasi_mei'			=> array(),
+					'total_realisasi_mei' 	=> 0,
 					'mei' 					=> array(),
 					'rak_juni' 				=> 0,
 					'realisasi_juni'		=> array(),
+					'total_realisasi_juni' 	=> 0,
 					'juni' 					=> array(),
 					'rak_juli' 				=> 0,
 					'realisasi_juli'		=> array(),
+					'total_realisasi_juli' 	=> 0,
 					'juli' 					=> array(),
 					'rak_agustus' 			=> 0,
 					'realisasi_agustus'		=> array(),
+					'total_realisasi_agustus' => 0,
 					'agustus' 				=> array(),
 					'rak_september' 		=> 0,
 					'realisasi_september'	=> array(),
+					'total_realisasi_september' => 0,
 					'september' 			=> array(),
 					'rak_oktober' 			=> 0,
 					'realisasi_oktober'		=> array(),
+					'total_realisasi_oktober' => 0,
 					'oktober' 				=> array(),
 					'rak_november' 			=> 0,
 					'realisasi_november'	=> array(),
+					'total_realisasi_november' => 0,
 					'november' 				=> array(),
 					'rak_desember' 			=> 0,
 					'realisasi_desember'	=> array(),
+					'total_realisasi_desember' => 0,
 					'desember' 				=> array(),
 				);
 			}
@@ -1509,7 +1545,51 @@ class Evaluasi_anggaran extends CI_Controller {
 					$this->db->where('contract.status', 1);
 					$this->db->where('contract_detail.status', 1);
 					$this->db->where('contract.contract_status != "DRAFT" ');					
-					$this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+					// $this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+					$this->db->group_start()
+						// SUDAH DIBAYAR BENDAHARA
+						->or_group_start()
+							->where('contract.contract_status', 'SUDAH DIBAYAR BENDAHARA')
+							->where('DATE_FORMAT(npd.confirm_payment_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// MENUNGGU PEMBAYARAN
+						->or_group_start()
+							->where('contract.contract_status', 'MENUNGGU PEMBAYARAN')
+							->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// INPUT NPD
+						->or_group_start()
+							->where('contract.contract_status', 'INPUT NPD')
+							->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// DITOLAK VERIFIKATOR
+						->or_group_start()
+							->where('contract.contract_status', 'DITOLAK VERIFIKATOR')
+							->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// SUDAH DIVERIFIKASI
+						->or_group_start()
+							->where('contract.contract_status', 'SUDAH DIVERIFIKASI')
+							->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// MENUNGGU VERIFIKASI
+						->or_group_start()
+							->where('contract.contract_status', 'MENUNGGU VERIFIKASI')
+							->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// KONTRAK PENGADAAN
+						->or_group_start()
+							->where('contract.contract_status', 'KONTRAK PENGADAAN')
+							->where('DATE_FORMAT(contract.contract_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+					->group_end();
 					$this->db->where('purchase_plan_detail.status', 1);
 					$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$ds_value->idpaket_belanja_detail_sub.'" ');
 					$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$ds_value->idpaket_belanja.'" ');
@@ -1566,6 +1646,9 @@ class Evaluasi_anggaran extends CI_Controller {
 					$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
 					$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
 					$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+					$this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+					$this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+					$this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
 					
 					$this->db->order_by("
 						CASE purchase_plan_detail.purchase_plan_detail_status
@@ -1594,50 +1677,62 @@ class Evaluasi_anggaran extends CI_Controller {
 						if ($i == 0) {
 							$januari[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_januari[] = $pp_value->total_realization_detail;
+							$total_realisasi_januari += $pp_value->total_realization_detail;
 						}
 						else if ($i == 1) {
 							$februari[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_februari[] = $pp_value->total_realization_detail;
+							$total_realisasi_februari += $pp_value->total_realization_detail;
 						}
 						else if ($i == 2) {
 							$maret[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_maret[] = $pp_value->total_realization_detail;
+							$total_realisasi_maret += $pp_value->total_realization_detail;
 						}
 						else if ($i == 3) {
 							$april[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_april[] = $pp_value->total_realization_detail;
+							$total_realisasi_april += $pp_value->total_realization_detail;
 						}
 						else if ($i == 4) {
 							$mei[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_mei[] = $pp_value->total_realization_detail;
+							$total_realisasi_mei += $pp_value->total_realization_detail;
 						}
 						else if ($i == 5) {
 							$juni[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_juni[] = $pp_value->total_realization_detail;
+							$total_realisasi_juni += $pp_value->total_realization_detail;
 						}
 						else if ($i == 6) {
 							$juli[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_juli[] = $pp_value->total_realization_detail;
+							$total_realisasi_juli += $pp_value->total_realization_detail;
 						}
 						else if ($i == 7) {
 							$agustus[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_agustus[] = $pp_value->total_realization_detail;
+							$total_realisasi_agustus += $pp_value->total_realization_detail;
 						}
 						else if ($i == 8) {
 							$september[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_september[] = $pp_value->total_realization_detail;
+							$total_realisasi_september += $pp_value->total_realization_detail;
 						}
 						else if ($i == 9) {
 							$oktober[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_oktober[] = $pp_value->total_realization_detail;
+							$total_realisasi_oktober += $pp_value->total_realization_detail;
 						}
 						else if ($i == 10) {
 							$november[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_november[] = $pp_value->total_realization_detail;
+							$total_realisasi_november += $pp_value->total_realization_detail;
 						}
 						else if ($i == 11) {
 							$desember[] = label_status($pp_value->purchase_plan_detail_status).$code;
 							$realisasi_desember[] = $pp_value->total_realization_detail;
+							$total_realisasi_desember += $pp_value->total_realization_detail;
 						}
 					}
 
@@ -1695,39 +1790,51 @@ class Evaluasi_anggaran extends CI_Controller {
 
 				'rak_januari' 			=> $rak_januari,
 				'realisasi_januari'		=> $realisasi_januari,
+				'total_realisasi_januari' => $total_realisasi_januari,
 				'januari' 				=> $januari,
 				'rak_februari' 			=> $rak_februari,
 				'realisasi_februari'	=> $realisasi_februari,
+				'total_realisasi_februari' => $total_realisasi_februari,
 				'februari' 				=> $februari,
 				'rak_maret' 			=> $rak_maret,
 				'realisasi_maret'		=> $realisasi_maret,
+				'total_realisasi_maret' => $total_realisasi_maret,
 				'maret' 				=> $maret,
 				'rak_april' 			=> $rak_april,
 				'realisasi_april'		=> $realisasi_april,
+				'total_realisasi_april' => $total_realisasi_april,
 				'april' 				=> $april,
 				'rak_mei' 				=> $rak_mei,
 				'realisasi_mei'			=> $realisasi_mei,
+				'total_realisasi_mei' 	=> $total_realisasi_mei,
 				'mei' 					=> $mei,
 				'rak_juni' 				=> $rak_juni,
 				'realisasi_juni'		=> $realisasi_juni,
+				'total_realisasi_juni' 	=> $total_realisasi_juni,
 				'juni' 					=> $juni,
 				'rak_juli' 				=> $rak_juli,
 				'realisasi_juli'		=> $realisasi_juli,
+				'total_realisasi_juli' 	=> $total_realisasi_juli,
 				'juli' 					=> $juli,
 				'rak_agustus' 			=> $rak_agustus,
 				'realisasi_agustus'		=> $realisasi_agustus,
+				'total_realisasi_agustus' => $total_realisasi_agustus,
 				'agustus' 				=> $agustus,
 				'rak_september' 		=> $rak_september,
 				'realisasi_september'	=> $realisasi_september,
+				'total_realisasi_september' => $total_realisasi_september,
 				'september' 			=> $september,
 				'rak_oktober' 			=> $rak_oktober,
 				'realisasi_oktober'		=> $realisasi_oktober,
+				'total_realisasi_oktober' => $total_realisasi_oktober,
 				'oktober' 				=> $oktober,
 				'rak_november' 			=> $rak_november,
 				'realisasi_november'	=> $realisasi_november,
+				'total_realisasi_november' => $total_realisasi_november,
 				'november' 				=> $november,
 				'rak_desember' 			=> $rak_desember,
 				'realisasi_desember'	=> $realisasi_desember,
+				'total_realisasi_desember' => $total_realisasi_desember,
 				'desember' 				=> $desember,
 			);
 
@@ -1746,39 +1853,51 @@ class Evaluasi_anggaran extends CI_Controller {
 
 					$rak_januari 			= 0;
 					$realisasi_januari 		= array();
+					$total_realisasi_januari = 0;
 					$januari 				= array();
 					$rak_februari			= 0;
 					$realisasi_februari		= array();
+					$total_realisasi_februari = 0;
 					$februari 				= array();
 					$rak_maret 				= 0;
 					$realisasi_maret 		= array();
+					$total_realisasi_maret 	= 0;
 					$maret 					= array();
 					$rak_april 				= 0;
 					$realisasi_april 		= array();
+					$total_realisasi_april 	= 0;
 					$april 					= array();
 					$rak_mei 				= 0;
 					$realisasi_mei 			= array();
+					$total_realisasi_mei 	= 0;
 					$mei 					= array();
 					$rak_juni 				= 0;
 					$realisasi_juni 		= array();
+					$total_realisasi_juni 	= 0;
 					$juni 					= array();
 					$rak_juli 				= 0;
 					$realisasi_juli 		= array();
+					$total_realisasi_juli 	= 0;
 					$juli 					= array();
 					$rak_agustus 			= 0;
 					$realisasi_agustus 		= array();
+					$total_realisasi_agustus = 0;
 					$agustus 				= array();
 					$rak_september 			= 0;
 					$realisasi_september 	= array();
+					$total_realisasi_september = 0;
 					$september 				= array();
 					$rak_oktober 			= 0;
 					$realisasi_oktober 		= array();
+					$total_realisasi_oktober = 0;
 					$oktober				= array();
 					$rak_november 			= 0;
 					$realisasi_november 	= array();
+					$total_realisasi_november = 0;
 					$november 				= array();
 					$rak_desember 			= 0;
 					$realisasi_desember 	= array();
+					$total_realisasi_desember = 0;
 					$desember 				= array();
 
 					// jika valuenya termasuk kategori (bukan sub kategori), maka set nilai seperti didalam kondisi
@@ -1795,7 +1914,52 @@ class Evaluasi_anggaran extends CI_Controller {
 							
 							$this->db->where('purchase_plan.status', 1);
 							$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');					
-							$this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+							// $this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+							$this->db->group_start()
+
+								// SUDAH DIBAYAR BENDAHARA
+								->or_group_start()
+									->where('contract.contract_status', 'SUDAH DIBAYAR BENDAHARA')
+									->where('DATE_FORMAT(npd.confirm_payment_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+								// MENUNGGU PEMBAYARAN
+								->or_group_start()
+									->where('contract.contract_status', 'MENUNGGU PEMBAYARAN')
+									->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+								// INPUT NPD
+								->or_group_start()
+									->where('contract.contract_status', 'INPUT NPD')
+									->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+								// DITOLAK VERIFIKATOR
+								->or_group_start()
+									->where('contract.contract_status', 'DITOLAK VERIFIKATOR')
+									->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+								// SUDAH DIVERIFIKASI
+								->or_group_start()
+									->where('contract.contract_status', 'SUDAH DIVERIFIKASI')
+									->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+								// MENUNGGU VERIFIKASI
+								->or_group_start()
+									->where('contract.contract_status', 'MENUNGGU VERIFIKASI')
+									->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+								// KONTRAK PENGADAAN
+								->or_group_start()
+									->where('contract.contract_status', 'KONTRAK PENGADAAN')
+									->where('DATE_FORMAT(purchase_contract.contract_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+								->group_end()
+
+							->group_end();
 							$this->db->where('purchase_plan_detail.status', 1);
 							$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$dss_value->idpaket_belanja_detail_sub.'" ');
 							$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$dss_value->idpaket_belanja.'" ');
@@ -1854,6 +2018,9 @@ class Evaluasi_anggaran extends CI_Controller {
 							$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
 							$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
 							$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+							$this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+							$this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+							$this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
 							
 							$this->db->order_by("
 								CASE purchase_plan_detail.purchase_plan_detail_status
@@ -1881,50 +2048,62 @@ class Evaluasi_anggaran extends CI_Controller {
 								if ($i == 0) {
 									$januari[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_januari[] = $pp_value->total_realization_detail;
+									$total_realisasi_januari += $pp_value->total_realization_detail;
 								}
 								else if ($i == 1) {
 									$februari[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_februari[] = $pp_value->total_realization_detail;
+									$total_realisasi_februari += $pp_value->total_realization_detail;
 								}
 								else if ($i == 2) {
 									$maret[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_maret[] = $pp_value->total_realization_detail;
+									$total_realisasi_maret += $pp_value->total_realization_detail;
 								}
 								else if ($i == 3) {
 									$april[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_april[] = $pp_value->total_realization_detail;
+									$total_realisasi_april += $pp_value->total_realization_detail;
 								}
 								else if ($i == 4) {
 									$mei[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_mei[] = $pp_value->total_realization_detail;
+									$total_realisasi_mei += $pp_value->total_realization_detail;
 								}
 								else if ($i == 5) {
 									$juni[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_juni[] = $pp_value->total_realization_detail;
+									$total_realisasi_juni += $pp_value->total_realization_detail;
 								}
 								else if ($i == 6) {
 									$juli[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_juli[] = $pp_value->total_realization_detail;
+									$total_realisasi_juli += $pp_value->total_realization_detail;
 								}
 								else if ($i == 7) {
 									$agustus[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_agustus[] = $pp_value->total_realization_detail;
+									$total_realisasi_agustus += $pp_value->total_realization_detail;
 								}
 								else if ($i == 8) {
 									$september[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_september[] = $pp_value->total_realization_detail;
+									$total_realisasi_september += $pp_value->total_realization_detail;
 								}
 								else if ($i == 9) {
 									$oktober[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_oktober[] = $pp_value->total_realization_detail;
+									$total_realisasi_oktober += $pp_value->total_realization_detail;
 								}
 								else if ($i == 10) {
 									$november[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_november[] = $pp_value->total_realization_detail;
+									$total_realisasi_november += $pp_value->total_realization_detail;
 								}
 								else if ($i == 11) {
 									$desember[] = label_status($pp_value->purchase_plan_detail_status).$code;
 									$realisasi_desember[] = $pp_value->total_realization_detail;
+									$total_realisasi_desember += $pp_value->total_realization_detail;
 								}
 							}
 
@@ -1987,39 +2166,51 @@ class Evaluasi_anggaran extends CI_Controller {
 
 						'rak_januari' 			=> $rak_januari,
 						'realisasi_januari'		=> $realisasi_januari,
+						'total_realisasi_januari' => $total_realisasi_januari,
 						'januari' 				=> $januari,
 						'rak_februari' 			=> $rak_februari,
 						'realisasi_februari'	=> $realisasi_februari,
+						'total_realisasi_februari' => $total_realisasi_februari,
 						'februari' 				=> $februari,
 						'rak_maret' 			=> $rak_maret,
 						'realisasi_maret'		=> $realisasi_maret,
+						'total_realisasi_maret' => $total_realisasi_maret,
 						'maret' 				=> $maret,
 						'rak_april' 			=> $rak_april,
 						'realisasi_april'		=> $realisasi_april,
+						'total_realisasi_april' => $total_realisasi_april,
 						'april' 				=> $april,
 						'rak_mei' 				=> $rak_mei,
 						'realisasi_mei'			=> $realisasi_mei,
+						'total_realisasi_mei' 	=> $total_realisasi_mei,
 						'mei' 					=> $mei,
 						'rak_juni' 				=> $rak_juni,
 						'realisasi_juni'		=> $realisasi_juni,
+						'total_realisasi_juni' 	=> $total_realisasi_juni,
 						'juni' 					=> $juni,
 						'rak_juli' 				=> $rak_juli,
 						'realisasi_juli'		=> $realisasi_juli,
+						'total_realisasi_juli' 	=> $total_realisasi_juli,
 						'juli' 					=> $juli,
 						'rak_agustus' 			=> $rak_agustus,
 						'realisasi_agustus'		=> $realisasi_agustus,
+						'total_realisasi_agustus' => $total_realisasi_agustus,
 						'agustus' 				=> $agustus,
 						'rak_september' 		=> $rak_september,
 						'realisasi_september'	=> $realisasi_september,
+						'total_realisasi_september' => $total_realisasi_september,
 						'september' 			=> $september,
 						'rak_oktober' 			=> $rak_oktober,
 						'realisasi_oktober'		=> $realisasi_oktober,
+						'total_realisasi_oktober' => $total_realisasi_oktober,
 						'oktober' 				=> $oktober,
 						'rak_november' 			=> $rak_november,
 						'realisasi_november'	=> $realisasi_november,
+						'total_realisasi_november' => $total_realisasi_november,
 						'november' 				=> $november,
 						'rak_desember' 			=> $rak_desember,
 						'realisasi_desember'	=> $realisasi_desember,
+						'total_realisasi_desember' => $total_realisasi_desember,
 						'desember' 				=> $desember,
 					);
 				}

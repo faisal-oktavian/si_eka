@@ -70,44 +70,56 @@
     <thead>
         <tr>
             <th rowspan="2" class="col-uraian col-uraian-title">Uraian</th>
-            <th colspan="2" class="col-month">Januari</th>
-            <th colspan="2" class="col-month">Februari</th>
-            <th colspan="2" class="col-month">Maret</th>
-            <th colspan="2" class="col-month">April</th>
-            <th colspan="2" class="col-month">Mei</th>
-            <th colspan="2" class="col-month">Juni</th>
-            <th colspan="2" class="col-month">Juli</th>
-            <th colspan="2" class="col-month">Agustus</th>
-            <th colspan="2" class="col-month">September</th>
-            <th colspan="2" class="col-month">Oktober</th>
-            <th colspan="2" class="col-month">November</th>
-            <th colspan="2" class="col-month">Desember</th>
+            <th colspan="3" class="col-month">Januari</th>
+            <th colspan="3" class="col-month">Februari</th>
+            <th colspan="3" class="col-month">Maret</th>
+            <th colspan="3" class="col-month">April</th>
+            <th colspan="3" class="col-month">Mei</th>
+            <th colspan="3" class="col-month">Juni</th>
+            <th colspan="3" class="col-month">Juli</th>
+            <th colspan="3" class="col-month">Agustus</th>
+            <th colspan="3" class="col-month">September</th>
+            <th colspan="3" class="col-month">Oktober</th>
+            <th colspan="3" class="col-month">November</th>
+            <th colspan="3" class="col-month">Desember</th>
         </tr>
         <tr>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
             <th class="col-month-target">Target</th>
             <th class="col-month-realization">Realisasi</th>
+            <th class="col-month-target">Total Realisasi</th>
         </tr>
     </thead>
     <tbody>
@@ -136,7 +148,7 @@
                     <tr>
                         <td class="col-uraian" style="<?php echo $bold.$space; ?>" ><?php echo $value['nama_kategori']; ?></td>
 
-                        <td colspan="24"></td>
+                        <td colspan="36"></td>
 
                         <!-- <td class="col-month"><?php echo $value['rak_januari']; ?></td>
                         <td class="col-month"><?php echo $value['realisasi_januari']; ?></td>
@@ -218,6 +230,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_januari']); ?></td>
 
                         <!-- februari -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_februari']); ?></td>
@@ -243,6 +256,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_februari']); ?></td>
 
                         <!-- maret -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_maret']); ?></td>
@@ -268,6 +282,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_maret']); ?></td>
                         
                         <!-- april -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_april']); ?></td>
@@ -293,6 +308,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_april']); ?></td>
 
                         <!-- mei -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_mei']); ?></td>
@@ -318,6 +334,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_mei']); ?></td>
 
                         <!-- juni -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_juni']); ?></td>
@@ -343,6 +360,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_juni']); ?></td>
                         
                         <!-- juli -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_juli']); ?></td>
@@ -368,6 +386,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_juli']); ?></td>
                         
                         <!-- agustus -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_agustus']); ?></td>
@@ -393,6 +412,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_agustus']); ?></td>
                         
                         <!-- september -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_september']); ?></td>
@@ -418,6 +438,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_september']); ?></td>
                         
                         <!-- oktober -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_oktober']); ?></td>
@@ -443,6 +464,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_oktober']); ?></td>
                         
                         <!-- november -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_november']); ?></td>
@@ -468,6 +490,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_november']); ?></td>
                         
                         <!-- desember -->
                         <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['rak_desember']); ?></td>
@@ -493,6 +516,7 @@
                                 ?>
                             </table>
                         </td>
+                        <td class="col-month-target">Rp. <?php echo az_thousand_separator($value['total_realisasi_desember']); ?></td>
                     </tr>
         <?php
                 }
