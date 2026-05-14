@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Report_evaluasi_anggaran extends CI_Controller {
+class Report_detail_evaluasi_anggaran extends CI_Controller {
 	public function __construct() {
         parent::__construct();
 
         $this->load->helper('az_auth');
-        az_check_auth('role_report_evaluasi_anggaran');
-        $this->controller = 'report_evaluasi_anggaran';
+        az_check_auth('role_report_detail_evaluasi_anggaran');
+        $this->controller = 'report_detail_evaluasi_anggaran';
 		$this->load->helper('az_crud');
         $this->load->helper('az_config');
     }
@@ -45,13 +45,13 @@ class Report_evaluasi_anggaran extends CI_Controller {
 		$data['arr_data'] = $get_data;
 		// echo "<pre>"; print_r($data);die;
 
-		$js = az_add_js('report_evaluasi_anggaran/vjs_report_evaluasi_anggaran', $data, true);
+		$js = az_add_js('report_detail_evaluasi_anggaran/vjs_report_detail_evaluasi_anggaran', $data, true);
 		$azapp->add_js($js);
 
-		$view = $this->load->view('report_evaluasi_anggaran/v_report_evaluasi_anggaran', $data, true);
+		$view = $this->load->view('report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran', $data, true);
 		$azapp->add_content($view);
 
-		$data_header['title'] = 'Laporan Evaluasi Anggaran';
+		$data_header['title'] = 'Laporan Detail Evaluasi Anggaran';
 		$data_header['breadcrumb'] = array('report');
 		$azapp->set_data_header($data_header);
 		
@@ -73,7 +73,7 @@ class Report_evaluasi_anggaran extends CI_Controller {
 		$data['arr_data'] = $get_data;
 		// echo "<pre>"; print_r($data);die;
 
-		$this->load->view("report_evaluasi_anggaran/v_report_evaluasi_anggaran_print", $data);
+		$this->load->view("report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran_print", $data);
 	}
 
 	function get_data($the_data) {
@@ -193,24 +193,33 @@ class Report_evaluasi_anggaran extends CI_Controller {
 											$realisasi_sampai_tw3 = 0;
 											$realisasi_sampai_tw4 = 0;
 
+											$persen_realisasi_sampai_tw1 = 0;
+											$persen_realisasi_sampai_tw2 = 0;
+											$persen_realisasi_sampai_tw3 = 0;
+											$persen_realisasi_sampai_tw4 = 0;
+
 											$detail_tw1 = $this->get_detail_data($tw1);
 											if (!empty($detail_tw1)) {
 												$realisasi_sampai_tw1 = $detail_tw1['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw1 = $dss_value->jumlah > 0 ? ($realisasi_sampai_tw1 / $dss_value->jumlah) * 100 : 0;
 											}
 
 											$detail_tw2 = $this->get_detail_data($tw2);
 											if (!empty($detail_tw2)) {
 												$realisasi_sampai_tw2 = $detail_tw2['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw2 = $dss_value->jumlah > 0 ? ($realisasi_sampai_tw2 / $dss_value->jumlah) * 100 : 0;
 											}
 
 											$detail_tw3 = $this->get_detail_data($tw3);
 											if (!empty($detail_tw3)) {
 												$realisasi_sampai_tw3 = $detail_tw3['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw3 = $dss_value->jumlah > 0 ? ($realisasi_sampai_tw3 / $dss_value->jumlah) * 100 : 0;
 											}
 
 											$detail_tw4 = $this->get_detail_data($tw4);
 											if (!empty($detail_tw4)) {
 												$realisasi_sampai_tw4 = $detail_tw4['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw4 = $dss_value->jumlah > 0 ? ($realisasi_sampai_tw4 / $dss_value->jumlah) * 100 : 0;
 											}
 
 											$arr_pd_detail_sub_sub[] = array(
@@ -229,6 +238,10 @@ class Report_evaluasi_anggaran extends CI_Controller {
 												'realisasi_sampai_tw2' => $realisasi_sampai_tw2,
 												'realisasi_sampai_tw3' => $realisasi_sampai_tw3,
 												'realisasi_sampai_tw4' => $realisasi_sampai_tw4,
+												'persen_realisasi_sampai_tw1' => $persen_realisasi_sampai_tw1,
+												'persen_realisasi_sampai_tw2' => $persen_realisasi_sampai_tw2,
+												'persen_realisasi_sampai_tw3' => $persen_realisasi_sampai_tw3,
+												'persen_realisasi_sampai_tw4' => $persen_realisasi_sampai_tw4,
 											);
 										}
 
@@ -286,6 +299,11 @@ class Report_evaluasi_anggaran extends CI_Controller {
 										$realisasi_sampai_tw2 = 0;
 										$realisasi_sampai_tw3 = 0;
 										$realisasi_sampai_tw4 = 0;
+
+										$persen_realisasi_sampai_tw1 = 0;
+										$persen_realisasi_sampai_tw2 = 0;
+										$persen_realisasi_sampai_tw3 = 0;
+										$persen_realisasi_sampai_tw4 = 0;
 										
 										// jika ada sub detailnya, maka data detailnya tidak perlu ambil realisasi
 										// contoh:
@@ -299,21 +317,25 @@ class Report_evaluasi_anggaran extends CI_Controller {
 											$detail_tw1 = $this->get_detail_data($tw1);
 											if (!empty($detail_tw1)) {
 												$realisasi_sampai_tw1 = $detail_tw1['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw1 = $ds_value->jumlah > 0 ? ($realisasi_sampai_tw1 / $ds_value->jumlah) * 100 : 0;
 											}
 
 											$detail_tw2 = $this->get_detail_data($tw2);
 											if (!empty($detail_tw2)) {
 												$realisasi_sampai_tw2 = $detail_tw2['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw2 = $ds_value->jumlah > 0 ? ($realisasi_sampai_tw2 / $ds_value->jumlah) * 100 : 0;
 											}
 
 											$detail_tw3 = $this->get_detail_data($tw3);
 											if (!empty($detail_tw3)) {
 												$realisasi_sampai_tw3 = $detail_tw3['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw3 = $ds_value->jumlah > 0 ? ($realisasi_sampai_tw3 / $ds_value->jumlah) * 100 : 0;
 											}
 
 											$detail_tw4 = $this->get_detail_data($tw4);
 											if (!empty($detail_tw4)) {
 												$realisasi_sampai_tw4 = $detail_tw4['realisasi_rp_sampai'];
+												$persen_realisasi_sampai_tw4 = $ds_value->jumlah > 0 ? ($realisasi_sampai_tw4 / $ds_value->jumlah) * 100 : 0;
 											}	
 										}
 
@@ -336,6 +358,10 @@ class Report_evaluasi_anggaran extends CI_Controller {
 											'realisasi_sampai_tw2' => $realisasi_sampai_tw2,
 											'realisasi_sampai_tw3' => $realisasi_sampai_tw3,
 											'realisasi_sampai_tw4' => $realisasi_sampai_tw4,
+											'persen_realisasi_sampai_tw1' => $persen_realisasi_sampai_tw1,
+											'persen_realisasi_sampai_tw2' => $persen_realisasi_sampai_tw2,
+											'persen_realisasi_sampai_tw3' => $persen_realisasi_sampai_tw3,
+											'persen_realisasi_sampai_tw4' => $persen_realisasi_sampai_tw4,
 											// 'nominal_realisasi' => $nominal_realisasi,
 											// 'persentase_realisasi' => $persentase_realisasi,
 											'arr_pd_detail_sub_sub' => $arr_pd_detail_sub_sub,
@@ -423,11 +449,11 @@ class Report_evaluasi_anggaran extends CI_Controller {
 
 	function query_bidang_urusan($idurusan_pemerintah) {
 		$this->db->where('bidang_urusan.status', 1);
-			$this->db->where('bidang_urusan.is_active', 1);
-			$this->db->where('bidang_urusan.idurusan_pemerintah', $idurusan_pemerintah);
-			$this->db->order_by('bidang_urusan.idbidang_urusan ASC');
-			$this->db->select('idbidang_urusan, no_rekening_bidang_urusan, nama_bidang_urusan');
-			$bidang_urusan = $this->db->get('bidang_urusan');
+		$this->db->where('bidang_urusan.is_active', 1);
+		$this->db->where('bidang_urusan.idurusan_pemerintah', $idurusan_pemerintah);
+		$this->db->order_by('bidang_urusan.idbidang_urusan ASC');
+		$this->db->select('idbidang_urusan, no_rekening_bidang_urusan, nama_bidang_urusan');
+		$bidang_urusan = $this->db->get('bidang_urusan');
 
 		return $bidang_urusan;
 	}
@@ -623,27 +649,155 @@ class Report_evaluasi_anggaran extends CI_Controller {
 				$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
 
 				$this->db->where('purchase_plan.status', 1);
-				$this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
-				$this->db->where('purchase_plan_detail.status', 1);
-				$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
-				$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
-				$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
-				$this->db->where('budget_realization_detail.idsub_kategori = "'.$ds_value->idsub_kategori.'" ');
-				$this->db->where('contract_detail.status', 1);
 				$this->db->where('contract.status', 1);
-				$this->db->where('budget_realization.status', 1);
-				$this->db->where('budget_realization_detail.status', 1);
-				$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+				$this->db->where('contract_detail.status', 1);
+				$this->db->where('contract.contract_status != "DRAFT" ');					
+				// $this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+				$this->db->group_start()
+					// SUDAH DIBAYAR BENDAHARA
+					->or_group_start()
+						->where('contract.contract_status', 'SUDAH DIBAYAR BENDAHARA')
+						->where('DATE_FORMAT(npd.confirm_payment_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
 
-				$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+					// MENUNGGU PEMBAYARAN
+					->or_group_start()
+						->where('contract.contract_status', 'MENUNGGU PEMBAYARAN')
+						->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
+
+					// INPUT NPD
+					->or_group_start()
+						->where('contract.contract_status', 'INPUT NPD')
+						->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
+
+					// DITOLAK VERIFIKATOR
+					->or_group_start()
+						->where('contract.contract_status', 'DITOLAK VERIFIKATOR')
+						->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
+
+					// SUDAH DIVERIFIKASI
+					->or_group_start()
+						->where('contract.contract_status', 'SUDAH DIVERIFIKASI')
+						->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
+
+					// MENUNGGU VERIFIKASI
+					->or_group_start()
+						->where('contract.contract_status', 'MENUNGGU VERIFIKASI')
+						->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
+
+					// KONTRAK PENGADAAN
+					->or_group_start()
+						->where('contract.contract_status', 'KONTRAK PENGADAAN')
+						->where('DATE_FORMAT(contract.contract_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+					->group_end()
+
+				->group_end();
+				$this->db->where('purchase_plan_detail.status', 1);
+				$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$ds_value->idpaket_belanja_detail_sub.'" ');
+				$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
+				$this->db->where('budget_realization_detail.idsub_kategori = "'.$ds_value->idsub_kategori.'" ');
+				$this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+				$this->db->where('budget_realization_detail.status', 1);
+				$this->db->where('budget_realization.status', 1);
+
+				$this->db->group_start()
+
+					->group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'PROSES PENGADAAN')
+						->where('purchase_plan.purchase_plan_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'KONTRAK PENGADAAN')
+						->where('contract.contract_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'MENUNGGU VERIFIKASI')
+						->where('budget_realization.realization_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'SUDAH DIVERIFIKASI')
+						->where('budget_realization.realization_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'DITOLAK VERIFIKATOR')
+						->where('budget_realization.realization_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'INPUT NPD')
+						->where('budget_realization.realization_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'MENUNGGU PEMBAYARAN')
+						->where('budget_realization.realization_status !=', 'DRAFT')
+					->group_end()
+
+					->or_group_start()
+						->where('purchase_plan_detail.purchase_plan_detail_status', 'SUDAH DIBAYAR BENDAHARA')
+						->where('budget_realization.realization_status !=', 'DRAFT')
+					->group_end()
+
+				->group_end();
+				
+				$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 				$this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
 				$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
 				$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
 				$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
-
+				$this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+				$this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+				$this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
+				
+				$this->db->order_by("
+					CASE purchase_plan_detail.purchase_plan_detail_status
+						WHEN 'PROSES PENGADAAN' THEN 1
+						WHEN 'KONTRAK PENGADAAN' THEN 2
+						WHEN 'MENUNGGU VERIFIKASI' THEN 3
+						WHEN 'SUDAH DIVERIFIKASI' THEN 4
+						WHEN 'DITOLAK VERIFIKATOR' THEN 5
+						WHEN 'INPUT NPD' THEN 6
+						WHEN 'MENUNGGU PEMBAYARAN' THEN 7
+						WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
+						ELSE 99
+					END
+				", "", FALSE); 
+				// $this->db->limit(1);
 				$this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
         		MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
 				$p_plan = $this->db->get('purchase_plan');
+
+				// $this->db->where('purchase_plan.status', 1);
+				// $this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
+				// $this->db->where('purchase_plan_detail.status', 1);
+				// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+				// $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
+				// $this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
+				// $this->db->where('budget_realization_detail.idsub_kategori = "'.$ds_value->idsub_kategori.'" ');
+				// $this->db->where('contract_detail.status', 1);
+				// $this->db->where('contract.status', 1);
+				// $this->db->where('budget_realization.status', 1);
+				// $this->db->where('budget_realization_detail.status', 1);
+				// $this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+				// $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+				// $this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+				// $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+				// $this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+				// $this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+
+				// $this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
+        		// MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
+				// $p_plan = $this->db->get('purchase_plan');
 				// echo "<pre>"; print_r($this->db->last_query());
 
 				// $this->db->where('transaction.status', 1);
@@ -739,27 +893,155 @@ class Report_evaluasi_anggaran extends CI_Controller {
 					$filter_bulan = $tahun_anggaran.'-'.$mulai_bulan;
 
 					$this->db->where('purchase_plan.status', 1);
-					$this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
-					$this->db->where('purchase_plan_detail.status', 1);
-					$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
-					$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
-					$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
-					$this->db->where('budget_realization_detail.idsub_kategori = "'.$ds_value->idsub_kategori.'" ');
-					$this->db->where('contract_detail.status', 1);
 					$this->db->where('contract.status', 1);
-					$this->db->where('budget_realization.status', 1);
-					$this->db->where('budget_realization_detail.status', 1);
-					$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+					$this->db->where('contract_detail.status', 1);
+					$this->db->where('contract.contract_status != "DRAFT" ');					
+					// $this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+					$this->db->group_start()
+						// SUDAH DIBAYAR BENDAHARA
+						->or_group_start()
+							->where('contract.contract_status', 'SUDAH DIBAYAR BENDAHARA')
+							->where('DATE_FORMAT(npd.confirm_payment_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
 
-					$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+						// MENUNGGU PEMBAYARAN
+						->or_group_start()
+							->where('contract.contract_status', 'MENUNGGU PEMBAYARAN')
+							->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// INPUT NPD
+						->or_group_start()
+							->where('contract.contract_status', 'INPUT NPD')
+							->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// DITOLAK VERIFIKATOR
+						->or_group_start()
+							->where('contract.contract_status', 'DITOLAK VERIFIKATOR')
+							->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// SUDAH DIVERIFIKASI
+						->or_group_start()
+							->where('contract.contract_status', 'SUDAH DIVERIFIKASI')
+							->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// MENUNGGU VERIFIKASI
+						->or_group_start()
+							->where('contract.contract_status', 'MENUNGGU VERIFIKASI')
+							->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+						// KONTRAK PENGADAAN
+						->or_group_start()
+							->where('contract.contract_status', 'KONTRAK PENGADAAN')
+							->where('DATE_FORMAT(contract.contract_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+						->group_end()
+
+					->group_end();
+					$this->db->where('purchase_plan_detail.status', 1);
+					$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$dss_value->idpaket_belanja_detail_sub.'" ');
+					$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
+					$this->db->where('budget_realization_detail.idsub_kategori = "'.$dss_value->idsub_kategori.'" ');
+					$this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+					$this->db->where('budget_realization_detail.status', 1);
+					$this->db->where('budget_realization.status', 1);
+
+					$this->db->group_start()
+
+						->group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'PROSES PENGADAAN')
+							->where('purchase_plan.purchase_plan_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'KONTRAK PENGADAAN')
+							->where('contract.contract_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'MENUNGGU VERIFIKASI')
+							->where('budget_realization.realization_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'SUDAH DIVERIFIKASI')
+							->where('budget_realization.realization_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'DITOLAK VERIFIKATOR')
+							->where('budget_realization.realization_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'INPUT NPD')
+							->where('budget_realization.realization_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'MENUNGGU PEMBAYARAN')
+							->where('budget_realization.realization_status !=', 'DRAFT')
+						->group_end()
+
+						->or_group_start()
+							->where('purchase_plan_detail.purchase_plan_detail_status', 'SUDAH DIBAYAR BENDAHARA')
+							->where('budget_realization.realization_status !=', 'DRAFT')
+						->group_end()
+
+					->group_end();
+					
+					$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 					$this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
 					$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
 					$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
 					$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
-
+					$this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+					$this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+					$this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
+					
+					$this->db->order_by("
+						CASE purchase_plan_detail.purchase_plan_detail_status
+							WHEN 'PROSES PENGADAAN' THEN 1
+							WHEN 'KONTRAK PENGADAAN' THEN 2
+							WHEN 'MENUNGGU VERIFIKASI' THEN 3
+							WHEN 'SUDAH DIVERIFIKASI' THEN 4
+							WHEN 'DITOLAK VERIFIKATOR' THEN 5
+							WHEN 'INPUT NPD' THEN 6
+							WHEN 'MENUNGGU PEMBAYARAN' THEN 7
+							WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
+							ELSE 99
+						END
+					", "", FALSE); 
+					// $this->db->limit(1);
 					$this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
 					MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
 					$p_plan = $this->db->get('purchase_plan');
+
+					// $this->db->where('purchase_plan.status', 1);
+					// $this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
+					// $this->db->where('purchase_plan_detail.status', 1);
+					// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+					// $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $ds_value->idpaket_belanja_detail_sub);
+					// $this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'"');
+					// $this->db->where('budget_realization_detail.idsub_kategori = "'.$ds_value->idsub_kategori.'" ');
+					// $this->db->where('contract_detail.status', 1);
+					// $this->db->where('contract.status', 1);
+					// $this->db->where('budget_realization.status', 1);
+					// $this->db->where('budget_realization_detail.status', 1);
+					// $this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+					// $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+					// $this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+					// $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+					// $this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+					// $this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+
+					// $this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
+					// MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
+					// $p_plan = $this->db->get('purchase_plan');
 					// echo "<pre>"; print_r($this->db->last_query());
 					
 					// $this->db->where('transaction.status', 1);
@@ -855,29 +1137,165 @@ class Report_evaluasi_anggaran extends CI_Controller {
 
 
 		$this->db->where('purchase_plan.status', 1);
-		$this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('purchase_plan_detail.status', 1);
-		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
-		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >= "'.Date('Y-m', strtotime($awal_tahun)).'"');
-		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <= "'.Date('Y-m', strtotime($filter_bulan)).'"');
-		$this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
-		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
-
-		$this->db->where('contract_detail.status', 1);
 		$this->db->where('contract.status', 1);
-		$this->db->where('budget_realization.status', 1);
-		$this->db->where('budget_realization_detail.status', 1);
-		$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+		$this->db->where('contract_detail.status', 1);
+		$this->db->where('contract.contract_status != "DRAFT" ');					
+		// $this->db->where('DATE_FORMAT(contract.contract_date, "%Y-%m") = "'.Date('Y-m', strtotime($filter_bulan)).'" ');
+		$this->db->group_start()
+			// SUDAH DIBAYAR BENDAHARA
+			->or_group_start()
+				->where('contract.contract_status', 'SUDAH DIBAYAR BENDAHARA')
+				->where('DATE_FORMAT(npd.confirm_payment_date, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(npd.confirm_payment_date, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
 
-		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+			// MENUNGGU PEMBAYARAN
+			->or_group_start()
+				->where('contract.contract_status', 'MENUNGGU PEMBAYARAN')
+				->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
+
+			// INPUT NPD
+			->or_group_start()
+				->where('contract.contract_status', 'INPUT NPD')
+				->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(npd.npd_date_created, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
+
+			// DITOLAK VERIFIKATOR
+			->or_group_start()
+				->where('contract.contract_status', 'DITOLAK VERIFIKATOR')
+				->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
+
+			// SUDAH DIVERIFIKASI
+			->or_group_start()
+				->where('contract.contract_status', 'SUDAH DIVERIFIKASI')
+				->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(verification.confirm_verification_date, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
+
+			// MENUNGGU VERIFIKASI
+			->or_group_start()
+				->where('contract.contract_status', 'MENUNGGU VERIFIKASI')
+				->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
+
+			// KONTRAK PENGADAAN
+			->or_group_start()
+				->where('contract.contract_status', 'KONTRAK PENGADAAN')
+				->where('DATE_FORMAT(contract.contract_date, "%Y-%m") >=', Date('Y-m', strtotime($awal_tahun)))
+				->where('DATE_FORMAT(contract.contract_date, "%Y-%m") <=', Date('Y-m', strtotime($filter_bulan)))
+			->group_end()
+
+		->group_end();
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" ');
+		$this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
+		$this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+		$this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$this->db->where('budget_realization_detail.status', 1);
+		$this->db->where('budget_realization.status', 1);
+
+		$this->db->group_start()
+
+			->group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'PROSES PENGADAAN')
+				->where('purchase_plan.purchase_plan_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'KONTRAK PENGADAAN')
+				->where('contract.contract_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'MENUNGGU VERIFIKASI')
+				->where('budget_realization.realization_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'SUDAH DIVERIFIKASI')
+				->where('budget_realization.realization_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'DITOLAK VERIFIKATOR')
+				->where('budget_realization.realization_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'INPUT NPD')
+				->where('budget_realization.realization_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'MENUNGGU PEMBAYARAN')
+				->where('budget_realization.realization_status !=', 'DRAFT')
+			->group_end()
+
+			->or_group_start()
+				->where('purchase_plan_detail.purchase_plan_detail_status', 'SUDAH DIBAYAR BENDAHARA')
+				->where('budget_realization.realization_status !=', 'DRAFT')
+			->group_end()
+
+		->group_end();
+		
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
 		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
 		$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
 		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
-
+		$this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+		$this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+		$this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
+		
+		$this->db->order_by("
+			CASE purchase_plan_detail.purchase_plan_detail_status
+				WHEN 'PROSES PENGADAAN' THEN 1
+				WHEN 'KONTRAK PENGADAAN' THEN 2
+				WHEN 'MENUNGGU VERIFIKASI' THEN 3
+				WHEN 'SUDAH DIVERIFIKASI' THEN 4
+				WHEN 'DITOLAK VERIFIKATOR' THEN 5
+				WHEN 'INPUT NPD' THEN 6
+				WHEN 'MENUNGGU PEMBAYARAN' THEN 7
+				WHEN 'SUDAH DIBAYAR BENDAHARA' THEN 8
+				ELSE 99
+			END
+		", "", FALSE); 
+		// $this->db->limit(1);
 		$this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
 		MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
 		$p_plan_d = $this->db->get('purchase_plan');
+
+
+		// $this->db->where('purchase_plan.status', 1);
+		// $this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
+		// $this->db->where('purchase_plan_detail.status', 1);
+		// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		// $this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") >= "'.Date('Y-m', strtotime($awal_tahun)).'"');
+		// $this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y-%m") <= "'.Date('Y-m', strtotime($filter_bulan)).'"');
+		// $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+		// $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+
+		// $this->db->where('contract_detail.status', 1);
+		// $this->db->where('contract.status', 1);
+		// $this->db->where('budget_realization.status', 1);
+		// $this->db->where('budget_realization_detail.status', 1);
+		// $this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+		// $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+		// $this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+		// $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+		// $this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+		// $this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+
+		// $this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
+		// MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
+		// $p_plan_d = $this->db->get('purchase_plan');
 		// echo "<pre>"; print_r($this->db->last_query());
 
 		// $this->db->where('transaction.status', 1);

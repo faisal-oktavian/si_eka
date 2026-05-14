@@ -46,12 +46,12 @@
                 </div> -->
         <?php
             // }
-            if (aznav('role_report_evaluasi_anggaran')) {
+            if (aznav('role_report_detail_evaluasi_anggaran')) {
         ?>
                 <div class="col-md-6 report">
-                    <h4>Laporan Evaluasi Anggaran</h4>
+                    <h4>Laporan Detail Evaluasi Anggaran</h4>
                     <p>Menampilkan data uraian yang telah di realisasi yang dikelompokkan per triwulan dan per uraian.</p>
-                    <a href="<?php echo app_url().'report_evaluasi_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                    <a href="<?php echo app_url().'report_detail_evaluasi_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
                 </div>
         <?php
             }

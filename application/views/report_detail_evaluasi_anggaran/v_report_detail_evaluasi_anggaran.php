@@ -31,7 +31,7 @@
 </style>
 
 <!-- filter -->
-<?php require_once 'vf_report_evaluasi_anggaran.php';?>
+<?php require_once 'vf_report_detail_evaluasi_anggaran.php';?>
 
 
 <!-- data -->
@@ -149,10 +149,22 @@
                                                                     <td align="center"><?php echo $ds_value['nama_satuan']; ?></td>
                                                                     <td align="right">Rp. <?php echo az_thousand_separator($ds_value['harga_satuan']); ?></td>
                                                                     <td align="right">Rp. <?php echo az_thousand_separator($ds_value['jumlah']); ?></td>
-                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw1']); ?></td>
-                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw2']); ?></td>
-                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw3']); ?></td>
-                                                                    <td align="right">Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw4']); ?></td>
+                                                                    <td align="right">
+                                                                        Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw1']); ?> <br>
+                                                                        ( <?php echo az_thousand_separator($ds_value['persen_realisasi_sampai_tw1']); ?>% )
+                                                                    </td>
+                                                                    <td align="right">
+                                                                        Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw2']); ?> <br>
+                                                                        ( <?php echo az_thousand_separator($ds_value['persen_realisasi_sampai_tw2']); ?>% )
+                                                                    </td>
+                                                                    <td align="right">
+                                                                        Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw3']); ?> <br>
+                                                                        ( <?php echo az_thousand_separator($ds_value['persen_realisasi_sampai_tw3']); ?>% )
+                                                                    </td>
+                                                                    <td align="right">
+                                                                        Rp. <?php echo az_thousand_separator($ds_value['realisasi_sampai_tw4']); ?> <br>
+                                                                        ( <?php echo az_thousand_separator($ds_value['persen_realisasi_sampai_tw4']); ?>% )
+                                                                    </td>
                                                                 </tr>
                                                         <?php
                                                             }
@@ -180,10 +192,22 @@
                                                                         <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                                                                         <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                                                                         <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
-                                                                        <td align="right">Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw1']);?></td>
-                                                                        <td align="right">Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw2']);?></td>
-                                                                        <td align="right">Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw3']);?></td>
-                                                                        <td align="right">Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw4']);?></td>
+                                                                        <td align="right">
+                                                                            Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw1']);?> <br>
+                                                                            ( <?php echo az_thousand_separator($ss_value['persen_realisasi_sampai_tw1']);?>% )
+                                                                        </td>
+                                                                        <td align="right">
+                                                                            Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw2']);?> <br>
+                                                                            ( <?php echo az_thousand_separator($ss_value['persen_realisasi_sampai_tw2']);?>% )
+                                                                        </td>
+                                                                        <td align="right">
+                                                                            Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw3']);?> <br>
+                                                                            ( <?php echo az_thousand_separator($ss_value['persen_realisasi_sampai_tw3']);?>% )
+                                                                        </td>
+                                                                        <td align="right">
+                                                                            Rp. <?php echo az_thousand_separator($ss_value['realisasi_sampai_tw4']);?> <br>
+                                                                            ( <?php echo az_thousand_separator($ss_value['persen_realisasi_sampai_tw4']);?>% )
+                                                                        </td>
                                                                     </tr>
                                                             <?php
                                                                 }

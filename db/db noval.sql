@@ -2353,3 +2353,6 @@ ALTER TABLE `npd_panjer_detail`
 
 ALTER TABLE `budget_realization`
 	ADD COLUMN `notes` TEXT NULL DEFAULT NULL COMMENT 'untuk inputan catatan (catatan tambahan, adendum, dll.)' AFTER `realization_description`;
+
+ALTER TABLE `paket_belanja`
+	ADD INDEX `status_paket_belanja` (`status_paket_belanja`);

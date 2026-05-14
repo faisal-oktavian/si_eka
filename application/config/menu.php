@@ -230,8 +230,8 @@
                 //     'role_title' => 'Laporan Sisa Realisasi Anggaran',
                 // ),
                 array(
-                    'role_name' => 'role_report_evaluasi_anggaran',
-                    'role_title' => 'Laporan Evaluasi Anggaran',
+                    'role_name' => 'role_report_detail_evaluasi_anggaran',
+                    'role_title' => 'Laporan Detail Evaluasi Anggaran',
                 ),
             ),
         ),
