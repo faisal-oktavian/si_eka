@@ -43,10 +43,10 @@
     <table id="selectedColumn" class="table table-hover table-bordered table-sm table-condensed" cellspacing="0" width="100%" data-ordering="false">
       <thead>
         <tr>
-          <th class="th-sm rak" colspan="10">RENCANA ANGGARAN KAS <br> SATUAN KERJA PERANGKAT DAERAH</th>
+          <th class="th-sm rak" colspan="11">RENCANA ANGGARAN KAS <br> SATUAN KERJA PERANGKAT DAERAH</th>
         </tr>
         <tr>
-          <th class="th-sm provinsi" colspan="10">PROVINSI JAWA TIMUR <br> TAHUN ANGGARAN <?php echo $tahun_anggaran; ?></th>
+          <th class="th-sm provinsi" colspan="11">PROVINSI JAWA TIMUR <br> TAHUN ANGGARAN <?php echo $tahun_anggaran; ?></th>
         </tr>
       </thead>
       <tbody>
@@ -61,52 +61,52 @@
                         <tr>
                           <td width="130px;">Urusan</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo $value['nama_urusan']; ?></td>
+                          <td colspan="9"><?php echo $value['nama_urusan']; ?></td>
                         </tr>
                         <tr>
                           <td>Bidang Urusan</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo $bu_value['nama_bidang_urusan']; ?></td>
+                          <td colspan="9"><?php echo $bu_value['nama_bidang_urusan']; ?></td>
                         </tr>
                         <tr>
                           <td>Program</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo $p_value['nama_program']; ?></td>
+                          <td colspan="9"><?php echo $p_value['nama_program']; ?></td>
                         </tr>
                         <tr>
                           <td>Kegiatan</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo $k_value['nama_kegiatan']; ?></td>
+                          <td colspan="9"><?php echo $k_value['nama_kegiatan']; ?></td>
                         </tr>
                         <tr>
                           <td>Sub Kegiatan</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo $sk_value['nama_sub_kegiatan']; ?></td>
+                          <td colspan="9"><?php echo $sk_value['nama_sub_kegiatan']; ?></td>
                         </tr>
                         <tr>
                           <td>Paket Belanja</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo $pb_value['nama_paket_belanja']; ?></td>
+                          <td colspan="9"><?php echo $pb_value['nama_paket_belanja']; ?></td>
                         </tr>
                         <tr>
                           <td>Jumlah</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8">Rp. <?php echo az_thousand_separator_decimal($pb_value['nilai_anggaran']); ?></td>
+                          <td colspan="9">Rp. <?php echo az_thousand_separator_decimal($pb_value['nilai_anggaran']); ?></td>
                         </tr>
                         <tr>
                           <td>Potensi Sisa</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8">Rp. <?php echo $pb_value['potensi_sisa']; ?></td> <!-- tidak perlu diformat nominal, karena sudah di format di controller -->
+                          <td colspan="9">Rp. <?php echo $pb_value['potensi_sisa']; ?></td> <!-- tidak perlu diformat nominal, karena sudah di format di controller -->
                         </tr>
                         <tr>
                           <td>Persentase Target</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo az_thousand_separator_decimal($pb_value['total_persentase_target']); ?> %</td>
+                          <td colspan="9"><?php echo az_thousand_separator_decimal($pb_value['total_persentase_target']); ?> %</td>
                         </tr>
                         <tr>
                           <td>Persentase Realisasi</td>
                           <td class="titik-dua">:</td>
-                          <td colspan="8"><?php echo az_thousand_separator_decimal($pb_value['total_persentase_realisasi']); ?> %</td>
+                          <td colspan="9"><?php echo az_thousand_separator_decimal($pb_value['total_persentase_realisasi']); ?> %</td>
                         </tr>
 
                         <!-- Detail -->
@@ -115,15 +115,17 @@
                           <td style="text-align:center; vertical-align: middle; font-weight:bold; width:auto;" rowspan="2">Uraian</td>
                           <td style="text-align:center; font-weight:bold; width:auto;" colspan="3">Rincian Perhitungan</td>
                           <td style="text-align:center; vertical-align: middle; font-weight:bold; width:130px;" rowspan="2">Jumlah</td>
-                          <td style="text-align:center; vertical-align: middle; font-weight:bold; width:130px;" rowspan="2">Sisa Anggaran (Rp)</td>
-                          <td style="text-align:center; vertical-align: middle; font-weight:bold; width:130px;" rowspan="2">Sisa Anggaran (%)</td>
+                          <td style="text-align:center; vertical-align: middle; font-weight:bold; width:130px;" colspan="3">Sisa</td>
                           <td style="font-weight:bold; text-align:center; width:125px;" rowspan="2"></td>
                         </tr>
                         <tr>
-                          <td style="font-weight:bold; text-align:center; width:50px;">Volume</td>
+                          <td style="font-weight:bold; text-align:center; width:60px;">Volume</td>
                           <td style="font-weight:bold; text-align:center; width:60px;">Satuan</td>
                           <td style="font-weight:bold; text-align:center; width:100px;">Harga Satuan</td>
                           <!-- <td></td> -->
+                          <td style="font-weight:bold; text-align:center; width:60px;">Volume</td>
+                          <td style="font-weight:bold; text-align:center; width:130px;">Anggaran (Rp)</td>
+                          <td style="font-weight:bold; text-align:center; width:100px;">Anggaran (%)</td>
                         </tr>
 
                         <?php
@@ -131,13 +133,15 @@
                         ?>
                             <tr>
                               <td style="font-weight:bold;" colspan="2"><?php echo $ab_value['no_rekening_akunbelanja']; ?></td>
-                              <td style="font-weight:bold;" colspan="4"><?php echo $ab_value['nama_akun_belanja']; ?></td>
+                              <td style="font-weight:bold;"><?php echo $ab_value['nama_akun_belanja']; ?></td>
+                              <td colspan="3"></td>
                               <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_jumlah']); ?></td>
+                              <td></td>
                               <td style="font-weight:bold; text-align:right;">
                                   Rp. <?php echo az_thousand_separator($ab_value['total_sisa_anggaran']); ?>
                                 <div style="color:red" class="dev">total realisasi : <?php echo az_thousand_separator($ab_value['total_realisasi']); ?></div>
                               </td>
-                              <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator_decimal($ab_value['total_persentase']); ?>%</td>
+                              <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator_decimal($ab_value['total_persentase_sisa']); ?>%</td>
                               <td style="text-align: center;">
                                 <!-- <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>"><span class="glyphicon glyphicon-eye-open"></span> Lihat</button> -->
                                 <button class="btn btn-default btn-xs btn-view" data_idpaket_belanja_detail="<?php echo $ab_value['idpaket_belanja_detail']; ?>" data_tw="1"><span class="glyphicon glyphicon-eye-open"></span> TW1</button>
@@ -168,6 +172,7 @@
                                       <?php echo az_thousand_separator($ds_value['jumlah']); ?>
                                       <div style="color: red;" class="dev"><?php echo az_thousand_separator($ds_value['nominal_realisasi']); ?></div>
                                     </td>
+                                    <td align="center"><?php echo az_thousand_separator($ds_value['sisa_volume']); ?></td>
                                     <td></td>
                                     <td></td>
                                     <td align="center">
@@ -182,7 +187,15 @@
                                       <td colspan="2" style="font-weight:bold;">
                                         <?php // echo $ds_value['no_rekening_akunbelanja'].'.'.$ds_value['no_rekening_kategori'];?>
                                       </td>
-                                      <td style="font-weight:bold; padding-left: 30px;" colspan="8"><?php echo $ds_value['nama_kategori'];?></td>
+                                      <td style="font-weight:bold; padding-left: 30px;"><?php echo $ds_value['nama_kategori'];?></td>
+                                      <td colspan="8"></td>
+                                      <!-- <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td> -->
                                   </tr>
                             <?php
                                   foreach ($ds_value['arr_pd_detail_sub_sub'] as $ss_key => $ss_value) {
@@ -200,21 +213,25 @@
                                           <td align="center"><?php echo $ss_value['nama_satuan'];?></td>
                                           <td align="right">Rp. <?php echo az_thousand_separator($ss_value['harga_satuan']);?></td>
                                           <td align="right">Rp. <?php echo az_thousand_separator($ss_value['jumlah']);?></td>
-                                          <td></td>
-                                          <td></td>
+                                          <td align="center"><?php echo az_thousand_separator($ss_value['sisa_volume']); ?></td>
+                                          <td colspan="3"></td>
+                                          <!-- <td></td>
                                           <td style="text-align: center;">
-                                            <!-- <button class="btn btn-default btn-xs btn-view" data_id="488972" data_type="KAS MASUK" data_idtransaction="5245"><span class="glyphicon glyphicon-pencil"></span> Lihat</button> -->
-                                          </td>
+                                          </td> -->
                                       </tr>
                             <?php
                                   }
                                 }
                               }
+                            ?>
+
+                            <tr><td colspan="11" style="padding-top: 5px;"></td></tr>
+                        <?php
                           }
                         ?>
 
                         <!-- separator -->
-                        <tr><td colspan="10" style="padding-top: 10px;"></td></tr>
+                        <tr><td colspan="11" style="padding-top: 10px; background-color:#ddd"></td></tr>
 
                       <?php
                       }

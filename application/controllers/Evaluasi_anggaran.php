@@ -195,7 +195,7 @@ class Evaluasi_anggaran extends CI_Controller {
 									$arr_detail_sub = array();
 									$total_jumlah = 0;
 									$total_realisasi = 0;
-									$total_persentase = 0;
+									$total_persentase_sisa = 0;
 									foreach ($paket_belanja_detail->result() as $pbds_key => $ds_value) {
 										$total_jumlah += $ds_value->jumlah; // total anggaran per kegiatan
 										$total_data++;
@@ -247,6 +247,16 @@ class Evaluasi_anggaran extends CI_Controller {
 												}
 											}
 
+											$the_filter = array(
+												'idsub_kategori' => $dss_value->idsub_kategori,
+												'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
+												'idpaket_belanja' => $idpaket_belanja,
+												'filter_tahun' => $tahun_anggaran,
+											);
+
+											$sisa = $this->query_get_total_realisasi($the_filter);
+                                            $sisa_volume = $dss_value->volume - $sisa;
+
 											$arr_pd_detail_sub_sub[] = array(
 												'idpaket_belanja_detail_sub' => $dss_value->idpaket_belanja_detail_sub,
 												'idpaket_belanja_detail' => $dss_value->idpaket_belanja_detail,
@@ -260,6 +270,7 @@ class Evaluasi_anggaran extends CI_Controller {
 												'nama_satuan' => $dss_value->nama_satuan,
 												'harga_satuan' => $dss_value->harga_satuan,
 												'jumlah' => $dss_value->jumlah,
+												'sisa_volume' => $sisa_volume,
 											);
 										}
 
@@ -321,6 +332,16 @@ class Evaluasi_anggaran extends CI_Controller {
 
 										$total_realisasi += $nominal_realisasi;
 
+										$the_filter = array(
+											'idsub_kategori' => $ds_value->idsub_kategori,
+											'idpaket_belanja_detail_sub' => $ds_value->idpaket_belanja_detail_sub,
+											'idpaket_belanja' => $idpaket_belanja,
+											'filter_tahun' => $tahun_anggaran,
+										);
+
+										$sisa = $this->query_get_total_realisasi($the_filter);
+										$sisa_volume = $ds_value->volume - $sisa;
+
 										$arr_detail_sub[] = array(
 											'idpaket_belanja_detail_sub' => $ds_value->idpaket_belanja_detail_sub,
 											'idpaket_belanja_detail' => $ds_value->idpaket_belanja_detail,
@@ -337,6 +358,7 @@ class Evaluasi_anggaran extends CI_Controller {
 											'nama_satuan' => $ds_value->nama_satuan,
 											'harga_satuan' => $ds_value->harga_satuan,
 											'jumlah' => $ds_value->jumlah,
+											'sisa_volume' => $sisa_volume,
 											'nominal_realisasi' => $nominal_realisasi,
 											'persentase_realisasi' => $persentase_realisasi,
 											'arr_pd_detail_sub_sub' => $arr_pd_detail_sub_sub,
@@ -353,7 +375,7 @@ class Evaluasi_anggaran extends CI_Controller {
 									}
 
 									// if ( (strlen($total_realisasi) > 0 && $total_realisasi != 0) && (strlen($total_jumlah) > 0 && $total_jumlah != 0) ) {
-										$total_persentase = ($total_sisa_anggaran / $_total_jumlah) * 100;
+										$total_persentase_sisa = ($total_sisa_anggaran / $_total_jumlah) * 100;
 									// }
 
 									$arr_akun_belanja[] = array(
@@ -363,7 +385,7 @@ class Evaluasi_anggaran extends CI_Controller {
 										'nama_akun_belanja' => $nama_akun_belanja,
 										'total_jumlah' => $total_jumlah,
 										'total_sisa_anggaran' => $total_sisa_anggaran,
-										'total_persentase' => $total_persentase,
+										'total_persentase_sisa' => $total_persentase_sisa,
 										'total_realisasi' => $total_realisasi,
 										'arr_detail_sub' => $arr_detail_sub,
 									);
@@ -1956,7 +1978,7 @@ class Evaluasi_anggaran extends CI_Controller {
 								// KONTRAK PENGADAAN
 								->or_group_start()
 									->where('contract.contract_status', 'KONTRAK PENGADAAN')
-									->where('DATE_FORMAT(purchase_contract.contract_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
+									->where('DATE_FORMAT(contract.contract_date, "%Y-%m") =', Date('Y-m', strtotime($filter_bulan)))
 								->group_end()
 
 							->group_end();
@@ -2228,5 +2250,55 @@ class Evaluasi_anggaran extends CI_Controller {
 			'data' => $view
 		);
 		echo json_encode($arr);
+	}
+
+	function query_get_total_realisasi($the_data) {
+        $total_realisasi = 0;
+
+		$idsub_kategori = azarr($the_data, 'idsub_kategori');
+		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub');
+		$idpaket_belanja = azarr($the_data, 'idpaket_belanja');
+		$filter_tahun = azarr($the_data, 'filter_tahun');
+		
+
+		$this->db->where('purchase_plan.status', 1);
+		$this->db->where('purchase_plan.purchase_plan_status = "SUDAH DIBAYAR BENDAHARA" ');
+		$this->db->where('purchase_plan_detail.status', 1);
+		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y") = "'.$filter_tahun.'"');
+		$this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+		$this->db->where('contract_detail.status', 1);
+		$this->db->where('contract.status', 1);
+		$this->db->where('budget_realization.status', 1);
+		$this->db->where('budget_realization_detail.status', 1);
+		$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+		$this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+		$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+
+		$this->db->select('DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
+		MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as total_realisasi, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(ppn) as ppn, sum(pph) as pph, sum(budget_realization_detail.total_realization_detail) as total');
+		$p_plan = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());
+
+
+		// $this->db->where('transaction_detail.iduraian', $iduraian);
+		// $this->db->where('transaction_detail.idpaket_belanja', $idpaket_belanja);
+		// $this->db->where('transaction_detail.status', 1);
+		// $this->db->where('transaction.status', 1);
+		// $this->db->where('transaction.transaction_status != "DRAFT" ');
+		// $this->db->join('transaction_detail', 'transaction_detail.idtransaction = transaction.idtransaction');
+        // $this->db->select('sum(volume) as total_realisasi');
+		// $transaction = $this->db->get('transaction');
+
+        if ($p_plan->num_rows() > 0) {
+            $total_realisasi = $p_plan->row()->total_realisasi;
+        }
+
+		return $total_realisasi;
 	}
 }

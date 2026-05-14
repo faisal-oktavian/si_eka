@@ -37,15 +37,15 @@
                 </div>
         <?php
             }
-            if (aznav('role_report_sisa_realisasi_anggaran')) {
+            // if (aznav('role_report_sisa_realisasi_anggaran')) {
         ?>
-                <div class="col-md-6 report">
+                <!-- <div class="col-md-6 report">
                     <h4>Laporan Sisa Anggaran</h4>
                     <p>Menampilkan semua uraian yang masih mempunyai sisa anggaran pada masing-masing paket belanja.</p>
-                    <a href="<?php echo app_url().'report_sisa_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
-                </div>
+                    <a href="<?php // echo app_url().'report_sisa_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                </div> -->
         <?php
-            }
+            // }
             if (aznav('role_report_evaluasi_anggaran')) {
         ?>
                 <div class="col-md-6 report">

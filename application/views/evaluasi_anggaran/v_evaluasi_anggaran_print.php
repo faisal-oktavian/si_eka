@@ -146,7 +146,7 @@
                               <td style="font-weight:bold;" colspan="4"><?php echo $ab_value['nama_akun_belanja']; ?></td>
                               <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_jumlah']); ?></td>
                               <td style="font-weight:bold; text-align:right;">Rp. <?php echo az_thousand_separator($ab_value['total_sisa_anggaran']); ?></td>
-                              <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator($ab_value['total_persentase']); ?>%</td>
+                              <td style="font-weight:bold; text-align:right;"><?php echo az_thousand_separator($ab_value['total_persentase_sisa']); ?>%</td>
                             </tr>
 
 
