@@ -48,7 +48,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 
 		$crud->add_aodata('date1', 'date1');
 		$crud->add_aodata('date2', 'date2');
-		$crud->add_aodata('idsub_kategori', 'idsub_kategori');
+		$crud->add_aodata('idpaket_belanja_detail_sub', 'idpaket_belanja_detail_sub');
 
 		$filter = $this->load->view('report_realisasi_anggaran/vf_report_realisasi_anggaran', $data, true);
 		$crud->set_top_filter($filter);
@@ -72,7 +72,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$idsub_kategori = $this->input->get('idsub_kategori');
+		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
 
 
 		$crud->set_select('npd.idnpd, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, budget_realization_detail.provider, ruang.nama_ruang, sub_kategori.nama_sub_kategori, budget_realization_detail.realization_detail_description, budget_realization_detail.volume, budget_realization_detail.male, budget_realization_detail.female, budget_realization_detail.unit_price, budget_realization_detail.total_realization_detail');
@@ -88,6 +88,10 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$crud->add_join_manual('verification', 'verification.idverification = npd_detail.idverification');
 		$crud->add_join_manual('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
 		$crud->add_join_manual('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$crud->add_join_manual('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$crud->add_join_manual('contract', 'contract.idcontract = contract_detail.idcontract');
+		$crud->add_join_manual('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$crud->add_join_manual('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
         $crud->add_join_manual('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 
@@ -102,8 +106,8 @@ class Report_realisasi_anggaran extends CI_Controller {
             $crud->add_where('date(npd.confirm_payment_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
             $crud->add_where('date(npd.confirm_payment_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
-        if (strlen($idsub_kategori) > 0) {
-			$crud->add_where('budget_realization_detail.idsub_kategori = "' . $idsub_kategori . '"');
+        if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$crud->add_where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
 		}
 
 		$crud->set_custom_style('custom_style');
@@ -150,7 +154,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 	function excel() {
 		$date1 = $this->input->get('date1');
 		$date2 = $this->input->get('date2');
-		$idsub_kategori = $this->input->get('idsub_kategori');
+		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
 
 
 		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
@@ -164,14 +168,18 @@ class Report_realisasi_anggaran extends CI_Controller {
             $this->db->where('date(npd.confirm_payment_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
             $this->db->where('date(npd.confirm_payment_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
-        if (strlen($idsub_kategori) > 0) {
-			$this->db->where('budget_realization_detail.idsub_kategori = "' . $idsub_kategori . '"');
+        if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
 		}
 
 		$this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
 		$this->db->join('verification', 'verification.idverification = npd_detail.idverification');
 		$this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
 		$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
         $this->db->join('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 		
