@@ -375,7 +375,7 @@ class Dashboard_model extends CI_Model {
             $this->db->select('sumber_dana.nama_sumber_dana, SUM(COALESCE(pbds_child.jumlah, pbds_parent.jumlah)) AS total_target');
             $pb = $this->db->get('paket_belanja pb');
 
-            if ($sumber_dana == "DBH Cukai Hasil Tembakau (CHT)") {
+            if ($sumber_dana == "DAU Bidang Kesehatan") {
                 $dbh = $total_sumber_dana;
                 if ($pb->num_rows() > 0) {
                     $target_dbh = $pb->row()->total_target;

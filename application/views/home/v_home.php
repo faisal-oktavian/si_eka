@@ -484,7 +484,7 @@
 							<div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
 								<span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
 								<div>
-									<div style="font-weight:700;color:#263238;">DBH Cukai Hasil Tembakau (CHT)</div>
+									<div style="font-weight:700;color:#263238;">DAU Bidang Kesehatan</div>
 									<div id="label-realisasi-dbh" style="font-size:17px;color:#263238;"></div>
 								</div>
 							</div>
@@ -610,11 +610,11 @@
 			var pieRealisasiSumberDanaChart = new Chart(ctxRealisasiSumberDana, {
 				type: 'doughnut',
 				data: {
-					labels: ['DBH Cukai Hasil Tembakau (CHT)', 'Pendapatan dari BLUD'],
+					labels: ['DAU Bidang Kesehatan', 'Pendapatan dari BLUD'],
 					datasets: [{
 						data: [realisasi_dbh, realisasi_blud],
 						backgroundColor: [
-							'#2196f3', // DBH CHT
+							'#2196f3', // DAU Bidang Kesehatan
 							'#c500ff'  // BLUD
 						],
 						borderWidth: 2,
@@ -681,7 +681,7 @@
 						data: [sisa_anggaran, sisa_dbh, sisa_blud],
 						backgroundColor: [
 							'#ff9800', // DAU Sisa Anggaran
-							'#2196f3', // DBH DBH Cukai Hasil Tembakau (CHT)
+							'#2196f3', // DAU Bidang Kesehatan
 							'#c500ff'  // DAK Pendapatan dari BLUD
 						],
 						borderWidth: 2,
