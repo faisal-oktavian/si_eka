@@ -306,49 +306,26 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $total_realisasi   = 0;
         $total_persentase  = 0;
 
-        $detail_ids = array_map(function ($detail) {
-            return $detail->idpaket_belanja_detail_sub;
-        }, $details);
-
-        $child_sub_rows = $this->query_paket_belanja_detail_sub_by_detail_ids($detail_ids)->result();
-        $child_sub_by_parent = [];
-        $realisasi_ids = [];
-        $idsub_categories = [];
-
-        foreach ($details as $detail) {
-            $realisasi_ids[] = $detail->idpaket_belanja_detail_sub;
-            $idsub_categories[] = $detail->idsub_kategori;
-        }
-
-        foreach ($child_sub_rows as $sub_sub) {
-            $child_sub_by_parent[$sub_sub->is_idpaket_belanja_detail_sub][] = $sub_sub;
-            $realisasi_ids[] = $sub_sub->idpaket_belanja_detail_sub;
-            $idsub_categories[] = $sub_sub->idsub_kategori;
-        }
-
-        $realisasi_map = $this->build_realisasi_map(
-            $paket->idpaket_belanja,
-            array_unique($realisasi_ids),
-            array_unique($idsub_categories),
-            $tahun_anggaran
-        );
-
         foreach ($details as $detail) {
             $total_jumlah += $detail->jumlah;
             $arr_sub_sub = [];
 
-            $child_sub = $child_sub_by_parent[$detail->idpaket_belanja_detail_sub] ?? [];
+            $child_sub = $this->query_paket_belanja_detail_sub(
+                $detail->idpaket_belanja_detail_sub
+            )->result();
 
             foreach ($child_sub as $sub_sub) {
                 $total_jumlah += $sub_sub->jumlah;
 
-                $tw_data = $this->build_tw_data_for_subdetail(
-                    $sub_sub->idpaket_belanja_detail_sub,
-                    $sub_sub->jumlah,
-                    $realisasi_map
-                );
-
-                $total_realisasi += $tw_data['realisasi_sampai_tw4'];
+                $tw_data = $this->generate_tw_realisasi([
+                    'idpaket_belanja'            => $paket->idpaket_belanja,
+                    'idpaket_belanja_detail'     => $akun->idpaket_belanja_detail,
+                    'idpaket_belanja_detail_sub' => $sub_sub->idpaket_belanja_detail_sub,
+                    'idsub_kategori'             => $sub_sub->idsub_kategori,
+                    'tahun_anggaran'             => $tahun_anggaran,
+                    'jumlah'                     => $sub_sub->jumlah,
+                    'is_sub_detail'              => true
+                ]);
 
                 $arr_sub_sub[] = array_merge([
                     'idpaket_belanja_detail_sub' => $sub_sub->idpaket_belanja_detail_sub,
@@ -368,13 +345,15 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             $tw_data = $this->default_tw_data();
 
             if (empty($child_sub)) {
-                $tw_data = $this->build_tw_data_for_subdetail(
-                    $detail->idpaket_belanja_detail_sub,
-                    $detail->jumlah,
-                    $realisasi_map
-                );
-
-                $total_realisasi += $tw_data['realisasi_sampai_tw4'];
+                $tw_data = $this->generate_tw_realisasi([
+                    'idpaket_belanja'            => $paket->idpaket_belanja,
+                    'idpaket_belanja_detail'     => $akun->idpaket_belanja_detail,
+                    'idpaket_belanja_detail_sub' => $detail->idpaket_belanja_detail_sub,
+                    'idsub_kategori'             => $detail->idsub_kategori,
+                    'tahun_anggaran'             => $tahun_anggaran,
+                    'jumlah'                     => $detail->jumlah,
+                    'is_sub_detail'              => false
+                ]);
             }
 
             $result_detail[] = array_merge([
@@ -537,20 +516,61 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
 
     private function apply_status_validation_filter()
     {
-        $statuses = [
-            'PROSES PENGADAAN',
-            'KONTRAK PENGADAAN',
-            'MENUNGGU VERIFIKASI',
-            'SUDAH DIVERIFIKASI',
-            'DITOLAK VERIFIKATOR',
-            'INPUT NPD',
-            'MENUNGGU PEMBAYARAN',
-            'SUDAH DIBAYAR BENDAHARA'
+        $mapping = [
+            [
+                'status'       => 'PROSES PENGADAAN',
+                'table_status' => 'purchase_plan.purchase_plan_status'
+            ],
+            [
+                'status'       => 'KONTRAK PENGADAAN',
+                'table_status' => 'contract.contract_status'
+            ],
+            [
+                'status'       => 'MENUNGGU VERIFIKASI',
+                'table_status' => 'budget_realization.realization_status'
+            ],
+            [
+                'status'       => 'SUDAH DIVERIFIKASI',
+                'table_status' => 'budget_realization.realization_status'
+            ],
+            [
+                'status'       => 'DITOLAK VERIFIKATOR',
+                'table_status' => 'budget_realization.realization_status'
+            ],
+            [
+                'status'       => 'INPUT NPD',
+                'table_status' => 'budget_realization.realization_status'
+            ],
+            [
+                'status'       => 'MENUNGGU PEMBAYARAN',
+                'table_status' => 'budget_realization.realization_status'
+            ],
+            [
+                'status'       => 'SUDAH DIBAYAR BENDAHARA',
+                'table_status' => 'budget_realization.realization_status'
+            ]
         ];
 
-        $this->db
-            ->where_in('purchase_plan_detail.purchase_plan_detail_status', $statuses)
-            ->where('budget_realization.realization_status !=', 'DRAFT');
+        $this->db->group_start();
+
+        foreach ($mapping as $index => $item) {
+
+            if ($index == 0) {
+                $this->db->group_start();
+            } else {
+                $this->db->or_group_start();
+            }
+
+            $this->db
+                ->where(
+                    'purchase_plan_detail.purchase_plan_detail_status',
+                    $item['status']
+                )
+                ->where($item['table_status'].' !=', 'DRAFT')
+            ->group_end();
+        }
+
+        $this->db->group_end();
     }
 
     /*
@@ -830,202 +850,6 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             '.$query_category);
 
         return $this->db->get('paket_belanja_detail_sub');
-    }
-
-    public function query_paket_belanja_detail_sub_by_detail_ids(array $detail_ids)
-    {
-        if (empty($detail_ids)) {
-            return $this->db->get_where('paket_belanja_detail_sub', ['idpaket_belanja_detail_sub' => 0]);
-        }
-
-        $this->db->where_in(
-            'paket_belanja_detail_sub.is_idpaket_belanja_detail_sub',
-            $detail_ids
-        );
-
-        $this->db->where(
-            'paket_belanja_detail_sub.status',
-            1
-        );
-
-        $this->db->join(
-            'sub_kategori',
-            'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori'
-        );
-
-        $this->db->join(
-            'kode_rekening',
-            'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening',
-            'left'
-        );
-
-        $this->db->join(
-            'satuan',
-            'satuan.idsatuan = paket_belanja_detail_sub.idsatuan'
-        );
-
-        $this->db->select('
-            paket_belanja_detail_sub.idpaket_belanja_detail_sub,
-            paket_belanja_detail_sub.idpaket_belanja_detail,
-            paket_belanja_detail_sub.is_idpaket_belanja_detail_sub,
-            paket_belanja_detail_sub.idkategori,
-            sub_kategori.idsub_kategori,
-            sub_kategori.nama_sub_kategori,
-            kode_rekening.kode_rekening,
-            paket_belanja_detail_sub.is_kategori,
-            paket_belanja_detail_sub.is_subkategori,
-            paket_belanja_detail_sub.volume,
-            satuan.nama_satuan,
-            paket_belanja_detail_sub.harga_satuan,
-            paket_belanja_detail_sub.jumlah
-        ');
-
-        return $this->db->get('paket_belanja_detail_sub');
-    }
-
-    private function build_realisasi_map(
-        $idpaket_belanja,
-        array $subdetail_ids,
-        array $idsub_categories,
-        $tahun_anggaran
-    ) {
-        if (empty($subdetail_ids) || empty($idsub_categories)) {
-            return [];
-        }
-
-        $status_date = "CASE
-            WHEN contract.contract_status = 'SUDAH DIBAYAR BENDAHARA' THEN npd.confirm_payment_date
-            WHEN contract.contract_status IN ('MENUNGGU PEMBAYARAN', 'INPUT NPD') THEN npd.npd_date_created
-            WHEN contract.contract_status IN ('DITOLAK VERIFIKATOR', 'SUDAH DIVERIFIKASI') THEN verification.confirm_verification_date
-            WHEN contract.contract_status = 'MENUNGGU VERIFIKASI' THEN budget_realization.realization_date
-            WHEN contract.contract_status = 'KONTRAK PENGADAAN' THEN contract.contract_date
-            ELSE NULL
-        END";
-
-        $year_start = $tahun_anggaran . '-01-01';
-        $tw1_end = $tahun_anggaran . '-03-31';
-        $tw2_end = $tahun_anggaran . '-06-30';
-        $tw3_end = $tahun_anggaran . '-09-30';
-        $tw4_end = $tahun_anggaran . '-12-31';
-
-        $this->db->select('purchase_plan_detail.idpaket_belanja_detail_sub as id', false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw1_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw1", false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw2_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw2", false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw3_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw3", false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw4_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw4", false);
-
-        $this->db->where('purchase_plan.status', 1);
-        $this->db->where('purchase_plan_detail.status', 1);
-        $this->db->where('contract.status', 1);
-        $this->db->where('contract_detail.status', 1);
-        $this->db->where('budget_realization.status', 1);
-        $this->db->where('budget_realization_detail.status', 1);
-
-        $this->db->where(
-            'purchase_plan_detail.idpaket_belanja',
-            $idpaket_belanja
-        );
-
-        $this->db->where_in(
-            'purchase_plan_detail.idpaket_belanja_detail_sub',
-            $subdetail_ids
-        );
-
-        $this->db->where_in(
-            'budget_realization_detail.idsub_kategori',
-            $idsub_categories
-        );
-
-        $this->db->where(
-            'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail'
-        );
-
-        $this->apply_status_validation_filter();
-
-        $this->db->join(
-            'purchase_plan_detail',
-            'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan'
-        );
-
-        $this->db->join(
-            'contract_detail',
-            'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan',
-            'left'
-        );
-
-        $this->db->join(
-            'contract',
-            'contract.idcontract = contract_detail.idcontract',
-            'left'
-        );
-
-        $this->db->join(
-            'budget_realization_detail',
-            'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail',
-            'left'
-        );
-
-        $this->db->join(
-            'budget_realization',
-            'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization',
-            'left'
-        );
-
-        $this->db->join(
-            'verification',
-            'verification.idbudget_realization = budget_realization.idbudget_realization',
-            'left'
-        );
-
-        $this->db->join(
-            'npd_detail',
-            'npd_detail.idverification = verification.idverification',
-            'left'
-        );
-
-        $this->db->join(
-            'npd',
-            'npd.idnpd = npd_detail.idnpd',
-            'left'
-        );
-
-        $this->db->group_by('purchase_plan_detail.idpaket_belanja_detail_sub');
-
-        $result = $this->db->get('purchase_plan')->result();
-
-        $map = [];
-        foreach ($result as $row) {
-            $map[$row->id] = [
-                'realisasi_sampai_tw1' => (float) $row->tw1,
-                'realisasi_sampai_tw2' => (float) $row->tw2,
-                'realisasi_sampai_tw3' => (float) $row->tw3,
-                'realisasi_sampai_tw4' => (float) $row->tw4,
-            ];
-        }
-
-        return $map;
-    }
-
-    private function build_tw_data_for_subdetail($subdetail_id, $jumlah, array $realisasi_map)
-    {
-        $realisasi = $realisasi_map[$subdetail_id] ?? null;
-
-        if (empty($realisasi)) {
-            return $this->default_tw_data();
-        }
-
-        $jumlah = ($jumlah > 0) ? (float) $jumlah : 0;
-
-        return [
-            'realisasi_sampai_tw1' => $realisasi['realisasi_sampai_tw1'],
-            'realisasi_sampai_tw2' => $realisasi['realisasi_sampai_tw2'],
-            'realisasi_sampai_tw3' => $realisasi['realisasi_sampai_tw3'],
-            'realisasi_sampai_tw4' => $realisasi['realisasi_sampai_tw4'],
-            'persen_realisasi_sampai_tw1' => $jumlah > 0 ? ($realisasi['realisasi_sampai_tw1'] / $jumlah) * 100 : 0,
-            'persen_realisasi_sampai_tw2' => $jumlah > 0 ? ($realisasi['realisasi_sampai_tw2'] / $jumlah) * 100 : 0,
-            'persen_realisasi_sampai_tw3' => $jumlah > 0 ? ($realisasi['realisasi_sampai_tw3'] / $jumlah) * 100 : 0,
-            'persen_realisasi_sampai_tw4' => $jumlah > 0 ? ($realisasi['realisasi_sampai_tw4'] / $jumlah) * 100 : 0,
-        ];
     }
 
     /*
