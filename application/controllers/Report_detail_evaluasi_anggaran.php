@@ -53,6 +53,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     ];
 
     public function __construct() {
+        parent::__construct();
+
         $this->load->helper('az_auth');
         az_check_auth('role_report_detail_evaluasi_anggaran');
         $this->controller = 'report_detail_evaluasi_anggaran_backup';
