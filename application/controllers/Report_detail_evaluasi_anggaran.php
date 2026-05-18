@@ -57,7 +57,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
 
         $this->load->helper('az_auth');
         az_check_auth('role_report_detail_evaluasi_anggaran');
-        $this->controller = 'report_detail_evaluasi_anggaran_backup';
+        $this->controller = 'report_detail_evaluasi_anggaran';
 		$this->load->helper('az_crud');
         $this->load->helper('az_config');
     }
@@ -97,7 +97,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $js = az_add_js('report_detail_evaluasi_anggaran/vjs_report_detail_evaluasi_anggaran', $data, true);
 		$azapp->add_js($js);
 
-		$view = $this->load->view('report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran_backup', $data, true);
+		$view = $this->load->view('report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran', $data, true);
 		$azapp->add_content($view);
 
 		$data_header['title'] = 'Laporan Detail Evaluasi Anggaran';
