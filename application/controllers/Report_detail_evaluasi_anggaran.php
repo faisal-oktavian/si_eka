@@ -6,8 +6,6 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     private $cache_realisasi      = [];
     private $cache_tw_sebelumnya  = [];
 
-    private $controller = 'report_detail_evaluasi_anggaran';
-
     private $master_select = [
         'urusan' => '
             idurusan_pemerintah,
@@ -54,18 +52,12 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         '
     ];
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->load->helper([
-            'az_auth',
-            'az_crud',
-            'az_config',
-            'az_role'
-        ]);
-
+    public function __construct() {
+        $this->load->helper('az_auth');
         az_check_auth('role_report_detail_evaluasi_anggaran');
+        $this->controller = 'report_detail_evaluasi_anggaran_backup';
+		$this->load->helper('az_crud');
+        $this->load->helper('az_config');
     }
 
     /*
@@ -74,9 +66,21 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    public function index()
-    {
+    public function index() {
         $this->load->library('AZApp');
+		$azapp = $this->azapp;
+		$crud = $azapp->add_crud();
+		$this->load->helper('az_role');
+
+		$crud->set_single_filter(false);
+		$crud->set_btn_add(false);
+
+		$tahun_anggaran = $azapp->add_datetime();
+		$tahun_anggaran->set_id('tahun_anggaran');
+		$tahun_anggaran->set_name('tahun_anggaran');
+		$tahun_anggaran->set_value(Date('Y'));
+		$tahun_anggaran->set_format('YYYY');
+		$data['tahun_anggaran'] = $tahun_anggaran->render();
 
         $tahun_anggaran = $this->input->get('tahun_anggaran') ?: date('Y');
 
@@ -88,26 +92,20 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         // echo "<pre>"; print_r($data['arr_data']['urusan']);die;
         // echo "<pre>"; print_r($data);die;   
 
-        $this->load_assets($data);
+        $js = az_add_js('report_detail_evaluasi_anggaran/vjs_report_detail_evaluasi_anggaran', $data, true);
+		$azapp->add_js($js);
 
-        $view = $this->load->view(
-            'report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran',
-            $data,
-            true
-        );
+		$view = $this->load->view('report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran_backup', $data, true);
+		$azapp->add_content($view);
 
-        $this->azapp->add_content($view);
-
-        $this->azapp->set_data_header([
-            'title'      => 'Laporan Detail Evaluasi Anggaran',
-            'breadcrumb' => ['report']
-        ]);
-
-        echo $this->azapp->render();
+		$data_header['title'] = 'Laporan Detail Evaluasi Anggaran';
+		$data_header['breadcrumb'] = array('report');
+		$azapp->set_data_header($data_header);
+		
+		echo $azapp->render();
     }
 
-    public function print_report()
-    {
+    public function print_report() {
         $tahun_anggaran = $this->uri->segment(3);
 
         $data = [
@@ -115,31 +113,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             'arr_data'       => $this->get_data($tahun_anggaran)
         ];
 
-        $this->load->view(
-            'report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran_print',
-            $data
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD ASSET
-    |--------------------------------------------------------------------------
-    */
-
-    private function load_assets($data)
-    {
-        $this->azapp = $this->azapp ?? new stdClass();
-
-        $this->load->library('AZApp');
-
-        $js = az_add_js(
-            'report_detail_evaluasi_anggaran/vjs_report_detail_evaluasi_anggaran',
-            $data,
-            true
-        );
-
-        $this->azapp->add_js($js);
+        $this->load->view("report_detail_evaluasi_anggaran/v_report_detail_evaluasi_anggaran_print", $data);
     }
 
     /*
@@ -148,8 +122,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    private function get_data($tahun_anggaran)
-    {
+    private function get_data($tahun_anggaran) {
         $result_urusan = [];
 
         $urusan_list = $this->query_urusan_pemerintah($tahun_anggaran)->result();
@@ -158,59 +131,43 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
 
             $arr_bidang = [];
 
-            $bidang_list = $this->query_bidang_urusan(
-                $urusan->idurusan_pemerintah
-            )->result();
+            $bidang_list = $this->query_bidang_urusan($urusan->idurusan_pemerintah)->result();
 
             foreach ($bidang_list as $bidang) {
 
                 $arr_program = [];
 
-                $program_list = $this->query_program(
-                    $bidang->idbidang_urusan
-                )->result();
+                $program_list = $this->query_program($bidang->idbidang_urusan)->result();
 
                 foreach ($program_list as $program) {
 
                     $arr_kegiatan = [];
 
-                    $kegiatan_list = $this->query_kegiatan(
-                        $program->idprogram
-                    )->result();
+                    $kegiatan_list = $this->query_kegiatan($program->idprogram)->result();
 
                     foreach ($kegiatan_list as $kegiatan) {
 
                         $arr_sub_kegiatan = [];
 
-                        $sub_kegiatan_list = $this->query_sub_kegiatan(
-                            $kegiatan->idkegiatan
-                        )->result();
+                        $sub_kegiatan_list = $this->query_sub_kegiatan($kegiatan->idkegiatan)->result();
 
                         foreach ($sub_kegiatan_list as $sub_kegiatan) {
 
                             $arr_paket = [];
 
-                            $paket_list = $this->query_paket_belanja(
-                                $sub_kegiatan->idsub_kegiatan
-                            )->result();
+                            $paket_list = $this->query_paket_belanja($sub_kegiatan->idsub_kegiatan)->result();
 
                             foreach ($paket_list as $paket) {
 
                                 $arr_akun = [];
 
-                                $akun_list = $this->query_akun_belanja(
-                                    $paket->idpaket_belanja
-                                )->result();
+                                $akun_list = $this->query_akun_belanja($paket->idpaket_belanja)->result();
 
                                 foreach ($akun_list as $akun) {
 
-                                    $detail_data = $this->build_detail_sub(
-                                        $akun,
-                                        $paket,
-                                        $tahun_anggaran
-                                    );
+                                    $detail_data = $this->build_detail_sub($akun, $paket, $tahun_anggaran);
 
-                                    $arr_akun[] = [
+                                    $arr_akun[] = array(
                                         'idpaket_belanja_detail'  => $akun->idpaket_belanja_detail,
                                         'idakun_belanja'          => $akun->idakun_belanja,
                                         'no_rekening_akunbelanja' => $akun->no_rekening_akunbelanja,
@@ -219,18 +176,18 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                                         'total_realisasi'         => $detail_data['total_realisasi'],
                                         'total_persentase'        => $detail_data['total_persentase'],
                                         'arr_detail_sub'          => $detail_data['detail']
-                                    ];
+                                    );
                                 }
 
-                                $arr_paket[] = [
+                                $arr_paket[] = array(
                                     'idpaket_belanja'    => $paket->idpaket_belanja,
                                     'nama_paket_belanja' => $paket->nama_paket_belanja,
                                     'nilai_anggaran'     => $paket->nilai_anggaran,
                                     'akun_belanja'       => $arr_akun
-                                ];
+                                );
                             }
 
-                            $arr_sub_kegiatan[] = [
+                            $arr_sub_kegiatan[] = array(
                                 'idsub_kegiatan' => $sub_kegiatan->idsub_kegiatan,
                                 'nama_sub_kegiatan' => $this->generate_nama_sub_kegiatan(
                                     $urusan,
@@ -240,10 +197,10 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                                     $sub_kegiatan
                                 ),
                                 'paket_belanja' => $arr_paket
-                            ];
+                            );
                         }
 
-                        $arr_kegiatan[] = [
+                        $arr_kegiatan[] = array(
                             'idkegiatan'    => $kegiatan->idkegiatan,
                             'nama_kegiatan' => $this->generate_nama_kegiatan(
                                 $urusan,
@@ -252,10 +209,10 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                                 $kegiatan
                             ),
                             'sub_kegiatan' => $arr_sub_kegiatan
-                        ];
+                        );
                     }
 
-                    $arr_program[] = [
+                    $arr_program[] = array(
                         'idprogram'    => $program->idprogram,
                         'nama_program' => $this->generate_nama_program(
                             $urusan,
@@ -263,30 +220,30 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                             $program
                         ),
                         'kegiatan' => $arr_kegiatan
-                    ];
+                    );
                 }
 
-                $arr_bidang[] = [
+                $arr_bidang[] = array(
                     'idbidang_urusan' => $bidang->idbidang_urusan,
                     'nama_bidang_urusan' => $this->generate_nama_bidang(
                         $urusan,
                         $bidang
                     ),
                     'program' => $arr_program
-                ];
+                );
             }
 
-            $result_urusan[] = [
+            $result_urusan[] = array(
                 'idurusan' => $urusan->idurusan_pemerintah,
                 'nama_urusan' => $this->generate_nama_urusan($urusan),
                 'bidang_urusan' => $arr_bidang
-            ];
+            );
         }
 
-        return [
+        return array(
             'tahun_anggaran' => $tahun_anggaran,
             'urusan'         => $result_urusan
-        ];
+        );
     }
 
     /*
@@ -295,11 +252,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    private function build_detail_sub($akun, $paket, $tahun_anggaran)
-    {
-        $details = $this->query_paket_belanja_detail(
-            $akun->idpaket_belanja_detail
-        )->result();
+    private function build_detail_sub($akun, $paket, $tahun_anggaran) {
+        $details = $this->query_paket_belanja_detail($akun->idpaket_belanja_detail)->result();
 
         $result_detail     = [];
         $total_jumlah      = 0;
@@ -455,9 +409,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             }
 
             $nominal = $this->cache_realisasi[$cache_key]['realisasi_rp_sampai'];
-            $persentase = $jumlah > 0
-                ? ($nominal / $jumlah) * 100
-                : 0;
+            $persentase = $jumlah > 0 ? ($nominal / $jumlah) * 100 : 0;
 
             $result['realisasi_sampai_tw'.$tw] = $nominal;
             $result['persen_realisasi_sampai_tw'.$tw] = $persentase;
@@ -466,9 +418,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         return $result;
     }
 
-    private function default_tw_data()
-    {
-        return [
+    private function default_tw_data() {
+        return array(
             'realisasi_sampai_tw1' => 0,
             'realisasi_sampai_tw2' => 0,
             'realisasi_sampai_tw3' => 0,
@@ -478,7 +429,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             'persen_realisasi_sampai_tw2' => 0,
             'persen_realisasi_sampai_tw3' => 0,
             'persen_realisasi_sampai_tw4' => 0
-        ];
+        );
     }
 
     /*
@@ -487,8 +438,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    private function apply_status_date_filter($filter_bulan)
-    {
+    private function apply_status_date_filter($filter_bulan) {
         $range = $this->get_month_date_range($filter_bulan);
 
         $mapping = [
@@ -559,12 +509,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    private function base_master_query(
-        $table,
-        $where = [],
-        $order_by = '',
-        $select = '*'
-    ) {
+    private function base_master_query($table, $where = [], $order_by = '', $select = '*') {
         $this->db->from($table);
 
         foreach ($where as $field => $value) {
@@ -580,8 +525,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         return $this->db->get();
     }
 
-    public function query_urusan_pemerintah($tahun_anggaran)
-    {
+    public function query_urusan_pemerintah($tahun_anggaran) {
         return $this->base_master_query(
             'urusan_pemerintah',
             [
@@ -594,8 +538,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_bidang_urusan($idurusan_pemerintah)
-    {
+    public function query_bidang_urusan($idurusan_pemerintah) {
         return $this->base_master_query(
             'bidang_urusan',
             [
@@ -608,8 +551,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_program($idbidang_urusan)
-    {
+    public function query_program($idbidang_urusan) {
         return $this->base_master_query(
             'program',
             [
@@ -622,8 +564,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_kegiatan($idprogram)
-    {
+    public function query_kegiatan($idprogram) {
         return $this->base_master_query(
             'kegiatan',
             [
@@ -636,8 +577,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_sub_kegiatan($idkegiatan)
-    {
+    public function query_sub_kegiatan($idkegiatan) {
         return $this->base_master_query(
             'sub_kegiatan',
             [
@@ -650,8 +590,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_paket_belanja($idsub_kegiatan)
-    {
+    public function query_paket_belanja($idsub_kegiatan) {
         return $this->base_master_query(
             'paket_belanja',
             [
@@ -664,96 +603,42 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_akun_belanja($idpaket_belanja)
-    {
-        $this->db->from('paket_belanja_detail');
-
-        $this->db->join(
-            'akun_belanja',
-            'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja'
-        );
-
+    public function query_akun_belanja($idpaket_belanja) {
+        $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
         $this->db->where('paket_belanja_detail.status', 1);
-        $this->db->where(
-            'paket_belanja_detail.idpaket_belanja',
-            $idpaket_belanja
-        );
-
-        $this->db->order_by(
-            'paket_belanja_detail.idpaket_belanja_detail ASC'
-        );
-
+        $this->db->where('paket_belanja_detail.idpaket_belanja', $idpaket_belanja);
+        $this->db->order_by('paket_belanja_detail.idpaket_belanja_detail ASC');
         $this->db->select($this->master_select['akun_belanja']);
+        $pbd = $this->db->get('paket_belanja_detail');
+        // echo "<pre>"; print_r($this->db->last_query());die;
 
-        return $this->db->get();
+        return $pbd;
     }
 
-    public function query_paket_belanja_detail(
-        $idpaket_belanja_detail,
-        $idpaket_belanja_detail_sub = null,
-        $is_sub_detail = false
-    ) {
+    public function query_paket_belanja_detail($idpaket_belanja_detail, $idpaket_belanja_detail_sub = null, $is_sub_detail = false) {
 
         $query_akun_belanja = '';
 
         if (!$is_sub_detail) {
-
-            $query_akun_belanja = ',
-                akun_belanja.no_rekening_akunbelanja
-            ';
-
-            $this->db->where(
-                'paket_belanja_detail_sub.idpaket_belanja_detail',
-                $idpaket_belanja_detail
-            );
+            $query_akun_belanja = ', akun_belanja.no_rekening_akunbelanja';
+            $this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail', $idpaket_belanja_detail);
         }
 
         if (!empty($idpaket_belanja_detail_sub)) {
-
-            $this->db->where(
-                'paket_belanja_detail_sub.idpaket_belanja_detail_sub',
-                $idpaket_belanja_detail_sub
-            );
+            $this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
         }
 
         $this->db->where('paket_belanja_detail_sub.status', 1);
-
-        $this->db->join(
-            'kategori',
-            'kategori.idkategori = paket_belanja_detail_sub.idkategori',
-            'left'
-        );
-
-        $this->db->join(
-            'sub_kategori',
-            'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori',
-            'left'
-        );
-
-        $this->db->join(
-            'kode_rekening',
-            'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening',
-            'left'
-        );
+        $this->db->join('kategori', 'kategori.idkategori = paket_belanja_detail_sub.idkategori', 'left');
+        $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori', 'left');
+        $this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 
         if (!$is_sub_detail) {
-
-            $this->db->join(
-                'paket_belanja_detail',
-                'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail'
-            );
-
-            $this->db->join(
-                'akun_belanja',
-                'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja'
-            );
+            $this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+            $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
         }
 
-        $this->db->join(
-            'satuan',
-            'satuan.idsatuan = paket_belanja_detail_sub.idsatuan',
-            'left'
-        );
+        $this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan', 'left');
 
         $this->db->select('
             paket_belanja_detail_sub.idpaket_belanja_detail_sub,
@@ -771,13 +656,13 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             paket_belanja_detail_sub.jumlah
             '.$query_akun_belanja);
 
-        return $this->db->get('paket_belanja_detail_sub');
+        $pbds = $this->db->get('paket_belanja_detail_sub');
+        // echo "<pre>"; print_r($this->db->last_query());die;
+
+        return $pbds;
     }
 
-    public function query_paket_belanja_detail_sub(
-        $idpaket_belanja_detail_sub,
-        $join_kategori = false
-    ) {
+    public function query_paket_belanja_detail_sub($idpaket_belanja_detail_sub, $join_kategori = false) {
 
         $query_category = '';
 
@@ -788,31 +673,11 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             ';
         }
 
-        $this->db->where(
-            'paket_belanja_detail_sub.is_idpaket_belanja_detail_sub',
-            $idpaket_belanja_detail_sub
-        );
-
-        $this->db->where(
-            'paket_belanja_detail_sub.status',
-            1
-        );
-
-        $this->db->join(
-            'sub_kategori',
-            'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori'
-        );
-
-        $this->db->join(
-            'kode_rekening',
-            'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening',
-            'left'
-        );
-
-        $this->db->join(
-            'satuan',
-            'satuan.idsatuan = paket_belanja_detail_sub.idsatuan'
-        );
+        $this->db->where('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+        $this->db->where('paket_belanja_detail_sub.status', 1);
+        $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+        $this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
+        $this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
 
         $this->db->select('
             paket_belanja_detail_sub.idpaket_belanja_detail_sub,
@@ -828,41 +693,23 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             paket_belanja_detail_sub.harga_satuan,
             paket_belanja_detail_sub.jumlah
             '.$query_category);
+            
+        $pbds = $this->db->get('paket_belanja_detail_sub');
+        // echo "<pre>"; print_r($this->db->last_query());die;
 
-        return $this->db->get('paket_belanja_detail_sub');
+        return $pbds;
     }
 
-    public function query_paket_belanja_detail_sub_by_detail_ids(array $detail_ids)
-    {
+    public function query_paket_belanja_detail_sub_by_detail_ids(array $detail_ids) {
         if (empty($detail_ids)) {
             return $this->db->get_where('paket_belanja_detail_sub', ['idpaket_belanja_detail_sub' => 0]);
         }
 
-        $this->db->where_in(
-            'paket_belanja_detail_sub.is_idpaket_belanja_detail_sub',
-            $detail_ids
-        );
-
-        $this->db->where(
-            'paket_belanja_detail_sub.status',
-            1
-        );
-
-        $this->db->join(
-            'sub_kategori',
-            'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori'
-        );
-
-        $this->db->join(
-            'kode_rekening',
-            'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening',
-            'left'
-        );
-
-        $this->db->join(
-            'satuan',
-            'satuan.idsatuan = paket_belanja_detail_sub.idsatuan'
-        );
+        $this->db->where_in('paket_belanja_detail_sub.is_idpaket_belanja_detail_sub', $detail_ids);
+        $this->db->where('paket_belanja_detail_sub.status', 1);
+        $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+        $this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left' );
+        $this->db->join('satuan', 'satuan.idsatuan = paket_belanja_detail_sub.idsatuan');
 
         $this->db->select('
             paket_belanja_detail_sub.idpaket_belanja_detail_sub,
@@ -880,25 +727,29 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             paket_belanja_detail_sub.jumlah
         ');
 
-        return $this->db->get('paket_belanja_detail_sub');
+        $pbds = $this->db->get('paket_belanja_detail_sub');
+        // echo "<pre>"; print_r($this->db->last_query());die;
+
+        return $pbds;
     }
 
-    private function build_realisasi_map(
-        $idpaket_belanja,
-        array $subdetail_ids,
-        array $idsub_categories,
-        $tahun_anggaran
-    ) {
+    private function build_realisasi_map($idpaket_belanja, array $subdetail_ids, array $idsub_categories, $tahun_anggaran) {
         if (empty($subdetail_ids) || empty($idsub_categories)) {
             return [];
         }
 
-        $status_date = "CASE
-            WHEN contract.contract_status = 'SUDAH DIBAYAR BENDAHARA' THEN npd.confirm_payment_date
-            WHEN contract.contract_status IN ('MENUNGGU PEMBAYARAN', 'INPUT NPD') THEN npd.npd_date_created
-            WHEN contract.contract_status IN ('DITOLAK VERIFIKATOR', 'SUDAH DIVERIFIKASI') THEN verification.confirm_verification_date
-            WHEN contract.contract_status = 'MENUNGGU VERIFIKASI' THEN budget_realization.realization_date
-            WHEN contract.contract_status = 'KONTRAK PENGADAAN' THEN contract.contract_date
+        $status_date = "
+        CASE
+            WHEN contract.contract_status = 'SUDAH DIBAYAR BENDAHARA' 
+                THEN npd.confirm_payment_date
+            WHEN contract.contract_status IN ('MENUNGGU PEMBAYARAN', 'INPUT NPD') 
+                THEN npd.npd_date_created
+            WHEN contract.contract_status IN ('DITOLAK VERIFIKATOR', 'SUDAH DIVERIFIKASI') 
+                THEN verification.confirm_verification_date
+            WHEN contract.contract_status = 'MENUNGGU VERIFIKASI' 
+                THEN budget_realization.realization_date
+            WHEN contract.contract_status = 'KONTRAK PENGADAAN' 
+                THEN contract.contract_date
             ELSE NULL
         END";
 
@@ -920,74 +771,21 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $this->db->where('contract_detail.status', 1);
         $this->db->where('budget_realization.status', 1);
         $this->db->where('budget_realization_detail.status', 1);
-
-        $this->db->where(
-            'purchase_plan_detail.idpaket_belanja',
-            $idpaket_belanja
-        );
-
-        $this->db->where_in(
-            'purchase_plan_detail.idpaket_belanja_detail_sub',
-            $subdetail_ids
-        );
-
-        $this->db->where_in(
-            'budget_realization_detail.idsub_kategori',
-            $idsub_categories
-        );
-
-        $this->db->where(
-            'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail'
-        );
+        $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+        $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);
+        $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
+        $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 
         $this->apply_status_validation_filter();
 
-        $this->db->join(
-            'purchase_plan_detail',
-            'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan'
-        );
-
-        $this->db->join(
-            'contract_detail',
-            'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan',
-            'left'
-        );
-
-        $this->db->join(
-            'contract',
-            'contract.idcontract = contract_detail.idcontract',
-            'left'
-        );
-
-        $this->db->join(
-            'budget_realization_detail',
-            'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail',
-            'left'
-        );
-
-        $this->db->join(
-            'budget_realization',
-            'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization',
-            'left'
-        );
-
-        $this->db->join(
-            'verification',
-            'verification.idbudget_realization = budget_realization.idbudget_realization',
-            'left'
-        );
-
-        $this->db->join(
-            'npd_detail',
-            'npd_detail.idverification = verification.idverification',
-            'left'
-        );
-
-        $this->db->join(
-            'npd',
-            'npd.idnpd = npd_detail.idnpd',
-            'left'
-        );
+        $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+        $this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+        $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+        $this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+        $this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+        $this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+        $this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+        $this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
 
         $this->db->group_by('purchase_plan_detail.idpaket_belanja_detail_sub');
 
@@ -1006,8 +804,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         return $map;
     }
 
-    private function build_tw_data_for_subdetail($subdetail_id, $jumlah, array $realisasi_map)
-    {
+    private function build_tw_data_for_subdetail($subdetail_id, $jumlah, array $realisasi_map) {
         $realisasi = $realisasi_map[$subdetail_id] ?? null;
 
         if (empty($realisasi)) {
@@ -1034,13 +831,11 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    private function generate_nama_urusan($urusan)
-    {
+    private function generate_nama_urusan($urusan) {
         return $urusan->no_rekening_urusan.' - '.$urusan->nama_urusan;
     }
 
-    private function generate_nama_bidang($urusan, $bidang)
-    {
+    private function generate_nama_bidang($urusan, $bidang) {
         return
             $urusan->no_rekening_urusan.'.'.
             $bidang->no_rekening_bidang_urusan.
@@ -1048,8 +843,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             $bidang->nama_bidang_urusan;
     }
 
-    private function generate_nama_program($urusan, $bidang, $program)
-    {
+    private function generate_nama_program($urusan, $bidang, $program) {
         return
             $urusan->no_rekening_urusan.'.'.
             $bidang->no_rekening_bidang_urusan.'.'.
@@ -1058,12 +852,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             $program->nama_program;
     }
 
-    private function generate_nama_kegiatan(
-        $urusan,
-        $bidang,
-        $program,
-        $kegiatan
-    ) {
+    private function generate_nama_kegiatan($urusan, $bidang, $program, $kegiatan) {
         return
             $urusan->no_rekening_urusan.'.'.
             $bidang->no_rekening_bidang_urusan.'.'.
@@ -1073,13 +862,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             $kegiatan->nama_kegiatan;
     }
 
-    private function generate_nama_sub_kegiatan(
-        $urusan,
-        $bidang,
-        $program,
-        $kegiatan,
-        $sub_kegiatan
-    ) {
+    private function generate_nama_sub_kegiatan($urusan, $bidang, $program, $kegiatan, $sub_kegiatan) {
         return
             $urusan->no_rekening_urusan.'.'.
             $bidang->no_rekening_bidang_urusan.'.'.
@@ -1090,8 +873,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             $sub_kegiatan->nama_subkegiatan;
     }
 
-    private function calculate_tw_realisasi($params)
-    {
+    private function calculate_tw_realisasi($params) {
         $mulai_bulan    = $params['mulai_bulan'];
         $tahun_anggaran = $params['tahun_anggaran'];
 
@@ -1123,8 +905,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     /**
      * REALISASI TW SEBELUMNYA
      */
-    private function get_previous_tw_realisasi($params)
-    {
+    private function get_previous_tw_realisasi($params) {
         $tw = (int) $params['tw'];
 
         if ($tw <= 1) {
@@ -1173,8 +954,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     /**
      * QUERY REALISASI
      */
-    private function query_realisasi($params)
-    {
+    private function query_realisasi($params) {
         $tahun_anggaran = $params['tahun_anggaran'];
         $mode           = $params['mode'];
 
@@ -1184,25 +964,10 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $this->db->where('contract_detail.status', 1);
         $this->db->where('budget_realization.status', 1);
         $this->db->where('budget_realization_detail.status', 1);
-
-        $this->db->where(
-            'purchase_plan_detail.idpaket_belanja',
-            $params['idpaket_belanja']
-        );
-
-        $this->db->where(
-            'purchase_plan_detail.idpaket_belanja_detail_sub',
-            $params['idpaket_belanja_detail_sub']
-        );
-
-        $this->db->where(
-            'budget_realization_detail.idsub_kategori',
-            $params['idsub_kategori']
-        );
-
-        $this->db->where(
-            'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail'
-        );
+        $this->db->where('purchase_plan_detail.idpaket_belanja', $params['idpaket_belanja']);
+        $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $params['idpaket_belanja_detail_sub']);
+        $this->db->where('budget_realization_detail.idsub_kategori', $params['idsub_kategori']);
+        $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 
         /**
          * FILTER STATUS VALIDASI
@@ -1214,12 +979,14 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
          */
         if ($mode === 'bulanan') {
             $this->apply_status_date_filter($tahun_anggaran . '-' . $params['bulan']);
-        } elseif ($mode === 'bulanan_range') {
+        } 
+        elseif ($mode === 'bulanan_range') {
             $this->apply_status_date_range_filter(
                 $tahun_anggaran . '-' . $params['start_bulan'],
                 $tahun_anggaran . '-' . $params['end_bulan']
             );
-        } else {
+        } 
+        else {
             $this->apply_status_date_range_filter(
                 $tahun_anggaran . '-01',
                 $tahun_anggaran . '-' . $params['bulan']
@@ -1229,52 +996,14 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         /**
          * JOIN
          */
-        $this->db->join(
-            'purchase_plan_detail',
-            'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan'
-        );
-
-        $this->db->join(
-            'contract_detail',
-            'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan',
-            'left'
-        );
-
-        $this->db->join(
-            'contract',
-            'contract.idcontract = contract_detail.idcontract',
-            'left'
-        );
-
-        $this->db->join(
-            'budget_realization_detail',
-            'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail',
-            'left'
-        );
-
-        $this->db->join(
-            'budget_realization',
-            'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization',
-            'left'
-        );
-
-        $this->db->join(
-            'verification',
-            'verification.idbudget_realization = budget_realization.idbudget_realization',
-            'left'
-        );
-
-        $this->db->join(
-            'npd_detail',
-            'npd_detail.idverification = verification.idverification',
-            'left'
-        );
-
-        $this->db->join(
-            'npd',
-            'npd.idnpd = npd_detail.idnpd',
-            'left'
-        );
+        $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+        $this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+        $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+        $this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+        $this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+        $this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+        $this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+        $this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
 
         $this->db->select('
             DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date, 
@@ -1297,8 +1026,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     /**
      * FILTER RANGE TANGGAL
      */
-    private function apply_status_date_range_filter($start, $end)
-    {
+    private function apply_status_date_range_filter($start, $end) {
         $range = $this->get_month_date_range($start);
 
         if ($start !== $end) {
@@ -1353,8 +1081,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         ->group_end();
     }
 
-    private function get_month_date_range($yearMonth)
-    {
+    private function get_month_date_range($yearMonth) {
         $date = date('Y-m-01', strtotime($yearMonth));
 
         return [
@@ -1366,8 +1093,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     /**
      * GET BULAN AWAL TW
      */
-    private function get_start_month_by_tw($tw)
-    {
+    private function get_start_month_by_tw($tw) {
         $mapping = [
             1 => 1,
             2 => 4,
@@ -1381,8 +1107,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     /**
      * GET BULAN AKHIR TW
      */
-    private function get_end_month_by_tw($tw)
-    {
+    private function get_end_month_by_tw($tw) {
         $mapping = [
             1 => 3,
             2 => 6,
