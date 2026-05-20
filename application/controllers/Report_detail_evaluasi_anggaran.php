@@ -179,6 +179,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                                         'total_persentase'        => $detail_data['total_persentase'],
                                         'arr_detail_sub'          => $detail_data['detail']
                                     );
+
+// echo "<pre>"; print_r($detail_data);die;
                                 }
 
                                 $arr_paket[] = array(
@@ -282,12 +284,20 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             $idsub_categories[] = $sub_sub->idsub_kategori;
         }
 
+        // echo "<pre>";
+        // print_r($paket->idpaket_belanja);
+        // print_r(array_unique($realisasi_ids));
+        // print_r(array_unique($idsub_categories));
+        // print_r($tahun_anggaran);
+        // die;
+
         $realisasi_map = $this->build_realisasi_map(
             $paket->idpaket_belanja,
             array_unique($realisasi_ids),
             array_unique($idsub_categories),
             $tahun_anggaran
         );
+// echo "<pre>"; print_r($realisasi_map);die;
 
         foreach ($details as $detail) {
             $total_jumlah += $detail->jumlah;
@@ -317,7 +327,9 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                     'volume'                     => $sub_sub->volume,
                     'nama_satuan'                => $sub_sub->nama_satuan,
                     'harga_satuan'               => $sub_sub->harga_satuan,
-                    'jumlah'                     => $sub_sub->jumlah
+                    'jumlah'                     => $sub_sub->jumlah,
+                    'harga_satuan_realisasi'     => $realisasi_map[$sub_sub->idpaket_belanja_detail_sub]['unit_prices'] ?? [],
+                    'harga_satuan_rata'          => $realisasi_map[$sub_sub->idpaket_belanja_detail_sub]['unit_price_average'] ?? 0
                 ], $tw_data);
             }
 
@@ -348,6 +360,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                 'nama_satuan'                => $detail->nama_satuan,
                 'harga_satuan'               => $detail->harga_satuan,
                 'jumlah'                     => $detail->jumlah,
+                'harga_satuan_realisasi'     => $realisasi_map[$detail->idpaket_belanja_detail_sub]['unit_prices'] ?? [],
+                'harga_satuan_rata'          => $realisasi_map[$detail->idpaket_belanja_detail_sub]['unit_price_average'] ?? 0,
                 'arr_pd_detail_sub_sub'      => $arr_sub_sub
             ], $tw_data);
         }
@@ -598,7 +612,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             [
                 'status'                 => 1,
                 'status_paket_belanja'   => 'OK',
-                'idsub_kegiatan'         => $idsub_kegiatan
+                'idsub_kegiatan'         => $idsub_kegiatan,
+                // 'nama_paket_belanja'     => "Sediaan Farmasi, Alat Kesehatan dan Bahan Medis Habis Pakai" // testing
             ],
             'idpaket_belanja ASC',
             $this->master_select['paket_belanja']
@@ -761,11 +776,36 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $tw3_end = $tahun_anggaran . '-09-30';
         $tw4_end = $tahun_anggaran . '-12-31';
 
-        $this->db->select('purchase_plan_detail.idpaket_belanja_detail_sub as id', false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw1_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw1", false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw2_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw2", false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw3_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw3", false);
-        $this->db->select("SUM(CASE WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw4_end}' THEN budget_realization_detail.total_realization_detail ELSE 0 END) as tw4", false);
+        $this->db->select("purchase_plan_detail.idpaket_belanja_detail_sub as id,
+                        SUM(
+                            CASE 
+                                WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw1_end}' 
+                                    THEN budget_realization_detail.total_realization_detail 
+                                ELSE 0 
+                            END
+                        ) as tw1,
+                        SUM(
+                            CASE 
+                                WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw2_end}' 
+                                    THEN budget_realization_detail.total_realization_detail 
+                                ELSE 0 
+                            END
+                        ) as tw2,
+                        SUM(
+                            CASE 
+                                WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw3_end}' 
+                                    THEN budget_realization_detail.total_realization_detail 
+                                ELSE 0 
+                            END
+                        ) as tw3,
+                        SUM(
+                            CASE 
+                                WHEN {$status_date} >= '{$year_start}' AND {$status_date} <= '{$tw4_end}' 
+                                    THEN budget_realization_detail.total_realization_detail 
+                                ELSE 0 
+                            END
+                        ) as tw4",
+                    false);
 
         $this->db->where('purchase_plan.status', 1);
         $this->db->where('purchase_plan_detail.status', 1);
@@ -773,6 +813,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $this->db->where('contract_detail.status', 1);
         $this->db->where('budget_realization.status', 1);
         $this->db->where('budget_realization_detail.status', 1);
+        $this->db->where('budget_realization_detail.unit_price IS NOT NULL', null, false);
         $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
         $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);
         $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
@@ -791,17 +832,73 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
 
         $this->db->group_by('purchase_plan_detail.idpaket_belanja_detail_sub');
 
-        $result = $this->db->get('purchase_plan')->result();
+        $plan = $this->db->get('purchase_plan');
+        // echo "<pre>"; print_r($this->db->last_query());die;
+
+        $result = $plan->result();
+
+        $price_map = [];
+        $this->db->reset_query();
+
+        $this->db->select('DISTINCT purchase_plan_detail.idpaket_belanja_detail_sub as id, budget_realization_detail.unit_price', false);
+        $this->db->where('purchase_plan.status', 1);
+        $this->db->where('purchase_plan_detail.status', 1);
+        $this->db->where('contract.status', 1);
+        $this->db->where('contract_detail.status', 1);
+        $this->db->where('budget_realization.status', 1);
+        $this->db->where('budget_realization_detail.status', 1);
+        $this->db->where('budget_realization_detail.unit_price IS NOT NULL', null, false);
+        $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
+        $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);
+        $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
+        $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+
+        $this->apply_status_validation_filter();
+
+        $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+        $this->db->join('contract_detail', 'contract_detail.idpurchase_plan = purchase_plan.idpurchase_plan', 'left');
+        $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract', 'left');
+        $this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail', 'left');
+        $this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization', 'left');
+        $this->db->join('verification', 'verification.idbudget_realization = budget_realization.idbudget_realization', 'left');
+        $this->db->join('npd_detail', 'npd_detail.idverification = verification.idverification', 'left');
+        $this->db->join('npd', 'npd.idnpd = npd_detail.idnpd', 'left');
+        $this->db->order_by('budget_realization_detail.unit_price', 'ASC');
+
+        $price_rows = $this->db->get('purchase_plan')->result();
+
+        foreach ($price_rows as $price_row) {
+            if ($price_row->unit_price === null) {
+                continue;
+            }
+
+            $price_map[$price_row->id][] = (float) $price_row->unit_price;
+        }
+
+        foreach ($price_map as $id => $prices) {
+            $prices = array_values(array_unique($prices, SORT_NUMERIC));
+            sort($prices, SORT_NUMERIC);
+            $price_map[$id] = $prices;
+        }
 
         $map = [];
         foreach ($result as $row) {
+            $prices = $price_map[$row->id] ?? [];
+            $average_price = 0;
+            if (!empty($prices)) {
+                $average_price = array_sum($prices) / count($prices);
+            }
+
             $map[$row->id] = [
                 'realisasi_sampai_tw1' => (float) $row->tw1,
                 'realisasi_sampai_tw2' => (float) $row->tw2,
                 'realisasi_sampai_tw3' => (float) $row->tw3,
                 'realisasi_sampai_tw4' => (float) $row->tw4,
+                'unit_prices'          => $prices,
+                'unit_price_average'   => (float) $average_price
             ];
         }
+        // echo "<pre>"; print_r($map);die;
 
         return $map;
     }

@@ -51,6 +51,46 @@
         border: 1px solid #dbe4ec; */
     }
 
+    .harga-satuan-realisasi-cell {
+        max-width: 120px;
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 1.3;
+        vertical-align: top;
+    }
+
+    .harga-satuan-realisasi-cell details {
+        cursor: pointer;
+    }
+
+    .harga-satuan-realisasi-cell summary {
+        list-style: none;
+        outline: none;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .harga-satuan-realisasi-cell summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .harga-satuan-realisasi-cell .realization-summary {
+        color: #5a5a5a;
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .harga-satuan-realisasi-cell .realization-details {
+        margin-top: 8px;
+        padding-left: 0;
+        font-size: 11px;
+        color: #333;
+    }
+
+    .harga-satuan-realisasi-cell .realization-details div {
+        margin-bottom: 4px;
+    }
+
     .table-section {
         background: #eef6ff;
         font-weight: bold;
@@ -102,10 +142,10 @@
 
                 <thead>
                     <tr>
-                        <th class="report-header-h3" colspan="11">RENCANA ANGGARAN KAS <br> SATUAN KERJA PERANGKAT DAERAH</th>
+                        <th class="report-header-h3" colspan="13">RENCANA ANGGARAN KAS <br> SATUAN KERJA PERANGKAT DAERAH</th>
                     </tr>
                     <tr>
-                        <th class="report-header-p" colspan="11">Provinsi Jawa Timur Tahun Anggaran <?= $tahun_anggaran; ?></th>
+                        <th class="report-header-p" colspan="13">Provinsi Jawa Timur Tahun Anggaran <?= $tahun_anggaran; ?></th>
                     </tr>
                 </thead>
 
@@ -127,43 +167,43 @@
                                         <tr>
                                             <td width="140">Urusan</td>
                                             <td width="10">:</td>
-                                            <td colspan="9"><?= $urusan['nama_urusan']; ?></td>
+                                            <td colspan="11"><?= $urusan['nama_urusan']; ?></td>
                                         </tr>
 
                                         <tr>
                                             <td>Bidang Urusan</td>
                                             <td>:</td>
-                                            <td colspan="9"><?= $bidang['nama_bidang_urusan']; ?></td>
+                                            <td colspan="11"><?= $bidang['nama_bidang_urusan']; ?></td>
                                         </tr>
 
                                         <tr>
                                             <td>Program</td>
                                             <td>:</td>
-                                            <td colspan="9"><?= $program['nama_program']; ?></td>
+                                            <td colspan="11"><?= $program['nama_program']; ?></td>
                                         </tr>
 
                                         <tr>
                                             <td>Kegiatan</td>
                                             <td>:</td>
-                                            <td colspan="9"><?= $kegiatan['nama_kegiatan']; ?></td>
+                                            <td colspan="11"><?= $kegiatan['nama_kegiatan']; ?></td>
                                         </tr>
 
                                         <tr>
                                             <td>Sub Kegiatan</td>
                                             <td>:</td>
-                                            <td colspan="9"><?= $sub_kegiatan['nama_sub_kegiatan']; ?></td>
+                                            <td colspan="11"><?= $sub_kegiatan['nama_sub_kegiatan']; ?></td>
                                         </tr>
 
                                         <tr class="table-section">
                                             <td>Paket Belanja</td>
                                             <td>:</td>
-                                            <td colspan="9"><?= $paket['nama_paket_belanja']; ?></td>
+                                            <td colspan="11"><?= $paket['nama_paket_belanja']; ?></td>
                                         </tr>
 
                                         <tr>
                                             <td>Total Anggaran</td>
                                             <td>:</td>
-                                            <td colspan="9">
+                                            <td colspan="11">
                                                 Rp. <?= az_thousand_separator_decimal($paket['nilai_anggaran']); ?>
                                             </td>
                                         </tr>
@@ -174,7 +214,9 @@
                                             <td style="text-align:center; vertical-align: middle; font-weight:bold; width:auto;" rowspan="2">Uraian</td>
                                             <td style="text-align:center; font-weight:bold; width:auto;" colspan="3">Rincian Perhitungan</td>
                                             <td style="text-align:center; vertical-align: middle; font-weight:bold; width:100px;" rowspan="2">Jumlah</td>
-                                            <td style="text-align:center; vertical-align: middle; font-weight:bold; width:130px;" colspan="4">Realisasi Sampai</td>
+                                            <td style="text-align:center; vertical-align: middle; font-weight:bold; width:100px;" rowspan="2">Harga Satuan Realisasi</td>
+                                            <td style="text-align:center; vertical-align: middle; font-weight:bold; width:100px;" rowspan="2">Harga Satuan Rata-rata Realisasi</td>
+                                            <td style="text-align:center; vertical-align: middle; font-weight:bold; width:100px;" colspan="4">Realisasi Sampai</td>
                                         </tr>
                                         <tr>
                                             <td style="font-weight:bold; text-align:center; width:50px;">Volume</td>
@@ -198,6 +240,8 @@
                                                 <td class="nominal">
                                                     Rp. <?= az_thousand_separator($akun['total_jumlah']); ?>
                                                 </td>
+                                                <td></td>
+                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -232,6 +276,37 @@
                                                         <td class="nominal">
                                                             Rp. <?= az_thousand_separator($detail['jumlah']); ?>
                                                         </td>
+                                                        <?php
+                                                            $harga_satuan_realisasi = $detail['harga_satuan_realisasi'] ?? [];
+                                                            $harga_satuan_realisasi_formatted = array_map(function ($value) {
+                                                                return 'Rp. ' . az_thousand_separator($value);
+                                                            }, $harga_satuan_realisasi);
+                                                            $display_harga = array_slice($harga_satuan_realisasi_formatted, 0, 1);
+                                                            $more_count = max(0, count($harga_satuan_realisasi_formatted) - count($display_harga));
+                                                            $show_details = count($harga_satuan_realisasi_formatted) > 1;
+                                                        ?>
+                                                        <td class="nominal harga-satuan-realisasi-cell" <?= $show_details ? 'title="Klik untuk melihat detail harga satuan realisasi"' : ''; ?> >
+                                                            <?php if (empty($harga_satuan_realisasi_formatted)): ?>
+                                                                -
+                                                            <?php elseif (!$show_details): ?>
+                                                                <?= $harga_satuan_realisasi_formatted[0]; ?>
+                                                            <?php else: ?>
+                                                                <details>
+                                                                    <summary>
+                                                                        <?= $display_harga[0]; ?>
+                                                                        <div class="realization-summary">(+<?= $more_count; ?> lainnya)</div>
+                                                                    </summary>
+                                                                    <div class="realization-details">
+                                                                        <?php foreach ($harga_satuan_realisasi_formatted as $value): ?>
+                                                                            <div><?= $value; ?></div>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                </details>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="nominal">
+                                                            Rp. <?= az_thousand_separator($detail['harga_satuan_rata']); ?>
+                                                        </td>
 
                                                         <?php for ($tw = 1; $tw <= 4; $tw++): ?>
                                                             <td class="nominal">
@@ -251,7 +326,7 @@
 
                                                     <tr>
                                                         <td colspan="2"></td>
-                                                        <td colspan="9" class="subkategori">
+                                                        <td colspan="11" class="subkategori">
                                                             <strong><?= $detail['nama_kategori']; ?></strong>
                                                         </td>
                                                     </tr>
@@ -282,6 +357,37 @@
                                                             <td class="nominal">
                                                                 Rp. <?= az_thousand_separator($sub['jumlah']); ?>
                                                             </td>
+                                                            <?php
+                                                                $harga_satuan_realisasi = $sub['harga_satuan_realisasi'] ?? [];
+                                                                $harga_satuan_realisasi_formatted = array_map(function ($value) {
+                                                                    return 'Rp. ' . az_thousand_separator($value);
+                                                                }, $harga_satuan_realisasi);
+                                                                $display_harga = array_slice($harga_satuan_realisasi_formatted, 0, 1);
+                                                                $more_count = max(0, count($harga_satuan_realisasi_formatted) - count($display_harga));
+                                                                $show_details = count($harga_satuan_realisasi_formatted) > 1;
+                                                            ?>
+                                                            <td class="nominal harga-satuan-realisasi-cell" <?= $show_details ? 'title="Klik untuk melihat detail harga satuan realisasi"' : ''; ?> >
+                                                                <?php if (empty($harga_satuan_realisasi_formatted)): ?>
+                                                                    -
+                                                                <?php elseif (!$show_details): ?>
+                                                                    <?= $harga_satuan_realisasi_formatted[0]; ?>
+                                                                <?php else: ?>
+                                                                    <details>
+                                                                        <summary>
+                                                                            <?= $display_harga[0]; ?>
+                                                                            <div class="realization-summary">(+<?= $more_count; ?> lainnya)</div>
+                                                                        </summary>
+                                                                        <div class="realization-details">
+                                                                            <?php foreach ($harga_satuan_realisasi_formatted as $value): ?>
+                                                                                <div><?= $value; ?></div>
+                                                                            <?php endforeach; ?>
+                                                                        </div>
+                                                                    </details>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td class="nominal">
+                                                                Rp. <?= az_thousand_separator($sub['harga_satuan_rata']); ?>
+                                                            </td>
 
                                                             <?php for ($tw = 1; $tw <= 4; $tw++): ?>
                                                                 <td class="nominal">
@@ -306,7 +412,7 @@
                                         <!-- separator -->
                                         <?php if ( ($key_paket != $last_index) || $key_paket == 0 ): ?>
                                             <tr class="separator">
-                                                <td colspan="11"></td>
+                                                <td colspan="13"></td>
                                             </tr>
                                         <?php endif; ?>
 
