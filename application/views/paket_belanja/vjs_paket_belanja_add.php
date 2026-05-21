@@ -755,6 +755,60 @@
 		}
 	}
 
+	// edit akun belanja di sub kategori
+	jQuery('body').on('click','.btn-edit-akun-sub', function() {
+		var id = jQuery(this).attr('data-id');
+
+        show_loading();
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja/edit_akun_belanja_sub_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				hide_loading();
+
+				show_modal('edit_akun_belanja');
+
+				jQuery("#idedit_idakun_belanja.select2-ajax").append(new Option(response.nama_akun_belanja, response.idakun_belanja, true, true)).trigger('change');
+				jQuery('#idpaket_belanja_detail_sub').val(id);
+			},
+			error: function(response) {}
+		});
+	});
+	
+	jQuery('body').on('click', '.btn-action-save_akun_belanja_sub_kategori', function() {
+        var idpaket_belanja = jQuery('#idpaket_belanja').val();
+		var idpaket_belanja_detail_sub = jQuery('#idpaket_belanja_detail_sub').val();
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja/save_akun_belanja_sub_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_edit_akun_belanja').serialize() + '&idpaket_belanja=' + idpaket_belanja + '&idpaket_belanja_detail_sub=' + idpaket_belanja_detail_sub,
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					location.reload();
+					// hide_modal('edit_akun_belanja');
+					
+                    // jQuery('#idpaket_belanja').val(response.idpaket_belanja);
+                    // jQuery('#hd_idpaket_belanja').val(response.idpaket_belanja);
+					// generate_detail_paket_belanja(response.idpaket_belanja);
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
 	
 	// tambah akun belanja baru
 	jQuery('body').on('click', '.btn-new-akunbelanja', function() {

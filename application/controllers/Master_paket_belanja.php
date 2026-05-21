@@ -224,6 +224,15 @@ class Master_paket_belanja extends CI_Controller {
 		$modal7->set_modal($v_modal7);
 		$modal7->set_action_modal(array('save_new_subkategori'=>'Simpan'));
 		$azapp->add_content($modal7->render());
+
+		// edit akun belanja sub kategori
+		$v_modal = $this->load->view('paket_belanja/v_paket_belanja_modal_edit', $data, true);
+		$modal = $azapp->add_modal();
+		$modal->set_id('edit_akun_belanja');
+		$modal->set_modal_title('Edit Akun Belanja');
+		$modal->set_modal($v_modal);
+		$modal->set_action_modal(array('save_akun_belanja_sub_kategori'=>'Simpan'));
+		$azapp->add_content($modal->render());
 		
 		$js = az_add_js('paket_belanja/vjs_paket_belanja_add', $data);
 		$azapp->add_js($js);
@@ -749,6 +758,85 @@ class Master_paket_belanja extends CI_Controller {
 			'err_code' => $err_code,
 			'err_message' => $err_message,
 			'idpaket_belanja' => $idpaket_belanja,
+		);
+		echo json_encode($return);
+	}
+
+	function edit_akun_belanja_sub_kategori() {
+		$idpaket_belanja_detail_sub = $this->input->post('id');
+		$idpaket_belanja_detail = "";
+		$nama_akun_belanja = "";
+		$idakun_belanja = "";
+
+		$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+		$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+		$this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = paket_belanja_detail.idakun_belanja');
+		$this->db->select('paket_belanja_detail_sub.idpaket_belanja_detail, concat(akun_belanja.no_rekening_akunbelanja, " - ", akun_belanja.nama_akun_belanja) as nama_akun_belanja, paket_belanja_detail.idakun_belanja');
+		$detail_sub = $this->db->get('paket_belanja_detail_sub');
+
+		if ($detail_sub->num_rows() > 0) {
+			$idpaket_belanja_detail = $detail_sub->row()->idpaket_belanja_detail;
+			$nama_akun_belanja = $detail_sub->row()->nama_akun_belanja;
+			$idakun_belanja = $detail_sub->row()->idakun_belanja;
+		}
+
+		$ret = array(
+			'idpaket_belanja_detail' => $idpaket_belanja_detail,
+			'nama_akun_belanja' => $nama_akun_belanja,
+			'idakun_belanja' => $idakun_belanja,
+		);
+
+		echo json_encode($ret);
+	}
+
+	function save_akun_belanja_sub_kategori() {
+		$err_code = 0;
+		$err_message = '';
+
+		$idpaket_belanja = $this->input->post('idpaket_belanja');
+		$idpaket_belanja_detail_sub = $this->input->post("idpaket_belanja_detail_sub");
+		$idedit_idakun_belanja = $this->input->post("idedit_idakun_belanja");
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('idedit_idakun_belanja', 'Akun Belanja', 'required|trim');
+		
+		if ($this->form_validation->run() == FALSE) {
+			$err_code++;
+			$err_message = validation_errors();
+		}
+
+		if ($err_code == 0) {
+			if (aznav('role_view_paket_belanja')) {
+				$err_code++;
+				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+		
+		if ($err_code == 0) {
+			// cek apakah akun belanja yang dipilih sudah ada di paket belanja ini?
+			$this->db->where('idpaket_belanja', $idpaket_belanja);
+			$this->db->where('idakun_belanja', $idedit_idakun_belanja);
+			$this->db->where('status', 1);
+			$cek_akun_belanja = $this->db->get('paket_belanja_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			if ($cek_akun_belanja->num_rows() == 0) {
+				$err_code++;
+				$err_message = 'Akun belanja yang dipilih tidak ada di paket belanja ini';
+			}
+		}
+
+		if ($err_code == 0) {
+			$arr_data = array(
+				'idpaket_belanja_detail' => $cek_akun_belanja->row()->idpaket_belanja_detail,
+			);
+
+	    	az_crud_save($idpaket_belanja_detail_sub, 'paket_belanja_detail_sub', $arr_data);
+		}
+
+		$return = array(
+			'err_code' => $err_code,
+			'err_message' => $err_message,
 		);
 		echo json_encode($return);
 	}
