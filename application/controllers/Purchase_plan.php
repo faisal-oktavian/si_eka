@@ -385,6 +385,13 @@ class Purchase_plan extends CI_Controller {
 		$this->db->where('pb.status', 1);
 		$this->db->where('pb.status_paket_belanja != "DRAFT" ');
 		$this->db->where('pbd.status', 1);
+		$this->db->group_start();
+			$this->db->where("
+				(pbds_child.status = 1)
+				OR  
+				(pbds_parent.status = 1)
+			");
+        $this->db->group_end();
 		
 		// minta dobel where
 		$this->db->group_start();
@@ -731,6 +738,7 @@ class Purchase_plan extends CI_Controller {
 					'purchase_plan_detail_total' => $purchase_plan_detail_total,
 					
 				);
+				// echo "<pre>"; print_r($arr_plan_detail); die;
 				
 				$td = az_crud_save($idpurchase_plan_detail, 'purchase_plan_detail', $arr_plan_detail);
 				$idpurchase_plan_detail = azarr($td, 'insert_id');
