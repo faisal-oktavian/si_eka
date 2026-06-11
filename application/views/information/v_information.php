@@ -6,45 +6,81 @@
 			<label class="control-label col-md-2"><?php echo azlang(ucfirst(str_replace('_', ' ', $value->key))); ?></label>
 			<div class="col-md-6">
 				<?php
-				if ($value->type == 'text') {
+					if ($value->type == 'text') {
 				?>
-					<input type="text" class="form-control" value="<?php echo $value->value; ?>" name="<?php echo $value->key; ?>" />
+						<input type="text" class="form-control" value="<?php echo $value->value; ?>" name="<?php echo $value->key; ?>" />
 				<?php
-				} else if ($value->type == 'textarea') {
+					} 
+					else if ($value->type == 'textarea') {
 				?>
-					<textarea rows="7" class="form-control" name="<?php echo $value->key; ?>"><?php echo $value->value; ?></textarea>
+						<textarea rows="7" class="form-control" name="<?php echo $value->key; ?>"><?php echo $value->value; ?></textarea>
 				<?php
-				} else if ($value->type == 'select') {
+					} 
+					else if ($value->type == 'select') {
 				?>
-					<select class="form-control select" name="<?php echo $value->key; ?>" id="<?php echo $value->key; ?>">
-						<?php
-						if ($value->key == 'provinsi') {
-							foreach ($provinsi as $p_key => $p_value) {
-								$sel = '';
-								if ($p_value['province_id'] == $value->value) {
-									$sel = 'selected';
-								}
-								echo "<option " . $sel . " value='" . $p_value['province_id'] . "'>" . $p_value['province'] . "</option>";
+						<select class="form-control select" name="<?php echo $value->key; ?>" id="<?php echo $value->key; ?>">
+							<?php
+								if ($value->key == 'provinsi') {
+									foreach ($provinsi as $p_key => $p_value) {
+										$sel = '';
+										if ($p_value['province_id'] == $value->value) {
+											$sel = 'selected';
+										}
+										echo "<option " . $sel . " value='" . $p_value['province_id'] . "'>" . $p_value['province'] . "</option>";
+									}
+								} 
+								else if ($value->key == 'kota') {
+							?>
+									<input type="hidden" id="helper_kota" value="<?php echo $value->value; ?>">
+							<?php
 							}
-						} else if ($value->key == 'kota') {
-						?>
-							<input type="hidden" id="helper_kota" value="<?php echo $value->value; ?>">
-						<?php
-						}
-						?>
-					</select>
+							?>
+						</select>
 				<?php
-				}
-				if ($value->type == 'time') {
+					} 
+					else if ($value->type == 'button_apbd') {
+						if ($value->value == '0') {
+							// APBD murni
 				?>
-					<div class="input-group az-datetime">
-						<input type="text" class="form-control time <?php echo $value->key; ?>" id="<?php echo $value->key; ?>" name="<?php echo $value->key; ?>" value="<?php echo $value->value; ?>" />
-						<span class="input-group-addon">
-							<span class="glyphicon glyphicon-calendar"></span>
-						</span>
-					</div>
+							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="1" name="<?php echo $value->key; ?>">
+								<?php echo azlang('Kunci APBD'); ?>
+							</button>
 				<?php
-				}
+						} 
+						else if ($value->value == '1') {
+							// APBD Perubahan
+				?>			
+							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="0" name="<?php echo $value->key; ?>">
+								<?php echo azlang('Buka Kunci APBD'); ?>
+							</button>
+							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="2" name="<?php echo $value->key; ?>">
+								<?php echo azlang('Kunci APBD PERUBAHAN'); ?>
+							</button>
+				<?php
+						}
+						else if ($value->value == '2') {
+							// PAPBD Perubahan
+				?>			
+							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="1" name="<?php echo $value->key; ?>">
+								<?php echo azlang('Buka Kunci APBD PERUBAHAN'); ?>
+							</button>
+				<?php
+						}
+				?>
+						
+				<?php
+					}
+					
+					if ($value->type == 'time') {
+				?>
+						<div class="input-group az-datetime">
+							<input type="text" class="form-control time <?php echo $value->key; ?>" id="<?php echo $value->key; ?>" name="<?php echo $value->key; ?>" value="<?php echo $value->value; ?>" />
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-calendar"></span>
+							</span>
+						</div>
+				<?php
+					}
 				?>
 			</div>
 		</div>

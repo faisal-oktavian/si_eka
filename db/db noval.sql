@@ -2356,3 +2356,513 @@ ALTER TABLE `budget_realization`
 
 ALTER TABLE `paket_belanja`
 	ADD INDEX `status_paket_belanja` (`status_paket_belanja`);
+
+
+
+ALTER TABLE `paket_belanja`
+	ADD COLUMN `is_locked` INT(10) NULL DEFAULT '0' COMMENT 'buka : 0; kunci : 1' AFTER `is_active`,
+	ADD COLUMN `lockedby` VARCHAR(50) NULL DEFAULT NULL AFTER `is_locked`,
+	ADD COLUMN `locked_date` DATETIME NULL DEFAULT NULL AFTER `lockedby`;
+
+ALTER TABLE `paket_belanja`
+	CHANGE COLUMN `is_locked` `is_locked` INT(10) NULL DEFAULT '0' COMMENT 'buka APBD: 0; \r\nkunci APBD: 1;\r\nkunci APBD PERUBAHAN/PAPBD : 2;' AFTER `is_active`,
+	CHANGE COLUMN `lockedby` `apbd_lockedby` VARCHAR(50) NULL DEFAULT NULL COMMENT 'user yang klik tombol kunci APBD' COLLATE 'utf8mb4_unicode_ci' AFTER `is_locked`,
+	CHANGE COLUMN `locked_date` `apbd_locked_date` DATETIME NULL DEFAULT NULL COMMENT 'tanggal klik tombol kunci APBD' AFTER `apbd_lockedby`,
+	ADD COLUMN `apbd_changes_lockedby` VARCHAR(50) NULL DEFAULT NULL COMMENT 'user yang klik tombol kunci APBD PERUBAHAN' AFTER `apbd_locked_date`,
+	ADD COLUMN `apbd_changes_locked_date` DATETIME NULL DEFAULT NULL COMMENT 'tanggal klik tombol kunci APBD PERUBAHAN' AFTER `apbd_changes_lockedby`;
+
+ALTER TABLE `config`
+	CHANGE COLUMN `value` `value` TEXT NULL DEFAULT NULL COMMENT 'APBD(murni) : 0;\r\nAPBD Perubahan : 1;\r\nPAPBD Perubahan : 2;' COLLATE 'latin1_swedish_ci' AFTER `key`;
+
+
+-- paket belanja apbd
+CREATE TABLE `paket_belanja_apbd` (
+	`idpaket_belanja_apbd` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpaket_belanja` INT(10) NULL DEFAULT NULL COMMENT 'relasi ke tabel paket_belanja',
+	`jenis` VARCHAR(50) NULL DEFAULT NULL COMMENT 'APBD; APBD PERUBAHAN; ' COLLATE 'utf8mb4_unicode_ci',
+	`sequence` INT(10) NULL DEFAULT '0' COMMENT 'untuk urutan data yang tersimpan',
+	`nama_paket_belanja` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`nilai_anggaran` DOUBLE NULL DEFAULT NULL,
+	`status_paket_belanja` VARCHAR(50) NULL DEFAULT 'DRAFT' COMMENT 'DRAFT / OK; draft : transaksi belum disimpan (trx baru), OK : transaksi pernah disimpan' COLLATE 'utf8mb4_unicode_ci',
+	`idsub_kegiatan` INT(10) NULL DEFAULT NULL,
+	`idkegiatan` INT(10) NULL DEFAULT NULL,
+	`idprogram` INT(10) NULL DEFAULT NULL,
+	`select_ppkom_pptk` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' COLLATE 'utf8mb4_unicode_ci',
+	`is_active` INT(10) NULL DEFAULT '1',
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_apbd`) USING BTREE,
+	INDEX `is_active` (`is_active`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idprogram` (`idprogram`) USING BTREE,
+	INDEX `idkategori` (`idkegiatan`) USING BTREE,
+	INDEX `select_ppkom_pptk` (`select_ppkom_pptk`) USING BTREE,
+	INDEX `status_paket_belanja` (`status_paket_belanja`) USING BTREE,
+	INDEX `nama_paket_belanja` (`nama_paket_belanja`) USING BTREE,
+	INDEX `idsub_kegiatan` (`idsub_kegiatan`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+
+-- paket belanja apbd detail 
+CREATE TABLE `paket_belanja_apbd_detail` (
+	`idpaket_belanja_apbd_detail` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpaket_belanja_detail` INT(10) NULL DEFAULT NULL,
+	`idakun_belanja` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_apbd` INT(10) NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_apbd_detail`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idakun_belanja` (`idakun_belanja`) USING BTREE,
+	INDEX `idpaket_belanja_apbd` (`idpaket_belanja_apbd`) USING BTREE,
+	CONSTRAINT `FK_paket_belanja_apbd_detail_paket_belanja_papbd` FOREIGN KEY (`idpaket_belanja_apbd`) REFERENCES `paket_belanja_apbd` (`idpaket_belanja_apbd`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+ALTER TABLE `paket_belanja_detail`
+	DROP INDEX `tahun_anggaran_urusan`,
+	ADD INDEX `idpaket_belanja` (`idpaket_belanja`) USING BTREE,
+	DROP INDEX `nama_urusan`,
+	ADD INDEX `idakun_belanja` (`idakun_belanja`) USING BTREE;
+
+
+
+-- paket belanja apbd detail sub 
+CREATE TABLE `paket_belanja_apbd_detail_sub` (
+	`idpaket_belanja_apbd_detail_sub` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpaket_belanja_detail_sub` INT(10) NULL DEFAULT NULL,
+	`idkategori` INT(10) NULL DEFAULT NULL,
+	`idsub_kategori` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_apbd` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja',
+	`idpaket_belanja_apbd_detail` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja detail berdasarkan idpaket_belanja_detail',
+	`is_idpaket_belanja_apbd_detail_sub` INT(10) NULL DEFAULT NULL COMMENT 'terisi jika data ini turunan dari kategori, mengacu pada kolom idpaket_belanja_detail_sub',
+	`status_detail_step` VARCHAR(50) NULL DEFAULT NULL COMMENT 'untuk menandakan id tabel ini di step mana' COLLATE 'utf8mb4_unicode_ci',
+	`volume` DOUBLE NULL DEFAULT NULL,
+	`volume_realization` DOUBLE NULL DEFAULT '0' COMMENT 'volume yang sudah diproses ',
+	`idsatuan` INT(10) NULL DEFAULT NULL,
+	`harga_satuan` DOUBLE NULL DEFAULT NULL,
+	`jumlah` DOUBLE NULL DEFAULT NULL,
+	`is_kategori` INT(10) NULL DEFAULT NULL COMMENT 'bernilai 1 jika termasuk kategori',
+	`is_subkategori` INT(10) NULL DEFAULT NULL COMMENT 'bernilai 1 jika termasuk sub kategori',
+	`spesifikasi` TEXT NULL DEFAULT NULL COMMENT 'spesifikasi dari uraian yang dipilih' COLLATE 'utf8mb4_unicode_ci',
+	`link_url` VARCHAR(200) NULL DEFAULT NULL COMMENT 'link url dari spesifikasi yang diisi' COLLATE 'utf8mb4_unicode_ci',
+	`rak_volume_januari` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_januari` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_februari` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_februari` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_maret` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_maret` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_april` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_april` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_mei` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_mei` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juni` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juni` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juli` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juli` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_agustus` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_agustus` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_september` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_september` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_oktober` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_oktober` DOUBLE UNSIGNED NULL DEFAULT NULL,
+	`rak_volume_november` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_november` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_desember` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_desember` DOUBLE NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_apbd_detail_sub`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `is_kategori` (`is_kategori`) USING BTREE,
+	INDEX `is_subkategori` (`is_subkategori`) USING BTREE,
+	INDEX `idsub_kategori` (`idsub_kategori`) USING BTREE,
+	INDEX `volume` (`volume`) USING BTREE,
+	INDEX `idsatuan` (`idsatuan`) USING BTREE,
+	INDEX `harga_satuan` (`harga_satuan`) USING BTREE,
+	INDEX `jumlah` (`jumlah`) USING BTREE,
+	INDEX `link_url` (`link_url`) USING BTREE,
+	INDEX `status_detail_step` (`status_detail_step`) USING BTREE,
+	INDEX `volume_realization` (`volume_realization`) USING BTREE,
+	INDEX `idkategori` (`idkategori`) USING BTREE,
+	INDEX `is_idpaket_belanja_apbd_detail_sub` (`is_idpaket_belanja_apbd_detail_sub`) USING BTREE,
+	INDEX `idpaket_belanja_apbd` (`idpaket_belanja_apbd`) USING BTREE,
+	INDEX `idpaket_belanja_apbd_detail` (`idpaket_belanja_apbd_detail`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+
+
+-- paket belanja log
+CREATE TABLE `paket_belanja_log` (
+	`idpaket_belanja_log` INT(10) NOT NULL AUTO_INCREMENT,
+	`jenis_log` VARCHAR(50) NULL DEFAULT NULL COMMENT 'MURNI; PAPBD' COLLATE 'utf8mb4_unicode_ci',
+	`aksi_log` VARCHAR(50) NULL DEFAULT NULL COMMENT 'TAMBAH: EDIT; HAPUS' COLLATE 'utf8mb4_unicode_ci',
+	`idpaket_belanja_murni` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_papbd` INT(10) NULL DEFAULT NULL,
+	`nama_paket_belanja_baru` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`nama_paket_belanja_lama` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`nilai_anggaran_baru` DOUBLE NULL DEFAULT NULL,
+	`nilai_anggaran_lama` DOUBLE NULL DEFAULT NULL,
+	`status_paket_belanja_baru` VARCHAR(50) NULL DEFAULT 'DRAFT' COMMENT 'DRAFT / OK; draft : transaksi belum disimpan (trx baru), OK : transaksi pernah disimpan' COLLATE 'utf8mb4_unicode_ci',
+	`status_paket_belanja_lama` VARCHAR(50) NULL DEFAULT 'DRAFT' COMMENT 'DRAFT / OK; draft : transaksi belum disimpan (trx baru), OK : transaksi pernah disimpan' COLLATE 'utf8mb4_unicode_ci',
+	`idsub_kegiatan_baru` INT(10) NULL DEFAULT NULL,
+	`idsub_kegiatan_lama` INT(10) NULL DEFAULT NULL,
+	`idkegiatan_baru` INT(10) NULL DEFAULT NULL,
+	`idkegiatan_lama` INT(10) NULL DEFAULT NULL,
+	`idprogram_baru` INT(10) NULL DEFAULT NULL,
+	`idprogram_lama` INT(10) NULL DEFAULT NULL,
+	`select_ppkom_pptk_baru` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' COLLATE 'utf8mb4_unicode_ci',
+	`select_ppkom_pptk_lama` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' COLLATE 'utf8mb4_unicode_ci',
+	`is_active` INT(10) NULL DEFAULT '1',
+	`is_locked` INT(10) NULL DEFAULT '0' COMMENT 'buka : 0; kunci : 1',
+	`lockedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`locked_date` DATETIME NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_log`) USING BTREE,
+	INDEX `is_active` (`is_active`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `nama_paket_belanja_baru` (`nama_paket_belanja_baru`) USING BTREE,
+	INDEX `idsub_kegiatan_baru` (`idsub_kegiatan_baru`) USING BTREE,
+	INDEX `idprogram_baru` (`idprogram_baru`) USING BTREE,
+	INDEX `idkategori_baru` (`idkegiatan_baru`) USING BTREE,
+	INDEX `select_ppkom_pptk_baru` (`select_ppkom_pptk_baru`) USING BTREE,
+	INDEX `status_paket_belanja_baru` (`status_paket_belanja_baru`) USING BTREE,
+	INDEX `nama_paket_belanja_lama` (`nama_paket_belanja_lama`) USING BTREE,
+	INDEX `idpaket_belanja_murni` (`idpaket_belanja_murni`) USING BTREE,
+	INDEX `jenis_log` (`jenis_log`) USING BTREE,
+	INDEX `idpaket_belanja_papbd` (`idpaket_belanja_papbd`) USING BTREE,
+	INDEX `status_paket_belanja_lama` (`status_paket_belanja_lama`) USING BTREE,
+	INDEX `idsub_kegiatan_lama` (`idsub_kegiatan_lama`) USING BTREE,
+	INDEX `idkegiatan_lama` (`idkegiatan_lama`) USING BTREE,
+	INDEX `idprogram_lama` (`idprogram_lama`) USING BTREE,
+	INDEX `select_ppkom_pptk_lama` (`select_ppkom_pptk_lama`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+
+-- paket belanja log detail
+CREATE TABLE `paket_belanja_log_detail` (
+	`idpaket_belanja_log_detail` INT(10) NOT NULL AUTO_INCREMENT,
+	`jenis_log` INT(10) NULL DEFAULT NULL COMMENT 'MURNI; PAPBD',
+	`aksi_log` INT(10) NULL DEFAULT NULL COMMENT 'TAMBAH; EDIT; HAPUS',
+	`idakun_belanja_baru` INT(10) NULL DEFAULT NULL,
+	`idakun_belanja_lama` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_log` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_murni_detail` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_papbd_detail` INT(10) NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_log_detail`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idpaket_belanja_log` (`idpaket_belanja_log`) USING BTREE,
+	INDEX `idakun_belanja_baru` (`idakun_belanja_baru`) USING BTREE,
+	INDEX `idakun_belanja_lama` (`idakun_belanja_lama`) USING BTREE,
+	INDEX `idpaket_belanja_murni_detail` (`idpaket_belanja_murni_detail`) USING BTREE,
+	INDEX `idpaket_belanja_papbd_detail` (`idpaket_belanja_papbd_detail`) USING BTREE,
+	INDEX `jenis_log` (`jenis_log`) USING BTREE,
+	CONSTRAINT `FK_paket_belanja_log_detail_paket_belanja_log` FOREIGN KEY (`idpaket_belanja_log`) REFERENCES `paket_belanja_log` (`idpaket_belanja_log`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+
+-- paket belanja log detail sub
+CREATE TABLE `paket_belanja_log_detail_sub` (
+	`idpaket_belanja_log_detail_sub` INT(10) NOT NULL AUTO_INCREMENT,
+	`jenis_log` INT(10) NULL DEFAULT NULL COMMENT 'MURNI; PAPBD',
+	`aksi_log` INT(10) NULL DEFAULT NULL COMMENT 'TAMBAH; EDIT; HAPUS',
+	`idkategori_baru` INT(10) NULL DEFAULT NULL,
+	`idkategori_lama` INT(10) NULL DEFAULT NULL,
+	`idsub_kategori_baru` INT(10) NULL DEFAULT NULL,
+	`idsub_kategori_lama` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_log` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja_log',
+	`idpaket_belanja_log_detail` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja log detail berdasarkan idpaket_belanja_log_detail',
+	`idpaket_belanja_murni_detail_sub` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_papbd_detail_sub` INT(10) NULL DEFAULT NULL,
+	`is_idpaket_belanja_log_detail_sub` INT(10) NULL DEFAULT NULL COMMENT 'terisi jika data ini turunan dari kategori, mengacu pada kolom idpaket_belanja_log_detail_sub',
+	`status_detail_step_baru` VARCHAR(50) NULL DEFAULT NULL COMMENT 'untuk menandakan id tabel ini di step mana' COLLATE 'utf8mb4_unicode_ci',
+	`status_detail_step_lama` VARCHAR(50) NULL DEFAULT NULL COMMENT 'untuk menandakan id tabel ini di step mana' COLLATE 'utf8mb4_unicode_ci',
+	`volume_baru` DOUBLE NULL DEFAULT NULL,
+	`volume_lama` DOUBLE NULL DEFAULT NULL,
+	`volume_realization_baru` DOUBLE NULL DEFAULT '0' COMMENT 'volume yang sudah diproses ',
+	`volume_realization_lama` DOUBLE NULL DEFAULT '0' COMMENT 'volume yang sudah diproses ',
+	`idsatuan_baru` INT(10) NULL DEFAULT NULL,
+	`idsatuan_lama` INT(10) NULL DEFAULT NULL,
+	`harga_satuan_baru` DOUBLE NULL DEFAULT NULL,
+	`harga_satuan_lama` DOUBLE NULL DEFAULT NULL,
+	`jumlah_baru` DOUBLE NULL DEFAULT NULL,
+	`jumlah_lama` DOUBLE NULL DEFAULT NULL,
+	`is_kategori` INT(10) NULL DEFAULT NULL COMMENT 'bernilai 1 jika termasuk kategori',
+	`is_subkategori` INT(10) NULL DEFAULT NULL COMMENT 'bernilai 1 jika termasuk sub kategori',
+	`spesifikasi_baru` TEXT NULL DEFAULT NULL COMMENT 'spesifikasi dari uraian yang dipilih' COLLATE 'utf8mb4_unicode_ci',
+	`spesifikasi_lama` TEXT NULL DEFAULT NULL COMMENT 'spesifikasi dari uraian yang dipilih' COLLATE 'utf8mb4_unicode_ci',
+	`link_url_baru` VARCHAR(200) NULL DEFAULT NULL COMMENT 'link url dari spesifikasi yang diisi' COLLATE 'utf8mb4_unicode_ci',
+	`link_url_lama` VARCHAR(200) NULL DEFAULT NULL COMMENT 'link url dari spesifikasi yang diisi' COLLATE 'utf8mb4_unicode_ci',
+	`rak_volume_januari_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_januari_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_januari_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_januari_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_februari_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_februari_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_februari_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_februari_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_maret_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_maret_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_maret_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_maret_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_april_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_april_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_april_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_april_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_mei_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_mei_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_mei_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_mei_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juni_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juni_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juni_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juni_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juli_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juli_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juli_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juli_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_agustus_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_agustus_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_agustus_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_agustus_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_september_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_september_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_september_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_september_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_oktober_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_oktober_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_oktober_baru` DOUBLE UNSIGNED NULL DEFAULT NULL,
+	`rak_jumlah_oktober_lama` DOUBLE UNSIGNED NULL DEFAULT NULL,
+	`rak_volume_november_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_november_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_november_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_november_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_desember_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_desember_lama` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_desember_baru` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_desember_lama` DOUBLE NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_log_detail_sub`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idkategori_baru` (`idkategori_baru`) USING BTREE,
+	INDEX `is_kategori` (`is_kategori`) USING BTREE,
+	INDEX `is_subkategori` (`is_subkategori`) USING BTREE,
+	INDEX `idsub_kategori_baru` (`idsub_kategori_baru`) USING BTREE,
+	INDEX `idpaket_belanja_log_detail` (`idpaket_belanja_log_detail`) USING BTREE,
+	INDEX `volume_baru` (`volume_baru`) USING BTREE,
+	INDEX `idsatuan_baru` (`idsatuan_baru`) USING BTREE,
+	INDEX `harga_satuan_baru` (`harga_satuan_baru`) USING BTREE,
+	INDEX `jumlah_baru` (`jumlah_baru`) USING BTREE,
+	INDEX `is_idpaket_belanja_log_detail_sub` (`is_idpaket_belanja_log_detail_sub`) USING BTREE,
+	INDEX `idpaket_belanja_log` (`idpaket_belanja_log`) USING BTREE,
+	INDEX `link_url_baru` (`link_url_baru`) USING BTREE,
+	INDEX `status_detail_step_baru` (`status_detail_step_baru`) USING BTREE,
+	INDEX `volume_realization_baru` (`volume_realization_baru`) USING BTREE,
+	INDEX `idkategori_lama` (`idkategori_lama`) USING BTREE,
+	INDEX `idsub_kategori_lama` (`idsub_kategori_lama`) USING BTREE,
+	INDEX `status_detail_step_lama` (`status_detail_step_lama`) USING BTREE,
+	INDEX `volume_lama` (`volume_lama`) USING BTREE,
+	INDEX `volume_realization_lama` (`volume_realization_lama`) USING BTREE,
+	INDEX `idsatuan_lama` (`idsatuan_lama`) USING BTREE,
+	INDEX `harga_satuan_lama` (`harga_satuan_lama`) USING BTREE,
+	INDEX `jumlah_lama` (`jumlah_lama`) USING BTREE,
+	INDEX `link_url_lama` (`link_url_lama`) USING BTREE,
+	INDEX `jenis_log` (`jenis_log`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+-- config untuk kunci/buka kunci anggaran APBD/murni
+INSERT INTO `config` (`key`, `value`, `type`) VALUES ('anggaran_APBD', '0', 'button_apbd');
+
+
+
+
+
+
+
+
+
+--?? tabel log masih belum jelas konsepnya
+-- paket belanja log
+CREATE TABLE paket_belanja_log (
+
+    idlog BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    jenis_anggaran ENUM('MURNI','PAPBD'),
+
+    idpaket_belanja INT,
+
+    aksi ENUM(
+        'INSERT',
+        'UPDATE',
+        'DELETE',
+        'LOCK',
+        'GENERATE_PAPBD'
+    ),
+
+    data_lama JSON NULL,
+    data_baru JSON NULL,
+
+    created DATETIME,
+    createdby VARCHAR(50)
+);
+
+-- paket belanja detail log
+-- untuk mencatat perubahan data pada tabel paket_belanja_detail, paket_belanja_detail_papbd, paket_belanja_detail_sub, paket_belanja_detail_sub_papbd
+CREATE TABLE paket_belanja_item_log (
+
+    idlog BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    jenis_anggaran ENUM('MURNI','PAPBD'),
+
+    jenis_data ENUM(
+        'DETAIL',
+        'DETAIL_SUB'
+    ),
+
+    idpaket_belanja INT,
+
+    id_data INT,
+
+    aksi ENUM(
+        'INSERT',
+        'UPDATE',
+        'DELETE'
+    ),
+
+    data_lama JSON NULL,
+    data_baru JSON NULL,
+
+    created DATETIME,
+    createdby VARCHAR(50)
+);
+
+
+-- untuk fitur lock anggaran murni
+INSERT INTO paket_belanja_papbd
+(
+    idpaket_belanja_murni,
+    nama_paket_belanja,
+    nilai_anggaran,
+    status_paket_belanja,
+    idsub_kegiatan,
+    idkegiatan,
+    idprogram,
+    select_ppkom_pptk,
+    is_active,
+    created,
+    createdby,
+    updated,
+    updatedby,
+    status
+)
+SELECT
+    idpaket_belanja,
+    nama_paket_belanja,
+    nilai_anggaran,
+    status_paket_belanja,
+    idsub_kegiatan,
+    idkegiatan,
+    idprogram,
+    select_ppkom_pptk,
+    is_active,
+    NOW(),
+    'SYSTEM',
+    NULL,
+    NULL,
+    status
+FROM paket_belanja
+WHERE idpaket_belanja=@idpaket;
+
+INSERT INTO paket_belanja_detail_papbd
+(
+    idpaket_belanja_detail_murni,
+    idakun_belanja,
+    idpaket_belanja,
+    created,
+    createdby,
+    status
+)
+SELECT
+    idpaket_belanja_detail,
+    idakun_belanja,
+    @idpaket_papbd,
+    NOW(),
+    'SYSTEM',
+    status
+FROM paket_belanja_detail
+WHERE idpaket_belanja=@idpaket;
+
+-- paket belanja detail sub harus lopping manual (tidak bisa menggunakan query) karena perlu mapping datanya
+
+
+INSERT INTO paket_belanja_log
+(
+    jenis_anggaran,
+    idpaket_belanja,
+    aksi,
+    data_baru,
+    created,
+    createdby
+)
+VALUES
+(
+    'MURNI',
+    @idpaket,
+    'GENERATE_PAPBD',
+
+    JSON_OBJECT(
+        'idpaket_papbd',
+        @idpaket_papbd
+    ),
+
+    NOW(),
+    'SYSTEM'
+);
