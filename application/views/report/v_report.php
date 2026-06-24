@@ -55,6 +55,15 @@
                 </div>
         <?php
             }
+            if (aznav('role_report_tw')) {
+        ?>
+                <div class="col-md-6 report">
+                    <h4>Laporan Realisasi Paket Belanja per TW</h4>
+                    <p>Menampilkan semua realisasi paket belanja per triwulan.</p>
+                    <a href="<?php echo app_url().'report_tw' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                </div>
+        <?php
+            }
         ?>
     </div>
 </div>
