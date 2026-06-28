@@ -43,6 +43,7 @@ class Information extends CI_Controller
 		$this->form_validation->set_error_delimiters('', '');
 
 		$anggaran_APBD = $this->input->post('anggaran_APBD');
+		$type = $this->input->post('type');
 		$year = date('Y');
 
 		$this->form_validation->set_rules('PPTK', azlang('PPTK'), 'required|trim|max_length[200]');
@@ -60,31 +61,32 @@ class Information extends CI_Controller
 			}
 
 			if ($anggaran_APBD !== null) {
-				if ($anggaran_APBD == '2') {
+				if ($anggaran_APBD == '2' && $type == "lock") {
 					// kunci anggaran APBD PERUBAHAN
 
-					// $check_locked = 0;
-					// $pb_data = $this->get_active_paket_belanja($year, $check_locked);
+					$check_locked = 1;
+					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
 
-					// if ($pb_data->num_rows() === 0) {
-					// 	$err_message = azlang('Tidak ada paket belanja yang bisa diproses.');
-					// 	$err_code = 1;
-					// } 
-					// else {
-					// 	$type = "APBD";
-					// 	$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
+					if ($pb_data->num_rows() === 0) {
+						$err_message = azlang('Tidak ada paket belanja yang bisa diproses.');
+						$err_code = 1;
+					} 
+					else {
+						$type = "APBD PERUBAHAN";
+						$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
 						
-					// 	if ($duplicate_result['success'] === true) {
-					// 		$this->lock_paket_belanja($duplicate_result['ids'], $anggaran_APBD);
-					// 	} 
-					// 	else {
-					// 		$err_message = $duplicate_result['message'];
-					// 		$err_code = 1;
-					// 	}
-					// }
+						if ($duplicate_result['success'] === true) {
+							$this->lock_paket_belanja($duplicate_result['ids'], $anggaran_APBD);
+						} 
+						else {
+							$err_message = $duplicate_result['message'];
+							$err_code = 1;
+						}
+					}
 				}
-				else if ($anggaran_APBD == '1') {
+				else if ($anggaran_APBD == '1' && $type == "lock") {
 					// kunci anggaran APBD
+
 					$check_locked = 0;
 					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
 
@@ -105,10 +107,11 @@ class Information extends CI_Controller
 						}
 					}
 				}
-				else if ($anggaran_APBD == '0') {
-					$check_locked = 1;
-					$type = "APBD";
-					// buka kunci anggaran APBD
+				else if ($anggaran_APBD == '1' && $type == "unlock") {
+					// buka kunci anggaran APBD PERUBAHAN
+
+					$check_locked = 2;
+					$type = "APBD PERUBAHAN";
 					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
 					
 					if ($pb_data->num_rows() === 0) {
@@ -121,7 +124,32 @@ class Information extends CI_Controller
 						$delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
 						
 						if ($delete_result['success'] === true) {
-							$this->unlock_paket_belanja($ids_to_unlock);
+							$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
+						} 
+						else {
+							$err_message = $delete_result['message'];
+							$err_code = 1;
+						}
+					}
+				}
+				else if ($anggaran_APBD == '0' && $type == "unlock") {
+					// buka kunci anggaran APBD
+
+					$check_locked = 1;
+					$type = "APBD";
+					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
+					
+					if ($pb_data->num_rows() === 0) {
+						$err_message = azlang('Tidak ada paket belanja yang bisa dibuka.');
+						$err_code = 1;
+					} 
+					else {
+						$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja');
+						// $delete_result = $this->delete_apbd_data($ids_to_unlock);
+						$delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
+						
+						if ($delete_result['success'] === true) {
+							$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
 						} 
 						else {
 							$err_message = $delete_result['message'];
@@ -189,14 +217,14 @@ class Information extends CI_Controller
 	private function duplicate_paket_belanja_to_apbd(array $pb_rows, $type) {
 		$inserted_ids = array();
 
+		$this->db->select_max('sequence');
+		$pb_apbd = $this->db->get('paket_belanja_apbd');
+		$sequence = $pb_apbd->row()->sequence;
+		$sequence = $sequence ? $sequence + 1 : 1;
+
 		foreach ($pb_rows as $pb) {
 			$idpaket_belanja = $pb['idpaket_belanja'];
 			$inserted_ids[] = $idpaket_belanja;
-
-			$this->db->select_max('sequence');
-			$pb_apbd = $this->db->get('paket_belanja_apbd');
-			$sequence = $pb_apbd->row()->sequence;
-			$sequence = $sequence ? $sequence + 1 : 1;
 
 			$pb_copy = $pb;
 			unset($pb_copy['created'], $pb_copy['createdby'], $pb_copy['updated'], $pb_copy['updatedby'], $pb_copy['status'], $pb_copy['is_locked'], $pb_copy['lockedby'], $pb_copy['locked_date'], $pb_copy['apbd_lockedby'], $pb_copy['apbd_locked_date'], $pb_copy['apbd_changes_lockedby'], $pb_copy['apbd_changes_locked_date']);
@@ -291,9 +319,14 @@ class Information extends CI_Controller
 
 	private function return_paket_belanja_to_apbd($ids_to_unlock, $type) {
 		// kembalikan data paket belanja apbd ke paket belanja berdasarkan idpaket_belanja
+		$this->db->select_max('sequence');
+		$pb_apbd = $this->db->get('paket_belanja_apbd');
+		$sequence = $pb_apbd->row()->sequence;
+		$sequence = $sequence ? $sequence : 1;
+
 		$this->db->where_in('idpaket_belanja', $ids_to_unlock);
 		$this->db->where('jenis', $type);
-		$this->db->order_by('sequence', 'DESC');
+		$this->db->where('sequence', $sequence);
 		$apbd = $this->db->get('paket_belanja_apbd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -302,7 +335,7 @@ class Information extends CI_Controller
 			$idpaket_belanja = $pb_apbd['idpaket_belanja'];
 			$pb = $pb_apbd;
 
-			unset($pb['idpaket_belanja'], $pb['jenis'], $pb['sequence'], $pb['idpaket_belanja_apbd'], $pb['created'], $pb['createdby'], $pb['updated'], $pb['updatedby'], $pb['status']);
+			unset($pb['idpaket_belanja'], $pb['jenis'], $pb['sequence'], $pb['idpaket_belanja_apbd'], $pb['created'], $pb['createdby'], $pb['updated'], $pb['updatedby']);
 
 			if ($type == 'APBD') {
 				// turun dari APBD PERUBAHAN ke APBD
@@ -339,7 +372,7 @@ class Information extends CI_Controller
 				$idpaket_belanja_detail = $detail['idpaket_belanja_detail'];
 
 				$pb_detail = $detail;
-				unset($pb_detail['idpaket_belanja_apbd_detail'], $pb_detail['idpaket_belanja_detail'], $pb_detail['idpaket_belanja_apbd'], $pb_detail['created'], $pb_detail['createdby'], $pb_detail['updated'], $pb_detail['updatedby'], $pb_detail['status']);
+				unset($pb_detail['idpaket_belanja_apbd_detail'], $pb_detail['idpaket_belanja_detail'], $pb_detail['idpaket_belanja_apbd'], $pb_detail['created'], $pb_detail['createdby'], $pb_detail['updated'], $pb_detail['updatedby']);
 				$pb_detail['idpaket_belanja'] = $idpaket_belanja;
 				// echo "<pre>"; print_r($pb_detail); die;
 				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
@@ -365,7 +398,7 @@ class Information extends CI_Controller
 
 					$pb_detail_sub = $detail_sub;
 
-					unset($pb_detail_sub['idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['idpaket_belanja_detail_sub'], $pb_detail_sub['idpaket_belanja_apbd'], $pb_detail_sub['idpaket_belanja_apbd_detail'], $pb_detail_sub['is_idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['created'], $pb_detail_sub['createdby'], $pb_detail_sub['updated'], $pb_detail_sub['updatedby'], $pb_detail_sub['status']);
+					unset($pb_detail_sub['idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['idpaket_belanja_detail_sub'], $pb_detail_sub['idpaket_belanja_apbd'], $pb_detail_sub['idpaket_belanja_apbd_detail'], $pb_detail_sub['is_idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['created'], $pb_detail_sub['createdby'], $pb_detail_sub['updated'], $pb_detail_sub['updatedby']);
 
 					$pb_detail_sub['idpaket_belanja'] = $idpaket_belanja;
 					
@@ -430,7 +463,7 @@ class Information extends CI_Controller
 		}
 
 		// jika tidak ada eror sama sekali, maka hapus data paket belanja apbd nya
-		$delete_result = $this->delete_apbd_data($ids_to_unlock);
+		$delete_result = $this->delete_apbd_data($ids_to_unlock, $type, $sequence);
 
 		if ($this->db->trans_status() === FALSE) {
 			return array(
@@ -464,24 +497,33 @@ class Information extends CI_Controller
 		$this->db->update('paket_belanja', $update_lock);
 	}
 
-	private function unlock_paket_belanja(array $ids)
+	private function unlock_paket_belanja(array $ids, $anggaran_APBD)
 	{
 		$update_unlock = array(
-			'is_locked' => 0,
-			'apbd_lockedby' => null,
-			'apbd_locked_date' => null,
-			'apbd_changes_lockedby' => null,
-			'apbd_changes_locked_date' => null
+			'is_locked' => $anggaran_APBD,
 		);
+
+		if ($anggaran_APBD == '1') {
+			$update_lock['apbd_lockedby'] = null;
+			$update_lock['apbd_locked_date'] = null;
+		} 
+		else if ($anggaran_APBD == '2') {
+			$update_lock['apbd_changes_lockedby'] = null;
+			$update_lock['apbd_changes_locked_date'] = null;
+
+		}
 
 		$this->db->where_in('idpaket_belanja', $ids);
 		$this->db->update('paket_belanja', $update_unlock);
 	}
 
-	private function delete_apbd_data(array $ids)
+	private function delete_apbd_data(array $ids, $type, $sequence)
 	{
 		$this->db->where_in('idpaket_belanja', $ids);
+		$this->db->where('jenis', $type);
+		$this->db->where('sequence', $sequence);
 		$apbd_rows = $this->db->get('paket_belanja_apbd')->result_array();
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		if (!empty($apbd_rows)) {
 			$apbd_ids = array_column($apbd_rows, 'idpaket_belanja_apbd');
@@ -497,6 +539,8 @@ class Information extends CI_Controller
 			}
 
 			$this->db->where_in('idpaket_belanja', $ids);
+			$this->db->where('jenis', $type);
+			$this->db->where('sequence', $sequence);
 			if ($this->db->delete('paket_belanja_apbd') === false) {
 				return array('success' => false, 'message' => azlang('Gagal menghapus data[pbp].'));
 			}

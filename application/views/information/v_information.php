@@ -42,7 +42,7 @@
 						if ($value->value == '0') {
 							// APBD murni
 				?>
-							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="1" name="<?php echo $value->key; ?>">
+							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="1" data-type="lock" name="<?php echo $value->key; ?>">
 								<?php echo azlang('Kunci APBD'); ?>
 							</button>
 				<?php
@@ -50,10 +50,10 @@
 						else if ($value->value == '1') {
 							// APBD Perubahan
 				?>			
-							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="0" name="<?php echo $value->key; ?>">
+							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="0" data-type="unlock" name="<?php echo $value->key; ?>">
 								<?php echo azlang('Buka Kunci APBD'); ?>
 							</button>
-							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="2" name="<?php echo $value->key; ?>">
+							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="2" data-type="lock" name="<?php echo $value->key; ?>">
 								<?php echo azlang('Kunci APBD PERUBAHAN'); ?>
 							</button>
 				<?php
@@ -61,7 +61,7 @@
 						else if ($value->value == '2') {
 							// PAPBD Perubahan
 				?>			
-							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="1" name="<?php echo $value->key; ?>">
+							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="1" data-type="unlock" name="<?php echo $value->key; ?>">
 								<?php echo azlang('Buka Kunci APBD PERUBAHAN'); ?>
 							</button>
 				<?php

@@ -34,6 +34,7 @@
 
 	jQuery('.btn-apbd').click(function() {
 		var anggaran_apbd = jQuery(this).data('value');
+		var type = jQuery(this).data('type');
 		
 		bootbox.confirm('Apakah anda yakin ingin memproses ini?', function(e) {
 			show_loading();
@@ -42,7 +43,7 @@
 					url: app_url + 'information/save',
 					type: 'POST',
 					dataType: 'JSON',
-					data: jQuery('#form_information').serialize() + '&anggaran_APBD=' + anggaran_apbd,
+					data: jQuery('#form_information').serialize() + '&anggaran_APBD=' + anggaran_apbd + '&type=' + type,
 					success: function(response) {
 						hide_loading();
 						if (response.sMessage != "") {
