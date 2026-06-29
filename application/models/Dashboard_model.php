@@ -62,63 +62,73 @@ class Dashboard_model extends CI_Model {
      * @return float[]
      */
     public function get_target_per_bulan($tahun) {
-        $out = [];
+        // Optimized: single query aggregate for all 12 months to avoid 12 individual queries.
+        $this->db->reset_query();
 
-        for ($bulan = 1; $bulan <= 12; $bulan++) {
-            $this->db->reset_query();
+        // apply same where conditions as original implementation
+        $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun);
+        $this->db->where('pb.status_paket_belanja = "OK" ');
+        $this->db->where('pb.is_active', 1);
+        $this->db->where('pb.status', 1);
+        $this->db->where('pbd.status', 1);
+        $this->db->where('pbds.status', 1);
+        $this->db->where('pbds.volume IS NOT NULL', null, false);
+        $this->db->where('pbds.idsatuan IS NOT NULL', null, false);
+        $this->db->where('pbds.harga_satuan IS NOT NULL', null, false);
+        $this->db->where('pbds.jumlah IS NOT NULL', null, false);
 
-            // Kondisi dasar yang sama seperti di Home::index
-            $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun);
-            $this->db->where('pb.status_paket_belanja = "OK" ');
-            $this->db->where('pb.is_active', 1);
-            $this->db->where('pb.status', 1);
-            $this->db->where('pbd.status', 1);
-            $this->db->where('pbds.status', 1);
-            $this->db->where('pbds.volume IS NOT NULL', null, false);
-            $this->db->where('pbds.idsatuan IS NOT NULL', null, false);
-            $this->db->where('pbds.harga_satuan IS NOT NULL', null, false);
-            $this->db->where('pbds.jumlah IS NOT NULL', null, false);
+        $this->db->join('paket_belanja_detail pbd', 'pbd.idpaket_belanja = pb.idpaket_belanja');
+        $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = pbd.idakun_belanja');
+        // preserve original complex join condition (left join with raw ON)
+        $this->db->join('paket_belanja_detail_sub pbds', 
+            'pbds.idpaket_belanja_detail = pbd.idpaket_belanja_detail 
+                OR pbds.is_idpaket_belanja_detail_sub IN (
+                    SELECT sub.idpaket_belanja_detail_sub 
+                    FROM paket_belanja_detail_sub sub 
+                    WHERE sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail
+                )',
+            'left', false
+        );
+        $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = pb.idsub_kegiatan');
+        $this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
 
-            $this->db->join('paket_belanja_detail pbd', 'pbd.idpaket_belanja = pb.idpaket_belanja');
-            $this->db->join('akun_belanja', 'akun_belanja.idakun_belanja = pbd.idakun_belanja');
-            $this->db->join('paket_belanja_detail_sub pbds', 
-                'pbds.idpaket_belanja_detail = pbd.idpaket_belanja_detail 
-                    OR pbds.is_idpaket_belanja_detail_sub IN (
-                        SELECT sub.idpaket_belanja_detail_sub 
-                        FROM paket_belanja_detail_sub sub 
-                        WHERE sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail
-                    )',
-                'left', false
-            );
-            $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = pb.idsub_kegiatan');
-            $this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
-            $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
-            $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
-            $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+        // aggregate all month columns in one query
+        $this->db->select(
+            'SUM(rak_jumlah_januari) as bln1, '
+            . 'SUM(rak_jumlah_februari) as bln2, '
+            . 'SUM(rak_jumlah_maret) as bln3, '
+            . 'SUM(rak_jumlah_april) as bln4, '
+            . 'SUM(rak_jumlah_mei) as bln5, '
+            . 'SUM(rak_jumlah_juni) as bln6, '
+            . 'SUM(rak_jumlah_juli) as bln7, '
+            . 'SUM(rak_jumlah_agustus) as bln8, '
+            . 'SUM(rak_jumlah_september) as bln9, '
+            . 'SUM(rak_jumlah_oktober) as bln10, '
+            . 'SUM(rak_jumlah_november) as bln11, '
+            . 'SUM(rak_jumlah_desember) as bln12',
+            false
+        );
 
-            // Pilih bulan yang sesuai
-            switch ($bulan) {
-                case 1:  $this->db->select('sum(rak_jumlah_januari) as nilai_anggaran'); break;
-                case 2:  $this->db->select('sum(rak_jumlah_februari) as nilai_anggaran'); break;
-                case 3:  $this->db->select('sum(rak_jumlah_maret) as nilai_anggaran'); break;
-                case 4:  $this->db->select('sum(rak_jumlah_april) as nilai_anggaran'); break;
-                case 5:  $this->db->select('sum(rak_jumlah_mei) as nilai_anggaran'); break;
-                case 6:  $this->db->select('sum(rak_jumlah_juni) as nilai_anggaran'); break;
-                case 7:  $this->db->select('sum(rak_jumlah_juli) as nilai_anggaran'); break;
-                case 8:  $this->db->select('sum(rak_jumlah_agustus) as nilai_anggaran'); break;
-                case 9:  $this->db->select('sum(rak_jumlah_september) as nilai_anggaran'); break;
-                case 10: $this->db->select('sum(rak_jumlah_oktober) as nilai_anggaran'); break;
-                case 11: $this->db->select('sum(rak_jumlah_november) as nilai_anggaran'); break;
-                case 12: $this->db->select('sum(rak_jumlah_desember) as nilai_anggaran'); break;
-            }
+        $pb = $this->db->get('paket_belanja pb');
 
-            $pb = $this->db->get('paket_belanja pb');
-            $nilai = 0;
-            if ($pb->num_rows() > 0) {
-                $nilai = floatval($pb->row()->nilai_anggaran);
-            }
-
-            $out[] = $nilai;
+        $out = array_fill(0, 12, 0.0);
+        if ($pb->num_rows() > 0) {
+            $row = $pb->row();
+            $out[0] = floatval($row->bln1 ?? 0);
+            $out[1] = floatval($row->bln2 ?? 0);
+            $out[2] = floatval($row->bln3 ?? 0);
+            $out[3] = floatval($row->bln4 ?? 0);
+            $out[4] = floatval($row->bln5 ?? 0);
+            $out[5] = floatval($row->bln6 ?? 0);
+            $out[6] = floatval($row->bln7 ?? 0);
+            $out[7] = floatval($row->bln8 ?? 0);
+            $out[8] = floatval($row->bln9 ?? 0);
+            $out[9] = floatval($row->bln10 ?? 0);
+            $out[10] = floatval($row->bln11 ?? 0);
+            $out[11] = floatval($row->bln12 ?? 0);
         }
 
         return $out;
@@ -132,33 +142,27 @@ class Dashboard_model extends CI_Model {
      * @return float[]
      */
     public function get_realisasi_per_bulan($tahun, $cumulative = true) {
-        $out = [];
-        $running = 0;
+        // Optimized: single query to get totals per month, then (optionally) make cumulative
+        $this->db->reset_query();
+        $this->db->where('npd.status', 1);
+        $this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
+        $this->db->where('YEAR(npd.confirm_payment_date)', $tahun);
+        $this->db->select('MONTH(npd.confirm_payment_date) as bulan, SUM(total_pay) as total');
+        $this->db->group_by('MONTH(npd.confirm_payment_date)');
+        $query = $this->db->get('npd');
 
-        for ($bulan = 1; $bulan <= 12; $bulan++) {
-            // $this->db->reset_query();
-            // $this->db->where('purchase_plan.status', 1);
-            // $this->db->where('purchase_plan_status != "DRAFT" ');
-            // $this->db->where('YEAR(purchase_plan_date)', $tahun);
-            // $this->db->where('MONTH(purchase_plan_date)', $bulan);
-            // $this->db->group_by('YEAR(purchase_plan_date), MONTH(purchase_plan_date)');
-            // $this->db->select('SUM(total_budget) AS total');
-            // $query = $this->db->get('purchase_plan');
-
-            $this->db->reset_query();
-            $this->db->where('npd.status', 1);
-            $this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
-            $this->db->where('YEAR(npd.confirm_payment_date)', $tahun);
-            $this->db->where('MONTH(npd.confirm_payment_date)', $bulan);
-            $this->db->group_by('YEAR(npd.confirm_payment_date), MONTH(npd.confirm_payment_date)');
-            $this->db->select('sum(total_pay) as total');
-            $query = $this->db->get('npd');
-
-            $total = 0;
-            if ($query->num_rows() > 0) {
-                $total = floatval($query->row()->total);
+        $monthly = array_fill(1, 12, 0.0);
+        foreach ($query->result() as $r) {
+            $m = intval($r->bulan);
+            if ($m >=1 && $m <=12) {
+                $monthly[$m] = floatval($r->total);
             }
-            
+        }
+
+        $out = [];
+        $running = 0.0;
+        for ($bulan = 1; $bulan <= 12; $bulan++) {
+            $total = $monthly[$bulan] ?? 0.0;
             if ($cumulative) {
                 $running += $total;
                 $out[] = $running;

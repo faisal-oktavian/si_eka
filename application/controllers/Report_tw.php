@@ -50,30 +50,10 @@ class Report_tw extends CI_Controller {
 		$target_per_bulan = [];
 		$total_anggaran = [];
 
-		// target per tw
-		$target_per_bulan = $this->dashboard->get_target_per_bulan($tahun_anggaran);
-
-		$target_tw1 = $target_per_bulan[0] + $target_per_bulan[1] + $target_per_bulan[2];
-		$target_tw2 = $target_per_bulan[3] + $target_per_bulan[4] + $target_per_bulan[5];
-		$target_tw3 = $target_per_bulan[6] + $target_per_bulan[7] + $target_per_bulan[8];
-		$target_tw4 = $target_per_bulan[9] + $target_per_bulan[10] + $target_per_bulan[11];
-
-		$arr_target = array($target_tw1, $target_tw2, $target_tw3, $target_tw4);
-
-		// realisasi per tw
-		$realisasi_per_bulan = $this->dashboard->get_realisasi_per_bulan($tahun_anggaran, false);
-
-		$realisasi_tw1 = $realisasi_per_bulan[0] + $realisasi_per_bulan[1] + $realisasi_per_bulan[2];
-		$realisasi_tw2 = $realisasi_per_bulan[3] + $realisasi_per_bulan[4] + $realisasi_per_bulan[5];
-		$realisasi_tw3 = $realisasi_per_bulan[6] + $realisasi_per_bulan[7] + $realisasi_per_bulan[8];
-		$realisasi_tw4 = $realisasi_per_bulan[9] + $realisasi_per_bulan[10] + $realisasi_per_bulan[11];
-
-		$arr_realisasi = array($realisasi_tw1, $realisasi_tw2, $realisasi_tw3, $realisasi_tw4);
-
-		$grafik_potensi_sisa_anggaran = $this->dashboard->grafik_potensi_sisa_anggaran($tahun_anggaran);
-		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
-
-		// echo "<pre>"; print_r($arr_realisasi);die;
+		$get_target_realisasi = $this->get_target_realisasi($tahun_anggaran);
+		$arr_target = $get_target_realisasi['target'];
+		$arr_realisasi = $get_target_realisasi['realisasi'];
+		$total_anggaran = $get_target_realisasi['anggaran'];
 
 		$data['target_per_bulan'] = $arr_target;
 		$data['realisasi_per_bulan'] = $arr_realisasi;
@@ -452,6 +432,53 @@ class Report_tw extends CI_Controller {
             ->where_in('purchase_plan_detail.purchase_plan_detail_status', $statuses)
             ->where('budget_realization.realization_status !=', 'DRAFT');
     }
+
+	public function chart_data() {
+		$tahun_anggaran = $this->input->get('vf_tahun_anggaran');
+		if (strlen($tahun_anggaran) == 0) {
+			$tahun_anggaran = date('Y');
+		}
+
+		$data = $this->get_target_realisasi($tahun_anggaran);
+
+		header('Content-Type: application/json');
+		echo json_encode($data);
+	}
+
+	function get_target_realisasi($tahun_anggaran) {
+
+		// target per tw
+		$target_per_bulan = $this->dashboard->get_target_per_bulan($tahun_anggaran);
+
+		$target_tw1 = $target_per_bulan[0] + $target_per_bulan[1] + $target_per_bulan[2];
+		$target_tw2 = $target_per_bulan[3] + $target_per_bulan[4] + $target_per_bulan[5];
+		$target_tw3 = $target_per_bulan[6] + $target_per_bulan[7] + $target_per_bulan[8];
+		$target_tw4 = $target_per_bulan[9] + $target_per_bulan[10] + $target_per_bulan[11];
+
+		$arr_target = array($target_tw1, $target_tw2, $target_tw3, $target_tw4);
+
+		// realisasi per tw
+		$realisasi_per_bulan = $this->dashboard->get_realisasi_per_bulan($tahun_anggaran, false);
+
+		$realisasi_tw1 = $realisasi_per_bulan[0] + $realisasi_per_bulan[1] + $realisasi_per_bulan[2];
+		$realisasi_tw2 = $realisasi_per_bulan[3] + $realisasi_per_bulan[4] + $realisasi_per_bulan[5];
+		$realisasi_tw3 = $realisasi_per_bulan[6] + $realisasi_per_bulan[7] + $realisasi_per_bulan[8];
+		$realisasi_tw4 = $realisasi_per_bulan[9] + $realisasi_per_bulan[10] + $realisasi_per_bulan[11];
+
+		$arr_realisasi = array($realisasi_tw1, $realisasi_tw2, $realisasi_tw3, $realisasi_tw4);
+
+		$grafik_potensi_sisa_anggaran = $this->dashboard->grafik_potensi_sisa_anggaran($tahun_anggaran);
+		$total_anggaran = $grafik_potensi_sisa_anggaran['total_anggaran_tahun_ini'];
+		// echo "<pre>"; print_r($arr_realisasi);die;
+
+		$arr_return = array(
+			'target' => $arr_target,
+			'realisasi' => $arr_realisasi,
+			'anggaran' => $total_anggaran,
+		);
+
+		return $arr_return;
+	}
 
 	// function excel() {
 	// 	$date1 = $this->input->get('date1');

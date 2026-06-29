@@ -39,22 +39,14 @@
 			var bulanLabels = [
 				'TW 1', 'TW 2', 'TW 3', 'TW 4'
 			];
-			// Data dari backend PHP
-			var targetPerBulan = <?php echo json_encode($target_per_bulan); ?>;
-			var realisasiPerBulan = <?php echo json_encode($realisasi_per_bulan); ?>;
-			var totalAnggaran = <?php echo json_encode($total_anggaran); ?>;
-			var tahunGrafik = <?php echo isset($tahun_ini) ? $tahun_ini : date('Y'); ?>;
-
-			var targetPersentase = targetPerBulan.map(function(value) {
-				return totalAnggaran > 0 ? (value / totalAnggaran) * 100 : 0;
-			});
-
-			var realisasiPersentase = realisasiPerBulan.map(function(value) {
-				return totalAnggaran > 0 ? (value / totalAnggaran) * 100 : 0;
-			});
+			// Data dari backend PHP (expose as window vars so updater script can access)
+			window.targetPerBulan = <?php echo json_encode($target_per_bulan); ?>;
+			window.realisasiPerBulan = <?php echo json_encode($realisasi_per_bulan); ?>;
+			window.totalAnggaran = <?php echo json_encode($total_anggaran); ?>;
+			window.tahunGrafik = <?php echo isset($tahun_ini) ? $tahun_ini : date('Y'); ?>;
 
 			var ctx2 = document.getElementById("perbandingan").getContext('2d');
-			var perbandingan = new Chart(ctx2, {
+			window.perbandingan = new Chart(ctx2, {
 				type: 'bar',
 				data: {
 					labels: bulanLabels,
@@ -62,12 +54,12 @@
 						{
 							label: 'Target',
 							backgroundColor: 'rgba(220, 0, 48, 0.85)',
-							data: targetPerBulan
+							data: window.targetPerBulan
 						},
 						{
 							label: 'Realisasi',
 							backgroundColor: 'rgba(54, 163, 235, 0.87)',
-							data: realisasiPerBulan
+							data: window.realisasiPerBulan
 						}
 					]
 				},
@@ -76,10 +68,8 @@
 					plugins: {
 						title: {
 							display: true,
-							text: 'Target & Realisasi Anggaran per TW (Tahun ' + tahunGrafik + ')',
-							font: {
-								size: 18
-							}
+							text: 'Target & Realisasi Anggaran per TW (Tahun ' + window.tahunGrafik + ')',
+							font: { size: 18 }
 						},
 						tooltip: {
 							mode: 'index',
@@ -90,51 +80,23 @@
 									var value = context.parsed.y !== undefined ? context.parsed.y : context.parsed;
 									var percent = 0;
 									if (label === 'Target') {
-										percent = targetPersentase[context.dataIndex];
+										percent = window.totalAnggaran > 0 ? (window.targetPerBulan[context.dataIndex] / window.totalAnggaran) * 100 : 0;
 									} else if (label === 'Realisasi') {
-										percent = realisasiPersentase[context.dataIndex];
+										percent = window.totalAnggaran > 0 ? (window.realisasiPerBulan[context.dataIndex] / window.totalAnggaran) * 100 : 0;
 									}
 									return label + ': Rp ' + new Intl.NumberFormat('id-ID').format(value) + ' (' + percent.toFixed(2) + '%)';
 								}
 							}
 						},
-						legend: {
-							position: 'bottom'
-						}
+						legend: { position: 'bottom' }
 					},
-					interaction: {
-						mode: 'nearest',
-						axis: 'x',
-						intersect: false
-					},
+					interaction: { mode: 'nearest', axis: 'x', intersect: false },
 					scales: {
-						x: {
-							title: {
-								display: true,
-								text: 'TW'
-							},
-							ticks: {
-								font: {
-									weight: 'bold'
-								}
-							}
-						},
-						y: {
-							title: {
-								display: true,
-								text: 'Nilai Anggaran'
-							},
-							beginAtZero: true,
-							ticks: {
-								callback: function(value) {
-									return 'Rp ' + new Intl.NumberFormat().format(value);
-								}
-							}
-						}
+						x: { title: { display: true, text: 'TW' }, ticks: { font: { weight: 'bold' } } },
+						y: { title: { display: true, text: 'Nilai Anggaran' }, beginAtZero: true, ticks: { callback: function(value) { return 'Rp ' + new Intl.NumberFormat().format(value); } } }
 					}
 				}
 			});
-
 		</script>
 	</div>
 </div>
