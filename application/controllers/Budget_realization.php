@@ -1071,10 +1071,14 @@ class Budget_realization extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
+			$this->db->where('contract_detail.status', 1);
 			$this->db->where('budget_realization.idbudget_realization', $idbudget_realization);
 			$this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
 			$this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
 			$realization = $this->db->get('budget_realization');
+			// echo "<pre>"; print_r($this->db->last_query());die;
 
 			if ($realization->num_rows() > 0) {
 				$status = $realization->row()->realization_status;
