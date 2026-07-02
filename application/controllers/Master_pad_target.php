@@ -83,7 +83,7 @@ class Master_pad_target extends CI_Controller {
 	function custom_style($key, $value, $data) {
 
 		if ($key == 'target_per_tahun') {
-			return az_thousand_separator($value);
+			return 'Rp. '.az_thousand_separator($value);
 		}
 		return $value;
 	}
