@@ -124,6 +124,32 @@
             ),
         ),
         array(
+            "name" => "master_pad_online",
+            "title" => "Master PAD Online",
+            "icon" => "database",
+            "url" => "",
+            "submenu" => array(
+                array(
+                    "name" => "master_pad_target",
+                    "title" => "PAD Target",
+                    "url" => "master_pad_target",
+                    "submenu" => array()
+                ),
+                array(
+                    "name" => "master_pad_rekening",
+                    "title" => "PAD Rekening",
+                    "url" => "master_pad_rekening",
+                    "submenu" => array()
+                ),
+                array(
+                    "name" => "master_pad_kode_rekening",
+                    "title" => "PAD Kode Rekening",
+                    "url" => "master_pad_kode_rekening",
+                    "submenu" => array()
+                ),
+            ),
+        ),
+        array(
             "name" => "purchase_plan",
             "title" => "Rencana Pengadaan",
             "icon" => "clipboard",
