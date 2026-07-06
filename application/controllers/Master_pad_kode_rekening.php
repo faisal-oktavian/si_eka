@@ -99,7 +99,7 @@ class Master_pad_kode_rekening extends CI_Controller {
 			$idpad_kode_rekening = azarr($data, 'idpad_kode_rekening');
 			$btn = $value;
 
-			$btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_pad_kode_rekening" data_id="'.$idpad_kode_rekening.'"><i class="fa fa-file"></i> Copy</button>';
+			// $btn .= '<button class="btn btn-info btn-xs btn-copy btn-edit-master_pad_kode_rekening" data_id="'.$idpad_kode_rekening.'"><i class="fa fa-file"></i> Copy</button>';
 
 			return $btn;
 		}
