@@ -280,6 +280,26 @@
             'submenu' => array(),
         ),
         array(
+            "name" => "pad_sts",
+            "title" => "STS",
+            "url" => "pad_sts",
+            "icon" => "dollar-sign",
+            "submenu" => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_view_pad_sts',
+                    'role_title' => 'Hanya lihat data'
+                ),
+            ),
+        ),
+        array(
+            "name" => "mutasi_kas",
+            "title" => "Mutasi Kas",
+            "url" => "mutasi_kas",
+            "icon" => "exchange-alt",
+            "submenu" => array(),
+        ),
+        array(
             "name" => "user",
             "title" => azlang("User"),
             "icon" => "user",

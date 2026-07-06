@@ -2930,4 +2930,66 @@ COLLATE='utf8mb4_0900_ai_ci'
 ENGINE=InnoDB
 ;
 
+CREATE TABLE `pad_sts` (
+	`idpad_sts` INT(10) NOT NULL AUTO_INCREMENT,
+	`proof_number` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nomor bukti' COLLATE 'utf8mb4_0900_ai_ci',
+	`pad_sts_status` VARCHAR(50) NULL DEFAULT 'DRAFF' COMMENT 'DRAFF / OK' COLLATE 'utf8mb4_0900_ai_ci',
+	`iduser_created` INT(10) NULL DEFAULT NULL COMMENT 'user input',
+	`proof_date` DATETIME NULL DEFAULT NULL COMMENT 'tanggal bukti',
+	`idproof_in` INT(10) NULL DEFAULT NULL COMMENT 'masuk ke',
+	`proof_for` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`total_sts` DOUBLE NULL DEFAULT NULL COMMENT 'total transaksi',
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpad_sts`) USING BTREE,
+	INDEX `proof_number` (`proof_number`) USING BTREE,
+	INDEX `proof_date` (`proof_date`) USING BTREE,
+	INDEX `total_sts` (`total_sts`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `pad_sts_status` (`pad_sts_status`) USING BTREE,
+	INDEX `iduser_created` (`iduser_created`) USING BTREE,
+	INDEX `proof_in` (`idproof_in`) USING BTREE
+)
+COLLATE='utf8mb4_0900_ai_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `pad_sts_detail` (
+	`idpad_sts_detail` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpad_sts` INT(10) NULL DEFAULT NULL,
+	`idpad_kode_rekening` INT(10) NULL DEFAULT NULL,
+	`direct_receipt` DOUBLE NULL DEFAULT NULL,
+	`down_payment` DOUBLE NULL DEFAULT NULL,
+	`debt` DOUBLE NULL DEFAULT NULL,
+	`total_detail` DOUBLE NULL DEFAULT NULL,
+	`description_detail` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpad_sts_detail`) USING BTREE,
+	INDEX `idpad_sts` (`idpad_sts`) USING BTREE,
+	INDEX `idpad_kode_rekening` (`idpad_kode_rekening`) USING BTREE,
+	INDEX `direct_receipt` (`direct_receipt`) USING BTREE,
+	INDEX `down_payment` (`down_payment`) USING BTREE,
+	INDEX `debt` (`debt`) USING BTREE,
+	INDEX `total_detail` (`total_detail`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	CONSTRAINT `FK__pad_kode_rekening` FOREIGN KEY (`idpad_kode_rekening`) REFERENCES `pad_kode_rekening` (`idpad_kode_rekening`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK__pad_sts` FOREIGN KEY (`idpad_sts`) REFERENCES `pad_sts` (`idpad_sts`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_0900_ai_ci'
+ENGINE=InnoDB
+;
+
+
+
+
+
+
 

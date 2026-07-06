@@ -524,3 +524,45 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $select->render();
         }
     }
+
+    if(!function_exists('az_select_proof_in')){
+        function az_select_proof_in($id = 'proof_in', $class='', $attr='proof_in') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_proof_in');
+            $select->set_placeholder('Pilih');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idproof_in'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }
+
+    if(!function_exists('az_select_pad_koderek')){
+        function az_select_pad_koderek($id = 'pad_kode_rekening', $class='', $attr='pad_kode_rekening') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_pad_koderek');
+            $select->set_placeholder('Pilih Kode Rekening');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idpad_kode_rekening'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }
