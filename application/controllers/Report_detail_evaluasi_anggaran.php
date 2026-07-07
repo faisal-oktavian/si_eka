@@ -181,7 +181,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
                                         'arr_detail_sub'          => $detail_data['detail']
                                     );
 
-// echo "<pre>"; print_r($detail_data);die;
+                                    // echo "<pre>"; print_r($detail_data);die;
                                 }
 
                                 $arr_paket[] = array(
@@ -390,8 +390,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             ], $tw_data);
         }
 
-        if ($total_jumlah > 0 && $total_realisasi > 0) {
-            $total_persentase = ($total_realisasi / $total_jumlah) * 100;
+        if ($total_jumlah > 0 && $sisa_uang > 0) {
+            $total_persentase = ($sisa_uang / $total_jumlah) * 100;
         }
 
         return [
