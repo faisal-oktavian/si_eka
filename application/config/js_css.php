@@ -38,11 +38,11 @@ $config['app_css'] = array(
 	"az_theme/az_theme.css?v2",
 	"az_theme/az_theme_css.css?v1",
 	"az_theme/acc_theme.css?v1.2",
-	"az_theme/beautify.css?v1",
+	"az_theme/beautify.css?v2",
 );
 
 $config['app_js'] = array(
-	"az_theme/beautify.js?v1",
+	"az_theme/beautify.js?v2",
 	"az-core/az-core-left-theme.js?v1.2",
 );
 

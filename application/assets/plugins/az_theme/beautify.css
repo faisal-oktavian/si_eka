@@ -295,3 +295,123 @@ html{
 .loh-box{
     background-color: #FFF;
 }
+
+
+/*==========================
+  BACK TO TOP
+  ==========================*/
+    #backToTop{
+        position:fixed;
+        bottom:35px;
+        right:30px;
+        width:66px;
+        height:66px;
+        z-index:99999;
+        display:none;
+    }
+    #btnTop{
+        position:absolute;
+        width:56px;
+        height:56px;
+        top:5px;
+        left:5px;
+        border:none;
+        outline:none;
+        border-radius:50%;
+        background:linear-gradient(135deg,#0d3d66,#2b7dbc);
+        color:#fff;
+        font-size:22px;
+        cursor:pointer;
+        box-shadow: 0 8px 20px rgba(0,0,0,.30);
+        transition:.35s;
+    }
+    #btnTop:hover{
+        transform:translateY(-5px) scale(1.08);
+        box-shadow:0 15px 35px rgba(0,0,0,.35);
+        background:linear-gradient(135deg,#0b3153,#4da3ff);
+    }
+    #btnTop:active{
+        transform:scale(.92);
+    }
+    .progress-ring{
+        transform:rotate(-90deg);
+    }
+    .progress-ring-circle{
+        stroke:#46b8ff;
+        stroke-linecap:round;
+        transition:stroke-dashoffset .15s linear;
+    }
+    @keyframes floating{
+        0%{
+            transform:translateY(0);
+        }
+        50%{
+            transform:translateY(-6px);
+        }
+        100%{
+            transform:translateY(0);
+        }
+    }
+    #backToTop.show{
+        display:block;
+        animation:
+            fadeIn .4s ease,
+            floating 2.5s infinite;
+    }
+    @keyframes fadeIn{
+        from{
+            opacity:0;
+            transform:translateY(20px);
+        }
+        to{
+            opacity:1;
+            transform:translateY(0);
+        }
+    }
+    @media(max-width:768px){
+        #backToTop{
+            width:58px;
+            height:58px;
+            right:15px;
+            bottom:18px;
+        }
+        #btnTop{
+            width:48px;
+            height:48px;
+            top:5px;
+            left:5px;
+            font-size:18px;
+        }
+    }
+    #btnTop{
+        overflow:hidden;
+        position:absolute;
+    }
+    #btnTop:after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:5px;
+        height:5px;
+        background:rgba(255,255,255,.4);
+        border-radius:50%;
+        transform:translate(-50%,-50%) scale(1);
+        opacity:0;
+    }
+    #btnTop:active:after{
+        animation:ripple .5s ease;
+    }
+    @keyframes ripple{
+        from{
+            opacity:1;
+            transform:translate(-50%,-50%) scale(1);
+        }
+        to{
+            opacity:0;
+            transform:translate(-50%,-50%) scale(18);
+        }
+    }
+/*==========================
+  END BACK TO TOP
+  ==========================*/

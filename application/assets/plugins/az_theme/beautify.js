@@ -66,3 +66,38 @@ $('body').on('click','.az-header-toolbar-user', function(){
     console.log('test');
     $('.az-header-toolbar').find('.account-detail').toggle();
 });
+
+
+
+// back to top
+	var btn=$("#backToTop");
+    var circle=document.querySelector('.progress-ring-circle');
+    var radius=circle.r.baseVal.value;
+    var circumference=radius*2*Math.PI;
+    circle.style.strokeDasharray=circumference;
+    circle.style.strokeDashoffset=circumference;
+
+    function setProgress(percent){
+        var offset=circumference-(percent/100)*circumference;
+        circle.style.strokeDashoffset=offset;
+    }
+
+    $(window).scroll(function(){
+        var scrollTop=$(this).scrollTop();
+        var docHeight=$(document).height()-$(window).height();
+        var percent=(scrollTop/docHeight)*100;
+        setProgress(percent);
+        if(scrollTop>300){
+            btn.addClass("show");
+        }
+		else{
+            btn.removeClass("show");
+        }
+    });
+
+    $("#btnTop").click(function(){
+        $("html,body").animate({
+            scrollTop:0
+        },700);
+    });
+// end back to top

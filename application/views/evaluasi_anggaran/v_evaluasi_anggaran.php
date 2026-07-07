@@ -241,6 +241,17 @@
               }
             }
           ?>
+
+          <!-- ================================
+              BACK TO TOP BUTTON
+          ================================= -->
+          <div id="backToTop">
+              <svg class="progress-ring" width="66" height="66">
+                <circle class="progress-ring-circle" stroke-width="4" fill="transparent" r="29" cx="33" cy="33"/>
+              </svg>
+
+              <button id="btnTop"><i class="fa fa-chevron-up"></i></button>
+          </div>
       </tbody>
     </table>
   </div>
