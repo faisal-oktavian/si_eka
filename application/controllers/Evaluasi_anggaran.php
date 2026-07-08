@@ -787,7 +787,9 @@ class Evaluasi_anggaran extends CI_Controller {
 
         $this->db->select('
             paket_belanja_detail_sub.idpaket_belanja_detail_sub,
+            paket_belanja_detail_sub.is_idpaket_belanja_detail_sub,
             paket_belanja_detail_sub.idpaket_belanja_detail,
+            paket_belanja_detail_sub.idpaket_belanja,
             paket_belanja_detail_sub.idkategori,
             sub_kategori.idsub_kategori,
             sub_kategori.nama_sub_kategori,
@@ -797,7 +799,31 @@ class Evaluasi_anggaran extends CI_Controller {
             paket_belanja_detail_sub.volume,
             satuan.nama_satuan,
             paket_belanja_detail_sub.harga_satuan,
-            paket_belanja_detail_sub.jumlah
+            paket_belanja_detail_sub.jumlah,
+			paket_belanja_detail_sub.rak_volume_januari,
+			paket_belanja_detail_sub.rak_volume_februari,
+			paket_belanja_detail_sub.rak_volume_maret,
+			paket_belanja_detail_sub.rak_volume_april,
+			paket_belanja_detail_sub.rak_volume_mei,
+			paket_belanja_detail_sub.rak_volume_juni,
+			paket_belanja_detail_sub.rak_volume_juli,
+			paket_belanja_detail_sub.rak_volume_agustus,
+			paket_belanja_detail_sub.rak_volume_september,
+			paket_belanja_detail_sub.rak_volume_oktober,
+			paket_belanja_detail_sub.rak_volume_november,
+			paket_belanja_detail_sub.rak_volume_desember,
+			paket_belanja_detail_sub.rak_jumlah_januari,
+			paket_belanja_detail_sub.rak_jumlah_februari,
+			paket_belanja_detail_sub.rak_jumlah_maret,
+			paket_belanja_detail_sub.rak_jumlah_april,
+			paket_belanja_detail_sub.rak_jumlah_mei,
+			paket_belanja_detail_sub.rak_jumlah_juni,
+			paket_belanja_detail_sub.rak_jumlah_juli,
+			paket_belanja_detail_sub.rak_jumlah_agustus,
+			paket_belanja_detail_sub.rak_jumlah_september,
+			paket_belanja_detail_sub.rak_jumlah_oktober,
+			paket_belanja_detail_sub.rak_jumlah_november,
+			paket_belanja_detail_sub.rak_jumlah_desember
             '.$query_category);
             
         $pbds = $this->db->get('paket_belanja_detail_sub');
