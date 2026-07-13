@@ -539,9 +539,25 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
             'SUDAH DIBAYAR BENDAHARA'
         ];
 
+        $npd_statuses = [
+            'SUDAH DIBAYAR BENDAHARA',
+            'MENUNGGU PEMBAYARAN',
+            'INPUT NPD'
+        ];
+
         $this->db
             ->where_in('purchase_plan_detail.purchase_plan_detail_status', $statuses)
-            ->where('budget_realization.realization_status !=', 'DRAFT');
+            ->where('budget_realization.realization_status !=', 'DRAFT')
+            ->group_start()
+                ->group_start()
+                    ->where_in('purchase_plan_detail.purchase_plan_detail_status', $npd_statuses)
+                    ->where('npd.status', 1)
+                    ->where('npd.npd_status !=', 'DRAFT')
+                ->group_end()
+                ->or_group_start()
+                    ->where_not_in('purchase_plan_detail.purchase_plan_detail_status', $npd_statuses)
+                ->group_end()
+            ->group_end();
     }
 
     /*
@@ -861,8 +877,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         
         $this->db->where('contract.contract_status !=', "DRAFT");
         $this->db->where('budget_realization.realization_status !=', "DRAFT");
-        $this->db->where('verification.verification_status !=', "DRAFT");
-        $this->db->where('npd.npd_status !=', "DRAFT");
+        // $this->db->where('verification.verification_status !=', "DRAFT");
+        // $this->db->where('npd.npd_status !=', "DRAFT");
 
         $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
         $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);

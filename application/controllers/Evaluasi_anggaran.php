@@ -380,6 +380,7 @@ class Evaluasi_anggaran extends CI_Controller {
                     $realisasi_map
                 );
 
+                $nominal_realisasi = $tw_data['realisasi_sampai_tw4'];
                 $total_realisasi += $tw_data['realisasi_sampai_tw4'];
 
                 $volume_realisasi = $realisasi_map[$sub_sub->idpaket_belanja_detail_sub]['volume_realisasi'] ?? 0;
@@ -412,6 +413,7 @@ class Evaluasi_anggaran extends CI_Controller {
                     'volume_realisasi'           => $volume_realisasi,
                     'sisa_volume'                => $sisa_volume,
                     'sisa_uang'                  => $sisa_uang,
+                    'nominal_realisasi'          => $nominal_realisasi,
                     'harga_satuan_realisasi'     => $realisasi_map[$sub_sub->idpaket_belanja_detail_sub]['unit_prices'] ?? [],
                     'harga_satuan_rata'          => $realisasi_map[$sub_sub->idpaket_belanja_detail_sub]['unit_price_average'] ?? 0
                 ], $tw_data);
@@ -426,6 +428,7 @@ class Evaluasi_anggaran extends CI_Controller {
                     $realisasi_map
                 );
 
+                $nominal_realisasi = $tw_data['realisasi_sampai_tw4'];
                 $total_realisasi += $tw_data['realisasi_sampai_tw4'];
             }
 
@@ -463,6 +466,7 @@ class Evaluasi_anggaran extends CI_Controller {
                 'volume_realisasi'           => $volume_realisasi,
                 'sisa_volume'                => $sisa_volume,
                 'sisa_uang'                  => $sisa_uang,
+                'nominal_realisasi'			 => $nominal_realisasi,
                 'harga_satuan_realisasi'     => $realisasi_map[$detail->idpaket_belanja_detail_sub]['unit_prices'] ?? [],
                 'harga_satuan_rata'          => $realisasi_map[$detail->idpaket_belanja_detail_sub]['unit_price_average'] ?? 0,
                 'arr_pd_detail_sub_sub'      => $arr_sub_sub
@@ -575,9 +579,25 @@ class Evaluasi_anggaran extends CI_Controller {
             'SUDAH DIBAYAR BENDAHARA'
         ];
 
+        $npd_statuses = [
+            'SUDAH DIBAYAR BENDAHARA',
+            'MENUNGGU PEMBAYARAN',
+            'INPUT NPD'
+        ];
+
         $this->db
             ->where_in('purchase_plan_detail.purchase_plan_detail_status', $statuses)
-            ->where('budget_realization.realization_status !=', 'DRAFT');
+            ->where('budget_realization.realization_status !=', 'DRAFT')
+            ->group_start()
+                ->group_start()
+                    ->where_in('purchase_plan_detail.purchase_plan_detail_status', $npd_statuses)
+                    ->where('npd.status', 1)
+                    ->where('npd.npd_status !=', 'DRAFT')
+                ->group_end()
+                ->or_group_start()
+                    ->where_not_in('purchase_plan_detail.purchase_plan_detail_status', $npd_statuses)
+                ->group_end()
+            ->group_end();
     }
 
 
@@ -676,7 +696,7 @@ class Evaluasi_anggaran extends CI_Controller {
                 'status'                 => 1,
                 'status_paket_belanja'   => 'OK',
                 'idsub_kegiatan'         => $idsub_kegiatan,
-                // 'nama_paket_belanja'     => "Pembinaan Dewan Pengawas pada BLUD" // testing
+                // 'nama_paket_belanja'     => "Fasilitasi Kunjungan Tamu" // testing
             ],
             'idpaket_belanja ASC',
             $this->master_select['paket_belanja']
@@ -953,8 +973,8 @@ class Evaluasi_anggaran extends CI_Controller {
         
         $this->db->where('contract.contract_status !=', "DRAFT");
         $this->db->where('budget_realization.realization_status !=', "DRAFT");
-        $this->db->where('verification.verification_status !=', "DRAFT");
-        $this->db->where('npd.npd_status !=', "DRAFT");
+        // $this->db->where('verification.verification_status !=', "DRAFT");
+        // $this->db->where('npd.npd_status !=', "DRAFT");
 
         $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
         $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);

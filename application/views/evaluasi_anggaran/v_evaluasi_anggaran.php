@@ -310,7 +310,11 @@
                                                             Rp. <?= az_thousand_separator($detail['jumlah']); ?>
                                                             
                                                             <div style="color: red;" class="dev">
-                                                              <?= az_thousand_separator($detail['nominal_realisasi']); ?>
+                                                                <?= "volume Realisasi : ". az_thousand_separator($detail['volume_realisasi']); ?>
+                                                                <br>
+                                                                <?= "Realisasi : ". az_thousand_separator($detail['nominal_realisasi']); ?>
+                                                                <br>
+                                                                <?= "Sisa : ". az_thousand_separator($detail['sisa_uang']); ?>
                                                             </div>
                                                         </td>
 
@@ -357,6 +361,20 @@
 
                                                             <td class="nominal">
                                                                 Rp. <?= az_thousand_separator($sub['jumlah']); ?>
+
+                                                                <div style="color: red;" class="dev">
+                                                                    <?= "volume Realisasi : ". az_thousand_separator($sub['volume_realisasi']); ?>
+                                                                    <br>
+                                                                    <?= "Realisasi : ". az_thousand_separator($sub['nominal_realisasi']); ?>
+                                                                    <br>
+                                                                    <?= "Sisa : ". az_thousand_separator($sub['sisa_uang']); ?>
+
+                                                                    <?php
+                                                                        if ($sub['sisa_volume'] == 0) {
+                                                                            echo "<br>Ada Sisa";
+                                                                        }
+                                                                    ?>
+                                                                </div>
                                                             </td>
 
                                                             <td class="center">
