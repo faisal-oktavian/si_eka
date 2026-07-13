@@ -1239,7 +1239,7 @@ class Realisasi_anggaran_detail extends CI_Controller {
 			$this->load->helper('az_role');
 
 			$tahun_ini = date('Y');
-			$sumber_dana = "DBH Cukai Hasil Tembakau (CHT)";
+			$sumber_dana = "DAU yang Ditentukan Penggunaannya Bidang Kesehatan";
 
 			$total_pendapatan_blud = $this->get_query_sumber_dana($tahun_ini, $sumber_dana, true);
 
@@ -1277,7 +1277,7 @@ class Realisasi_anggaran_detail extends CI_Controller {
 			$crud = $this->azapp->add_crud();
 
 			$tahun_ini = date('Y');
-			$sumber_dana = "DBH Cukai Hasil Tembakau (CHT)";
+			$sumber_dana = "DAU yang Ditentukan Penggunaannya Bidang Kesehatan";
 
 			$query = $this->get_query_sumber_dana($tahun_ini, $sumber_dana, false);
 			// echo "<pre>"; print_r($query); die;
