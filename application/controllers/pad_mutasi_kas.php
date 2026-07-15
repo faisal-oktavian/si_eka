@@ -120,7 +120,7 @@ class Pad_mutasi_kas extends CI_Controller {
             $btn = '<button class="btn btn-default btn-xs btn-edit-pad-mutasi-kas" data_id="'.$idpad_mutasi_kas.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
             $btn .= '<button class="btn btn-danger btn-xs btn-delete-pad-mutasi-kas" data_id="'.$idpad_mutasi_kas.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
 
-			if (aznav('role_view_pad_mutasi-kas') && strlen($idrole) > 0) {
+			if (aznav('role_view_pad_mutasi_kas') && strlen($idrole) > 0) {
 				$is_view_only = true;
 			}
 

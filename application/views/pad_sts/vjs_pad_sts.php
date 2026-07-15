@@ -39,7 +39,7 @@
 		})
 	});
 
-	jQuery('body').on('click', '.btn-view-only-purchase-plan', function() {
+	jQuery('body').on('click', '.btn-view-only-pad-sts', function() {
 		var id = jQuery(this).attr('data_id');
 
         location.href = app_url + 'pad_sts/edit/' + id + '/view_only';
