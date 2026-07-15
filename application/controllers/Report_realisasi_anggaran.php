@@ -11,7 +11,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 
         $this->load->helper('az_auth');
         az_check_auth('role_report_realisasi_anggaran');
-        $this->table = 'npd';
+        $this->table = 'budget_realization';
         $this->controller = 'report_realisasi_anggaran';
         $this->load->helper('az_crud');
         $this->load->helper('az_config');
@@ -66,7 +66,53 @@ class Report_realisasi_anggaran extends CI_Controller {
 		echo $azapp->render();	
 	}
 
+
+	// ambil data yang sudah masuk di menu realisasi
 	public function get() {
+		$this->load->library('AZApp');
+		$crud = $this->azapp->add_crud();
+
+		$date1 = $this->input->get('date1');
+		$date2 = $this->input->get('date2');
+		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
+
+
+		$crud->set_select('budget_realization.idbudget_realization, date_format(budget_realization.realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, budget_realization_detail.provider, ruang.nama_ruang, sub_kategori.nama_sub_kategori, budget_realization_detail.realization_detail_description, budget_realization_detail.volume, budget_realization_detail.male, budget_realization_detail.female, budget_realization_detail.unit_price, budget_realization_detail.total_realization_detail');
+		$crud->set_select_table('idbudget_realization, txt_realization_date, provider, nama_ruang, nama_sub_kategori, realization_detail_description, volume, male, female, unit_price, total_realization_detail');
+
+		$crud->set_filter('txt_realization_date, provider, nama_ruang, nama_sub_kategori, realization_detail_description, volume, male, female, unit_price, total_realization_detail');
+		$crud->set_sorting('txt_realization_date, provider, nama_ruang, nama_sub_kategori, realization_detail_description, volume, male, female, unit_price, total_realization_detail');
+
+		$crud->set_select_align(', , , , , center, center, center, right, right');
+		$crud->set_id($this->controller);
+
+		$crud->add_join_manual('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+		$crud->add_join_manual('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+		$crud->add_join_manual('contract', 'contract.idcontract = contract_detail.idcontract');
+		$crud->add_join_manual('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+		$crud->add_join_manual('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
+        $crud->add_join_manual('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
+
+		$crud->add_where('budget_realization.realization_status != "DRAFT" ');
+		$crud->add_where('budget_realization.status = "1" ');
+		$crud->add_where('budget_realization_detail.status = "1" ');
+
+		if (strlen($date1) > 0 && strlen($date2) > 0) {
+            $crud->add_where('date(budget_realization.realization_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $crud->add_where('date(budget_realization.realization_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+        }
+        if (strlen($idpaket_belanja_detail_sub) > 0) {
+			$crud->add_where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
+		}
+
+		$crud->set_custom_style('custom_style');
+		$crud->set_table($this->table);
+		$crud->set_order_by('budget_realization.realization_date ASC, sub_kategori.nama_sub_kategori ASC');
+		echo $crud->get_table();
+	}
+
+	public function getxxx() {
 		$this->load->library('AZApp');
 		$crud = $this->azapp->add_crud();
 
@@ -157,16 +203,13 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$idpaket_belanja_detail_sub = $this->input->get('idpaket_belanja_detail_sub');
 
 
-		$this->db->where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
-		$this->db->where('npd.status = "1" ');
-		$this->db->where('npd_detail.status = "1" ');
-		$this->db->where('verification.status = "1" ');
+		$this->db->where('budget_realization.realization_status != "DRAFT" ');
 		$this->db->where('budget_realization.status = "1" ');
 		$this->db->where('budget_realization_detail.status = "1" ');
 
 		if (strlen($date1) > 0 && strlen($date2) > 0) {
-            $this->db->where('date(npd.confirm_payment_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
-            $this->db->where('date(npd.confirm_payment_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
+            $this->db->where('date(budget_realization.realization_date) >= "'.Date('Y-m-d', strtotime($date1)).'"');
+            $this->db->where('date(budget_realization.realization_date) <= "'.Date('Y-m-d', strtotime($date2)).'"');
         }
         if (strlen($idpaket_belanja_detail_sub) > 0) {
 			$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "' . $idpaket_belanja_detail_sub . '"');
@@ -183,9 +226,9 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
         $this->db->join('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 		
-		$this->db->order_by('npd.confirm_payment_date ASC, sub_kategori.nama_sub_kategori ASC');
-		$this->db->select('npd.idnpd, date_format(npd.confirm_payment_date, "%d-%m-%Y %H:%i:%s") as txt_confirm_payment_date, budget_realization_detail.provider, ruang.nama_ruang, sub_kategori.nama_sub_kategori, budget_realization_detail.realization_detail_description, budget_realization_detail.volume, budget_realization_detail.male, budget_realization_detail.female, budget_realization_detail.unit_price, budget_realization_detail.total_realization_detail');
-		$data = $this->db->get('npd');
+		$this->db->order_by('budget_realization.realization_date ASC, sub_kategori.nama_sub_kategori ASC');
+		$this->db->select('budget_realization.idbudget_realization, date_format(budget_realization.realization_date, "%d-%m-%Y %H:%i:%s") as txt_realization_date, budget_realization_detail.provider, ruang.nama_ruang, sub_kategori.nama_sub_kategori, budget_realization_detail.realization_detail_description, budget_realization_detail.volume, budget_realization_detail.male, budget_realization_detail.female, budget_realization_detail.unit_price, budget_realization_detail.total_realization_detail');
+		$data = $this->db->get('budget_realization');
 		// echo"<pre>"; print_r($this->db->last_query()); die;
 
 		$this->load->library('AZApp');
@@ -213,7 +256,7 @@ class Report_realisasi_anggaran extends CI_Controller {
 
 		foreach ($data->result() as $key => $value) {
 			$sheet->setCellValue("A" . ($start_row + $i), ($i + 1));
-			$sheet->setCellValue("B" . ($start_row + $i), $value->txt_confirm_payment_date);
+			$sheet->setCellValue("B" . ($start_row + $i), $value->txt_realization_date);
 			$sheet->setCellValue("C" . ($start_row + $i), $value->provider);
 			$sheet->setCellValue("D" . ($start_row + $i), $value->nama_ruang);
 			$sheet->setCellValue("E" . ($start_row + $i), $value->nama_sub_kategori);
