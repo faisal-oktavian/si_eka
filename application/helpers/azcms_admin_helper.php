@@ -566,3 +566,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             return $select->render();
         }
     }
+
+    if(!function_exists('az_select_pad_rekening')){
+        function az_select_pad_rekening($id = 'pad_rekening', $class='', $attr='pad_rekening') {
+            $ci =& get_instance();
+            $ci->load->library('encrypt');
+            $azapp = $ci->load->library('AZApp');
+            $select = $ci->azapp->add_select2();
+            $select->set_id($id);
+            $select->set_url('data/get_pad_rekening');
+            $select->set_placeholder('Pilih Rekening');
+            if (strlen($class) > 0) {
+                $select->add_class($class);
+            }
+            if (strlen($attr) > 0) {
+                $select->add_attr('data-id', $ci->encrypt->encode($attr.'.idpad_rekening'));
+                $select->add_attr('w', 'true');
+            }
+            
+            return $select->render();
+        }
+    }

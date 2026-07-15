@@ -293,11 +293,17 @@
             ),
         ),
         array(
-            "name" => "mutasi_kas",
+            "name" => "pad_mutasi_kas",
             "title" => "Mutasi Kas",
-            "url" => "mutasi_kas",
+            "url" => "pad_mutasi_kas",
             "icon" => "exchange-alt",
             "submenu" => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_view_pad_mutasi_kas',
+                    'role_title' => 'Hanya lihat data'
+                ),
+            ),
         ),
         array(
             "name" => "user",

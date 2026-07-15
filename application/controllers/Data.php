@@ -1076,4 +1076,45 @@ class Data extends CI_Controller {
 		);
 		echo json_encode($results);
 	}
+
+	public function get_pad_rekening(){
+		$limit = 20;
+		$q = $this->input->get("term");
+		$page = $this->input->get("page");
+
+		$offset = ($page - 1) * $limit;
+		
+		// var_dump($parent);die();
+		if (strlen($q) > 0) {
+			$this->db->like("uraian", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$this->db->where('menu IN ("MUTASI_KAS", "STS_MUTASI_KAS")');
+		$this->db->order_by('idpad_rekening', 'ASC');
+		$this->db->select("idpad_rekening as id, uraian as text");
+
+		$data = $this->db->get("pad_rekening", $limit, $offset);
+		
+		if (strlen($q) > 0) {
+			$this->db->like("uraian", $q);
+		}
+		$this->db->where('is_active','1');
+		$this->db->where('status', '1');
+		$this->db->where('menu IN ("MUTASI_KAS", "STS_MUTASI_KAS")');
+		$this->db->order_by('idpad_rekening', 'ASC');
+		$cdata = $this->db->get("pad_rekening");
+		$count = $cdata->num_rows();
+
+		$endCount = $offset + $limit;
+		$morePages = $endCount < $count;
+
+		$results = array(
+		  "results" => $data->result_array(),
+		  "pagination" => array(
+		  	"more" => $morePages
+		  )
+		);
+		echo json_encode($results);
+	}
 }	

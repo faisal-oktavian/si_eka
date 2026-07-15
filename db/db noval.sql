@@ -2988,6 +2988,40 @@ ENGINE=InnoDB
 ;
 
 
+CREATE TABLE `pad_mutasi_kas` (
+	`idpad_mutasi_kas` INT(10) NOT NULL AUTO_INCREMENT,
+	`proof_number` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`pad_mutasi_kas_status` VARCHAR(50) NULL DEFAULT 'DRAFT' COLLATE 'utf8mb4_0900_ai_ci',
+	`iduser_created` INT(10) NULL DEFAULT NULL,
+	`proof_date` DATETIME NULL DEFAULT NULL,
+	`proof_type` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PENERIMAAN, PENGELUARAN,PINDAH REKENING' COLLATE 'utf8mb4_0900_ai_ci',
+	`idproof_from` INT(10) NULL DEFAULT NULL COMMENT 'inputan dari',
+	`idproof_to` INT(10) NULL DEFAULT NULL COMMENT 'inputan ke',
+	`proof_for` VARCHAR(50) NULL DEFAULT NULL COMMENT 'inputan untuk' COLLATE 'utf8mb4_0900_ai_ci',
+	`total_mutasi_kas` DOUBLE NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpad_mutasi_kas`) USING BTREE,
+	INDEX `proof_number` (`proof_number`) USING BTREE,
+	INDEX `iduser_created` (`iduser_created`) USING BTREE,
+	INDEX `proof_date` (`proof_date`) USING BTREE,
+	INDEX `proof_type` (`proof_type`) USING BTREE,
+	INDEX `proof_from` (`idproof_from`) USING BTREE,
+	INDEX `proof_to` (`idproof_to`) USING BTREE,
+	INDEX `proof_for` (`proof_for`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `pad_mutasi_kas_status` (`pad_mutasi_kas_status`) USING BTREE,
+	INDEX `total_mutasi_kas` (`total_mutasi_kas`) USING BTREE
+)
+COLLATE='utf8mb4_0900_ai_ci'
+ENGINE=InnoDB
+;
+
+
+
 
 
 
