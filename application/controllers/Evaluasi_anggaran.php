@@ -76,6 +76,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$tahun_anggaran->set_format('YYYY');
 		$data['tahun_anggaran'] = $tahun_anggaran->render();
 
+		$nama_paket_belanja = $this->input->get('paket_belanja');
 		$tahun_anggaran = $this->input->get('tahun_anggaran');
 		if ($tahun_anggaran == null) {
 			$tahun_anggaran = date("Y");
@@ -86,6 +87,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$the_filter = array();
 		$the_filter = array(
 			'tahun_anggaran' => $tahun_anggaran,
+			'nama_paket_belanja' => $nama_paket_belanja,
 		);
 
 		$get_data = $this->get_data($the_filter);
@@ -134,6 +136,7 @@ class Evaluasi_anggaran extends CI_Controller {
 	function get_data($the_data) {
 
 		$tahun_anggaran = azarr($the_data, 'tahun_anggaran');
+		$nama_paket_belanja = azarr($the_data, 'nama_paket_belanja');
 
 		
 		// Hitung total anggaran pada tahun ini
@@ -146,6 +149,9 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->where('paket_belanja.is_active', 1);
 		$this->db->where('paket_belanja.status_paket_belanja = "OK" ');
 		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan = "'.$tahun_anggaran.'" ');
+		if (strlen($nama_paket_belanja) > 0) {
+			$this->db->where('paket_belanja.nama_paket_belanja = "'.$nama_paket_belanja.'" ');
+		}
 		$this->db->select_sum('paket_belanja.nilai_anggaran');
 		$pb = $this->db->get('paket_belanja');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
@@ -188,9 +194,10 @@ class Evaluasi_anggaran extends CI_Controller {
 
 							$arr_paket = [];
 
-                            $paket_list = $this->query_paket_belanja($sub_kegiatan->idsub_kegiatan)->result();
-
-                            foreach ($paket_list as $paket) {
+                            $paket_list = $this->query_paket_belanja($sub_kegiatan->idsub_kegiatan, $nama_paket_belanja)->result();
+							// echo "<pre>"; print_r($this->db->last_query()); die;
+                            
+							foreach ($paket_list as $paket) {
 
 								$arr_akun = [];
 								$total_data = 0;
@@ -612,7 +619,9 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->from($table);
 
         foreach ($where as $field => $value) {
-            $this->db->where($field, $value);
+			if (strlen($value) > 0) {
+				$this->db->where($field, $value);
+			}
         }
 
         if (!empty($order_by)) {
@@ -689,13 +698,14 @@ class Evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_paket_belanja($idsub_kegiatan) {
+    public function query_paket_belanja($idsub_kegiatan, $nama_paket_belanja = null) {
         return $this->base_master_query(
             'paket_belanja',
             [
                 'status'                 => 1,
                 'status_paket_belanja'   => 'OK',
                 'idsub_kegiatan'         => $idsub_kegiatan,
+                'nama_paket_belanja'     => $nama_paket_belanja,
                 // 'nama_paket_belanja'     => "Fasilitasi Kunjungan Tamu" // testing
             ],
             'idpaket_belanja ASC',
