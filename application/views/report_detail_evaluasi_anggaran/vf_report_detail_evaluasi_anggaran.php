@@ -25,6 +25,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3">Paket Belanja</label>
+                        <div class="col-md-8 col-sm-6">
+                            <input type="text" class="form-control" name="vf_nama_paket_belanja" id="vf_nama_paket_belanja" placeholder="Paket Belanja">
+                        </div>
+                    </div>
+                    
                 </form>
             </div>
         </div>

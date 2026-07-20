@@ -84,11 +84,12 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
 		$tahun_anggaran->set_format('YYYY');
 		$data['tahun_anggaran'] = $tahun_anggaran->render();
 
+        $nama_paket_belanja = $this->input->get('paket_belanja');
         $tahun_anggaran = $this->input->get('tahun_anggaran') ?: date('Y');
 
         $data = [
             'tahun_anggaran' => $tahun_anggaran,
-            'arr_data'       => $this->get_data($tahun_anggaran)
+            'arr_data'       => $this->get_data($tahun_anggaran, $nama_paket_belanja),
         ];
 
         // echo "<pre>"; print_r($data['arr_data']['urusan']);die;
@@ -124,7 +125,7 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
     |--------------------------------------------------------------------------
     */
 
-    private function get_data($tahun_anggaran) {
+    private function get_data($tahun_anggaran, $nama_paket_belanja = null) {
         $result_urusan = [];
 
         $urusan_list = $this->query_urusan_pemerintah($tahun_anggaran)->result();
@@ -157,7 +158,8 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
 
                             $arr_paket = [];
 
-                            $paket_list = $this->query_paket_belanja($sub_kegiatan->idsub_kegiatan)->result();
+                            $paket_list = $this->query_paket_belanja($sub_kegiatan->idsub_kegiatan, $nama_paket_belanja)->result();
+                            // echo "<pre>"; print_r($this->db->last_query()); die;
 
                             foreach ($paket_list as $paket) {
 
@@ -570,7 +572,9 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         $this->db->from($table);
 
         foreach ($where as $field => $value) {
-            $this->db->where($field, $value);
+            if (strlen($value) > 0) {
+				$this->db->where($field, $value);
+			}
         }
 
         if (!empty($order_by)) {
@@ -647,13 +651,14 @@ class Report_detail_evaluasi_anggaran extends CI_Controller {
         );
     }
 
-    public function query_paket_belanja($idsub_kegiatan) {
+    public function query_paket_belanja($idsub_kegiatan, $nama_paket_belanja = null) {
         return $this->base_master_query(
             'paket_belanja',
             [
                 'status'                 => 1,
                 'status_paket_belanja'   => 'OK',
                 'idsub_kegiatan'         => $idsub_kegiatan,
+                'nama_paket_belanja'     => $nama_paket_belanja,
                 // 'nama_paket_belanja'     => "Pembinaan Dewan Pengawas pada BLUD" // testing
             ],
             'idpaket_belanja ASC',
