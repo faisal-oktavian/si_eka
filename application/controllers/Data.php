@@ -566,28 +566,34 @@ class Data extends CI_Controller {
 		// var_dump($parent);die();
 		$this->db->order_by("nama_sub_kategori");
 		if (strlen($q) > 0) {
-			$this->db->group_start();
+			// $this->db->group_start();
 			$this->db->like("nama_sub_kategori", $q);
-			$this->db->or_like("kode_rekening", $q);
-			$this->db->group_end();
+			// $this->db->or_like("kode_rekening", $q);
+			// $this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('sub_kategori.is_active','1');
+		// $this->db->select("sub_kategori.idsub_kategori id, 
+		// CONCAT(
+        // 	sub_kategori.nama_sub_kategori, ' (',
+        // 	IFNULL(SUBSTRING_INDEX(kode_rekening.kode_rekening, '-', 1), ''), ')'
+    	// ) AS text");
 		$this->db->select("sub_kategori.idsub_kategori id, 
 		CONCAT(
         	sub_kategori.nama_sub_kategori, ' (',
-        	IFNULL(SUBSTRING_INDEX(kode_rekening.kode_rekening, '-', 1), ''), ')'
+			kode_rekening.kode_rekening, ')'
     	) AS text");
 		$this->db->where('sub_kategori.status', '1');
 		$this->db->join('kode_rekening', 'kode_rekening.idkode_rekening = sub_kategori.idkode_rekening', 'left');
 
 		$data = $this->db->get("sub_kategori", $limit, $offset);
+		// echo "<pre>"; print_r($this->db->last_query()); die();
 		
 		if (strlen($q) > 0) {
-			$this->db->group_start();
+			// $this->db->group_start();
 			$this->db->like("nama_sub_kategori", $q);
-			$this->db->or_like("kode_rekening", $q);
-			$this->db->group_end();
+			// $this->db->or_like("kode_rekening", $q);
+			// $this->db->group_end();
 		}
 		// $this->db->where('idurusan_pemerintah', $parent);
 		$this->db->where('sub_kategori.is_active','1');
