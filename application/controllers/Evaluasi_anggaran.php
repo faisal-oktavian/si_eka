@@ -90,9 +90,10 @@ class Evaluasi_anggaran extends CI_Controller {
 			'nama_paket_belanja' => $nama_paket_belanja,
 		);
 
-		$get_data = $this->get_data($the_filter);
-
-		$data['arr_data'] = $get_data;
+		$data['arr_data'] = [
+			'urusan' => []
+		];
+		$data['filter'] = $the_filter;
 		// echo "<pre>"; print_r($data);die;
 
 		$v_modal = $this->load->view('evaluasi_anggaran/v_evaluasi_anggaran_modal', $data, true);
@@ -113,6 +114,188 @@ class Evaluasi_anggaran extends CI_Controller {
 		$azapp->set_data_header($data_header);
 		
 		echo $azapp->render();
+	}
+
+	public function get_lazy_data()
+	{
+		$tahun_anggaran = $this->input->post('tahun_anggaran') ?: $this->input->get('tahun_anggaran');
+		$nama_paket_belanja = $this->input->post('nama_paket_belanja') ?: $this->input->get('paket_belanja');
+		$page = (int) ($this->input->post('page') ?: $this->input->get('page') ?: 1);
+		$batch_size = (int) ($this->input->post('batch_size') ?: $this->input->get('batch_size') ?: 20);
+
+		$page = max($page, 1);
+		$batch_size = max($batch_size, 1);
+		$offset = ($page - 1) * $batch_size;
+
+		$the_filter = [
+			'tahun_anggaran' => $tahun_anggaran,
+			'nama_paket_belanja' => $nama_paket_belanja,
+		];
+
+		$paket_rows = $this->query_lazy_paket_belanja($the_filter, $offset, $batch_size)->result();
+		$total_count = $this->count_lazy_paket_belanja($the_filter);
+		$total_anggaran = $this->get_total_anggaran_for_filter($the_filter);
+
+		$result_urusan = [];
+		$urusan_map = [];
+		$bidang_map = [];
+		$program_map = [];
+		$kegiatan_map = [];
+		$sub_kegiatan_map = [];
+
+		foreach ($paket_rows as $paket) {
+			$arr_akun = [];
+			$total_data = 0;
+			$total_done = 0;
+			$total_potensi_sisa = 0;
+			$total_persentase_target = 0;
+			$total_persentase_realisasi = 0;
+			$total_realisasi_pb = 0;
+
+			$akun_list = $this->query_akun_belanja($paket->idpaket_belanja)->result();
+
+			foreach ($akun_list as $akun) {
+				$detail_data = $this->build_detail_sub($akun, $paket, $tahun_anggaran);
+
+				$total_realisasi_pb += $detail_data['total_realisasi'];
+				$total_data += $detail_data['total_data'];
+				$total_done += $detail_data['total_done'];
+
+				$arr_akun[] = [
+					'idpaket_belanja_detail'  => $akun->idpaket_belanja_detail,
+					'idakun_belanja'          => $akun->idakun_belanja,
+					'no_rekening_akunbelanja' => $akun->no_rekening_akunbelanja,
+					'nama_akun_belanja'       => $akun->nama_akun_belanja,
+					'total_jumlah'            => $detail_data['total_jumlah'],
+					'total_sisa_anggaran'     => $detail_data['total_sisa_uang'],
+					'total_realisasi'         => $detail_data['total_realisasi'],
+					'total_persentase_sisa'   => $detail_data['total_persentase'],
+					'arr_detail_sub'          => $detail_data['detail']
+				];
+			}
+
+			if ($total_data == $total_done) {
+				$total_potensi_sisa = az_thousand_separator_decimal($detail_data['total_sisa_uang'] ?? 0);
+			} else {
+				$total_potensi_sisa = '-';
+			}
+
+			if ($total_anggaran > 0 && isset($paket->nilai_anggaran)) {
+				$total_persentase_target = ($paket->nilai_anggaran / $total_anggaran) * 100;
+			}
+
+			if ($total_realisasi_pb > 0 && isset($paket->nilai_anggaran)) {
+				$total_persentase_realisasi = ($total_realisasi_pb / $paket->nilai_anggaran) * 100;
+			}
+
+			$paket_payload = [
+				'idpaket_belanja'          => $paket->idpaket_belanja,
+				'nama_paket_belanja'       => $paket->nama_paket_belanja,
+				'nilai_anggaran'           => $paket->nilai_anggaran,
+				'potensi_sisa'             => $total_potensi_sisa,
+				'total_realisasi_pb'       => $total_realisasi_pb,
+				'total_persentase_target'  => $total_persentase_target,
+				'total_persentase_realisasi' => $total_persentase_realisasi,
+				'akun_belanja'             => $arr_akun
+			];
+
+			$urusan_key = $paket->idurusan_pemerintah;
+			if (!isset($urusan_map[$urusan_key])) {
+				$urusan_map[$urusan_key] = [
+					'idurusan' => $paket->idurusan_pemerintah,
+					'nama_urusan' => $this->generate_nama_urusan((object)[
+						'no_rekening_urusan' => $paket->no_rekening_urusan,
+						'nama_urusan' => $paket->nama_urusan,
+						'tahun_anggaran_urusan' => $paket->tahun_anggaran_urusan
+					]),
+					'bidang_urusan' => []
+				];
+			}
+
+			$bidang_key = $paket->idbidang_urusan;
+			if (!isset($urusan_map[$urusan_key]['bidang_urusan'][$bidang_key])) {
+				$urusan_map[$urusan_key]['bidang_urusan'][$bidang_key] = [
+					'idbidang_urusan' => $paket->idbidang_urusan,
+					'nama_bidang_urusan' => $this->generate_nama_bidang(
+						(object)['no_rekening_urusan' => $paket->no_rekening_urusan],
+						(object)['no_rekening_bidang_urusan' => $paket->no_rekening_bidang_urusan, 'nama_bidang_urusan' => $paket->nama_bidang_urusan]
+					),
+					'program' => []
+				];
+			}
+
+			$program_key = $paket->idprogram;
+			if (!isset($urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key])) {
+				$urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key] = [
+					'idprogram' => $paket->idprogram,
+					'nama_program' => $this->generate_nama_program(
+						(object)['no_rekening_urusan' => $paket->no_rekening_urusan],
+						(object)['no_rekening_bidang_urusan' => $paket->no_rekening_bidang_urusan],
+						(object)['no_rekening_program' => $paket->no_rekening_program, 'nama_program' => $paket->nama_program]
+					),
+					'kegiatan' => []
+				];
+			}
+
+			$kegiatan_key = $paket->idkegiatan;
+			if (!isset($urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key]['kegiatan'][$kegiatan_key])) {
+				$urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key]['kegiatan'][$kegiatan_key] = [
+					'idkegiatan' => $paket->idkegiatan,
+					'nama_kegiatan' => $this->generate_nama_kegiatan(
+						(object)['no_rekening_urusan' => $paket->no_rekening_urusan],
+						(object)['no_rekening_bidang_urusan' => $paket->no_rekening_bidang_urusan],
+						(object)['no_rekening_program' => $paket->no_rekening_program],
+						(object)['no_rekening_kegiatan' => $paket->no_rekening_kegiatan, 'nama_kegiatan' => $paket->nama_kegiatan]
+					),
+					'sub_kegiatan' => []
+				];
+			}
+
+			$sub_kegiatan_key = $paket->idsub_kegiatan;
+			if (!isset($urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key]['kegiatan'][$kegiatan_key]['sub_kegiatan'][$sub_kegiatan_key])) {
+				$urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key]['kegiatan'][$kegiatan_key]['sub_kegiatan'][$sub_kegiatan_key] = [
+					'idsub_kegiatan' => $paket->idsub_kegiatan,
+					'nama_sub_kegiatan' => $this->generate_nama_sub_kegiatan(
+						(object)['no_rekening_urusan' => $paket->no_rekening_urusan],
+						(object)['no_rekening_bidang_urusan' => $paket->no_rekening_bidang_urusan],
+						(object)['no_rekening_program' => $paket->no_rekening_program],
+						(object)['no_rekening_kegiatan' => $paket->no_rekening_kegiatan],
+						(object)['no_rekening_subkegiatan' => $paket->no_rekening_subkegiatan, 'nama_subkegiatan' => $paket->nama_subkegiatan]
+					),
+					'paket_belanja' => []
+				];
+			}
+
+			$urusan_map[$urusan_key]['bidang_urusan'][$bidang_key]['program'][$program_key]['kegiatan'][$kegiatan_key]['sub_kegiatan'][$sub_kegiatan_key]['paket_belanja'][] = $paket_payload;
+		}
+
+		foreach ($urusan_map as &$urusan_entry) {
+			$urusan_entry['bidang_urusan'] = array_values($urusan_entry['bidang_urusan']);
+			foreach ($urusan_entry['bidang_urusan'] as &$bidang_entry) {
+				$bidang_entry['program'] = array_values($bidang_entry['program']);
+				foreach ($bidang_entry['program'] as &$program_entry) {
+					$program_entry['kegiatan'] = array_values($program_entry['kegiatan']);
+					foreach ($program_entry['kegiatan'] as &$kegiatan_entry) {
+						$kegiatan_entry['sub_kegiatan'] = array_values($kegiatan_entry['sub_kegiatan']);
+					}
+				}
+			}
+		}
+
+		$result_urusan = array_values($urusan_map);
+
+		$response = [
+			'status' => true,
+			'data' => $this->load->view('evaluasi_anggaran/v_evaluasi_anggaran_rows', ['arr_data' => ['urusan' => $result_urusan]], true),
+			'has_more' => ($offset + count($paket_rows)) < $total_count,
+			'next_page' => ($offset + count($paket_rows)) < $total_count ? $page + 1 : null,
+			'page' => $page,
+			'loaded_count' => count($paket_rows)
+		];
+
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
 	}
 
 	function print_report()
@@ -233,7 +416,7 @@ class Evaluasi_anggaran extends CI_Controller {
 								}
 								
 								if ($total_data == $total_done) {
-									$total_potensi_sisa = az_thousand_separator_decimal($detail_data['total_sisa_uang']);
+									$total_potensi_sisa = az_thousand_separator_decimal($detail_data['total_sisa_uang'] ?? 0);
 								}
 								else {
 									$total_potensi_sisa = '-';
@@ -480,8 +663,8 @@ class Evaluasi_anggaran extends CI_Controller {
             ], $tw_data);
         }
 		
-        if ($total_jumlah > 0 && $sisa_uang > 0) {
-            $total_persentase = ($sisa_uang / $total_jumlah) * 100;
+        if ($total_jumlah > 0 && $total_sisa_uang > 0) {
+            $total_persentase = ($total_sisa_uang / $total_jumlah) * 100;
         }
 
 		// echo"<pre>"; print_r($result_detail);die;
@@ -711,6 +894,97 @@ class Evaluasi_anggaran extends CI_Controller {
             'idpaket_belanja ASC',
             $this->master_select['paket_belanja']
         );
+    }
+
+    private function query_lazy_paket_belanja($the_data, $offset = 0, $batch_size = 20) {
+        $tahun_anggaran = azarr($the_data, 'tahun_anggaran');
+        $nama_paket_belanja = azarr($the_data, 'nama_paket_belanja');
+
+        $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+        $this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+        $this->db->where('paket_belanja.status', 1);
+        $this->db->where('paket_belanja.is_active', 1);
+        $this->db->where('paket_belanja.status_paket_belanja', 'OK');
+        $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
+
+        if (strlen($nama_paket_belanja) > 0) {
+            $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+        }
+
+        $this->db->order_by('paket_belanja.idpaket_belanja', 'ASC');
+        $this->db->limit($batch_size, $offset);
+        $this->db->select('paket_belanja.idpaket_belanja,
+            paket_belanja.nama_paket_belanja,
+            paket_belanja.nilai_anggaran,
+            urusan_pemerintah.idurusan_pemerintah,
+            urusan_pemerintah.no_rekening_urusan,
+            urusan_pemerintah.nama_urusan,
+            urusan_pemerintah.tahun_anggaran_urusan,
+            bidang_urusan.idbidang_urusan,
+            bidang_urusan.no_rekening_bidang_urusan,
+            bidang_urusan.nama_bidang_urusan,
+            program.idprogram,
+            program.no_rekening_program,
+            program.nama_program,
+            kegiatan.idkegiatan,
+            kegiatan.no_rekening_kegiatan,
+            kegiatan.nama_kegiatan,
+            sub_kegiatan.idsub_kegiatan,
+            sub_kegiatan.no_rekening_subkegiatan,
+            sub_kegiatan.nama_subkegiatan');
+
+        return $this->db->get('paket_belanja');
+    }
+
+    private function count_lazy_paket_belanja($the_data) {
+        $tahun_anggaran = azarr($the_data, 'tahun_anggaran');
+        $nama_paket_belanja = azarr($the_data, 'nama_paket_belanja');
+
+        $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+        $this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+        $this->db->where('paket_belanja.status', 1);
+        $this->db->where('paket_belanja.is_active', 1);
+        $this->db->where('paket_belanja.status_paket_belanja', 'OK');
+        $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
+
+        if (strlen($nama_paket_belanja) > 0) {
+            $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+        }
+
+        $this->db->select('COUNT(*) as total', false);
+        $row = $this->db->get('paket_belanja')->row();
+
+        return (int) ($row->total ?? 0);
+    }
+
+    private function get_total_anggaran_for_filter($the_data) {
+        $tahun_anggaran = azarr($the_data, 'tahun_anggaran');
+        $nama_paket_belanja = azarr($the_data, 'nama_paket_belanja');
+
+        $this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+        $this->db->join('kegiatan', 'kegiatan.idkegiatan = sub_kegiatan.idkegiatan');
+        $this->db->join('program', 'program.idprogram = kegiatan.idprogram');
+        $this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+        $this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+        $this->db->where('paket_belanja.status', 1);
+        $this->db->where('paket_belanja.is_active', 1);
+        $this->db->where('paket_belanja.status_paket_belanja', 'OK');
+        $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
+
+        if (strlen($nama_paket_belanja) > 0) {
+            $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+        }
+
+        $this->db->select_sum('paket_belanja.nilai_anggaran');
+        $row = $this->db->get('paket_belanja')->row();
+
+        return (float) ($row->nilai_anggaran ?? 0);
     }
 
     public function query_akun_belanja($idpaket_belanja) {
