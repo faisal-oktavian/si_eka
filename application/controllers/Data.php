@@ -945,7 +945,7 @@ class Data extends CI_Controller {
 		}
 		$this->db->where('paket_belanja.status', '1');
 		$this->db->where('paket_belanja.status_paket_belanja != "DRAFT" ');
-		$this->db->where('paket_belanja_detail_sub.status', '1');
+		$this->db->where('detail_sub_parent.status', '1');
 		$this->db->where('program.status', '1');
 		$this->db->where('bidang_urusan.status', '1');
 		$this->db->where('urusan_pemerintah.status', '1');
@@ -956,12 +956,43 @@ class Data extends CI_Controller {
 		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
 		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
 		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
-		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja = paket_belanja.idpaket_belanja');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+		$this->db->join(
+			'paket_belanja_detail_sub detail_sub_parent',
+			'detail_sub_parent.idpaket_belanja = paket_belanja.idpaket_belanja'
+		);
+
+		$this->db->join(
+			'paket_belanja_detail_sub detail_sub',
+			"detail_sub.idpaket_belanja_detail_sub = detail_sub_parent.is_idpaket_belanja_detail_sub
+			AND detail_sub_parent.is_idpaket_belanja_detail_sub IS NOT NULL
+			AND detail_sub_parent.is_idpaket_belanja_detail_sub <> ''
+			AND detail_sub.status = '1'",
+			'left'
+		);
+
+		$this->db->join(
+			'kategori',
+			"kategori.idkategori = detail_sub.idkategori
+			AND kategori.status = '1'",
+			'left'
+		);
+
+		$this->db->join(
+			'sub_kategori',
+			'sub_kategori.idsub_kategori = detail_sub_parent.idsub_kategori'
+		);
 		
 		$this->db->select('
-			paket_belanja_detail_sub.idpaket_belanja_detail_sub as id, 
-			concat(paket_belanja.nama_paket_belanja, " → ", sub_kategori.nama_sub_kategori) as text');
+			detail_sub_parent.idpaket_belanja_detail_sub as id, 
+			concat(
+				paket_belanja.nama_paket_belanja, " → ", 
+				CASE
+            		WHEN kategori.nama_kategori IS NOT NULL
+            			THEN CONCAT(kategori.nama_kategori, " → ")
+            		ELSE ""
+        		END, 
+				sub_kategori.nama_sub_kategori) as text');
 		$data = $this->db->get("paket_belanja", $limit, $offset);
 		// echo "<pre>"; print_r($this->db->last_query());die;
 		
@@ -973,7 +1004,7 @@ class Data extends CI_Controller {
 		}
 		$this->db->where('paket_belanja.status', '1');
 		$this->db->where('paket_belanja.status_paket_belanja != "DRAFT" ');
-		$this->db->where('paket_belanja_detail_sub.status', '1');
+		$this->db->where('detail_sub_parent.status', '1');
 		$this->db->where('program.status', '1');
 		$this->db->where('bidang_urusan.status', '1');
 		$this->db->where('urusan_pemerintah.status', '1');
@@ -984,8 +1015,25 @@ class Data extends CI_Controller {
 		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
 		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
 		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
-		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja = paket_belanja.idpaket_belanja');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+		$this->db->join('paket_belanja_detail_sub detail_sub_parent', 'detail_sub_parent.idpaket_belanja = paket_belanja.idpaket_belanja');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = detail_sub_parent.idsub_kategori');
+
+		$this->db->join(
+			'paket_belanja_detail_sub detail_sub',
+			"detail_sub.idpaket_belanja_detail_sub = detail_sub_parent.is_idpaket_belanja_detail_sub
+			AND detail_sub_parent.is_idpaket_belanja_detail_sub IS NOT NULL
+			AND detail_sub_parent.is_idpaket_belanja_detail_sub <> ''
+			AND detail_sub.status = '1'",
+			'left'
+		);
+
+		$this->db->join(
+			'kategori',
+			"kategori.idkategori = detail_sub.idkategori
+			AND kategori.status = '1'",
+			'left'
+		);
+
 		$cdata = $this->db->get("paket_belanja");
 		$count = $cdata->num_rows();
 
