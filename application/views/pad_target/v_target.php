@@ -8,11 +8,17 @@
 		</div>
 	</div>
 	<div class="form-group">
+        <label class="control-label col-md-3">Cari Kode Rekening <red>*</red></label>
+        <div class="col-md-6">
+            <?php echo az_select_pad_koderek();?>
+        </div>
+    </div>
+	<div class="form-group">
 		<label class="control-label col-md-3">Target per Tahun <red>*</red></label>
 		<div class="col-md-6">
 			<div class="input-group">
 				<span class="input-group-addon">Rp. </span>
-				<input type="text" class="form-control format-number txt-right target_per_tahun" id="target_per_tahun" name="target_per_tahun"/>
+				<input type="text" class="form-control format-number-decimal txt-right target_per_tahun" id="target_per_tahun" name="target_per_tahun"/>
 			</div>
 		</div>
 	</div>

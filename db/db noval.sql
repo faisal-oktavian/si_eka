@@ -2916,6 +2916,7 @@ CREATE TABLE `pad_target` (
 	`idpad_target` INT(10) NOT NULL AUTO_INCREMENT,
 	`tahun` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
 	`target_per_tahun` DOUBLE NULL DEFAULT NULL,
+	`idpad_kode_rekening` INT(10) NULL DEFAULT NULL,
 	`created` DATETIME NULL DEFAULT NULL,
 	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
@@ -2924,11 +2925,13 @@ CREATE TABLE `pad_target` (
 	PRIMARY KEY (`idpad_target`) USING BTREE,
 	INDEX `tahun` (`tahun`) USING BTREE,
 	INDEX `target_per_tahun` (`target_per_tahun`) USING BTREE,
-	INDEX `status` (`status`) USING BTREE
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idpad_kode_rekening` (`idpad_kode_rekening`) USING BTREE
 )
 COLLATE='utf8mb4_0900_ai_ci'
 ENGINE=InnoDB
 ;
+
 
 CREATE TABLE `pad_sts` (
 	`idpad_sts` INT(10) NOT NULL AUTO_INCREMENT,

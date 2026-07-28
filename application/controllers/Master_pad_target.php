@@ -19,7 +19,7 @@ class Master_pad_target extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Tahun', 'Target Per Tahun', azlang('Action')));
+		$crud->set_column(array('#', 'Tahun', 'Kode Rekening', 'Target Per Tahun', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -65,25 +65,28 @@ class Master_pad_target extends CI_Controller {
 
 		$tahun = $this->input->get('vf_tahun');
 
-		$crud->set_select_table('idpad_target, tahun, target_per_tahun');
-		$crud->set_filter('tahun, target_per_tahun');
-		$crud->set_sorting('tahun, target_per_tahun');
-		$crud->set_select_align('center, center');
+		$crud->set_select('pad_target.idpad_target, pad_target.tahun, pad_kode_rekening.uraian, pad_target.target_per_tahun');
+		$crud->set_select_table('idpad_target, tahun, uraian, target_per_tahun');
+		$crud->set_filter('tahun, uraian, target_per_tahun');
+		$crud->set_sorting('tahun, uraian, target_per_tahun');
+		$crud->set_select_align('center, left, right');
 		$crud->set_id($this->controller);
-		$crud->add_where('status = "1" ');
+
+		$crud->add_join_manual('pad_kode_rekening', 'pad_target.idpad_kode_rekening = pad_kode_rekening.idpad_kode_rekening', 'left');
+		$crud->add_where('pad_target.status = "1" ');
 		if (strlen($tahun) > 0) {
-			$crud->add_where('tahun = "' . $tahun . '"');
+			$crud->add_where('pad_target.tahun = "' . $tahun . '"');
 		}
 		$crud->set_custom_style('custom_style');
 		$crud->set_table($this->table);
-		$crud->set_order_by('idpad_target DESC');
+		$crud->set_order_by('pad_target.idpad_target DESC');
 		echo $crud->get_table();
 	}
 
 	function custom_style($key, $value, $data) {
 
 		if ($key == 'target_per_tahun') {
-			return 'Rp. '.az_thousand_separator($value);
+			return 'Rp. '.az_thousand_separator_decimal($value);
 		}
 		return $value;
 	}
@@ -98,6 +101,7 @@ class Master_pad_target extends CI_Controller {
 		$this->form_validation->set_error_delimiters('', '');
 
 		$this->form_validation->set_rules('tahun', 'Tahun', 'required|trim|max_length[200]');
+		$this->form_validation->set_rules('idpad_kode_rekening', 'Kode Rekening', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('target_per_tahun', 'Target per Tahun', 'required|trim|max_length[200]');
 		
 		$err_code = 0;
@@ -107,6 +111,7 @@ class Master_pad_target extends CI_Controller {
 
 			$data_save = array(
 				'tahun' => az_crud_number(azarr($data_post, 'tahun')),
+				'idpad_kode_rekening' => azarr($data_post, 'idpad_kode_rekening'),
 				'target_per_tahun' => az_crud_number(azarr($data_post, 'target_per_tahun')),
 			);
             // echo "<pre>"; print_r($data_save); die();
@@ -126,7 +131,8 @@ class Master_pad_target extends CI_Controller {
 	}
 
 	public function edit() {
-		az_crud_edit('idpad_target, tahun, target_per_tahun');
+		$this->db->join('pad_kode_rekening', 'pad_target.idpad_kode_rekening = pad_kode_rekening.idpad_kode_rekening', 'left');
+		az_crud_edit('pad_target.idpad_target, pad_target.tahun, pad_target.idpad_kode_rekening, pad_kode_rekening.uraian as ajax_idpad_kode_rekening, pad_target.target_per_tahun');
 	}
 
 	public function delete() {
