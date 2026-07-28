@@ -306,6 +306,23 @@
             ),
         ),
         array(
+            "name" => "report_pad",
+            "title" => "Laporan PAD",
+            "url" => "report_pad",
+            "icon" => "file",
+            "submenu" => array(),
+            'role' => array(
+                array(
+                    'role_name' => 'role_report_bpn1',
+                    'role_title' => 'Laporan Buku Kas Umum Penerimaan (BPn - 1)',
+                ),
+                array(
+                    'role_name' => 'role_report_bpn3',
+                    'role_title' => 'Laporan Realisasi Pendapatan (BPn - 3)',
+                ),
+            ),
+        ),
+        array(
             "name" => "user",
             "title" => azlang("User"),
             "icon" => "user",
