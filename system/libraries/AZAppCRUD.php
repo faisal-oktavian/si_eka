@@ -1062,8 +1062,13 @@ class CI_AZAppCRUD extends CI_AZ {
 		        	$link = ' WHERE ';
 		        }
 			}
+			// cek apakah ada query select
+			$query_select = '*';
+			if(strlen($select_table) > 0){
+				$query_select = $select_table;
+			}
 			// $query_union = $this->ci->db->query($select.' UNION '.$select_union.$link.$data_filter);
-			$query_union = $this->ci->db->query('select * from ('.$select.' UNION '.$select_union.') as new_query '.$link.$data_filter);
+			$query_union = $this->ci->db->query('select '.$query_select.' from ('.$select.' UNION '.$select_union.') as new_query '.$link.$data_filter);
 			$last_query_union = $this->ci->db->last_query();
 			$iTotalRecords = $query_union->num_rows();
 		}
@@ -1316,7 +1321,18 @@ class CI_AZAppCRUD extends CI_AZ {
 			}
 			foreach ($arr_column_show as $acs_value) {
 				// $arr_get[$acs_value] = $value[$acs_value];
-				$arr_get[$acs_value] = azarr($value, $acs_value);
+
+				if (stripos($acs_value, ' AS ') !== false) {
+					preg_match('/\bAS\s+([a-zA-Z0-9_]+)\s*$/i', $acs_value, $match);
+
+					if (!empty($match[1])) {
+						$field = $match[1]; // saldo
+						$arr_get[$field] = azarr($value, $field);
+					}
+				}
+				else {
+					$arr_get[$acs_value] = azarr($value, $acs_value);
+				}
 			}
 
 			$btn_ = "";

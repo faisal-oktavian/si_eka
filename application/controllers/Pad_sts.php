@@ -463,13 +463,14 @@ class Pad_sts extends CI_Controller {
 		if ($pad_sts->num_rows() > 0) {
 			$delete = az_crud_delete($this->table, $id);
 		}
+		else {
+			$ret = array(
+				'err_code' => 1,
+				'err_message' => 'Data tidak ditemukan'
+			);
 
-		$ret = array(
-			'err_code' => $err_code,
-			'err_message' => $err_message
-		);
-		
-		echo json_encode($ret);
+			echo json_encode($ret);
+		}
 	}
 
 	function get_list_detail() {
