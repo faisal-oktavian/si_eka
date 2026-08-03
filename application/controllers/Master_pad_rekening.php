@@ -19,7 +19,7 @@ class Master_pad_rekening extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'Uraian', 'Menu', 'Status', azlang('Action')));
+		$crud->set_column(array('#', 'Kode Rekening', 'Uraian', 'Menu', 'Status', azlang('Action')));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
@@ -62,10 +62,10 @@ class Master_pad_rekening extends CI_Controller {
 		$menu = $this->input->get('vf_menu');
 		$is_active = $this->input->get('vf_is_active');
 
-		$crud->set_select_table('idpad_rekening, uraian, menu, is_active');
+		$crud->set_select_table('idpad_rekening, kode_rekening, uraian, menu, is_active');
 		$crud->set_filter('uraian');
 		$crud->set_sorting('uraian');
-		$crud->set_select_align(' , center, center');
+		$crud->set_select_align(' , , center, center');
 		$crud->set_id($this->controller);
 		$crud->add_where('status = "1" ');
 		if (strlen($uraian) > 0) {
@@ -137,6 +137,7 @@ class Master_pad_rekening extends CI_Controller {
 		$this->load->library('form_validation');
 		$this->form_validation->set_error_delimiters('', '');
 
+		$this->form_validation->set_rules('kode_rekening', 'Kode Rekening', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('uraian', 'Uraian', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('menu', 'Menu', 'required|trim|max_length[200]');
 		$this->form_validation->set_rules('is_active', 'Status', 'required|trim|max_length[200]');
@@ -147,6 +148,7 @@ class Master_pad_rekening extends CI_Controller {
 		if($this->form_validation->run() == TRUE){
 
 			$data_save = array(
+				'kode_rekening' => azarr($data_post, 'kode_rekening'),
 				'uraian' => azarr($data_post, 'uraian'),
 				'menu' => azarr($data_post, 'menu'),
 				'is_active' => azarr($data_post, 'is_active'),
@@ -168,7 +170,7 @@ class Master_pad_rekening extends CI_Controller {
 	}
 
 	public function edit() {
-		az_crud_edit('idpad_rekening, uraian, menu, is_active');
+		az_crud_edit('idpad_rekening, kode_rekening, uraian, menu, is_active');
 	}
 
 	public function delete() {

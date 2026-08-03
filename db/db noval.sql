@@ -2873,13 +2873,13 @@ VALUES
 CREATE TABLE `pad_kode_rekening` (
 	`idpad_kode_rekening` INT(10) NOT NULL AUTO_INCREMENT,
 	`sub_kegiatan` INT(10) NULL DEFAULT NULL,
-	`kode_rekening` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-	`uraian` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`kode_rekening` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`uraian` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`is_active` INT(10) NULL DEFAULT '1',
 	`created` DATETIME NULL DEFAULT NULL,
-	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
-	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(10) NULL DEFAULT '1',
 	PRIMARY KEY (`idpad_kode_rekening`) USING BTREE,
 	INDEX `sub_kegiatan` (`sub_kegiatan`) USING BTREE,
@@ -2887,40 +2887,40 @@ CREATE TABLE `pad_kode_rekening` (
 	INDEX `uraian` (`uraian`) USING BTREE,
 	INDEX `status` (`status`) USING BTREE
 )
-COLLATE='utf8mb4_0900_ai_ci'
+COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
 
 CREATE TABLE `pad_rekening` (
 	`idpad_rekening` INT(10) NOT NULL AUTO_INCREMENT,
-	`uraian` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-	`menu` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`uraian` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`menu` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`is_active` INT(10) NULL DEFAULT '1',
 	`created` DATETIME NULL DEFAULT NULL,
-	`createdby` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`createdby` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
-	`updatedby` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updatedby` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(10) NULL DEFAULT '1',
 	PRIMARY KEY (`idpad_rekening`) USING BTREE,
 	INDEX `uraian` (`uraian`) USING BTREE,
 	INDEX `menu` (`menu`) USING BTREE,
 	INDEX `status` (`status`) USING BTREE
 )
-COLLATE='utf8mb4_0900_ai_ci'
+COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
 
 CREATE TABLE `pad_target` (
 	`idpad_target` INT(10) NOT NULL AUTO_INCREMENT,
-	`tahun` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`tahun` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`target_per_tahun` DOUBLE NULL DEFAULT NULL,
 	`idpad_kode_rekening` INT(10) NULL DEFAULT NULL,
 	`created` DATETIME NULL DEFAULT NULL,
-	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
-	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(10) NULL DEFAULT '1',
 	PRIMARY KEY (`idpad_target`) USING BTREE,
 	INDEX `tahun` (`tahun`) USING BTREE,
@@ -2928,24 +2928,24 @@ CREATE TABLE `pad_target` (
 	INDEX `status` (`status`) USING BTREE,
 	INDEX `idpad_kode_rekening` (`idpad_kode_rekening`) USING BTREE
 )
-COLLATE='utf8mb4_0900_ai_ci'
+COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
 
 CREATE TABLE `pad_sts` (
 	`idpad_sts` INT(10) NOT NULL AUTO_INCREMENT,
-	`proof_number` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nomor bukti' COLLATE 'utf8mb4_0900_ai_ci',
-	`pad_sts_status` VARCHAR(50) NULL DEFAULT 'DRAFF' COMMENT 'DRAFF / OK' COLLATE 'utf8mb4_0900_ai_ci',
+	`proof_number` VARCHAR(50) NULL DEFAULT NULL COMMENT 'nomor bukti' COLLATE 'utf8mb4_unicode_ci',
+	`pad_sts_status` VARCHAR(50) NULL DEFAULT 'DRAFF' COMMENT 'DRAFF / OK' COLLATE 'utf8mb4_unicode_ci',
 	`iduser_created` INT(10) NULL DEFAULT NULL COMMENT 'user input',
 	`proof_date` DATETIME NULL DEFAULT NULL COMMENT 'tanggal bukti',
 	`idproof_in` INT(10) NULL DEFAULT NULL COMMENT 'masuk ke',
-	`proof_for` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`proof_for` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`total_sts` DOUBLE NULL DEFAULT NULL COMMENT 'total transaksi',
 	`created` DATETIME NULL DEFAULT NULL,
-	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
-	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(10) NULL DEFAULT '1',
 	PRIMARY KEY (`idpad_sts`) USING BTREE,
 	INDEX `proof_number` (`proof_number`) USING BTREE,
@@ -2956,7 +2956,7 @@ CREATE TABLE `pad_sts` (
 	INDEX `iduser_created` (`iduser_created`) USING BTREE,
 	INDEX `proof_in` (`idproof_in`) USING BTREE
 )
-COLLATE='utf8mb4_0900_ai_ci'
+COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
@@ -2969,11 +2969,11 @@ CREATE TABLE `pad_sts_detail` (
 	`down_payment` DOUBLE NULL DEFAULT NULL,
 	`debt` DOUBLE NULL DEFAULT NULL,
 	`total_detail` DOUBLE NULL DEFAULT NULL,
-	`description_detail` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`description_detail` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`created` DATETIME NULL DEFAULT NULL,
-	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
-	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(10) NULL DEFAULT '1',
 	PRIMARY KEY (`idpad_sts_detail`) USING BTREE,
 	INDEX `idpad_sts` (`idpad_sts`) USING BTREE,
@@ -2986,26 +2986,26 @@ CREATE TABLE `pad_sts_detail` (
 	CONSTRAINT `FK__pad_kode_rekening` FOREIGN KEY (`idpad_kode_rekening`) REFERENCES `pad_kode_rekening` (`idpad_kode_rekening`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT `FK__pad_sts` FOREIGN KEY (`idpad_sts`) REFERENCES `pad_sts` (`idpad_sts`) ON UPDATE CASCADE ON DELETE CASCADE
 )
-COLLATE='utf8mb4_0900_ai_ci'
+COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
 
 CREATE TABLE `pad_mutasi_kas` (
 	`idpad_mutasi_kas` INT(10) NOT NULL AUTO_INCREMENT,
-	`proof_number` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-	`pad_mutasi_kas_status` VARCHAR(50) NULL DEFAULT 'DRAFT' COLLATE 'utf8mb4_0900_ai_ci',
+	`proof_number` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`pad_mutasi_kas_status` VARCHAR(50) NULL DEFAULT 'DRAFT' COLLATE 'utf8mb4_unicode_ci',
 	`iduser_created` INT(10) NULL DEFAULT NULL,
 	`proof_date` DATETIME NULL DEFAULT NULL,
-	`proof_type` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PENERIMAAN, PENGELUARAN,PINDAH REKENING' COLLATE 'utf8mb4_0900_ai_ci',
+	`proof_type` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PENERIMAAN, PENGELUARAN,PINDAH REKENING' COLLATE 'utf8mb4_unicode_ci',
 	`idproof_from` INT(10) NULL DEFAULT NULL COMMENT 'inputan dari',
 	`idproof_to` INT(10) NULL DEFAULT NULL COMMENT 'inputan ke',
-	`proof_for` VARCHAR(50) NULL DEFAULT NULL COMMENT 'inputan untuk' COLLATE 'utf8mb4_0900_ai_ci',
+	`proof_for` VARCHAR(50) NULL DEFAULT NULL COMMENT 'inputan untuk' COLLATE 'utf8mb4_unicode_ci',
 	`total_mutasi_kas` DOUBLE NULL DEFAULT NULL,
 	`created` DATETIME NULL DEFAULT NULL,
-	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`updated` DATETIME NULL DEFAULT NULL,
-	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(10) NULL DEFAULT '1',
 	PRIMARY KEY (`idpad_mutasi_kas`) USING BTREE,
 	INDEX `proof_number` (`proof_number`) USING BTREE,
@@ -3019,9 +3019,14 @@ CREATE TABLE `pad_mutasi_kas` (
 	INDEX `pad_mutasi_kas_status` (`pad_mutasi_kas_status`) USING BTREE,
 	INDEX `total_mutasi_kas` (`total_mutasi_kas`) USING BTREE
 )
-COLLATE='utf8mb4_0900_ai_ci'
+COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
+
+ALTER TABLE `pad_rekening`
+	ADD COLUMN `kode_rekening` VARCHAR(50) NULL DEFAULT NULL AFTER `idpad_rekening`,
+	ADD INDEX `kode_rekening` (`kode_rekening`);
+
 
 
 

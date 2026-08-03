@@ -77,8 +77,8 @@ class Pad_mutasi_kas extends CI_Controller {
 
         $crud->set_select('pad_mutasi_kas.idpad_mutasi_kas, date_format(pad_mutasi_kas.proof_date, "%d-%m-%Y %H:%i:%s") as txt_proof_date, pad_mutasi_kas.proof_number, pad_mutasi_kas.proof_for, pad_mutasi_kas.total_mutasi_kas, pad_mutasi_kas.iduser_created, user.name as user_name');        
         $crud->set_select_table('idpad_mutasi_kas, txt_proof_date, proof_number, proof_for, total_mutasi_kas, user_name');
-        $crud->set_sorting('txt_proof_date, proof_number, proof_for, total_mutasi_kas');
-        $crud->set_filter('txt_proof_date, proof_number, proof_for, total_mutasi_kas');
+        $crud->set_sorting('proof_date, proof_number, proof_for, total_mutasi_kas');
+        $crud->set_filter('proof_date, proof_number, proof_for, total_mutasi_kas');
 		$crud->set_id($this->controller);
 		$crud->set_select_align(' , , , right');
  

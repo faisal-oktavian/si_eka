@@ -77,8 +77,8 @@ class Pad_sts extends CI_Controller {
 
         $crud->set_select('pad_sts.idpad_sts, date_format(pad_sts.proof_date, "%d-%m-%Y %H:%i:%s") as txt_proof_date, pad_sts.proof_number, pad_sts.proof_for, pad_sts.total_sts, pad_sts.iduser_created, user.name as user_name');        
         $crud->set_select_table('idpad_sts, txt_proof_date, proof_number, proof_for, total_sts, user_name');
-        $crud->set_sorting('txt_proof_date, proof_number, proof_for, total_sts');
-        $crud->set_filter('txt_proof_date, proof_number, proof_for, total_sts');
+        $crud->set_sorting('proof_date, proof_number, proof_for, total_sts');
+        $crud->set_filter('proof_date, proof_number, proof_for, total_sts');
 		$crud->set_id($this->controller);
 		$crud->set_select_align(' , , , right');
  

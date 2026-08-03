@@ -2,6 +2,12 @@
 	<input type="hidden" name="idpad_rekening" id="idpad_rekening">
 	<input type="hidden" name="is_copy" id="is_copy">
 	<div class="form-group">
+		<label class="control-label col-md-3">Kode Rekening <red>*</red></label>
+		<div class="col-md-6">
+			<input type="text" class="form-control" id="kode_rekening" name="kode_rekening"/>
+		</div>
+	</div>
+	<div class="form-group">
 		<label class="control-label col-md-3">Uraian <red>*</red></label>
 		<div class="col-md-6">
 			<input type="text" class="form-control" id="uraian" name="uraian"/>
