@@ -7,7 +7,6 @@ class Report_bpn1 extends CI_Controller {
 
         $this->load->helper('az_auth');
         az_check_auth('role_report_bpn1');
-        $this->table = 'pad_target';
         $this->controller = 'report_bpn1';
         $this->load->helper('az_crud');
         $this->load->helper('az_config');
@@ -40,6 +39,10 @@ class Report_bpn1 extends CI_Controller {
 		$azapp->add_js($js);
         
         $total_saldo_awal = 0;
+		
+		$tahun = Date('m-Y'); // default filter
+		$total_saldo_awal = $this->get_saldo_awal($tahun);
+
         $crud->set_btn_top_custom("
 			<table>
 				<tr>
@@ -68,19 +71,48 @@ class Report_bpn1 extends CI_Controller {
 
 		$tahun = $this->input->get('vf_tahun');
 
+		$saldo_awal = $this->get_saldo_awal($tahun);
 		$query1 = $this->get_pad_mutasi_kas($tahun);
-
 		$query2 = $this->get_pad_sts($tahun);
 
         // echo "<pre>"; print_r($query1); die();
         // echo "<pre>"; print_r($query2); die();
 
-        $crud->set_select($query1);
-        $crud->set_select_union($query2);
-		$crud->set_select_table('id, txt_proof_date, proof_number, kode_rekening, alat_bayar, uraian, penerimaan, pengeluaran, (SUM(penerimaan - pengeluaran) OVER (
-			ORDER BY proof_date ASC
-			ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-		)) AS saldo');
+		$this->db->select("
+			id,
+			txt_proof_date,
+			proof_date,
+			proof_number,
+			kode_rekening,
+			alat_bayar,
+			uraian,
+			proof_for,
+			penerimaan,
+			pengeluaran,
+			(
+				{$saldo_awal} +
+				SUM(penerimaan-pengeluaran) OVER(
+					ORDER BY proof_date ASC, id ASC
+					ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+				)
+			) AS saldo
+		", FALSE);
+
+		$this->db->from("(
+			{$query1}
+			UNION ALL
+			{$query2}
+		) AS new_query", NULL, FALSE);
+
+		$bpn1 = $this->db->get();
+		$last_query = $this->db->last_query();
+		// echo "<pre>"; print_r($this->db->last_query()); die();
+
+		$crud->set_manual_query($last_query);
+
+        // $crud->set_select($query1);
+        // $crud->set_select_union($query2);
+		$crud->set_select_table('id, txt_proof_date, proof_number, kode_rekening, alat_bayar, uraian, penerimaan, pengeluaran, saldo');
         // $crud->set_sorting('transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status');
         // $crud->set_filter('txt_proof_date, proof_number, kode_rekening, alat_bayar, uraian');
 
@@ -92,6 +124,8 @@ class Report_bpn1 extends CI_Controller {
 	}
 
 	function custom_style($key, $value, $data) {
+		// var_dump($data); die();
+
         $proof_for = azarr($data, 'proof_for');
         $uraian = azarr($data, 'uraian');
         
@@ -116,27 +150,33 @@ class Report_bpn1 extends CI_Controller {
 	public function export_pdf($tahun) {
 		$this->load->library('pdf');
 
+		$saldo_awal = $this->get_saldo_awal($tahun);
 		$sql_pad_mutasi = $this->get_pad_mutasi_kas($tahun);
 		$sql_pad_sts    = $this->get_pad_sts($tahun);
 
 		$this->db->select("
-				id,
-				txt_proof_date,
-				proof_number,
-				kode_rekening,
-				alat_bayar,
-				uraian,
-				penerimaan,
-				pengeluaran,
-				SUM(penerimaan - pengeluaran) OVER (
-					ORDER BY proof_date ASC
+			id,
+			txt_proof_date,
+			proof_date,
+			proof_number,
+			kode_rekening,
+			alat_bayar,
+			uraian,
+			proof_for,
+			penerimaan,
+			pengeluaran,
+			(
+				{$saldo_awal} +
+				SUM(penerimaan-pengeluaran) OVER(
+					ORDER BY proof_date ASC, id ASC
 					ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-				) AS saldo
-			", FALSE);
+				)
+			) AS saldo
+		", FALSE);
 
 		$this->db->from("(
 			{$sql_pad_mutasi}
-			UNION
+			UNION ALL
 			{$sql_pad_sts}
 		) AS new_query", NULL, FALSE);
 
@@ -148,6 +188,7 @@ class Report_bpn1 extends CI_Controller {
 		$data = array(
 			'bpn1' => $bpn1->result(),
 			'month' => $month,
+			'saldo_awal' => $saldo_awal
 		);
 
 
@@ -186,9 +227,9 @@ class Report_bpn1 extends CI_Controller {
                         pad_mutasi_kas.proof_date, 
                         date_format(pad_mutasi_kas.proof_date, '%d-%m-%Y') as txt_proof_date, 
                         pad_mutasi_kas.proof_number, 
-                        '' as kode_rekening, 
+                        pad_rekening.kode_rekening as kode_rekening, 
                         '' as alat_bayar, 
-                        pad_kode_rekening.uraian, 
+                        pad_rekening.uraian, 
                         pad_mutasi_kas.proof_for, 
                         IF(
 							pad_mutasi_kas.proof_type='PINDAH_REKENING',
@@ -201,11 +242,12 @@ class Report_bpn1 extends CI_Controller {
 							0
 						) AS pengeluaran 
                     FROM pad_mutasi_kas
-                    JOIN pad_kode_rekening ON pad_mutasi_kas.idproof_to = pad_kode_rekening.idpad_kode_rekening
+                    JOIN pad_rekening ON pad_mutasi_kas.idproof_to = pad_rekening.idpad_rekening
                     WHERE pad_mutasi_kas_status = 'OK' 
                     AND pad_mutasi_kas.status = '1'
                     AND DATE_FORMAT(pad_mutasi_kas.proof_date,'%m-%Y') = '$tahun'
                     ";
+		// echo "<pre>"; print_r($query1);die;
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		return $query1;
@@ -233,6 +275,71 @@ class Report_bpn1 extends CI_Controller {
 		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		return $query2;
+	}
+
+	function get_saldo_awal($tahun = null) {
+		
+		$filter_post = false;
+		if ($tahun == null) {
+			$filter_post = true;
+			$tahun = $this->input->post('tahun');
+		}
+
+		$query1_saldo = "
+			SELECT
+				pad_mutasi_kas.proof_date,
+				IF(pad_mutasi_kas.proof_type='PINDAH_REKENING',
+					pad_mutasi_kas.total_mutasi_kas,0) AS penerimaan,
+				IF(pad_mutasi_kas.proof_type='PINDAH_REKENING',
+					pad_mutasi_kas.total_mutasi_kas,0) AS pengeluaran
+			FROM pad_mutasi_kas
+			WHERE pad_mutasi_kas_status='OK'
+			AND status='1'
+			AND DATE_FORMAT(pad_mutasi_kas.proof_date,'%m-%Y') < '$tahun'
+			";
+
+		$query2_saldo = "
+			SELECT
+				pad_sts.proof_date,
+				pad_sts_detail.total_detail AS penerimaan,
+				0 AS pengeluaran
+			FROM pad_sts
+			JOIN pad_sts_detail
+				ON pad_sts.idpad_sts=pad_sts_detail.idpad_sts
+			WHERE pad_sts.pad_sts_status='OK'
+			AND pad_sts.status='1'
+			AND pad_sts_detail.status='1'
+			AND DATE_FORMAT(pad_sts.proof_date,'%m-%Y') < '$tahun'
+			";
+
+		$this->db->select("
+			COALESCE(SUM(penerimaan-pengeluaran),0) AS saldo_awal
+		", FALSE);
+
+		$this->db->from("
+		(
+			{$query1_saldo}
+			UNION ALL
+			{$query2_saldo}
+		) AS saldo_awal
+		", NULL, FALSE);
+
+		$query_saldo_awal = $this->db->get();
+		// echo "<pre>"; print_r($this->db->last_query()); die();
+
+		$saldo_awal = $query_saldo_awal->row()->saldo_awal;
+
+		if ($filter_post) {
+			$response = array(
+				'err_code' => 0,
+				'total_saldo_awal' => $saldo_awal
+			);
+			echo json_encode($response);
+			return;
+		}
+		else {
+			return $saldo_awal;
+		}
 	}
 
 	function reformat_month($input) {

@@ -127,7 +127,7 @@ function tanggal_sekarang() {
         <meta charset="utf-8">
         <style>
             @page {
-                margin: 90px 20px 70px 20px;
+                margin: 50px 20px 50px 20px;
             }
             body {
                 font-family: DejaVu Sans, sans-serif;
@@ -264,7 +264,7 @@ function tanggal_sekarang() {
             .footer {
 
                 position: fixed;
-                bottom: -45px;
+                bottom: -25px;
                 left: 0;
                 right: 0;
 
@@ -380,6 +380,7 @@ function tanggal_sekarang() {
                             <td class="right">
                             </td>
                             <td class="right">
+                                <?= az_thousand_separator_decimal($saldo_awal) ?>
                             </td>
                         </tr>
                 <?php
@@ -402,7 +403,12 @@ function tanggal_sekarang() {
                             <?= $row->alat_bayar ?>
                         </td>
                         <td>
-                            <?= $row->uraian ?>
+                            <div>
+                                <?= $row->uraian ?>
+                            </div>
+                            <span style="font-size: 10px">
+                                <?= $row->proof_for ?>
+                            </span>
                         </td>
                         <td class="right">
                             <?= az_thousand_separator_decimal($row->penerimaan) ?>
