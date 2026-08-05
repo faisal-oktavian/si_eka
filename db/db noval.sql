@@ -3027,6 +3027,9 @@ ALTER TABLE `pad_rekening`
 	ADD COLUMN `kode_rekening` VARCHAR(50) NULL DEFAULT NULL AFTER `idpad_rekening`,
 	ADD INDEX `kode_rekening` (`kode_rekening`);
 
+ALTER TABLE `pad_target`
+	ADD COLUMN `target_bulan_laporan` DOUBLE NULL DEFAULT NULL AFTER `target_per_tahun`,
+	ADD INDEX `target_bulan_laporan` (`target_bulan_laporan`);
 
 
 

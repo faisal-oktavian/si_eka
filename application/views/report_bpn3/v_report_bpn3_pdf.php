@@ -264,7 +264,7 @@ function tanggal_sekarang() {
             .footer {
 
                 position: fixed;
-                bottom: -25px;
+                bottom: -45px;
                 left: 0;
                 right: 0;
 
@@ -300,7 +300,7 @@ function tanggal_sekarang() {
                 <td class="title">
                     <h2>PEMERINTAH PROVINSI JAWA TIMUR</h2>
                     <h3>RSUD SUMBERGLAGAH</h3>
-                    <h4>LAPORAN BUKU KAS UMUM PENERIMAAN (BPn-1)</h4>
+                    <h4>LAPORAN REALISASI PENDAPATAN (BPn-3)</h4>
                 </td>
                 <td width="70"></td>
             </tr>
@@ -328,7 +328,7 @@ function tanggal_sekarang() {
                 <tr>
                     <td><strong>PERIODE</strong></td>
                     <td>:</td>
-                    <td><?= $month ?></td>
+                    <td><?= $date1; ?> s.d <?= $date2; ?></td>
                 </tr>
             </table>
         </div>
@@ -336,151 +336,107 @@ function tanggal_sekarang() {
         <table class="report">
             <thead>
                 <tr>
-                    <th width="20px">No</th>
-                    <th width="80px">Tanggal</th>
-                    <th width="190px">Nomor Bukti</th>
-                    <th width="100px">Kode Rekening</th>
-                    <th width="80px">Alat Bayar</th>
-                    <th width="280px">Uraian</th>
-                    <th width="80px">Penerimaan</th>
-                    <th width="80px">Pengeluaran</th>
-                    <th width="80px">Saldo</th>
+                    <th width="3%"  rowspan="2">No</th>
+                    <th width="10%" rowspan="2">Kode Rekening</th>
+                    <th width="auto" rowspan="2">Uraian</th>
+                    <th width="auto"  colspan="2">Target Pendapatan</th>
+                    <th width="auto"  colspan="3">Realisasi (Rp.)</th>
+                    <th width="auto"  colspan="2">% Pencapaian Target</th>
+                </tr>
+                <tr>
+                    <th width="11%">12 Bulan</th>
+                    <th width="11%">Bulan Laporan</th>
+                    <th width="11%">Bulan Ini</th>
+                    <th width="11%">Jumlah s/d Bulan Lalu</th>
+                    <th width="11%">Jumlah s/d Bulan Ini</th>
+                    <th width="5%">Tahunan</th>
+                    <th width="5%">Bulanan</th>  
                 </tr>
             </thead>
             <tbody>
                 <?php
                 $no = 1;
 
-                $total_penerimaan = 0;
-                $total_pengeluaran = 0;
+                $grand_target_per_tahun = 0;
+                $grand_bulan_laporan    = 0;
+                $grand_bulan_ini        = 0;
+                $grand_sd_bulan_lalu    = 0;
+                $grand_sd_bulan_ini     = 0;
+                $grand_capaian_tahunan  = 0;
+                $grand_capaian_bulanan  = 0;
 
-                foreach ($bpn1 as $key => $row):
+                foreach ($sts as $key => $row):
 
-                    $total_penerimaan += $row->penerimaan;
-                    $total_pengeluaran += $row->pengeluaran;
+                    $grand_target_per_tahun += $row->target_per_tahun;
+                    $grand_bulan_laporan += $row->bulan_laporan;
+                    $grand_bulan_ini += $row->bulan_ini;
+                    $grand_sd_bulan_lalu += $row->sd_bulan_lalu;
+                    $grand_sd_bulan_ini += $row->sd_bulan_ini;
+                    $grand_capaian_tahunan += $row->capaian_tahunan;
+                    $grand_capaian_bulanan += $row->capaian_bulanan;
                     
-                    if ($key == 0) {
-                ?>
-                        <tr>
-                            <td class="center">
-                            </td>
-                            <td class="center">
-                            </td>
-                            <td class="center">
-                            </td>
-                            <td class="center">
-                            </td>
-                            <td class="center">
-                            </td>
-                            <td>
-                                SALDO AWAL
-                            </td>
-                            <td class="right">
-                            </td>
-                            <td class="right">
-                            </td>
-                            <td class="right">
-                                <?= az_thousand_separator_decimal($saldo_awal) ?>
-                            </td>
-                        </tr>
-                <?php
-                    }
                 ?>
                     <tr>
                         <td class="center">
                             <?= $no++; ?>
                         </td>
                         <td class="center">
-                            <?= $row->txt_proof_date ?>
-                        </td>
-                        <td class="left">
-                            <?= $row->proof_number ?>
-                        </td>
-                        <td class="center">
                             <?= $row->kode_rekening ?>
                         </td>
-                        <td class="center">
-                            <?= $row->alat_bayar ?>
-                        </td>
-                        <td>
-                            <div>
-                                <?= $row->uraian ?>
-                            </div>
-                            <span style="font-size: 10px">
-                                <?= $row->proof_for ?>
-                            </span>
+                        <td class="left">
+                            <?= $row->uraian ?>
                         </td>
                         <td class="right">
-                            <?= az_thousand_separator_decimal($row->penerimaan) ?>
+                            <?= az_thousand_separator_decimal($row->target_per_tahun) ?>
                         </td>
                         <td class="right">
-                            <?= az_thousand_separator_decimal($row->pengeluaran) ?>
+                            <?= az_thousand_separator_decimal($row->bulan_laporan) ?>
                         </td>
                         <td class="right">
-                            <?= az_thousand_separator_decimal($row->saldo) ?>
+                            <?= az_thousand_separator_decimal($row->bulan_ini) ?>
+                        </td>
+                        <td class="right">
+                            <?= az_thousand_separator_decimal($row->sd_bulan_lalu) ?>
+                        </td>
+                        <td class="right">
+                            <?= az_thousand_separator_decimal($row->sd_bulan_ini) ?>
+                        </td>
+                        <td class="right">
+                            <?= az_thousand_separator_decimal($row->capaian_tahunan) ?>
+                        </td>
+                        <td class="right">
+                            <?= az_thousand_separator_decimal($row->capaian_bulanan) ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
+                <tr style="font-weight: bold; background-color: #EFEFEF;">
+                    <td class="center" colspan="3">
+                        Jumlah Total
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_target_per_tahun) ?>
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_bulan_laporan) ?>
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_bulan_ini) ?>
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_sd_bulan_lalu) ?>
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_sd_bulan_ini) ?>
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_capaian_tahunan) ?>
+                    </td>
+                    <td class="right">
+                        <?= az_thousand_separator_decimal($grand_capaian_bulanan) ?>
+                    </td>
+                </tr>
             </tbody>
         </table>
-
-        <div>
-            <p>
-                Pada hari ini tanggal <?= tanggal_sekarang(); ?> terdapat oleh kami kas sebesar Rp. <?= az_thousand_separator_decimal(end($bpn1)->saldo) ?> ( <?= ucfirst(terbilang(end($bpn1)->saldo)); ?> rupiah )
-                <br><br>
-                <b>Terdiri Atas :</b>
-                <table>
-                    <tr>
-                        <td style="width: 80px;">Tunai</td>
-                        <td style="width: 10px;">:</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>Bank</td>
-                        <td>:</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>Lainnya</td>
-                        <td>:</td>
-                        <td></td>
-                    </tr>
-                </table>
-            </p>
-        </div>
-
-        <!-- <table class="summary">
-            <tr>
-                <td width="60%">
-                    <strong>Total Penerimaan</strong>
-                </td>
-                <td class="right">
-                    <strong>
-                        <?= az_thousand_separator_decimal($total_penerimaan) ?>
-                    </strong>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <strong>Total Pengeluaran</strong>
-                </td>
-                <td class="right">
-                    <strong>
-                        <?= az_thousand_separator_decimal($total_pengeluaran) ?>
-                    </strong>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <strong>Saldo Akhir</strong>
-                </td>
-                <td class="right">
-                    <strong>
-                        <?= az_thousand_separator_decimal(end($bpn1)->saldo) ?>
-                    </strong>
-                </td>
-            </tr>
-        </table> -->
 
         <table class="signature">
             <tr>

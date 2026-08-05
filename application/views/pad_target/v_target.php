@@ -22,4 +22,13 @@
 			</div>
 		</div>
 	</div>
+	<div class="form-group">
+		<label class="control-label col-md-3">Target Bulan Laporan <red>*</red></label>
+		<div class="col-md-6">
+			<div class="input-group">
+				<span class="input-group-addon">Rp. </span>
+				<input type="text" class="form-control format-number-decimal txt-right target_bulan_laporan" id="target_bulan_laporan" name="target_bulan_laporan"/>	
+			</div>
+		</div>
+	</div>
 </form>
