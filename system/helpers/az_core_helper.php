@@ -351,6 +351,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 }
             }
 
+            // CDN Chart.js
+            $str .= '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+
 
             return $str;
         }
