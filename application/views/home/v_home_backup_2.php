@@ -333,8 +333,8 @@
                                                 <span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Potensi Sisa Anggaran Tahun <?php echo $tahun_ini; ?></span>
                                             </div>
                                             <div class="row">
-                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;width: 300px; height: 300px; margin: auto;">
-                                                    <canvas id="piePotensiSisaChart" width="120" height="120"></canvas>
+                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
+                                                    <canvas id="piePotensiSisaChart" width="180" height="180"></canvas>
                                                 </div>
                                                 <div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
                                                     <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
@@ -370,8 +370,8 @@
                                                 <span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Realisasi Anggaran per Sumber Dana Tahun <?php echo $tahun_ini; ?></span>
                                             </div>
                                             <div class="row">
-                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;width: 300px; height: 300px; margin: auto;">
-                                                    <canvas id="pieRealisasiSumberDanaChart" width="120" height="120"></canvas>
+                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;">
+                                                    <canvas id="pieRealisasiSumberDanaChart" width="180" height="180"></canvas>
                                                 </div>
                                                 <div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
                                                     <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
