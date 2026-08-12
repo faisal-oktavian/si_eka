@@ -188,7 +188,17 @@
     }
 </style>
 <?php
-	if (aznav('role_table')) {
+	if (aznav('role_table') || aznav('role_income_graphic')) {
+
+        //jika mendapat hak akses grafik pengeluaran anggaran
+        $tab_pengeluaran = '';
+        $tab_pemasukan = '';
+        if (aznav('role_table')) {
+            $tab_pengeluaran = 'active';
+        }
+        else if (aznav('role_income_graphic')) {
+            $tab_pemasukan = 'active';
+        }
 ?>		
 	
         <!-- ======================
@@ -196,19 +206,29 @@
             ====================== -->
 
             <div class="tab-wrapper">
-                <button class="tab-button active" onclick="openTab(event, 'pengeluaran')">
-                    Pengeluaran
-                </button>
-                <button class="tab-button" onclick="openTab(event, 'pemasukan')">
-                    Pemasukan
-                </button>
+                <?php
+                    if (aznav('role_table')) {
+                ?>
+                        <button class="tab-button <?= $tab_pengeluaran; ?>" onclick="openTab(event, 'pengeluaran')">
+                            Pengeluaran
+                        </button>
+                <?php
+                    }
+                    if (aznav('role_income_graphic')) {
+                ?>
+                        <button class="tab-button <?= $tab_pemasukan; ?>" onclick="openTab(event, 'pemasukan')">
+                            Pemasukan
+                        </button>
+                <?php
+                    }
+                ?>
             </div>
 
         <!-- ======================
                 TAB PENGELUARAN
             ====================== -->
 
-            <div id="pengeluaran" class="tab-content active">
+            <div id="pengeluaran" class="tab-content <?= $tab_pengeluaran; ?>">
                 <div class="card">
                     <div class="card-title">
                         Pengeluaran
@@ -440,7 +460,7 @@
                 TAB PEMASUKAN
             ====================== -->
 
-            <div id="pemasukan" class="tab-content">
+            <div id="pemasukan" class="tab-content <?= $tab_pemasukan; ?>">
                 <div class="card">
                     <div class="card-title">
                         Pemasukan

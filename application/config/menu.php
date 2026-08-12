@@ -8,7 +8,11 @@
             'role' => array(
                 array(
                     'role_name' => 'role_table',
-                    'role_title' => 'Data'
+                    'role_title' => 'Grafik Pengeluaran Anggaran'
+                ),
+                array(
+                    'role_name' => 'role_income_graphic',
+                    'role_title' => 'Grafik Pemasukan Anggaran'
                 ),
             ),
             'submenu' => array(),
@@ -251,10 +255,10 @@
                     'role_name' => 'role_report_realisasi_anggaran',
                     'role_title' => 'Laporan Realisasi Anggaran',
                 ),
-                // array(
-                //     'role_name' => 'role_report_sisa_realisasi_anggaran',
-                //     'role_title' => 'Laporan Sisa Realisasi Anggaran',
-                // ),
+                array(
+                    'role_name' => 'role_report_papbd',
+                    'role_title' => 'Laporan Perubahan APBD',
+                ),
                 array(
                     'role_name' => 'role_report_detail_evaluasi_anggaran',
                     'role_title' => 'Laporan Detail Evaluasi Anggaran',
