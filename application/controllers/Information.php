@@ -61,30 +61,31 @@ class Information extends CI_Controller
 			}
 
 			if ($anggaran_APBD !== null) {
-				if ($anggaran_APBD == '2' && $type == "lock") {
-					// kunci anggaran APBD PERUBAHAN
+				// if ($anggaran_APBD == '2' && $type == "lock") {
+				// 	// kunci anggaran APBD PERUBAHAN
 
-					$check_locked = 1;
-					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
+				// 	$check_locked = 1;
+				// 	$pb_data = $this->get_active_paket_belanja($year, $check_locked);
 
-					if ($pb_data->num_rows() === 0) {
-						$err_message = azlang('Tidak ada paket belanja yang bisa diproses.');
-						$err_code = 1;
-					} 
-					else {
-						$type = "APBD PERUBAHAN";
-						$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
+				// 	if ($pb_data->num_rows() === 0) {
+				// 		$err_message = azlang('Tidak ada paket belanja yang bisa diproses.');
+				// 		$err_code = 1;
+				// 	} 
+				// 	else {
+				// 		$type = "APBD PERUBAHAN";
+				// 		$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
 						
-						if ($duplicate_result['success'] === true) {
-							$this->lock_paket_belanja($duplicate_result['ids'], $anggaran_APBD);
-						} 
-						else {
-							$err_message = $duplicate_result['message'];
-							$err_code = 1;
-						}
-					}
-				}
-				else if ($anggaran_APBD == '1' && $type == "lock") {
+				// 		if ($duplicate_result['success'] === true) {
+				// 			$this->lock_paket_belanja($duplicate_result['ids'], $anggaran_APBD);
+				// 		} 
+				// 		else {
+				// 			$err_message = $duplicate_result['message'];
+				// 			$err_code = 1;
+				// 		}
+				// 	}
+				// }
+				// else 
+				if ($anggaran_APBD == '1' && $type == "lock") {
 					// kunci anggaran APBD
 
 					$check_locked = 0;
@@ -107,31 +108,31 @@ class Information extends CI_Controller
 						}
 					}
 				}
-				else if ($anggaran_APBD == '1' && $type == "unlock") {
-					// buka kunci anggaran APBD PERUBAHAN
+				// else if ($anggaran_APBD == '1' && $type == "unlock") {
+				// 	// buka kunci anggaran APBD PERUBAHAN
 
-					$check_locked = 2;
-					$type = "APBD PERUBAHAN";
-					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
+				// 	$check_locked = 2;
+				// 	$type = "APBD PERUBAHAN";
+				// 	$pb_data = $this->get_active_paket_belanja($year, $check_locked);
 					
-					if ($pb_data->num_rows() === 0) {
-						$err_message = azlang('Tidak ada paket belanja yang bisa dibuka.');
-						$err_code = 1;
-					} 
-					else {
-						$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja');
-						// $delete_result = $this->delete_apbd_data($ids_to_unlock);
-						$delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
+				// 	if ($pb_data->num_rows() === 0) {
+				// 		$err_message = azlang('Tidak ada paket belanja yang bisa dibuka.');
+				// 		$err_code = 1;
+				// 	} 
+				// 	else {
+				// 		$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja');
+				// 		// $delete_result = $this->delete_apbd_data($ids_to_unlock);
+				// 		$delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
 						
-						if ($delete_result['success'] === true) {
-							$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
-						} 
-						else {
-							$err_message = $delete_result['message'];
-							$err_code = 1;
-						}
-					}
-				}
+				// 		if ($delete_result['success'] === true) {
+				// 			$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
+				// 		} 
+				// 		else {
+				// 			$err_message = $delete_result['message'];
+				// 			$err_code = 1;
+				// 		}
+				// 	}
+				// }
 				else if ($anggaran_APBD == '0' && $type == "unlock") {
 					// buka kunci anggaran APBD
 
