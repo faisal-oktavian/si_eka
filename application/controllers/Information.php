@@ -100,7 +100,11 @@ class Information extends CI_Controller
 						$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
 						
 						if ($duplicate_result['success'] === true) {
-							$this->lock_paket_belanja($duplicate_result['ids'], $anggaran_APBD);
+							
+							$this->lock_paket_belanja($duplicate_result['paket_ids'], $anggaran_APBD);
+
+							$this->save_publish_log($duplicate_result, $anggaran_APBD);
+
 						} 
 						else {
 							$err_message = $duplicate_result['message'];
@@ -151,6 +155,8 @@ class Information extends CI_Controller
 						
 						if ($delete_result['success'] === true) {
 							$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
+
+							$this->save_unlock_log($delete_result, $anggaran_APBD);
 						} 
 						else {
 							$err_message = $delete_result['message'];
@@ -217,6 +223,10 @@ class Information extends CI_Controller
 
 	private function duplicate_paket_belanja_to_apbd(array $pb_rows, $type) {
 		$inserted_ids = array();
+		$inserted_detail_ids = array();
+		$inserted_sub_detail_ids = array();
+		$inserted_sub_detail_child_ids = array();
+
 
 		$this->db->select_max('sequence');
 		$pb_apbd = $this->db->get('paket_belanja_apbd');
@@ -248,6 +258,7 @@ class Information extends CI_Controller
 
 			foreach ($pb_detail_data->result_array() as $pbd) {
 				$idpaket_belanja_detail = $pbd['idpaket_belanja_detail'];
+				$inserted_detail_ids[] = $idpaket_belanja_detail;
 				$pbd_copy = $pbd;
 
 				unset($pbd_copy['idpaket_belanja'], $pbd_copy['created'], $pbd_copy['createdby'], $pbd_copy['updated'], $pbd_copy['updatedby'], $pbd_copy['status']);
@@ -270,6 +281,7 @@ class Information extends CI_Controller
 
 				foreach ($pb_detail_sub_data->result_array() as $pbd_sub) {
 					$idpaket_belanja_detail_sub = $pbd_sub['idpaket_belanja_detail_sub'];
+					$inserted_sub_detail_ids[] = $idpaket_belanja_detail_sub;
 					$pbd_sub_copy = $pbd_sub;
 					
 					unset($pbd_sub_copy['idpaket_belanja'], $pbd_sub_copy['idpaket_belanja_detail'], $pbd_sub_copy['is_idpaket_belanja_detail_sub'], $pbd_sub_copy['created'], $pbd_sub_copy['createdby'], $pbd_sub_copy['updated'], $pbd_sub_copy['updatedby'], $pbd_sub_copy['status']);
@@ -296,6 +308,7 @@ class Information extends CI_Controller
 					if ($pb_detail_sub_child_data->num_rows() > 0) {
 						foreach ($pb_detail_sub_child_data->result_array() as $pbd_sub_child) {
 							$idpaket_belanja_detail_sub_child = $pbd_sub_child['idpaket_belanja_detail_sub'];
+							$inserted_sub_detail_child_ids[] = $idpaket_belanja_detail_sub_child;
 							$pbd_sub_child_copy = $pbd_sub_child;
 							
 							unset($pbd_sub_child_copy['idpaket_belanja'], $pbd_sub_child_copy['idpaket_belanja_detail'], $pbd_sub_child_copy['is_idpaket_belanja_detail_sub'], $pbd_sub_child_copy['created'], $pbd_sub_child_copy['createdby'], $pbd_sub_child_copy['updated'], $pbd_sub_child_copy['updatedby'], $pbd_sub_child_copy['status']);
@@ -315,10 +328,24 @@ class Information extends CI_Controller
 			}
 		}
 
-		return array('success' => true, 'ids' => $inserted_ids);
+		$arr_return = array(
+			'success' => true, 
+			'paket_ids' => $inserted_ids,
+    		'detail_ids' => $inserted_detail_ids,
+    		'sub_detail_ids' => $inserted_sub_detail_ids,
+			'sub_detail_child_ids' => $inserted_sub_detail_child_ids,
+		);
+
+		return $arr_return;
 	}
 
 	private function return_paket_belanja_to_apbd($ids_to_unlock, $type) {
+		$inserted_ids = array();
+		$inserted_detail_ids = array();
+		$inserted_sub_detail_ids = array();
+		$inserted_sub_detail_child_ids = array();
+
+
 		// kembalikan data paket belanja apbd ke paket belanja berdasarkan idpaket_belanja
 		$this->db->select_max('sequence');
 		$pb_apbd = $this->db->get('paket_belanja_apbd');
@@ -335,6 +362,7 @@ class Information extends CI_Controller
 			$idpaket_belanja_apbd = $pb_apbd['idpaket_belanja_apbd'];
 			$idpaket_belanja = $pb_apbd['idpaket_belanja'];
 			$pb = $pb_apbd;
+			$inserted_ids[] = $idpaket_belanja;
 
 			unset($pb['idpaket_belanja'], $pb['jenis'], $pb['sequence'], $pb['idpaket_belanja_apbd'], $pb['created'], $pb['createdby'], $pb['updated'], $pb['updatedby']);
 
@@ -371,6 +399,7 @@ class Information extends CI_Controller
 			foreach ($apbd_detail->result_array() as $detail) {
 				$idpaket_belanja_apbd_detail = $detail['idpaket_belanja_apbd_detail'];
 				$idpaket_belanja_detail = $detail['idpaket_belanja_detail'];
+				$inserted_detail_ids[] = $idpaket_belanja_detail;
 
 				$pb_detail = $detail;
 				unset($pb_detail['idpaket_belanja_apbd_detail'], $pb_detail['idpaket_belanja_detail'], $pb_detail['idpaket_belanja_apbd'], $pb_detail['created'], $pb_detail['createdby'], $pb_detail['updated'], $pb_detail['updatedby']);
@@ -396,6 +425,7 @@ class Information extends CI_Controller
 				foreach ($apbd_detail_sub->result_array() as $detail_sub) {
 					$idpaket_belanja_apbd_detail_sub = $detail_sub['idpaket_belanja_apbd_detail_sub'];
 					$idpaket_belanja_detail_sub = $detail_sub['idpaket_belanja_detail_sub'];
+					$inserted_sub_detail_ids[] = $idpaket_belanja_detail_sub;
 
 					$pb_detail_sub = $detail_sub;
 
@@ -427,6 +457,7 @@ class Information extends CI_Controller
 						foreach ($apbd_detail_sub_child_data->result_array() as $detail_sub_child) {
 							$idpaket_belanja_apbd_detail_sub_child = $detail_sub_child['idpaket_belanja_apbd_detail_sub'];
 							$idpaket_belanja_detail_sub_child = $detail_sub_child['idpaket_belanja_detail_sub'];
+							$inserted_sub_detail_child_ids[] = $idpaket_belanja_detail_sub_child;
 
 							$pb_detail_sub_child = $detail_sub_child;
 
@@ -474,7 +505,11 @@ class Information extends CI_Controller
 		}
 
 		return array(
-			'success' => true
+			'success' => true,
+			'paket_ids' => $inserted_ids,
+    		'detail_ids' => $inserted_detail_ids,
+    		'sub_detail_ids' => $inserted_sub_detail_ids,
+			'sub_detail_child_ids' => $inserted_sub_detail_child_ids,
 		);
 	}
 
@@ -505,12 +540,12 @@ class Information extends CI_Controller
 		);
 
 		if ($anggaran_APBD == '1') {
-			$update_lock['apbd_lockedby'] = null;
-			$update_lock['apbd_locked_date'] = null;
+			$update_unlock['apbd_lockedby'] = null;
+			$update_unlock['apbd_locked_date'] = null;
 		} 
 		else if ($anggaran_APBD == '2') {
-			$update_lock['apbd_changes_lockedby'] = null;
-			$update_lock['apbd_changes_locked_date'] = null;
+			$update_unlock['apbd_changes_lockedby'] = null;
+			$update_unlock['apbd_changes_locked_date'] = null;
 
 		}
 
@@ -548,5 +583,129 @@ class Information extends CI_Controller
 		}
 
 		return array('success' => true);
+	}
+
+	private function save_publish_log($duplicate_result, $anggaran_APBD)
+	{
+		$transaction_id = uniqid('TRX_', true);
+
+		$username = $this->session->userdata('username');
+
+		$modul = ($anggaran_APBD == '1')
+			? 'APBD'
+			: 'PAPBD';
+
+		$logs = array();
+
+		foreach ($duplicate_result['paket_ids'] as $id) {
+
+			$logs[] = array(
+				'transaction_id' => $transaction_id,
+				'modul'          => $modul,
+				'entity_type'    => 'PAKET',
+				'entity_id'      => $id,
+				'paket_id'       => $id,
+				'action'         => 'LOCK',
+				'note'           => 'Paket dipublikasikan dan dikunci.',
+				'changed_by'     => $username,
+				'changed_at'     => date('Y-m-d H:i:s')
+			);
+		}
+
+		foreach ($duplicate_result['detail_ids'] as $id) {
+
+			$logs[] = array(
+				'transaction_id' => $transaction_id,
+				'modul'          => $modul,
+				'entity_type'    => 'DETAIL',
+				'entity_id'      => $id,
+				'paket_id'       => 0,
+				'action'         => 'CREATE',
+				'note'           => 'Detail paket diduplikasi.',
+				'changed_by'     => $username,
+				'changed_at'     => date('Y-m-d H:i:s')
+			);
+		}
+
+		foreach ($duplicate_result['sub_detail_ids'] as $id) {
+
+			$logs[] = array(
+				'transaction_id' => $transaction_id,
+				'modul'          => $modul,
+				'entity_type'    => 'SUB_DETAIL',
+				'entity_id'      => $id,
+				'paket_id'       => 0,
+				'action'         => 'CREATE',
+				'note'           => 'Detail Sub paket diduplikasi.',
+				'changed_by'     => $username,
+				'changed_at'     => date('Y-m-d H:i:s')
+			);
+		}
+
+		if (!empty($logs)) {
+			$this->db->insert_batch('paket_belanja_log', $logs);
+		}
+	}
+
+	private function save_unlock_log($return_result, $anggaran_APBD) 
+	{
+		$transaction_id = uniqid('TRX_', true);
+
+		$username = $this->session->userdata('username');
+
+		$modul = ($anggaran_APBD == '1')
+			? 'APBD'
+			: 'PAPBD';
+
+		$logs = array();
+
+		foreach ($return_result['paket_ids'] as $id) {
+
+			$logs[] = array(
+				'transaction_id' => $transaction_id,
+				'modul'          => $modul,
+				'entity_type'    => 'PAKET_PAPBD',
+				'entity_id'      => $id,
+				'paket_id'       => $id,
+				'action'         => 'UNLOCK',
+				'note'           => 'Paket dibuka kunci.',
+				'changed_by'     => $username,
+				'changed_at'     => date('Y-m-d H:i:s')
+			);
+		}
+
+		foreach ($return_result['detail_ids'] as $id) {
+
+			$logs[] = array(
+				'transaction_id' => $transaction_id,
+				'modul'          => $modul,
+				'entity_type'    => 'DETAIL_PAPBD',
+				'entity_id'      => $id,
+				'paket_id'       => 0,
+				'action'         => 'CREATE',
+				'note'           => 'Detail paket dibuka kunci.',
+				'changed_by'     => $username,
+				'changed_at'     => date('Y-m-d H:i:s')
+			);
+		}
+
+		foreach ($return_result['sub_detail_ids'] as $id) {
+
+			$logs[] = array(
+				'transaction_id' => $transaction_id,
+				'modul'          => $modul,
+				'entity_type'    => 'SUB_DETAIL_PAPBD',
+				'entity_id'      => $id,
+				'paket_id'       => 0,
+				'action'         => 'CREATE',
+				'note'           => 'Detail Sub paket dibuka kunci.',
+				'changed_by'     => $username,
+				'changed_at'     => date('Y-m-d H:i:s')
+			);
+		}
+
+		if (!empty($logs)) {
+			$this->db->insert_batch('paket_belanja_log', $logs);
+		}
 	}
 }
