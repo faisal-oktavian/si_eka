@@ -11,6 +11,7 @@ class Master_paket_belanja extends CI_Controller {
         $this->controller = 'master_paket_belanja';
 		$this->load->helper('az_crud');
         $this->load->helper('az_config');
+		$this->log_data = true;
     }
 
 	public function index() {		
@@ -359,6 +360,20 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+			if ($this->log_data) {
+				$this->db->where('idpaket_belanja_detail', $idpb_akun_belanja);
+				$before = $this->db->get('paket_belanja_detail')->row_array();
+
+				$action = "CREATE";
+				$note = "Menambahkan akun belanja.";
+				if (!empty($before)) {
+					$action = "UPDATE";
+					$note = "Mengubah akun belanja.";
+				}
+			}
+		}
+
+		if ($err_code == 0) {
 			if (strlen($idpaket_belanja) == 0) {
 				$arr_pb = array(
 					'idprogram' => $idprogram,
@@ -378,6 +393,34 @@ class Master_paket_belanja extends CI_Controller {
 
 			$save_pb_detail = az_crud_save($idpb_akun_belanja, 'paket_belanja_detail', $arr_pb_detail);
 			$idpaket_belanja_detail = azarr($save_pb_detail, 'insert_id');
+
+
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
+				$detail = $this->db->get('paket_belanja_detail')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "DETAIL", 
+					'entity_id' => $idpaket_belanja_detail, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => $action, 
+					'before' => $before, 
+					'after' => $detail, 
+					'transaction_id' => $transaction_id, 
+					'note' => $note,
+					'anggaran_APBD' => $anggaran_APBD,
+				);
+
+				$this->save_log($the_filter);	
+			}
 		}
 
 		$return = array(
@@ -422,6 +465,21 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+			// fitur log data
+			if ($this->log_data) {
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$before = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$action = "CREATE";
+				$note = "Menambahkan kategori.";
+				if (!empty($before)) {
+					$action = "UPDATE";
+					$note = "Mengubah kategori.";
+				}
+			}
+		}
+
+		if ($err_code == 0) {
 			//detail
 			$arr_pb_detail_sub = array(
 				'idpaket_belanja' => $idpaket_belanja,
@@ -435,6 +493,34 @@ class Master_paket_belanja extends CI_Controller {
 
 			$save_pb_detail_sub = az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_pb_detail_sub);
 			$idpb_detail_sub = azarr($save_pb_detail_sub, 'insert_id');
+
+
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$sub = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "SUB_DETAIL", 
+					'entity_id' => $idpb_detail_sub, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => $action, 
+					'before' => $before, 
+					'after' => $sub, 
+					'transaction_id' => $transaction_id, 
+					'note' => $note,
+					'anggaran_APBD' => $anggaran_APBD, 
+				);
+
+				$this->save_log($the_filter);
+			}
 		}
 
 		$return = array(
@@ -597,6 +683,21 @@ class Master_paket_belanja extends CI_Controller {
 				}
 			}
 		}
+
+		if ($err_code == 0) {
+			// fitur log data
+			if ($this->log_data) {
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$before = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$action = "CREATE";
+				$note = "Menambahkan subkategori.";
+				if (!empty($before)) {
+					$action = "UPDATE";
+					$note = "Mengubah subkategori.";
+				}
+			}
+		}
 		
 		if ($err_code == 0) {
 
@@ -675,6 +776,34 @@ class Master_paket_belanja extends CI_Controller {
 			az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_update);
 
 			$total_jumlah = $this->calculate_nilai_anggaran($idpaket_belanja);
+
+			
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$sub = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "SUB_SUB_DETAIL", 
+					'entity_id' => $idpb_detail_sub, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => $action, 
+					'before' => $before, 
+					'after' => $sub, 
+					'transaction_id' => $transaction_id, 
+					'note' => $note,
+					'anggaran_APBD' => $anggaran_APBD, 
+				);
+
+				$this->save_log($the_filter);
+			}
 		}
 
 		$return = array(
@@ -740,6 +869,23 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+			// fitur log data
+			if ($this->log_data) {
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$before = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$action = "CREATE";
+				$note = "Menambahkan spesifikasi.";
+				$_before = "";
+				if (strlen($before['spesifikasi']) > 0) {
+					$action = "UPDATE";
+					$note = "Mengubah spesifikasi.";
+					$_before = $before;
+				}
+			}
+		}
+
+		if ($err_code == 0) {
 			$arr_data = array(
 				'spesifikasi' => $specification,
 				'link_url' => $link_url,
@@ -748,10 +894,37 @@ class Master_paket_belanja extends CI_Controller {
 	    	az_crud_save($idpb_detail_sub, 'paket_belanja_detail_sub', $arr_data);
 
 			$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
-			$this->db->select('spesifikasi, link_url, idpaket_belanja');
-			$detail_sub = $this->db->get('paket_belanja_detail_sub');
+			$sub = $this->db->get('paket_belanja_detail_sub')->row_array();
 
-			$idpaket_belanja = $detail_sub->row()->idpaket_belanja;
+			$idpaket_belanja = $sub['idpaket_belanja'];
+
+
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+				// $this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				// $sub = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "SUB_SUB_DETAIL_SPESIFIKASI", 
+					'entity_id' => $idpb_detail_sub, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => $action, 
+					'before' => $_before, 
+					'after' => $sub, 
+					'transaction_id' => $transaction_id, 
+					'note' => $note,
+					'anggaran_APBD' => $anggaran_APBD, 
+				);
+
+				$this->save_log($the_filter);
+			}
 		}
 
 		$return = array(
@@ -1098,6 +1271,23 @@ class Master_paket_belanja extends CI_Controller {
 				$idpaket_belanja = '';
 			}
 
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$before = $this->db->get('paket_belanja')->row_array();
+
+				$action = "UPDATE"; 
+				$note = "Mengubah paket belanja.";
+				$_before = $before;
+				if ($before['status_paket_belanja'] == "DRAFT") {
+					$action = "CREATE"; 
+					$note = "Menambah paket belanja.";
+					$_before = "";
+				}
+			}
+
 			if (strlen($is_copy) == 0) {
 				if ( aznav('role_select_ppkom_pptk') ) {
 					$arr_data['select_ppkom_pptk'] = $select_ppkom_pptk;
@@ -1134,6 +1324,33 @@ class Master_paket_belanja extends CI_Controller {
 
 	    	$save_paket_belanja = az_crud_save($idpaket_belanja, 'paket_belanja', $arr_data);
 			$idpaket_belanja = azarr($save_paket_belanja, 'insert_id');
+
+
+			// fitur log data
+			if ($this->log_data) {
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$after = $this->db->get('paket_belanja')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "PAKET", 
+					'entity_id' => $idpaket_belanja, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => $action, 
+					'before' => $_before, 
+					'after' => $after, 
+					'transaction_id' => $transaction_id, 
+					'note' => $note,
+					'anggaran_APBD' => $anggaran_APBD, 
+				);
+
+				$this->save_log($the_filter);
+			}
 
 
 			// jika menggunakan fitur copy data
@@ -1291,6 +1508,37 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		if ($err_code == 0) {
+
+			// fitur log data 
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+
+				$this->db->where('idpaket_belanja', $id);
+				$before = $this->db->get('paket_belanja')->row_array();
+
+				$this->db->where('idpaket_belanja', $id);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "PAKET", 
+					'entity_id' => $id, 
+					'paket_id' => $id, 
+					'action' => "DELETE", 
+					'before' => $before, 
+					'after' => null, 
+					'transaction_id' => $transaction_id, 
+					'note' => "Menghapus paket belanja.",
+					'anggaran_APBD' => $anggaran_APBD, 
+				);
+
+				$this->save_log($the_filter);
+			}
+		}
+
+		if ($err_code == 0) {
 			// cek apakah ada detailnya?
 			$this->db->where('idpaket_belanja', $id);
 			$this->db->where('status', 1);
@@ -1367,6 +1615,37 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+
+		if ($err_code == 0) {
+			
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+
+				$this->db->where('idpaket_belanja_detail', $id);
+				$before = $this->db->get('paket_belanja_detail')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb_islock = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb_islock->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "DETAIL", 
+					'entity_id' => $id, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => "DELETE", 
+					'before' => $before, 
+					'after' => null, 
+					'transaction_id' => $transaction_id,
+					'note' => "Menghapus akun belanja.",
+					'anggaran_APBD' => $anggaran_APBD,
+				);
+
+				$this->save_log($the_filter);
 			}
 		}
 
@@ -1460,6 +1739,37 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+		}
+
+		if ($err_code == 0) {
+			
+			// fitur log data
+			if ($this->log_data) {
+				$transaction_id = uniqid();
+
+				$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+				$before = $this->db->get('paket_belanja_detail_sub')->row_array();
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->select('is_locked');
+				$pb = $this->db->get('paket_belanja');
+
+				$anggaran_APBD = $pb->row()->is_locked;
+
+				$the_filter = array(
+					'entity_type' => "SUB_DETAIL", 
+					'entity_id' => $id, 
+					'paket_id' => $idpaket_belanja, 
+					'action' => "DELETE", 
+					'before' => $before, 
+					'after' => null, 
+					'transaction_id' => $transaction_id,
+					'note' => "Menghapus detail.",
+					'anggaran_APBD' => $anggaran_APBD,
+				);
+
+				$this->save_log($the_filter);
 			}
 		}
 		
@@ -1720,7 +2030,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$pp = $this->db->get('purchase_plan');
-		// echo "<pre>"; print_r($this->db->last_query());die;
+		echo "<pre>"; print_r($this->db->last_query());die;
 
 		if ($pp->num_rows() > 0) {
 			$err_code++;
@@ -1827,6 +2137,49 @@ class Master_paket_belanja extends CI_Controller {
 			'data' => $view
 		);
 		echo json_encode($arr);
+	}
+
+	private function save_log($the_data) {
+
+		$entity_type = azarr($the_data, 'entity_type');
+		$entity_id = azarr($the_data, 'entity_id');
+		$paket_id = azarr($the_data, 'paket_id');
+		$action = azarr($the_data, 'action');
+		$before = azarr($the_data, 'before');
+		$after = azarr($the_data, 'after');
+		$transaction_id = azarr($the_data, 'transaction_id');
+		$note = azarr($the_data, 'note');
+		$anggaran_APBD = azarr($the_data, 'anggaran_APBD');
+		
+		if (!$transaction_id) {
+			$transaction_id = uniqid();
+		}
+
+		$modul = ($anggaran_APBD == '0')
+			? 'APBD'
+			: 'PAPBD';
+
+		$log = array(
+			'transaction_id' => $transaction_id,
+			'modul' => $modul,
+			'entity_type' => $entity_type,
+			'entity_id' => $entity_id,
+			'paket_id' => $paket_id,
+			'action' => $action,
+			'snapshot_before' => $before
+				? json_encode($before)
+				: null,
+			'snapshot_after' => $after
+				? json_encode($after)
+				: null,
+			'note' => $note,
+			'changed_by' => $this->session->userdata('username'),
+			'changed_at' => date('Y-m-d H:i:s')
+		);
+
+		$this->db->insert('paket_belanja_log', $log);
+
+		return $transaction_id;
 	}
 
 

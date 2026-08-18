@@ -97,6 +97,7 @@
 			show_modal('add');
 
 			jQuery("#idakun_belanja").select2("val", "");
+			jQuery("#idpb_akun_belanja").val("");
 			jQuery('#is_edit').val('0');
 		}
 	});
