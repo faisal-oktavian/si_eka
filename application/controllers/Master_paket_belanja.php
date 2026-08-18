@@ -397,7 +397,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
 				$detail = $this->db->get('paket_belanja_detail')->row_array();
 
@@ -497,7 +497,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
 				$sub = $this->db->get('paket_belanja_detail_sub')->row_array();
 
@@ -780,7 +780,7 @@ class Master_paket_belanja extends CI_Controller {
 			
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
 				$sub = $this->db->get('paket_belanja_detail_sub')->row_array();
 
@@ -901,7 +901,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 				// $this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
 				// $sub = $this->db->get('paket_belanja_detail_sub')->row_array();
 
@@ -1273,7 +1273,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 
 				$this->db->where('idpaket_belanja', $idpaket_belanja);
 				$before = $this->db->get('paket_belanja')->row_array();
@@ -1511,7 +1511,7 @@ class Master_paket_belanja extends CI_Controller {
 
 			// fitur log data 
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 
 				$this->db->where('idpaket_belanja', $id);
 				$before = $this->db->get('paket_belanja')->row_array();
@@ -1622,7 +1622,7 @@ class Master_paket_belanja extends CI_Controller {
 			
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 
 				$this->db->where('idpaket_belanja_detail', $id);
 				$before = $this->db->get('paket_belanja_detail')->row_array();
@@ -1746,7 +1746,7 @@ class Master_paket_belanja extends CI_Controller {
 			
 			// fitur log data
 			if ($this->log_data) {
-				$transaction_id = uniqid();
+				$transaction_id = uniqid('TRX_', true);
 
 				$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 				$before = $this->db->get('paket_belanja_detail_sub')->row_array();
@@ -2152,7 +2152,7 @@ class Master_paket_belanja extends CI_Controller {
 		$anggaran_APBD = azarr($the_data, 'anggaran_APBD');
 		
 		if (!$transaction_id) {
-			$transaction_id = uniqid();
+			$transaction_id = uniqid('TRX_', true);
 		}
 
 		$modul = ($anggaran_APBD == '0')
