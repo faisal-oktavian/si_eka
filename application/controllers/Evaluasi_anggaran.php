@@ -119,7 +119,7 @@ class Evaluasi_anggaran extends CI_Controller {
 	public function get_lazy_data()
 	{
 		$tahun_anggaran = $this->input->post('tahun_anggaran') ?: $this->input->get('tahun_anggaran');
-		$nama_paket_belanja = $this->input->post('nama_paket_belanja') ?: $this->input->get('paket_belanja');
+		$nama_paket_belanja = $this->input->post('nama_paket_belanja') ?: $this->input->get('paket_belanja') ?: null;
 		$page = (int) ($this->input->post('page') ?: $this->input->get('page') ?: 1);
 		$batch_size = (int) ($this->input->post('batch_size') ?: $this->input->get('batch_size') ?: 20);
 
@@ -1434,8 +1434,11 @@ class Evaluasi_anggaran extends CI_Controller {
             'DATE_FORMAT(MAX(purchase_plan.purchase_plan_date), "%d-%m-%Y") as purchase_plan_date,
             MAX(budget_realization_detail.provider) as provider, sum(budget_realization_detail.volume) as volume, sum(budget_realization_detail.male) as male, sum(budget_realization_detail.female) as female, sum(budget_realization_detail.unit_price) as unit_price, sum(budget_realization_detail.ppn) as ppn, sum(budget_realization_detail.pph) as pph, sum(budget_realization_detail.total_realization_detail) as total'
         );
+		$plan = $this->db->get('purchase_plan');
+		// echo "<pre>"; print_r($this->db->last_query());
+		// echo "<br><br>";
 
-        return $this->db->get('purchase_plan');
+        return $plan;
     }
 
     private function get_monthly_realisasi_summary_batch(array $params, array $months) {
@@ -1513,6 +1516,8 @@ class Evaluasi_anggaran extends CI_Controller {
 
         $this->db->select(implode(', ', $select_parts), false);
         $row = $this->db->get('purchase_plan')->row();
+		// echo "<pre>"; print_r($this->db->last_query());
+		// echo "<br><br>";
 
         $result = [];
         foreach ($month_numbers as $index => $month_number) {
@@ -2177,6 +2182,15 @@ class Evaluasi_anggaran extends CI_Controller {
 		else if ($tw_sebelumnya == 3) {
 			$sampai_bulan = 9;
 		}
+
+		// echo "<pre>"; print_r($tahun_anggaran.'<br>'.
+		// 	sprintf('%02d', $mulai_bulan).'<br>'.
+		// 	sprintf('%02d', $sampai_bulan).'<br>'.
+		// 	$idpaket_belanja.'<br>'.
+		// 	$idpaket_belanja_detail_sub.'<br>'.
+		// 	$idsub_kategori.'<br>');
+
+		// echo "<br><br>";
 
 		$p_plan_d = $this->get_monthly_realisasi_summary([
 			'tahun_anggaran' => $tahun_anggaran,
@@ -3097,6 +3111,9 @@ class Evaluasi_anggaran extends CI_Controller {
             $end_range = $this->get_month_date_range($end);
             $range['end'] = $end_range['end'];
         }
+
+		$range['start'] = $range['start'] . ' 00:00:00';
+		$range['end'] = $range['end'] . ' 23:59:59';
 
         $this->db->group_start()
 
