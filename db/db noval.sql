@@ -2750,6 +2750,9 @@ ALTER TABLE `pad_target`
 /* END PAD ONLINE */
 
 
+ALTER TABLE `budget_realization_detail`
+	ADD COLUMN `idsub_kategori_old` INT(10) NULL DEFAULT NULL COMMENT 'idsub kategori asli sebelum pembetulan data' AFTER `idsub_kategori`;
+
 
 
 

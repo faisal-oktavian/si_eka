@@ -659,25 +659,34 @@ class Master_paket_belanja extends CI_Controller {
 		}
 
 		
-		// validasi volume yang diinput tidak boleh kurang dari total volume yang sudah masuk di rencana pengadaan
 		if ($err_code == 0) {
-			// cek jika diupdate satuan LS tidak perlu validasi ini
-			if (!$is_ls) {
-
-				if (strlen($idpb_detail_sub) > 0) {
-					$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
-					$this->db->where('purchase_plan_detail.status', 1);
-					$this->db->where('purchase_plan.status', 1);
-					$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
-					$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
-					$pp_detail = $this->db->get('purchase_plan_detail');
-		
-					if ($pp_detail->num_rows() > 0) {
-						$existing_volume = $pp_detail->row()->volume;
-		
+			if (strlen($idpb_detail_sub) > 0) {
+				$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$this->db->where('purchase_plan_detail.status', 1);
+				$this->db->where('purchase_plan.status', 1);
+				$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
+				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
+				$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+				$pp_detail = $this->db->get('purchase_plan_detail');
+				
+				if ($pp_detail->num_rows() > 0) {	
+					$existing_volume = $pp_detail->row()->volume;
+					
+					// cek jika diupdate satuan LS tidak perlu validasi ini
+					if (!$is_ls) {
+						
+						// validasi volume yang diinput tidak boleh kurang dari total volume yang sudah masuk di rencana pengadaan
 						if ($volume < $existing_volume) {
 							$err_code++;
 							$err_message = 'Volume tidak boleh kurang dari volume yang sudah masuk di rencana pengadaan';
+						}
+					}
+
+					// cek apakah sub kategorinya diubah, jika iya maka tidak boleh diubah karena sudah masuk di rencana pengadaan
+					if ($err_code == 0) {
+						if ($idsub_kategori != $pp_detail->row()->idsub_kategori) {
+							$err_code++;
+							$err_message = 'Sub kategori tidak boleh diubah karena sudah masuk di rencana pengadaan';
 						}
 					}
 				}
