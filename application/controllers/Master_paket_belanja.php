@@ -682,13 +682,13 @@ class Master_paket_belanja extends CI_Controller {
 						}
 					}
 
-					// cek apakah sub kategorinya diubah, jika iya maka tidak boleh diubah karena sudah masuk di rencana pengadaan
-					if ($err_code == 0) {
-						if ($idsub_kategori != $pp_detail->row()->idsub_kategori) {
-							$err_code++;
-							$err_message = 'Sub kategori tidak boleh diubah karena sudah masuk di rencana pengadaan';
-						}
-					}
+					// // cek apakah sub kategorinya diubah, jika iya maka tidak boleh diubah karena sudah masuk di rencana pengadaan
+					// if ($err_code == 0) {
+					// 	if ($idsub_kategori != $pp_detail->row()->idsub_kategori) {
+					// 		$err_code++;
+					// 		$err_message = 'Sub kategori tidak boleh diubah karena sudah masuk di rencana pengadaan';
+					// 	}
+					// }
 				}
 			}
 		}
