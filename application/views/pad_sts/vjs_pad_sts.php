@@ -5,6 +5,19 @@
 
 	jQuery('body').on('click', '.btn-edit-pad-sts', function() {
 		var id = jQuery(this).attr('data_id');
+
+		var dtable = $("#pad_sts").dataTable({
+			bRetrieve: true
+		});
+
+		var settings = dtable.fnSettings();
+
+		var currentPage = Math.ceil(
+			settings._iDisplayStart / settings._iDisplayLength
+		) + 1;
+
+		sessionStorage.setItem('sts_page', currentPage);
+
 		location.href = app_url + 'pad_sts/edit/' + id;
 	});
 
@@ -49,3 +62,56 @@
 		var param = jQuery('.purchase-plan').serialize();
 		window.open(app_url + 'pad_sts/excel?'+param, '_blank');
 	});
+
+	function reloadFilterSts() {
+		var dtable = $("#pad_sts").dataTable({
+			bRetrieve: true
+		});
+
+		dtable.fnDraw();
+	}
+
+	jQuery(window).on('pageshow', function () {
+		if (sessionStorage.getItem('sts_back') === '1') {
+			sessionStorage.removeItem('sts_back');
+			var savedPage = sessionStorage.getItem('sts_page');
+			setTimeout(function () {
+				var dtable = $("#pad_sts").dataTable({
+					bRetrieve: true
+				});
+				if (savedPage !== null) {
+					var settings = dtable.fnSettings();
+					settings._iDisplayStart =
+						(parseInt(savedPage) - 1) *
+						settings._iDisplayLength;
+					dtable.fnDraw(false);
+					sessionStorage.removeItem('sts_page');
+				} 
+				else {
+					dtable.fnDraw();
+				}
+			}, 500);
+		}
+	});
+
+	// jQuery(window).on('pageshow', function () {
+	// 	if (sessionStorage.getItem('sts_back') === '1') {
+	// 		sessionStorage.removeItem('sts_back');
+	// 		var savedPage = sessionStorage.getItem('sts_page');
+	// 		setTimeout(function () {
+	// 			var dtable = $("#pad_sts").dataTable({
+	// 				bRetrieve: true
+	// 			});
+	// 			dtable.fnDraw();
+	// 			if (savedPage !== null) {
+	// 				setTimeout(function () {
+	// 					dtable.fnPageChange(
+	// 						parseInt(savedPage) - 1,
+	// 						true
+	// 					);
+	// 					sessionStorage.removeItem('sts_page');
+	// 				}, 300);
+	// 			}
+	// 		}, 500);
+	// 	}
+	// });

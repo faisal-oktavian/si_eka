@@ -9,6 +9,11 @@
 		format: 'DD-MM-YYYY HH:mm:ss'
 	});
 
+	function goBack() {
+		sessionStorage.setItem('mutasi_kas_back', '1');
+		window.history.back();
+	}
+
 	// simpan sts
 	jQuery('body').on('click', '#btn_save_pad_mutasi_kas', function() {
 		// show_loading();

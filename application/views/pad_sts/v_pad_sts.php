@@ -83,7 +83,8 @@
 		</table>
 		<hr>
 		<div style="margin-bottom:10px;">
-			<a href="<?php echo app_url();?>pad_sts"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a>
+			<!-- <a href="<?php echo app_url();?>pad_sts"><button class="btn btn-default" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button></a> -->
+			<button class="btn btn-default" onclick="goBack()" type="button"><i class="fa fa-arrow-left"></i> Kembali</i></button>
 			<?php
 				if (!$role_view_pad_sts) {
 			?>

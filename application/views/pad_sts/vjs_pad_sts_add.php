@@ -26,6 +26,11 @@
 		format: 'DD-MM-YYYY HH:mm:ss'
 	});
 
+	function goBack() {
+		sessionStorage.setItem('sts_back', '1');
+		window.history.back();
+	}
+
 
     // tambah uraian
     jQuery('body').on('click', '#btn_add_sts', function() {
