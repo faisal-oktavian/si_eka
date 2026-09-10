@@ -911,7 +911,8 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
 
         if (strlen($nama_paket_belanja) > 0) {
-            $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+            // $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+			$this->db->like('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
         }
 
         $this->db->order_by('paket_belanja.idpaket_belanja', 'ASC');
@@ -954,7 +955,8 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
 
         if (strlen($nama_paket_belanja) > 0) {
-            $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+            // $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+			$this->db->like('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
         }
 
         $this->db->select('COUNT(*) as total', false);
@@ -978,7 +980,8 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $tahun_anggaran);
 
         if (strlen($nama_paket_belanja) > 0) {
-            $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+            // $this->db->where('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
+			$this->db->like('paket_belanja.nama_paket_belanja', $nama_paket_belanja);
         }
 
         $this->db->select_sum('paket_belanja.nilai_anggaran');
