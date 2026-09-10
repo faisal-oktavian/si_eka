@@ -204,7 +204,7 @@ class Purchase_contract extends CI_Controller {
                 $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
                 $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, purchase_plan.idpurchase_plan, paket_belanja.idpaket_belanja, paket_belanja_detail_sub.idpaket_belanja_detail_sub');
+                $this->db->select('paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan_detail.purchase_plan_detail_total, purchase_plan_detail.purchase_plan_detail_status, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub, purchase_plan.idpurchase_plan, paket_belanja.idpaket_belanja, paket_belanja_detail_sub.idpaket_belanja_detail_sub');
                 $contract_detail = $this->db->get('contract_detail');
                 // echo "<pre>"; print_r($this->db->last_query());die;
 
@@ -240,6 +240,7 @@ class Purchase_contract extends CI_Controller {
                     $arr_detail[] = array(
                         'purchase_plan_code' => $value->purchase_plan_code,
                         'nama_paket_belanja' => $c_value->nama_paket_belanja,
+                        'purchase_plan_detail_status' => $c_value->purchase_plan_detail_status,
                         'nama_sub_kategori' => $uraian,
                         'volume' => $c_value->volume,
                         'total' => $c_value->purchase_plan_detail_total,
@@ -276,6 +277,11 @@ class Purchase_contract extends CI_Controller {
 					$table .= 		"</td>";
                     $table .=       "<td align='left'>";
 					$table .= 			$dvalue['nama_paket_belanja'];
+
+					if ($dvalue['purchase_plan_detail_status'] != "KONTRAK PENGADAAN" && $contract_status == "KONTRAK PENGADAAN") {
+						$table .= 		"<br>" . label_status($dvalue['purchase_plan_detail_status']);
+					}
+								
 					// $table .=			'<div style="color:red;">idpaket '.$dvalue['idpaket_belanja'].'</div>';
 					$table .= 		"</td>";
                     $table .=       "<td align='left'>";
@@ -820,15 +826,25 @@ class Purchase_contract extends CI_Controller {
 
 			$this->db->where('contract.idcontract', $idcontract);
 			$this->db->where('contract.status', 1);
-			$this->db->where('contract.contract_status IN '.$arr_validation.' ');
 			$this->db->where('contract_detail.status', 1);
+			$this->db->where('purchase_plan.status', 1);
+			$this->db->where('purchase_plan_detail.status', 1);
 			$this->db->where('budget_realization.realization_status != "DRAFT" ');
 			$this->db->where('budget_realization.status', 1);
 			$this->db->where('budget_realization_detail.status', 1);
+			$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+			$this->db->group_start();
+				$this->db->where('contract.contract_status IN '.$arr_validation.' ');
+				$this->db->or_where('purchase_plan_detail.purchase_plan_detail_status IN '.$arr_validation.' ');
+			$this->db->group_end();
+			
 
 			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
 			$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail');
-			$this->db->join('budget_Realization', 'budget_Realization.idbudget_realization = budget_realization_detail.idbudget_realization');
+			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
+			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 
 			$_contract = $this->db->get('contract');
 			// echo "<pre>"; print_r($this->db->last_query());die;
@@ -840,6 +856,7 @@ class Purchase_contract extends CI_Controller {
 				$is_delete = false;
 			}
 		}
+		
 		if ($is_delete) {
 			// update status rencana pengadaan
 			foreach ($contract->result() as $key => $value) {
@@ -964,16 +981,28 @@ class Purchase_contract extends CI_Controller {
 			);
 			$arr_validation = validation_status($the_filter);
 
+
 			$this->db->where('contract.idcontract', $id);
 			$this->db->where('contract.status', 1);
 			$this->db->where('contract_detail.status', 1);
 			$this->db->where('purchase_plan.status', 1);
 			$this->db->where('purchase_plan_detail.status', 1);
-			$this->db->where('purchase_plan_detail.purchase_plan_detail_status IN '.$arr_validation.' ');
+			$this->db->where('budget_realization.realization_status != "DRAFT" ');
+			$this->db->where('budget_realization.status', 1);
+			$this->db->where('budget_realization_detail.status', 1);
+			$this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+
+			$this->db->group_start();
+				$this->db->where('contract.contract_status IN '.$arr_validation.' ');
+				$this->db->or_where('purchase_plan_detail.purchase_plan_detail_status IN '.$arr_validation.' ');
+			$this->db->group_end();
+			
 
 			$this->db->join('contract_detail', 'contract_detail.idcontract = contract.idcontract');
+			$this->db->join('budget_realization_detail', 'budget_realization_detail.idcontract_detail = contract_detail.idcontract_detail');
+			$this->db->join('budget_realization', 'budget_realization.idbudget_realization = budget_realization_detail.idbudget_realization');
 			$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
-			$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+			$this->db->join('purchase_plan_detail', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 
 			$_contract = $this->db->get('contract');
 

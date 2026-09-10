@@ -519,7 +519,7 @@ class Document_verification extends CI_Controller {
 				'idverification' => $idverification,
 				'status' => $realization_status,
 			);
-			$update_status = update_status_budget_realization($the_filter);
+			$update_status = update_status_budget_realization($the_filter, false);
 		}
 
 		$return = array(

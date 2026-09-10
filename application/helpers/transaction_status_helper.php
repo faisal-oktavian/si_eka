@@ -190,7 +190,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
     // update status rencana pengadaan
-	function update_status_purchase_plan($the_data) {
+	function update_status_purchase_plan($the_data, $detail = true) {
 		$ci =& get_instance();
 
 		$err_code = 0;
@@ -206,19 +206,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$ci->db->where('idpurchase_plan', $idpurchase_plan);
 		$ci->db->update('purchase_plan', $arr_update);
 
-
+		
 		// update status detail paket belanja
-		$ci->db->where('status', 1);
-		$ci->db->where('idpurchase_plan', $idpurchase_plan);
-		$pd = $ci->db->get('purchase_plan_detail');
+		if ($detail) {
+			$ci->db->where('status', 1);
+			$ci->db->where('idpurchase_plan', $idpurchase_plan);
+			$pd = $ci->db->get('purchase_plan_detail');
 
-		foreach ($pd->result() as $key => $value) {
-			$the_filter = array(
-				'idpurchase_plan_detail' => $value->idpurchase_plan_detail,
-				'status' => $status,
-			);
+			foreach ($pd->result() as $key => $value) {
+				$the_filter = array(
+					'idpurchase_plan_detail' => $value->idpurchase_plan_detail,
+					'status' => $status,
+				);
 
-			update_status_detail_purchase_plan($the_filter);	
+				update_status_detail_purchase_plan($the_filter);	
+			}
 		}
 
 		$ret = array(
@@ -253,7 +255,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
     // update status kontrak pengadaan
-	function update_status_purchase_contract($the_data) {
+	function update_status_purchase_contract($the_data, $detail = true) {
 		$ci =& get_instance();
 
 		$err_code = 0;
@@ -287,7 +289,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				'status' => $status,
 			);
 
-			update_status_purchase_plan($the_filter);
+			update_status_purchase_plan($the_filter, $detail);
 		}
 
 		$ret = array(
@@ -298,7 +300,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	}
 
     // update status realisasi anggaran
-	function update_status_budget_realization($the_data) {
+	function update_status_budget_realization($the_data, $detail = true) {
 		$ci =& get_instance();
 
 		$err_code = 0;
@@ -326,7 +328,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 
 		// update status kontrak pengadaan
-		update_status_purchase_contract($the_filter);
+		update_status_purchase_contract($the_filter, $detail);
 
 		$ret = array(
 			'err_code' => $err_code,
