@@ -1237,7 +1237,7 @@ class Evaluasi_anggaran extends CI_Controller {
                             CASE
                                 WHEN purchase_plan.purchase_plan_status != 'DRAFT'
                                     AND DATE_FORMAT(purchase_plan.purchase_plan_date, '%Y') = '{$tahun_anggaran}'
-                                    AND budget_realization_detail.idsub_kategori = paket_belanja_detail_sub.idsub_kategori
+                                    AND purchase_plan_detail.idpaket_belanja_detail_sub = paket_belanja_detail_sub.idpaket_belanja_detail_sub
                                 THEN budget_realization_detail.volume
                                 ELSE 0
                             END
@@ -1265,7 +1265,7 @@ class Evaluasi_anggaran extends CI_Controller {
 
         $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
         $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);
-        $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
+        // $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
         $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 
         $this->apply_status_validation_filter();
@@ -1300,7 +1300,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('budget_realization_detail.unit_price IS NOT NULL', null, false);
         $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
         $this->db->where_in('purchase_plan_detail.idpaket_belanja_detail_sub', $subdetail_ids);
-        $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
+        // $this->db->where_in('budget_realization_detail.idsub_kategori', $idsub_categories);
         $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 
         $this->apply_status_validation_filter();
@@ -1316,6 +1316,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->order_by('budget_realization_detail.unit_price', 'ASC');
 
         $price_rows = $this->db->get('purchase_plan')->result();
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
         foreach ($price_rows as $price_row) {
             if ($price_row->unit_price === null) {
@@ -1399,7 +1400,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('purchase_plan_detail.status', 1);
         $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" ');
         $this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
-        $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+        // $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
         $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
         $this->db->where('budget_realization_detail.status', 1);
         $this->db->where('budget_realization.status', 1);
@@ -1429,6 +1430,7 @@ class Evaluasi_anggaran extends CI_Controller {
             END
         ", "", FALSE);
         $this->db->select($select);
+		// echo "<pre>"; print_r($this->db->last_query());die;
     }
 
     private function get_monthly_realisasi_summary(array $params) {
@@ -1467,7 +1469,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('purchase_plan_detail.status', 1);
         $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" ');
         $this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
-        $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+        // $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
         $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
         $this->db->where('budget_realization_detail.status', 1);
         $this->db->where('budget_realization.status', 1);
@@ -2243,7 +2245,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('purchase_plan_detail.status', 1);
         $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub = "'.$idpaket_belanja_detail_sub.'" ');
         $this->db->where('purchase_plan_detail.idpaket_belanja = "'.$idpaket_belanja.'" ');
-        $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+        // $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
         $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
         $this->db->where('budget_realization_detail.status', 1);
         $this->db->where('budget_realization.status', 1);
@@ -2917,7 +2919,7 @@ class Evaluasi_anggaran extends CI_Controller {
 		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
 		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y") = "'.$filter_tahun.'"');
-		$this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+		// $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
 		$this->db->where('contract_detail.status', 1);
 		$this->db->where('contract.status', 1);
 		$this->db->where('budget_realization.status', 1);
@@ -3047,7 +3049,7 @@ class Evaluasi_anggaran extends CI_Controller {
         $this->db->where('budget_realization_detail.status', 1);
         $this->db->where('purchase_plan_detail.idpaket_belanja', $params['idpaket_belanja']);
         $this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $params['idpaket_belanja_detail_sub']);
-        $this->db->where('budget_realization_detail.idsub_kategori', $params['idsub_kategori']);
+        // $this->db->where('budget_realization_detail.idsub_kategori', $params['idsub_kategori']);
         $this->db->where('purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
 
         /**

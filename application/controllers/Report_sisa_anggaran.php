@@ -452,7 +452,7 @@ class Report_sisa_anggaran extends CI_Controller {
 		$this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
 		$this->db->where('purchase_plan_detail.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		$this->db->where('DATE_FORMAT(purchase_plan.purchase_plan_date, "%Y") = "'.$filter_tahun.'"');
-		$this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
+		// $this->db->where('budget_realization_detail.idsub_kategori = "'.$idsub_kategori.'" ');
 		$this->db->where('contract_detail.status', 1);
 		$this->db->where('contract.status', 1);
 		$this->db->where('budget_realization.status', 1);

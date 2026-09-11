@@ -1606,6 +1606,7 @@ class Budget_realization extends CI_Controller {
 		$idpaket_belanja = azarr($the_data, 'idpaket_belanja', '');
 		$idbudget_realization_detail = azarr($the_data, 'idbudget_realization_detail', '');
 		$idpaket_belanja_detail_sub = azarr($the_data, 'idpaket_belanja_detail_sub', '');
+		$idpurchase_plan_detail = azarr($the_data, 'idpurchase_plan_detail', '');
 
 		$format_year = date("Y", strtotime($transaction_date));
 		$format_month = date("m", strtotime($transaction_date));
@@ -1617,7 +1618,7 @@ class Budget_realization extends CI_Controller {
 		$this->db->where('budget_realization_detail.status', 1);
 		$this->db->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") >=', $format_year . '-01');
 		$this->db->where('DATE_FORMAT(budget_realization.realization_date, "%Y-%m") <=', $format_year . '-' . $format_month);
-		$this->db->where('budget_realization_detail.idsub_kategori', $idsub_kategori);
+		// $this->db->where('budget_realization_detail.idsub_kategori', $idsub_kategori);
 		$this->db->where('paket_belanja_detail_sub.idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
 		// $this->db->where('purchase_plan_detail.idpaket_belanja', $idpaket_belanja);
 		if (strlen($idbudget_realization_detail) > 0) {
@@ -1656,7 +1657,7 @@ class Budget_realization extends CI_Controller {
 		');
 
 		$data = $this->db->get('budget_realization');
-		// echo "<pre>"; print_r($this->db->last_query()); die;
+		echo "<pre>"; print_r($this->db->last_query()); die;
 
 
 

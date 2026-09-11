@@ -91,7 +91,8 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$crud->add_join_manual('contract', 'contract.idcontract = contract_detail.idcontract');
 		$crud->add_join_manual('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$crud->add_join_manual('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
+		$crud->add_join_manual('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
         $crud->add_join_manual('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 
 		$crud->add_where('budget_realization.realization_status != "DRAFT" ');
@@ -138,7 +139,8 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$crud->add_join_manual('contract', 'contract.idcontract = contract_detail.idcontract');
 		$crud->add_join_manual('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$crud->add_join_manual('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
+		$crud->add_join_manual('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$crud->add_join_manual('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
         $crud->add_join_manual('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 
 		$crud->add_where('npd.npd_status = "SUDAH DIBAYAR BENDAHARA" ');
@@ -223,7 +225,8 @@ class Report_realisasi_anggaran extends CI_Controller {
 		$this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
 		$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
-		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
+		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
         $this->db->join('ruang', 'ruang.idruang = budget_realization_detail.idruang', 'left');
 		
 		$this->db->order_by('budget_realization.realization_date ASC, sub_kategori.nama_sub_kategori ASC');
