@@ -9,7 +9,7 @@
 ?>
 		<tr>
 			<td><?php echo $value['nama_paket_belanja'];?></td>
-			<td><?php echo $value['nama_sub_kategori'];?></td>
+			<td><?php echo $value['nama_sub_kategori'] /* . ' ---->' . $value['idpaket_belanja_detail_sub'] */;?></td>
 			<td align="center"><?php echo az_thousand_separator_decimal($value['volume']);?></td>
 			<td>
 				<?php 

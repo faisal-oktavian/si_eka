@@ -142,6 +142,12 @@
 
                                         <td class="center">
                                             <?= az_thousand_separator($detail['sisa_volume']); ?>
+
+                                            <?php
+                                                // if ($detail['sisa_volume'] < 0) {
+                                                //     echo '<br><span class="label label-danger">Sisa Volume Habis</span>';
+                                                // }
+                                            ?>
                                         </td>
 
                                         <td colspan="3"></td>
@@ -187,6 +193,12 @@
 
                                             <td class="center">
                                                 <?= az_thousand_separator($sub['sisa_volume']); ?>
+
+                                                <?php
+                                                    // if ($sub['sisa_volume'] < 0) {
+                                                    //     echo '<br><span class="label label-danger">Sisa Volume Habis</span>';
+                                                    // }
+                                                ?>
                                             </td>
 
                                             <td colspan="3"></td>

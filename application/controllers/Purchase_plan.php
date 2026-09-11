@@ -1099,7 +1099,7 @@ class Purchase_plan extends CI_Controller {
 		$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
 		$this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
 
-		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan_detail.idpurchase_plan_detail, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan.total_budget, purchase_plan.purchase_plan_status');
+		$this->db->select('purchase_plan.idpurchase_plan, purchase_plan_detail.idpurchase_plan_detail, paket_belanja.nama_paket_belanja, sub_kategori.nama_sub_kategori, purchase_plan_detail.volume, purchase_plan.total_budget, purchase_plan.purchase_plan_status, paket_belanja_detail_sub.idpaket_belanja_detail_sub');
 		$purchase_plan = $this->db->get('purchase_plan');
 		// echo "<pre>"; print_r($this->db->last_query());die;
 

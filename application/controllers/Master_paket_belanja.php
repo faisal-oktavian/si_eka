@@ -667,14 +667,15 @@ class Master_paket_belanja extends CI_Controller {
 				$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 				$this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = purchase_plan_detail.idpurchase_plan');
 				$this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+				$this->db->select('sum(purchase_plan_detail.volume) as volume');
 				$pp_detail = $this->db->get('purchase_plan_detail');
+				// echo "<pre>"; print_r($this->db->last_query());die;
 				
-				if ($pp_detail->num_rows() > 0) {	
+				if ($pp_detail->num_rows() > 0 || $pp_detail->row()->volume > 0 || $pp_detail->row()->volume != null) {	
 					$existing_volume = $pp_detail->row()->volume;
 					
 					// cek jika diupdate satuan LS tidak perlu validasi ini
 					if (!$is_ls) {
-						
 						// validasi volume yang diinput tidak boleh kurang dari total volume yang sudah masuk di rencana pengadaan
 						if ($volume < $existing_volume) {
 							$err_code++;
@@ -2039,7 +2040,7 @@ class Master_paket_belanja extends CI_Controller {
 		$this->db->where('purchase_plan.purchase_plan_status != "DRAFT" ');
 		$this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
 		$pp = $this->db->get('purchase_plan');
-		echo "<pre>"; print_r($this->db->last_query());die;
+		// echo "<pre>"; print_r($this->db->last_query());die;
 
 		if ($pp->num_rows() > 0) {
 			$err_code++;

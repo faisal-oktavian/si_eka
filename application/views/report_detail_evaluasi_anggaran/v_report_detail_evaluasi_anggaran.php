@@ -295,6 +295,11 @@
 
                                                         <td class="nominal">
                                                             Rp. <?= az_thousand_separator($detail['sisa_uang']); ?>
+                                                            <?php
+                                                                // if ($detail['sisa_uang'] < 0) {
+                                                                //     echo '<br><span class="label label-danger">Sisa Uang Habis</span>';
+                                                                // }
+                                                            ?>
                                                         </td>
 
                                                         <?php
@@ -389,6 +394,11 @@
 
                                                             <td class="nominal">
                                                                 Rp. <?= az_thousand_separator($sub['sisa_uang']); ?>
+                                                                <?php
+                                                                    // if ($sub['sisa_uang'] < 0) {
+                                                                    //     echo '<br><span class="label label-danger">Sisa Uang Habis</span>';
+                                                                    // }
+                                                                ?>
                                                             </td>
 
                                                             <?php
