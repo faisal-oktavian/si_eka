@@ -1657,7 +1657,7 @@ class Budget_realization extends CI_Controller {
 		');
 
 		$data = $this->db->get('budget_realization');
-		echo "<pre>"; print_r($this->db->last_query()); die;
+		// echo "<pre>"; print_r($this->db->last_query()); die;
 
 
 
