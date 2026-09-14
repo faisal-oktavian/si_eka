@@ -501,7 +501,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 				FROM
 				(
 					/* ====================================================
-					PARENT NORMAL
+					PARENT MURNI
 					==================================================== */
 					SELECT
 						parent_sub.jumlah
@@ -511,29 +511,29 @@ class Report_papbd_akun_belanja extends CI_Controller {
 						ON pb.idpaket_belanja =
 						pbd.idpaket_belanja
 
-					JOIN akun_belanja ab_normal
-						ON ab_normal.idakun_belanja =
+					JOIN akun_belanja ab_murni
+						ON ab_murni.idakun_belanja =
 						pbd.idakun_belanja
 
-					JOIN sub_kegiatan sk_normal
-						ON sk_normal.idsub_kegiatan =
+					JOIN sub_kegiatan sk_murni
+						ON sk_murni.idsub_kegiatan =
 						pb.idsub_kegiatan
 
-					JOIN kegiatan k_normal
-						ON k_normal.idkegiatan =
-						sk_normal.idkegiatan
+					JOIN kegiatan k_murni
+						ON k_murni.idkegiatan =
+						sk_murni.idkegiatan
 
-					JOIN program pr_normal
-						ON pr_normal.idprogram =
-						k_normal.idprogram
+					JOIN program pr_murni
+						ON pr_murni.idprogram =
+						k_murni.idprogram
 
-					JOIN bidang_urusan bu_normal
-						ON bu_normal.idbidang_urusan =
-						pr_normal.idbidang_urusan
+					JOIN bidang_urusan bu_murni
+						ON bu_murni.idbidang_urusan =
+						pr_murni.idbidang_urusan
 
-					JOIN urusan_pemerintah up_normal
-						ON up_normal.idurusan_pemerintah =
-						bu_normal.idurusan_pemerintah
+					JOIN urusan_pemerintah up_murni
+						ON up_murni.idurusan_pemerintah =
+						bu_murni.idurusan_pemerintah
 
 					JOIN paket_belanja_detail_sub parent_sub
 						ON parent_sub.idpaket_belanja_detail =
@@ -544,20 +544,20 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND pb.status = 1
 					AND pb.status_paket_belanja = 'OK'
 
-					AND ab_normal.status = 1
-					AND ab_normal.is_active = 1
+					AND ab_murni.status = 1
+					AND ab_murni.is_active = 1
 
 					AND pbd.idakun_belanja =
 						akun_belanja.idakun_belanja
 
-					AND up_normal.tahun_anggaran_urusan = '$tahun'
+					AND up_murni.tahun_anggaran_urusan = '$tahun'
 
 
 					UNION ALL
 
 
 					/* ====================================================
-					CHILD NORMAL
+					CHILD MURNI
 					==================================================== */
 					SELECT
 						child_sub.jumlah
@@ -567,29 +567,29 @@ class Report_papbd_akun_belanja extends CI_Controller {
 						ON pb.idpaket_belanja =
 						pbd.idpaket_belanja
 
-					JOIN akun_belanja ab_normal
-						ON ab_normal.idakun_belanja =
+					JOIN akun_belanja ab_murni
+						ON ab_murni.idakun_belanja =
 						pbd.idakun_belanja
 
-					JOIN sub_kegiatan sk_normal
-						ON sk_normal.idsub_kegiatan =
+					JOIN sub_kegiatan sk_murni
+						ON sk_murni.idsub_kegiatan =
 						pb.idsub_kegiatan
 
-					JOIN kegiatan k_normal
-						ON k_normal.idkegiatan =
-						sk_normal.idkegiatan
+					JOIN kegiatan k_murni
+						ON k_murni.idkegiatan =
+						sk_murni.idkegiatan
 
-					JOIN program pr_normal
-						ON pr_normal.idprogram =
-						k_normal.idprogram
+					JOIN program pr_murni
+						ON pr_murni.idprogram =
+						k_murni.idprogram
 
-					JOIN bidang_urusan bu_normal
-						ON bu_normal.idbidang_urusan =
-						pr_normal.idbidang_urusan
+					JOIN bidang_urusan bu_murni
+						ON bu_murni.idbidang_urusan =
+						pr_murni.idbidang_urusan
 
-					JOIN urusan_pemerintah up_normal
-						ON up_normal.idurusan_pemerintah =
-						bu_normal.idurusan_pemerintah
+					JOIN urusan_pemerintah up_murni
+						ON up_murni.idurusan_pemerintah =
+						bu_murni.idurusan_pemerintah
 
 					JOIN paket_belanja_detail_sub parent_sub
 						ON parent_sub.idpaket_belanja_detail =
@@ -605,13 +605,13 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND pb.status = 1
 					AND pb.status_paket_belanja = 'OK'
 
-					AND ab_normal.status = 1
-					AND ab_normal.is_active = 1
+					AND ab_murni.status = 1
+					AND ab_murni.is_active = 1
 
 					AND pbd.idakun_belanja =
 						akun_belanja.idakun_belanja
 
-					AND up_normal.tahun_anggaran_urusan = '$tahun'
+					AND up_murni.tahun_anggaran_urusan = '$tahun'
 				) AS data_murni
 			";
 		
