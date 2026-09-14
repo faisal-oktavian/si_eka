@@ -328,38 +328,18 @@ class Report_papbd_akun_belanja extends CI_Controller {
 		$query = "
 				SELECT 1
 				FROM paket_belanja_apbd_detail pbad_exists
-				JOIN paket_belanja_apbd pba_exists
-					ON pba_exists.idpaket_belanja_apbd =
-					pbad_exists.idpaket_belanja_apbd
-
-				JOIN sub_kegiatan sk_exists
-					ON sk_exists.idsub_kegiatan =
-					pba_exists.idsub_kegiatan
-
-				JOIN kegiatan k_exists
-					ON k_exists.idkegiatan =
-					sk_exists.idkegiatan
-
-				JOIN program pr_exists
-					ON pr_exists.idprogram =
-					k_exists.idprogram
-
-				JOIN bidang_urusan bu_exists
-					ON bu_exists.idbidang_urusan =
-					pr_exists.idbidang_urusan
-
-				JOIN urusan_pemerintah up_exists
-					ON up_exists.idurusan_pemerintah =
-					bu_exists.idurusan_pemerintah
-
+				JOIN paket_belanja_apbd pba_exists ON pba_exists.idpaket_belanja_apbd = pbad_exists.idpaket_belanja_apbd
+				JOIN sub_kegiatan sk_exists ON sk_exists.idsub_kegiatan = pba_exists.idsub_kegiatan
+				JOIN kegiatan k_exists ON k_exists.idkegiatan = sk_exists.idkegiatan
+				JOIN program pr_exists ON pr_exists.idprogram = k_exists.idprogram
+				JOIN bidang_urusan bu_exists ON bu_exists.idbidang_urusan = pr_exists.idbidang_urusan
+				JOIN urusan_pemerintah up_exists ON up_exists.idurusan_pemerintah = bu_exists.idurusan_pemerintah
+				
 				WHERE pbad_exists.status = 1
 				AND pba_exists.status = 1
 				AND pba_exists.status_paket_belanja = 'OK'
 				AND pba_exists.jenis = 'APBD'
-
-				AND pbad_exists.idakun_belanja =
-					akun_belanja.idakun_belanja
-
+				AND pbad_exists.idakun_belanja = akun_belanja.idakun_belanja
 				AND up_exists.tahun_anggaran_urusan = '$tahun'
 		";
 
@@ -368,124 +348,59 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 	private function query_total_apbd($idakun_belanja, $tahun) {
 		$query = "
-				SELECT
-					COALESCE(SUM(data_apbd.jumlah), 0)
+				SELECT COALESCE(SUM(data_apbd.jumlah), 0)
 
 				FROM
 				(
 					/* ====================================================
 					PARENT APBD
 					==================================================== */
-					SELECT
-						parent_sub.jumlah
-
+					SELECT parent_sub.jumlah
 					FROM paket_belanja_apbd_detail pbad
-					JOIN paket_belanja_apbd pba
-						ON pba.idpaket_belanja_apbd =
-						pbad.idpaket_belanja_apbd
 
-					JOIN akun_belanja ab_apbd
-						ON ab_apbd.idakun_belanja =
-						pbad.idakun_belanja
-
-					JOIN sub_kegiatan sk_apbd
-						ON sk_apbd.idsub_kegiatan =
-						pba.idsub_kegiatan
-
-					JOIN kegiatan k_apbd
-						ON k_apbd.idkegiatan =
-						sk_apbd.idkegiatan
-
-					JOIN program pr_apbd
-						ON pr_apbd.idprogram =
-						k_apbd.idprogram
-
-					JOIN bidang_urusan bu_apbd
-						ON bu_apbd.idbidang_urusan =
-						pr_apbd.idbidang_urusan
-
-					JOIN urusan_pemerintah up_apbd
-						ON up_apbd.idurusan_pemerintah =
-						bu_apbd.idurusan_pemerintah
-
-					JOIN paket_belanja_apbd_detail_sub parent_sub
-						ON parent_sub.idpaket_belanja_apbd_detail =
-						pbad.idpaket_belanja_apbd_detail
-					AND parent_sub.status = 1
+					JOIN paket_belanja_apbd pba ON pba.idpaket_belanja_apbd = pbad.idpaket_belanja_apbd
+					JOIN akun_belanja ab_apbd ON ab_apbd.idakun_belanja = pbad.idakun_belanja
+					JOIN sub_kegiatan sk_apbd ON sk_apbd.idsub_kegiatan = pba.idsub_kegiatan
+					JOIN kegiatan k_apbd ON k_apbd.idkegiatan = sk_apbd.idkegiatan
+					JOIN program pr_apbd ON pr_apbd.idprogram = k_apbd.idprogram
+					JOIN bidang_urusan bu_apbd ON bu_apbd.idbidang_urusan = pr_apbd.idbidang_urusan
+					JOIN urusan_pemerintah up_apbd ON up_apbd.idurusan_pemerintah = bu_apbd.idurusan_pemerintah
+					JOIN paket_belanja_apbd_detail_sub parent_sub ON parent_sub.idpaket_belanja_apbd_detail = pbad.idpaket_belanja_apbd_detail AND parent_sub.status = 1
 
 					WHERE pbad.status = 1
 					AND pba.status = 1
 					AND pba.status_paket_belanja = 'OK'
 					AND pba.jenis = 'APBD'
-
 					AND ab_apbd.status = 1
 					AND ab_apbd.is_active = 1
-
-					AND pbad.idakun_belanja =
-						akun_belanja.idakun_belanja
-
+					AND pbad.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_apbd.tahun_anggaran_urusan = '$tahun'
 
-
 					UNION ALL
-
 
 					/* ====================================================
 					CHILD APBD
 					==================================================== */
-					SELECT
-						child_sub.jumlah
-
+					SELECT child_sub.jumlah
 					FROM paket_belanja_apbd_detail pbad
-					JOIN paket_belanja_apbd pba
-						ON pba.idpaket_belanja_apbd =
-						pbad.idpaket_belanja_apbd
 
-					JOIN akun_belanja ab_apbd
-						ON ab_apbd.idakun_belanja =
-						pbad.idakun_belanja
-
-					JOIN sub_kegiatan sk_apbd
-						ON sk_apbd.idsub_kegiatan =
-						pba.idsub_kegiatan
-
-					JOIN kegiatan k_apbd
-						ON k_apbd.idkegiatan =
-						sk_apbd.idkegiatan
-
-					JOIN program pr_apbd
-						ON pr_apbd.idprogram =
-						k_apbd.idprogram
-
-					JOIN bidang_urusan bu_apbd
-						ON bu_apbd.idbidang_urusan =
-						pr_apbd.idbidang_urusan
-
-					JOIN urusan_pemerintah up_apbd
-						ON up_apbd.idurusan_pemerintah =
-						bu_apbd.idurusan_pemerintah
-
-					JOIN paket_belanja_apbd_detail_sub parent_sub
-						ON parent_sub.idpaket_belanja_apbd_detail =
-						pbad.idpaket_belanja_apbd_detail
-					AND parent_sub.status = 1
-
-					JOIN paket_belanja_apbd_detail_sub child_sub
-						ON child_sub.is_idpaket_belanja_apbd_detail_sub =
-						parent_sub.idpaket_belanja_apbd_detail_sub
-					AND child_sub.status = 1
+					JOIN paket_belanja_apbd pba ON pba.idpaket_belanja_apbd = pbad.idpaket_belanja_apbd
+					JOIN akun_belanja ab_apbd ON ab_apbd.idakun_belanja = pbad.idakun_belanja
+					JOIN sub_kegiatan sk_apbd ON sk_apbd.idsub_kegiatan = pba.idsub_kegiatan
+					JOIN kegiatan k_apbd ON k_apbd.idkegiatan = sk_apbd.idkegiatan
+					JOIN program pr_apbd ON pr_apbd.idprogram = k_apbd.idprogram
+					JOIN bidang_urusan bu_apbd ON bu_apbd.idbidang_urusan = pr_apbd.idbidang_urusan
+					JOIN urusan_pemerintah up_apbd ON up_apbd.idurusan_pemerintah = bu_apbd.idurusan_pemerintah
+					JOIN paket_belanja_apbd_detail_sub parent_sub ON parent_sub.idpaket_belanja_apbd_detail = pbad.idpaket_belanja_apbd_detail AND parent_sub.status = 1
+					JOIN paket_belanja_apbd_detail_sub child_sub ON child_sub.is_idpaket_belanja_apbd_detail_sub = parent_sub.idpaket_belanja_apbd_detail_sub AND child_sub.status = 1
 
 					WHERE pbad.status = 1
 					AND pba.status = 1
 					AND pba.status_paket_belanja = 'OK'
 					AND pba.jenis = 'APBD'
-
 					AND ab_apbd.status = 1
 					AND ab_apbd.is_active = 1
-
-					AND pbad.idakun_belanja =
-						akun_belanja.idakun_belanja
-
+					AND pbad.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_apbd.tahun_anggaran_urusan = '$tahun'
 				) AS data_apbd
 			";
@@ -495,122 +410,57 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 	private function query_total_murni($idakun_belanja, $tahun) {
 		$query = "
-				SELECT
-					COALESCE(SUM(data_murni.jumlah), 0)
+				SELECT COALESCE(SUM(data_murni.jumlah), 0)
 
 				FROM
 				(
 					/* ====================================================
 					PARENT MURNI
 					==================================================== */
-					SELECT
-						parent_sub.jumlah
-
+					SELECT parent_sub.jumlah
 					FROM paket_belanja_detail pbd
-					JOIN paket_belanja pb
-						ON pb.idpaket_belanja =
-						pbd.idpaket_belanja
 
-					JOIN akun_belanja ab_murni
-						ON ab_murni.idakun_belanja =
-						pbd.idakun_belanja
-
-					JOIN sub_kegiatan sk_murni
-						ON sk_murni.idsub_kegiatan =
-						pb.idsub_kegiatan
-
-					JOIN kegiatan k_murni
-						ON k_murni.idkegiatan =
-						sk_murni.idkegiatan
-
-					JOIN program pr_murni
-						ON pr_murni.idprogram =
-						k_murni.idprogram
-
-					JOIN bidang_urusan bu_murni
-						ON bu_murni.idbidang_urusan =
-						pr_murni.idbidang_urusan
-
-					JOIN urusan_pemerintah up_murni
-						ON up_murni.idurusan_pemerintah =
-						bu_murni.idurusan_pemerintah
-
-					JOIN paket_belanja_detail_sub parent_sub
-						ON parent_sub.idpaket_belanja_detail =
-						pbd.idpaket_belanja_detail
-					AND parent_sub.status = 1
+					JOIN paket_belanja pb ON pb.idpaket_belanja = pbd.idpaket_belanja
+					JOIN akun_belanja ab_murni ON ab_murni.idakun_belanja = pbd.idakun_belanja
+					JOIN sub_kegiatan sk_murni ON sk_murni.idsub_kegiatan = pb.idsub_kegiatan
+					JOIN kegiatan k_murni ON k_murni.idkegiatan = sk_murni.idkegiatan
+					JOIN program pr_murni ON pr_murni.idprogram = k_murni.idprogram
+					JOIN bidang_urusan bu_murni ON bu_murni.idbidang_urusan = pr_murni.idbidang_urusan
+					JOIN urusan_pemerintah up_murni ON up_murni.idurusan_pemerintah = bu_murni.idurusan_pemerintah
+					JOIN paket_belanja_detail_sub parent_sub ON parent_sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail AND parent_sub.status = 1
 
 					WHERE pbd.status = 1
 					AND pb.status = 1
 					AND pb.status_paket_belanja = 'OK'
-
 					AND ab_murni.status = 1
 					AND ab_murni.is_active = 1
-
-					AND pbd.idakun_belanja =
-						akun_belanja.idakun_belanja
-
+					AND pbd.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_murni.tahun_anggaran_urusan = '$tahun'
 
-
 					UNION ALL
-
 
 					/* ====================================================
 					CHILD MURNI
 					==================================================== */
-					SELECT
-						child_sub.jumlah
-
+					SELECT child_sub.jumlah
 					FROM paket_belanja_detail pbd
-					JOIN paket_belanja pb
-						ON pb.idpaket_belanja =
-						pbd.idpaket_belanja
 
-					JOIN akun_belanja ab_murni
-						ON ab_murni.idakun_belanja =
-						pbd.idakun_belanja
-
-					JOIN sub_kegiatan sk_murni
-						ON sk_murni.idsub_kegiatan =
-						pb.idsub_kegiatan
-
-					JOIN kegiatan k_murni
-						ON k_murni.idkegiatan =
-						sk_murni.idkegiatan
-
-					JOIN program pr_murni
-						ON pr_murni.idprogram =
-						k_murni.idprogram
-
-					JOIN bidang_urusan bu_murni
-						ON bu_murni.idbidang_urusan =
-						pr_murni.idbidang_urusan
-
-					JOIN urusan_pemerintah up_murni
-						ON up_murni.idurusan_pemerintah =
-						bu_murni.idurusan_pemerintah
-
-					JOIN paket_belanja_detail_sub parent_sub
-						ON parent_sub.idpaket_belanja_detail =
-						pbd.idpaket_belanja_detail
-					AND parent_sub.status = 1
-
-					JOIN paket_belanja_detail_sub child_sub
-						ON child_sub.is_idpaket_belanja_detail_sub =
-						parent_sub.idpaket_belanja_detail_sub
-					AND child_sub.status = 1
+					JOIN paket_belanja pb ON pb.idpaket_belanja = pbd.idpaket_belanja
+					JOIN akun_belanja ab_murni ON ab_murni.idakun_belanja = pbd.idakun_belanja
+					JOIN sub_kegiatan sk_murni ON sk_murni.idsub_kegiatan = pb.idsub_kegiatan
+					JOIN kegiatan k_murni ON k_murni.idkegiatan = sk_murni.idkegiatan
+					JOIN program pr_murni ON pr_murni.idprogram = k_murni.idprogram
+					JOIN bidang_urusan bu_murni ON bu_murni.idbidang_urusan = pr_murni.idbidang_urusan
+					JOIN urusan_pemerintah up_murni ON up_murni.idurusan_pemerintah = bu_murni.idurusan_pemerintah
+					JOIN paket_belanja_detail_sub parent_sub ON parent_sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail AND parent_sub.status = 1
+					JOIN paket_belanja_detail_sub child_sub ON child_sub.is_idpaket_belanja_detail_sub = parent_sub.idpaket_belanja_detail_sub AND child_sub.status = 1
 
 					WHERE pbd.status = 1
 					AND pb.status = 1
 					AND pb.status_paket_belanja = 'OK'
-
 					AND ab_murni.status = 1
 					AND ab_murni.is_active = 1
-
-					AND pbd.idakun_belanja =
-						akun_belanja.idakun_belanja
-
+					AND pbd.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_murni.tahun_anggaran_urusan = '$tahun'
 				) AS data_murni
 			";
