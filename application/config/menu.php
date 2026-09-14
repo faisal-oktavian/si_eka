@@ -256,8 +256,8 @@
                     'role_title' => 'Laporan Realisasi Anggaran',
                 ),
                 array(
-                    'role_name' => 'role_report_papbd',
-                    'role_title' => 'Laporan Perubahan APBD',
+                    'role_name' => 'role_report_papbd_akun_belanja',
+                    'role_title' => 'Laporan Perubahan APBD per Akun Belanja',
                 ),
                 array(
                     'role_name' => 'role_report_detail_evaluasi_anggaran',

@@ -37,15 +37,15 @@
                 </div>
         <?php
             }
-            // if (aznav('role_report_sisa_realisasi_anggaran')) {
+            if (aznav('role_report_papbd_akun_belanja')) {
         ?>
-                <!-- <div class="col-md-6 report">
-                    <h4>Laporan Sisa Anggaran</h4>
-                    <p>Menampilkan semua uraian yang masih mempunyai sisa anggaran pada masing-masing paket belanja.</p>
-                    <a href="<?php // echo app_url().'report_sisa_anggaran' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
-                </div> -->
+                <div class="col-md-6 report">
+                    <h4>Laporan Perubahan APBD per Akun Belanja</h4>
+                    <p>Menampilkan rincian akun belanja beserta anggaran murni dan anggaran setelah perubahan pada masing-masing akun.</p>
+                    <a href="<?php echo app_url().'report_papbd_akun_belanja' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                </div>
         <?php
-            // }
+            }
             if (aznav('role_report_detail_evaluasi_anggaran')) {
         ?>
                 <div class="col-md-6 report">
