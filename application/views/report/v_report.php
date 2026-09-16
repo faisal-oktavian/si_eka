@@ -37,12 +37,12 @@
                 </div>
         <?php
             }
-            if (aznav('role_report_papbd_akun_belanja')) {
+            if (aznav('role_report_tw')) {
         ?>
                 <div class="col-md-6 report">
-                    <h4>Laporan Perubahan APBD per Akun Belanja</h4>
-                    <p>Menampilkan rincian akun belanja beserta anggaran murni dan anggaran setelah perubahan pada masing-masing akun.</p>
-                    <a href="<?php echo app_url().'report_papbd_akun_belanja' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                    <h4>Laporan Realisasi Paket Belanja per TW</h4>
+                    <p>Menampilkan semua realisasi paket belanja per triwulan.</p>
+                    <a href="<?php echo app_url().'report_tw' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
                 </div>
         <?php
             }
@@ -55,12 +55,21 @@
                 </div>
         <?php
             }
-            if (aznav('role_report_tw')) {
+            if (aznav('role_report_papbd_akun_belanja')) {
         ?>
                 <div class="col-md-6 report">
-                    <h4>Laporan Realisasi Paket Belanja per TW</h4>
-                    <p>Menampilkan semua realisasi paket belanja per triwulan.</p>
-                    <a href="<?php echo app_url().'report_tw' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                    <h4>Laporan Perubahan APBD per Akun Belanja</h4>
+                    <p>Menampilkan rincian akun belanja beserta anggaran murni dan anggaran setelah perubahan pada masing-masing akun.</p>
+                    <a href="<?php echo app_url().'report_papbd_akun_belanja' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                </div>
+        <?php
+            }
+            if (aznav('role_report_papbd_sumber_dana')) {
+        ?>
+                <div class="col-md-6 report">
+                    <h4>Laporan Perubahan APBD per Sumber Dana</h4>
+                    <p>Menampilkan rincian Sumber Dana beserta anggaran murni dan anggaran setelah perubahan pada masing-masing akun.</p>
+                    <a href="<?php echo app_url().'report_papbd_sumber_dana' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
                 </div>
         <?php
             }

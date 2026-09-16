@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Report_papbd_akun_belanja extends CI_Controller {
+class Report_papbd_sumber_dana extends CI_Controller {
 	public function __construct() {
         parent::__construct();
 
         $this->load->helper('az_auth');
-        az_check_auth('role_report_papbd_akun_belanja');
-        $this->controller = 'report_papbd_akun_belanja';
+        az_check_auth('role_report_papbd_sumber_dana');
+        $this->controller = 'report_papbd_sumber_dana';
         $this->load->helper('az_crud');
         $this->load->helper('az_config');
     }
@@ -18,7 +18,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 		$crud = $azapp->add_crud();
 		$this->load->helper('az_role');
 
-		$crud->set_column(array('#', 'No. Rekening', 'Nama Akun Belanja', 'APBD', 'PAPBD', 'Selisih'));
+		$crud->set_column(array('#', 'Nama Sumber Dana', 'APBD', 'PAPBD', 'Selisih'));
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
         $crud->set_btn_add(false);
@@ -32,10 +32,10 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 		$crud->add_aodata('vf_tahun', 'vf_tahun');
 
-		$filter = $this->load->view('report_papbd_akun_belanja/vf_report_papbd_akun_belanja', $data, true);
+		$filter = $this->load->view('report_papbd_sumber_dana/vf_report_papbd_sumber_dana', $data, true);
 		$crud->set_top_filter($filter);
 
-		$js = az_add_js('report_papbd_akun_belanja/vjs_report_papbd_akun_belanja');
+		$js = az_add_js('report_papbd_sumber_dana/vjs_report_papbd_sumber_dana');
 		$azapp->add_js($js);
         
         // $total_saldo_awal = 0;
@@ -58,8 +58,8 @@ class Report_papbd_akun_belanja extends CI_Controller {
 		$crud = $crud->render();
 		$azapp->add_content($crud);
 
-		$data_header['title'] = azlang('Laporan Perubahan APBD per Akun Belanja');
-		$data_header['breadcrumb'] = array('report', 'role_report_papbd_akun_belanja');
+		$data_header['title'] = azlang('Laporan Perubahan APBD per Sumber Dana');
+		$data_header['breadcrumb'] = array('report', 'role_report_papbd_sumber_dana');
 		$azapp->set_data_header($data_header);
 		
 		echo $azapp->render();	
@@ -72,9 +72,8 @@ class Report_papbd_akun_belanja extends CI_Controller {
 		$tahun = $this->input->get('vf_tahun');
 
 		$this->db->select("
-				akun_belanja.idakun_belanja as id,
-				akun_belanja.no_rekening_akunbelanja,
-				akun_belanja.nama_akun_belanja,
+				sumber_dana.idsumber_dana as id,
+				sumber_dana.nama_sumber_dana,
 				(
 					CASE
 						WHEN EXISTS (
@@ -99,7 +98,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 				) AS apbd,
 
 				(
-					CASE
+                    CASE
 						WHEN EXISTS (
 							/* ====================================================================
 								CHECK APAKAH ADA DATA APBD ATAU TIDAK DI TABEL PAKET BELANJA APBD
@@ -140,11 +139,11 @@ class Report_papbd_akun_belanja extends CI_Controller {
 			", FALSE);
 
 
-		$this->db->from("akun_belanja");
+		$this->db->from("sumber_dana");
 
-		$this->db->where("akun_belanja.status", 1);
-		$this->db->where("akun_belanja.is_active", 1);
-		$this->db->order_by("akun_belanja.idakun_belanja ASC");
+		$this->db->where("sumber_dana.status", 1);
+		$this->db->where("sumber_dana.is_active", 1);
+		$this->db->order_by("sumber_dana.idsumber_dana ASC");
 
 		$anggaran = $this->db->get();
 		$last_query = $this->db->last_query();
@@ -155,11 +154,11 @@ class Report_papbd_akun_belanja extends CI_Controller {
         // $crud->set_select($query1);
         // $crud->set_select_union($query2);
 
-		$crud->set_select_table('id, no_rekening_akunbelanja, nama_akun_belanja, apbd, papbd, selisih');
+		$crud->set_select_table('id, nama_sumber_dana, apbd, papbd, selisih');
         // $crud->set_sorting('transaction_date, transaction_code, nama_paket_belanja, total_realisasi, transaction_status');
         // $crud->set_filter('txt_proof_date, proof_number, kode_rekening, alat_bayar, uraian');
 
-        $crud->set_select_align(', , right, right, right');
+        $crud->set_select_align(', right, right, right');
 		$crud->set_id($this->controller);
 
 		$crud->set_custom_style('custom_style');
@@ -254,24 +253,54 @@ class Report_papbd_akun_belanja extends CI_Controller {
 	// 	);
 	// }
 
-	private function query_check_apbd($idakun_belanja, $tahun) {
-		$query = "
-				SELECT 1
-				FROM paket_belanja_apbd_detail pbad_exists
-				JOIN paket_belanja_apbd pba_exists ON pba_exists.idpaket_belanja_apbd = pbad_exists.idpaket_belanja_apbd
-				JOIN sub_kegiatan sk_exists ON sk_exists.idsub_kegiatan = pba_exists.idsub_kegiatan
-				JOIN kegiatan k_exists ON k_exists.idkegiatan = sk_exists.idkegiatan
-				JOIN program pr_exists ON pr_exists.idprogram = k_exists.idprogram
-				JOIN bidang_urusan bu_exists ON bu_exists.idbidang_urusan = pr_exists.idbidang_urusan
-				JOIN urusan_pemerintah up_exists ON up_exists.idurusan_pemerintah = bu_exists.idurusan_pemerintah
+	private function query_check_apbd($idsumber_dana, $tahun) {
+		// $query = "
+		// 		SELECT 1
+		// 		FROM paket_belanja_apbd_detail pbad_exists
+		// 		JOIN paket_belanja_apbd pba_exists ON pba_exists.idpaket_belanja_apbd = pbad_exists.idpaket_belanja_apbd
+		// 		JOIN sub_kegiatan sk_exists ON sk_exists.idsub_kegiatan = pba_exists.idsub_kegiatan
+		// 		JOIN kegiatan k_exists ON k_exists.idkegiatan = sk_exists.idkegiatan
+		// 		JOIN program pr_exists ON pr_exists.idprogram = k_exists.idprogram
+		// 		JOIN bidang_urusan bu_exists ON bu_exists.idbidang_urusan = pr_exists.idbidang_urusan
+		// 		JOIN urusan_pemerintah up_exists ON up_exists.idurusan_pemerintah = bu_exists.idurusan_pemerintah
 				
-				WHERE pbad_exists.status = 1
-				AND pba_exists.status = 1
-				AND pba_exists.status_paket_belanja = 'OK'
-				AND pba_exists.jenis = 'APBD'
-				AND pbad_exists.idakun_belanja = akun_belanja.idakun_belanja
-				AND up_exists.tahun_anggaran_urusan = '$tahun'
-		";
+		// 		WHERE pbad_exists.status = 1
+		// 		AND pba_exists.status = 1
+		// 		AND pba_exists.status_paket_belanja = 'OK'
+		// 		AND pba_exists.jenis = 'APBD'
+		// 		AND pbad_exists.idakun_belanja = akun_belanja.idakun_belanja
+		// 		AND up_exists.tahun_anggaran_urusan = '$tahun'
+		// ";
+
+        $query = "
+                SELECT child_sub.jumlah
+                FROM paket_belanja_apbd_detail pbad
+
+                JOIN paket_belanja_apbd pba ON pba.idpaket_belanja_apbd = pbad.idpaket_belanja_apbd
+                JOIN akun_belanja ab_apbd ON ab_apbd.idakun_belanja = pbad.idakun_belanja
+                JOIN sub_kegiatan sk_apbd ON sk_apbd.idsub_kegiatan = pba.idsub_kegiatan
+                JOIN kegiatan k_apbd ON k_apbd.idkegiatan = sk_apbd.idkegiatan
+                JOIN program pr_apbd ON pr_apbd.idprogram = k_apbd.idprogram
+                JOIN bidang_urusan bu_apbd ON bu_apbd.idbidang_urusan = pr_apbd.idbidang_urusan
+                JOIN urusan_pemerintah up_apbd ON up_apbd.idurusan_pemerintah = bu_apbd.idurusan_pemerintah
+                JOIN paket_belanja_apbd_detail_sub parent_sub ON parent_sub.idpaket_belanja_apbd_detail = pbad.idpaket_belanja_apbd_detail AND parent_sub.status = 1
+                JOIN paket_belanja_apbd_detail_sub child_sub ON child_sub.is_idpaket_belanja_apbd_detail_sub = parent_sub.idpaket_belanja_apbd_detail_sub AND child_sub.status = 1
+                LEFT JOIN sub_kategori parent_sub_kategori ON parent_sub_kategori.idsub_kategori = parent_sub.idsub_kategori AND parent_sub_kategori.status = 1
+                LEFT JOIN sub_kategori child_sub_kategori ON child_sub_kategori.idsub_kategori = child_sub.idsub_kategori AND child_sub_kategori.status = 1
+
+                WHERE pbad.status = 1
+                AND pba.status = 1
+                AND pba.status_paket_belanja = 'OK'
+                AND pba.jenis = 'APBD'
+                AND ab_apbd.status = 1
+                AND ab_apbd.is_active = 1
+                AND (
+                    	parent_sub_kategori.idsumber_dana = sumber_dana.idsumber_dana
+                    OR
+                    	child_sub_kategori.idsumber_dana = sumber_dana.idsumber_dana
+                    )
+                AND up_apbd.tahun_anggaran_urusan = '$tahun'
+        ";
 
 		return $query;
 	}
@@ -296,6 +325,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					JOIN bidang_urusan bu_apbd ON bu_apbd.idbidang_urusan = pr_apbd.idbidang_urusan
 					JOIN urusan_pemerintah up_apbd ON up_apbd.idurusan_pemerintah = bu_apbd.idurusan_pemerintah
 					JOIN paket_belanja_apbd_detail_sub parent_sub ON parent_sub.idpaket_belanja_apbd_detail = pbad.idpaket_belanja_apbd_detail AND parent_sub.status = 1
+					LEFT JOIN sub_kategori parent_sub_kategori ON parent_sub_kategori.idsub_kategori = parent_sub.idsub_kategori AND parent_sub_kategori.status = 1
 
 					WHERE pbad.status = 1
 					AND pba.status = 1
@@ -303,7 +333,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND pba.jenis = 'APBD'
 					AND ab_apbd.status = 1
 					AND ab_apbd.is_active = 1
-					AND pbad.idakun_belanja = akun_belanja.idakun_belanja
+					AND parent_sub_kategori.idsumber_dana = sumber_dana.idsumber_dana
 					AND up_apbd.tahun_anggaran_urusan = '$tahun'
 
 					UNION ALL
@@ -323,6 +353,8 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					JOIN urusan_pemerintah up_apbd ON up_apbd.idurusan_pemerintah = bu_apbd.idurusan_pemerintah
 					JOIN paket_belanja_apbd_detail_sub parent_sub ON parent_sub.idpaket_belanja_apbd_detail = pbad.idpaket_belanja_apbd_detail AND parent_sub.status = 1
 					JOIN paket_belanja_apbd_detail_sub child_sub ON child_sub.is_idpaket_belanja_apbd_detail_sub = parent_sub.idpaket_belanja_apbd_detail_sub AND child_sub.status = 1
+					LEFT JOIN sub_kategori child_sub_kategori ON child_sub_kategori.idsub_kategori = child_sub.idsub_kategori AND child_sub_kategori.status = 1
+
 
 					WHERE pbad.status = 1
 					AND pba.status = 1
@@ -330,7 +362,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND pba.jenis = 'APBD'
 					AND ab_apbd.status = 1
 					AND ab_apbd.is_active = 1
-					AND pbad.idakun_belanja = akun_belanja.idakun_belanja
+					AND child_sub_kategori.idsumber_dana = sumber_dana.idsumber_dana
 					AND up_apbd.tahun_anggaran_urusan = '$tahun'
 				) AS data_apbd
 			";
@@ -358,13 +390,14 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					JOIN bidang_urusan bu_murni ON bu_murni.idbidang_urusan = pr_murni.idbidang_urusan
 					JOIN urusan_pemerintah up_murni ON up_murni.idurusan_pemerintah = bu_murni.idurusan_pemerintah
 					JOIN paket_belanja_detail_sub parent_sub ON parent_sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail AND parent_sub.status = 1
+					LEFT JOIN sub_kategori parent_sub_kategori ON parent_sub_kategori.idsub_kategori = parent_sub.idsub_kategori AND parent_sub_kategori.status = 1
 
 					WHERE pbd.status = 1
 					AND pb.status = 1
 					AND pb.status_paket_belanja = 'OK'
 					AND ab_murni.status = 1
 					AND ab_murni.is_active = 1
-					AND pbd.idakun_belanja = akun_belanja.idakun_belanja
+					AND parent_sub_kategori.idsumber_dana = sumber_dana.idsumber_dana
 					AND up_murni.tahun_anggaran_urusan = '$tahun'
 
 					UNION ALL
@@ -384,13 +417,14 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					JOIN urusan_pemerintah up_murni ON up_murni.idurusan_pemerintah = bu_murni.idurusan_pemerintah
 					JOIN paket_belanja_detail_sub parent_sub ON parent_sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail AND parent_sub.status = 1
 					JOIN paket_belanja_detail_sub child_sub ON child_sub.is_idpaket_belanja_detail_sub = parent_sub.idpaket_belanja_detail_sub AND child_sub.status = 1
+					LEFT JOIN sub_kategori child_sub_kategori ON child_sub_kategori.idsub_kategori = child_sub.idsub_kategori AND child_sub_kategori.status = 1
 
 					WHERE pbd.status = 1
 					AND pb.status = 1
 					AND pb.status_paket_belanja = 'OK'
 					AND ab_murni.status = 1
 					AND ab_murni.is_active = 1
-					AND pbd.idakun_belanja = akun_belanja.idakun_belanja
+					AND child_sub_kategori.idsumber_dana = sumber_dana.idsumber_dana
 					AND up_murni.tahun_anggaran_urusan = '$tahun'
 				) AS data_murni
 			";
