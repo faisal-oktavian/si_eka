@@ -38,10 +38,11 @@ class Report_papbd_akun_belanja extends CI_Controller {
 		$js = az_add_js('report_papbd_akun_belanja/vjs_report_papbd_akun_belanja');
 		$azapp->add_js($js);
         
-        // $total_saldo_awal = 0;
+        $total_saldo_awal = 0;
 		
-		// $tahun = Date('m-Y'); // default filter
-		// $total_saldo_awal = $this->get_saldo_awal($tahun);
+		
+		// $tahun = Date('Y'); // default filter
+		// $total_saldo_awal = $this->get_total_saldo($tahun);
 
         // $crud->set_btn_top_custom("
 		// 	<table>
@@ -177,6 +178,94 @@ class Report_papbd_akun_belanja extends CI_Controller {
 			return 'Rp. '.az_thousand_separator_decimal($value);
 		}
 		return $value;
+	}
+
+	function get_total_saldo($tahun) {
+		$this->db->select("
+				akun_belanja.idakun_belanja as id,
+				akun_belanja.no_rekening_akunbelanja,
+				akun_belanja.nama_akun_belanja,
+				(
+					CASE
+						WHEN EXISTS (
+							/* ====================================================================
+								CHECK APAKAH ADA DATA APBD ATAU TIDAK DI TABEL PAKET BELANJA APBD
+							======================================================================= */
+							" . $this->query_check_apbd("akun_belanja.idakun_belanja", $tahun) . "
+						)
+						THEN (
+							/* =========================================
+								BACA DATA DI TABEL PAKET BELANJA APBD
+							============================================ */
+							" . $this->query_total_apbd("akun_belanja.idakun_belanja", $tahun) . "
+						)
+						ELSE (
+							/* ===================================
+								BACA DATA DI TABEL PAKET BELANJA
+							====================================== */
+							" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
+						)
+					END
+				) AS apbd,
+
+				(
+					CASE
+						WHEN EXISTS (
+							/* ====================================================================
+								CHECK APAKAH ADA DATA APBD ATAU TIDAK DI TABEL PAKET BELANJA APBD
+							======================================================================= */
+							" . $this->query_check_apbd("akun_belanja.idakun_belanja", $tahun) . "
+						)
+						THEN (
+							/* ===================================
+								BACA DATA DI TABEL PAKET BELANJA
+							====================================== */
+							" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
+						)
+						ELSE (
+							0
+						)
+					END
+				) AS papbd,
+
+				(
+					(
+						CASE
+							WHEN EXISTS (
+								" . $this->query_check_apbd("akun_belanja.idakun_belanja", $tahun) . "
+							)
+							THEN (
+								" . $this->query_total_apbd("akun_belanja.idakun_belanja", $tahun) . "
+							)
+							ELSE (
+								" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
+							)
+						END
+					)
+					-
+					(
+						" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
+					)
+				) AS selisih
+			", FALSE);
+
+
+		$this->db->from("akun_belanja");
+
+		$this->db->where("akun_belanja.status", 1);
+		$this->db->where("akun_belanja.is_active", 1);
+		$this->db->order_by("akun_belanja.idakun_belanja ASC");
+
+		$anggaran = $this->db->get();
+		$last_query = $this->db->last_query();
+
+		// echo "<pre>"; print_r($last_query);die;
+		$apbd = 0;
+		foreach ($anggaran->result() as $key => $value) {
+			$apbd += $value->apbd;
+		}
+
+		return $apbd;
 	}
 
 	// public function export_pdf($tahun) {
