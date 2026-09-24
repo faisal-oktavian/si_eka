@@ -398,7 +398,7 @@
                                                         <span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
                                                         <div>
                                                             <div style="font-weight:700;color:#263238;">DAU yang Ditentukan Penggunaannya Bidang Kesehatan</div>
-                                                            <div id="label-realisasi-dbh" style="font-size:17px;color:#263238;"></div>
+                                                            <div id="label-realisasi-dau" style="font-size:17px;color:#263238;"></div>
                                                         </div>
                                                     </div>
                                                     <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">

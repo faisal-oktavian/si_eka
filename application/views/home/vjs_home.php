@@ -321,23 +321,23 @@
         // var realisasi_dbh = 21000000000;
         // var realisasi_blud = 9000000000;
 
-        var realisasi_dbh = <?php echo isset($dbh) ? $dbh : 0; ?>;
-        var target_dbh = <?php echo isset($target_dbh) ? $target_dbh : 0; ?>;
-        var realisasi_blud = <?php echo isset($blud) ? $blud : 0; ?>;
+        var realisasi_dau = <?php echo isset($realisasi_dau) ? $realisasi_dau : 0; ?>;
+        var target_dau = <?php echo isset($target_dau) ? $target_dau : 0; ?>;
+        var realisasi_blud = <?php echo isset($realisasi_blud) ? $realisasi_blud : 0; ?>;
         var target_blud = <?php echo isset($target_blud) ? $target_blud : 0; ?>;
         // var total_realisasi = realisasi_dbh + realisasi_blud;
 
-        var persen_realisasi_dbh = 0;
+        var persen_realisasi_dau = 0;
         var persen_realisasi_blud = 0;
 
-        if (realisasi_dbh != 0) {
-            var persen_realisasi_dbh = Math.round( (realisasi_dbh / target_dbh * 100) * 100) / 100;
+        if (realisasi_dau != 0) {
+            var persen_realisasi_dau = Math.round( (realisasi_dau / target_dau * 100) * 100) / 100;
         }
         if (realisasi_blud != 0) {
             var persen_realisasi_blud = Math.round( (realisasi_blud / target_blud * 100) * 100) / 100;
         }
 
-        document.getElementById('label-realisasi-dbh').innerText = persen_realisasi_dbh + '% (' + formatRupiah(realisasi_dbh) + ')';
+        document.getElementById('label-realisasi-dau').innerText = persen_realisasi_dau + '% (' + formatRupiah(realisasi_dau) + ')';
         document.getElementById('label-realisasi-blud').innerText = persen_realisasi_blud + '% (' + formatRupiah(realisasi_blud) + ')';
 
         var ctxRealisasiSumberDana = document.getElementById('pieRealisasiSumberDanaChart').getContext('2d');
@@ -346,7 +346,7 @@
             data: {
                 labels: ['DAU yang Ditentukan Penggunaannya Bidang Kesehatan', 'Pendapatan dari BLUD'],
                 datasets: [{
-                    data: [realisasi_dbh, realisasi_blud],
+                    data: [realisasi_dau, realisasi_blud],
                     backgroundColor: [
                         '#2196f3', // DAU yang Ditentukan Penggunaannya Bidang Kesehatan
                         '#c500ff'  // BLUD

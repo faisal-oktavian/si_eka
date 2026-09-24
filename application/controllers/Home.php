@@ -65,9 +65,9 @@ class Home extends AZ_Controller {
 			'kontrak_pengadaan' 			=> $arr_pengeluaran['kontrak_pengadaan'],
 			'proses_pengadaan' 				=> $arr_pengeluaran['proses_pengadaan'],
 			'belum_direalisasi' 			=> $arr_pengeluaran['belum_direalisasi'],
-			'dbh' 							=> $arr_pengeluaran['dbh'],
-			'blud' 							=> $arr_pengeluaran['blud'],
-			'target_dbh' 					=> $arr_pengeluaran['target_dbh'],
+			'realisasi_dau' 				=> $arr_pengeluaran['realisasi_dau'],
+			'realisasi_blud' 				=> $arr_pengeluaran['realisasi_blud'],
+			'target_dau' 					=> $arr_pengeluaran['target_dau'],
 			'target_blud' 					=> $arr_pengeluaran['target_blud'],
 			'target_per_bulan' 				=> $arr_pengeluaran['target_per_bulan'],
 			'realisasi_per_bulan' 			=> $arr_pengeluaran['realisasi_per_bulan'],
@@ -131,9 +131,9 @@ class Home extends AZ_Controller {
 
 		// GRAFIK REALISASI ANGGARAN PER SUMBER DANA
 		$grafik_sumber_dana = $this->dashboard->grafik_sumber_dana($tahun_ini);
-		$dbh = $grafik_sumber_dana['dbh'];
-		$target_dbh = $grafik_sumber_dana['target_dbh'];
-		$blud = $grafik_sumber_dana['blud'];
+		$realisasi_dau = $grafik_sumber_dana['realisasi_dau'];
+		$target_dau = $grafik_sumber_dana['target_dau'];
+		$realisasi_blud = $grafik_sumber_dana['realisasi_blud'];
 		$target_blud = $grafik_sumber_dana['target_blud'];
 
 
@@ -166,15 +166,17 @@ class Home extends AZ_Controller {
 			'kontrak_pengadaan'			=> floatval($kontrak_pengadaan),
 			'proses_pengadaan' 			=> floatval($proses_pengadaan),
 			'belum_direalisasi' 		=> floatval($belum_direalisasi),
-			'dbh' 						=> floatval($dbh),
-			'blud' 						=> floatval($blud),
-			'target_dbh' 				=> floatval($target_dbh),
+			'realisasi_dau'				=> floatval($realisasi_dau),
+			'realisasi_blud' 			=> floatval($realisasi_blud),
+			'target_dau' 				=> floatval($target_dau),
 			'target_blud' 				=> floatval($target_blud),
 			'target_per_bulan' 			=> $target_per_bulan,
 			'realisasi_per_bulan' 		=> $realisasi_per_bulan,
 			'arr_TargetPerBulan' 		=> $arr_TargetPerBulan,
 			'arr_RealisasiPerBulan' 	=> $arr_RealisasiPerBulan,
 		);
+
+		// echo "<pre>"; print_r($arr_pengeluaran);die;
 
 		return $arr_pengeluaran;
 	}

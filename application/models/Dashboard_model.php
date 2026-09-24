@@ -330,6 +330,161 @@ class Dashboard_model extends CI_Model {
      * @return array
      */
     public function grafik_sumber_dana($tahun_ini) {
+        $target_dau = 0;
+        $target_blud = 0;
+        $realisasi_dau = 0;
+        $realisasi_blud = 0;
+
+        // $arr_sumber_dana = array();
+
+        // get target per sumber dana
+        $this->db->reset_query();
+		$this->db->where("sumber_dana.status", 1);
+		$this->db->where("sumber_dana.is_active", 1);
+		$this->db->order_by("sumber_dana.idsumber_dana ASC");
+        $sumber_dana = $this->db->get("sumber_dana");
+
+        foreach ($sumber_dana->result() as $key => $value) {
+
+            // ============================================================
+            // TARGET PER SUMBER DANA
+            // ============================================================
+            $query_target = $this->db->query("
+                SELECT COALESCE((data_murni.jumlah), 0) as total_target, data_murni.idpaket_belanja_detail_sub, data_murni.idpaket_belanja, data_murni.tahun_anggaran_urusan
+
+				FROM
+				(
+					/* ====================================================
+					PARENT MURNI
+					==================================================== */
+					SELECT parent_sub.jumlah, parent_sub.idpaket_belanja_detail_sub, pb.idpaket_belanja, up_murni.tahun_anggaran_urusan
+					FROM paket_belanja_detail pbd
+
+					JOIN paket_belanja pb ON pb.idpaket_belanja = pbd.idpaket_belanja
+					JOIN akun_belanja ab_murni ON ab_murni.idakun_belanja = pbd.idakun_belanja
+					JOIN sub_kegiatan sk_murni ON sk_murni.idsub_kegiatan = pb.idsub_kegiatan
+					JOIN kegiatan k_murni ON k_murni.idkegiatan = sk_murni.idkegiatan
+					JOIN program pr_murni ON pr_murni.idprogram = k_murni.idprogram
+					JOIN bidang_urusan bu_murni ON bu_murni.idbidang_urusan = pr_murni.idbidang_urusan
+					JOIN urusan_pemerintah up_murni ON up_murni.idurusan_pemerintah = bu_murni.idurusan_pemerintah
+					JOIN paket_belanja_detail_sub parent_sub ON parent_sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail AND parent_sub.status = 1
+					LEFT JOIN sub_kategori parent_sub_kategori ON parent_sub_kategori.idsub_kategori = parent_sub.idsub_kategori AND parent_sub_kategori.status = 1
+
+					WHERE pbd.status = 1
+					AND pb.status = 1
+					AND pb.status_paket_belanja = 'OK'
+					AND ab_murni.status = 1
+					AND ab_murni.is_active = 1
+					AND parent_sub_kategori.idsumber_dana = '" . $value->idsumber_dana . "'
+					AND up_murni.tahun_anggaran_urusan = '" . $tahun_ini . "'
+
+					UNION ALL
+
+					/* ====================================================
+					CHILD MURNI
+					==================================================== */
+					SELECT child_sub.jumlah, child_sub.idpaket_belanja_detail_sub, pb.idpaket_belanja, up_murni.tahun_anggaran_urusan
+					FROM paket_belanja_detail pbd
+
+					JOIN paket_belanja pb ON pb.idpaket_belanja = pbd.idpaket_belanja
+					JOIN akun_belanja ab_murni ON ab_murni.idakun_belanja = pbd.idakun_belanja
+					JOIN sub_kegiatan sk_murni ON sk_murni.idsub_kegiatan = pb.idsub_kegiatan
+					JOIN kegiatan k_murni ON k_murni.idkegiatan = sk_murni.idkegiatan
+					JOIN program pr_murni ON pr_murni.idprogram = k_murni.idprogram
+					JOIN bidang_urusan bu_murni ON bu_murni.idbidang_urusan = pr_murni.idbidang_urusan
+					JOIN urusan_pemerintah up_murni ON up_murni.idurusan_pemerintah = bu_murni.idurusan_pemerintah
+					JOIN paket_belanja_detail_sub parent_sub ON parent_sub.idpaket_belanja_detail = pbd.idpaket_belanja_detail AND parent_sub.status = 1
+					JOIN paket_belanja_detail_sub child_sub ON child_sub.is_idpaket_belanja_detail_sub = parent_sub.idpaket_belanja_detail_sub AND child_sub.status = 1
+					LEFT JOIN sub_kategori child_sub_kategori ON child_sub_kategori.idsub_kategori = child_sub.idsub_kategori AND child_sub_kategori.status = 1
+
+					WHERE pbd.status = 1
+					AND pb.status = 1
+					AND pb.status_paket_belanja = 'OK'
+					AND ab_murni.status = 1
+					AND ab_murni.is_active = 1
+					AND child_sub_kategori.idsumber_dana = '" . $value->idsumber_dana . "'
+					AND up_murni.tahun_anggaran_urusan = '" . $tahun_ini . "'
+				) AS data_murni   
+            ");
+
+            $target = 0;
+            $arr_id_detail_sub = array();
+            if ($query_target->num_rows() > 0) {
+                foreach ($query_target->result() as $t_key => $t_value) {
+                    $target += $t_value->total_target;
+                    $arr_id_detail_sub[] = $t_value->idpaket_belanja_detail_sub;
+                }
+            }
+            // echo "<pre>"; print_r($this->db->last_query());die;
+            
+
+            // ============================================================
+            // REALISASI PER SUMBER DANA
+            // ============================================================
+            $this->db->where('sub_kategori.idsumber_dana', $value->idsumber_dana);
+            $this->db->where('npd.npd_status', "SUDAH DIBAYAR BENDAHARA");
+            $this->db->where('YEAR(npd.confirm_payment_date) = "'.$tahun_ini.'" ');
+            $this->db->where('budget_realization_detail.idpurchase_plan_detail = purchase_plan_detail.idpurchase_plan_detail');
+            $this->db->where('npd.status', 1);
+            $this->db->where('npd_detail.status', 1);
+            $this->db->where('verification.status', 1);
+            $this->db->where('budget_realization.status', 1);
+            $this->db->where('budget_realization_detail.status', 1);
+            $this->db->where('contract.status', 1);
+            $this->db->where('contract_detail.status', 1);
+            $this->db->where('purchase_plan.status', 1);
+            $this->db->where('purchase_plan_detail.status', 1);
+            $this->db->where('paket_belanja_detail_sub.status', 1);
+            $this->db->where('sub_kategori.status', 1);
+
+            $this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+            $this->db->join('verification', 'verification.idverification = npd_detail.idverification');
+            $this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization');
+            $this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
+            $this->db->join('contract_detail', 'contract_detail.idcontract_detail = budget_realization_detail.idcontract_detail');
+            $this->db->join('contract', 'contract.idcontract = contract_detail.idcontract');
+            $this->db->join('purchase_plan', 'purchase_plan.idpurchase_plan = contract_detail.idpurchase_plan');
+            $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan = purchase_plan.idpurchase_plan');
+            $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+            $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+
+            $this->db->select('budget_realization_detail.idbudget_realization_detail, budget_realization_detail.total_realization_detail');
+            $query_realisasi = $this->db->get('npd');
+            // echo "<pre>"; print_r($this->db->last_query());die;
+
+            $realisasi = 0;
+            foreach ($query_realisasi->result() as $r_key => $r_value) {
+                $realisasi += $r_value->total_realization_detail;
+            }
+
+            // $arr_sumber_dana[] = array(
+            //     'nama_sumber_dana' => $value->nama_sumber_dana,
+            //     'target' => $target,
+            //     'realisasi' => $realisasi,
+            // );
+
+            if ($value->nama_sumber_dana == "DAU yang Ditentukan Penggunaannya Bidang Kesehatan") {
+                $target_dau = $target;
+                $realisasi_dau = $realisasi;
+            }
+            else if ($value->nama_sumber_dana == "Pendapatan dari BLUD") {
+                $target_blud = $target;
+                $realisasi_blud = $realisasi;
+            }
+        }
+
+        $arr = array(
+            'target_dau' => $target_dau,
+            'realisasi_dau' => $realisasi_dau,
+            'target_blud' => $target_blud,
+            'realisasi_blud' => $realisasi_blud,
+        );
+
+        return $arr;
+        // echo "<pre>"; print_r($arr_sumber_dana);die;
+    }
+
+    public function xxgrafik_sumber_dana($tahun_ini) {
         $dbh = 0;
         $blud = 0;
         $target_dbh = 0;
@@ -354,6 +509,16 @@ class Dashboard_model extends CI_Model {
         $this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization');
         $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = budget_realization_detail.idsub_kategori');
         $this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
+
+
+        // $this->db->join('npd_detail', 'npd_detail.idnpd = npd.idnpd');
+        // $this->db->join('verification', 'verification.idverification = npd_detail.idverification'	);
+        // $this->db->join('budget_realization', 'budget_realization.idbudget_realization = verification.idbudget_realization'	);
+        // $this->db->join('budget_realization_detail', 'budget_realization_detail.idbudget_realization = budget_realization.idbudget_realization'	);
+        // $this->db->join('purchase_plan_detail', 'purchase_plan_detail.idpurchase_plan_detail = budget_realization_detail.idpurchase_plan_detail');
+        // $this->db->join('paket_belanja_detail_sub', 'paket_belanja_detail_sub.idpaket_belanja_detail_sub = purchase_plan_detail.idpaket_belanja_detail_sub');
+        // $this->db->join('sub_kategori', 'sub_kategori.idsub_kategori = paket_belanja_detail_sub.idsub_kategori');
+        // $this->db->join('sumber_dana', 'sumber_dana.idsumber_dana = sub_kategori.idsumber_dana');
 
         $this->db->group_by('nama_sumber_dana, idsumber_dana');
         $this->db->select('SUM(budget_realization_detail.total_realization_detail) AS total_sumber_dana, sumber_dana.nama_sumber_dana, sumber_dana.idsumber_dana');
