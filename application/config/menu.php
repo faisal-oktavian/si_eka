@@ -271,6 +271,10 @@
                     'role_name' => 'role_report_papbd_sumber_dana',
                     'role_title' => 'Laporan Perubahan APBD per Sumber Dana',
                 ),
+                array(
+                    'role_name' => 'role_report_detail_papbd',
+                    'role_title' => 'Laporan Detail Perubahan APBD',
+                ),
             ),
         ),
         array(

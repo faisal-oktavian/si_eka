@@ -73,6 +73,15 @@
                 </div>
         <?php
             }
+            if (aznav('role_report_detail_papbd')) {
+        ?>
+                <div class="col-md-6 report">
+                    <h4>Laporan Detail Perubahan APBD</h4>
+                    <p>Menampilkan detail perubahan anggaran murni dan anggaran setelah perubahan pada masing-masing paket belanja.</p>
+                    <a href="<?php echo app_url().'report_detail_papbd' ?>"><button class="btn btn-primary"> Lihat Laporan</button></a>
+                </div>
+        <?php
+            }
         ?>
     </div>
 </div>
