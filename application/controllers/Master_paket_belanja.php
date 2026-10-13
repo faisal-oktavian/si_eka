@@ -129,6 +129,7 @@ class Master_paket_belanja extends CI_Controller {
 			$pb = $this->db->get('paket_belanja');
 
 			$status = $pb->row()->status_paket_belanja;
+			$is_locked = $pb->row()->is_locked;
 
 			$btn = '<button class="btn btn-default btn-xs btn-edit-master_paket_belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-pencil"></span> Edit</button>';
 			$btn .= '<button class="btn btn-danger btn-xs btn-delete-master-paket-belanja" data_id="'.$idpaket_belanja.'"><span class="glyphicon glyphicon-remove"></span> Hapus</button>';
@@ -144,6 +145,10 @@ class Master_paket_belanja extends CI_Controller {
 			}
 
 			if ($status != "OK" ) {
+				$is_view_only = true;
+            }
+
+			if ($is_locked == "1" ) {
 				$is_view_only = true;
             }
 
@@ -357,6 +362,23 @@ class Master_paket_belanja extends CI_Controller {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
 			}
+
+			if ($err_code == 0) {
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
+			}
 		}
 
 		if ($err_code == 0) {
@@ -461,6 +483,23 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+
+			if ($err_code == 0) {
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
 			}
 		}
 
@@ -627,6 +666,38 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+
+			if ($err_code == 0) {
+				// get idpaket_belanja
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
+				$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+				$paket_belanja = $this->db->get('paket_belanja_detail_sub');
+
+				if (strlen($paket_belanja->row()->idpaket_belanja) == 0) {
+					$this->db->where('idpaket_belanja_detail_sub', $paket_belanja->row()->is_idpaket_belanja_detail_sub);
+					$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+					$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+					$paket_belanja = $this->db->get('paket_belanja_detail_sub');
+				}
+
+				$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
 			}
 		}
 
@@ -869,6 +940,38 @@ class Master_paket_belanja extends CI_Controller {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
 			}
+
+			if ($err_code == 0) {
+				// get idpaket_belanja
+				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
+				$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
+				$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+				$paket_belanja = $this->db->get('paket_belanja_detail_sub');
+
+				if (strlen($paket_belanja->row()->idpaket_belanja) == 0) {
+					$this->db->where('idpaket_belanja_detail_sub', $paket_belanja->row()->is_idpaket_belanja_detail_sub);
+					$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
+					$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
+					$paket_belanja = $this->db->get('paket_belanja_detail_sub');
+				}
+
+				$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
+
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
+			}
 		}
 		
 		if ($err_code == 0) {
@@ -992,6 +1095,23 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+
+			if ($err_code == 0) {
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
 			}
 		}
 		
@@ -1271,6 +1391,23 @@ class Master_paket_belanja extends CI_Controller {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
 			}
+
+			if ($err_code == 0) {
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
+			}
 		}
 
 		if ($err_code == 0) {
@@ -1515,6 +1652,23 @@ class Master_paket_belanja extends CI_Controller {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
 			}
+
+			if ($err_code == 0) {
+				$this->db->where('idpaket_belanja', $id);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
+			}
 		}
 
 		if ($err_code == 0) {
@@ -1610,7 +1764,7 @@ class Master_paket_belanja extends CI_Controller {
 		$id = $this->input->post('id');
 
 		$this->db->where('idpaket_belanja_detail', $id);
-		$this->db->select('idpaket_belanja');
+		$this->db->select('idpaket_belanja, is_locked');
 		$pb = $this->db->get('paket_belanja_detail');
 		
 		$idpaket_belanja = $pb->row()->idpaket_belanja;
@@ -1625,6 +1779,19 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+
+			if ($err_code == 0) {
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
 			}
 		}
 
@@ -1707,6 +1874,10 @@ class Master_paket_belanja extends CI_Controller {
 				$message .= '<br><span style="color:red; font_weight:bold;">jika anda ingin menambahkan akun belanja baru, harap klik simpan transaksi paket belanja, agar datanya tidak hilang.</span>';
 			}
 		}
+
+		if (strlen($message) == 0) {
+			$message = "Akun belanja berhasil dihapus.";
+		}
 		
 		$return = array(
 			'err_code' => $err_code,
@@ -1749,6 +1920,23 @@ class Master_paket_belanja extends CI_Controller {
 			if (aznav('role_view_paket_belanja')) {
 				$err_code++;
 				$err_message = 'Anda tidak memiliki hak akses untuk mengubah data paket belanja';
+			}
+
+			if ($err_code == 0) {
+				$this->db->where('idpaket_belanja', $idpaket_belanja);
+				$this->db->where('status', 1);
+				$pb = $this->db->get('paket_belanja');
+
+				if ($pb->num_rows() > 0) {
+					if ($pb->row()->is_locked == 1) {
+						$err_code++;
+						$err_message = 'Paket belanja sudah dikunci, tidak bisa diubah atau hapus';
+					}
+				}
+				else {
+					$err_code++;
+					$err_message = 'Paket belanja tidak ditemukan';
+				}
 			}
 		}
 

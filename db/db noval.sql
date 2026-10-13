@@ -2396,7 +2396,7 @@ CREATE TABLE `paket_belanja_apbd` (
 	INDEX `is_active` (`is_active`) USING BTREE,
 	INDEX `status` (`status`) USING BTREE,
 	INDEX `idprogram` (`idprogram`) USING BTREE,
-	INDEX `idkategori` (`idkegiatan`) USING BTREE,
+	INDEX `idkegiatan` (`idkegiatan`) USING BTREE,
 	INDEX `select_ppkom_pptk` (`select_ppkom_pptk`) USING BTREE,
 	INDEX `status_paket_belanja` (`status_paket_belanja`) USING BTREE,
 	INDEX `nama_paket_belanja` (`nama_paket_belanja`) USING BTREE,
@@ -2430,13 +2430,6 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ROW_FORMAT=DYNAMIC
 ;
-ALTER TABLE `paket_belanja_detail`
-	DROP INDEX `tahun_anggaran_urusan`,
-	ADD INDEX `idpaket_belanja` (`idpaket_belanja`) USING BTREE,
-	DROP INDEX `nama_urusan`,
-	ADD INDEX `idakun_belanja` (`idakun_belanja`) USING BTREE;
-
-
 
 -- paket belanja apbd detail sub 
 CREATE TABLE `paket_belanja_apbd_detail_sub` (
@@ -2502,6 +2495,136 @@ CREATE TABLE `paket_belanja_apbd_detail_sub` (
 	INDEX `is_idpaket_belanja_apbd_detail_sub` (`is_idpaket_belanja_apbd_detail_sub`) USING BTREE,
 	INDEX `idpaket_belanja_apbd` (`idpaket_belanja_apbd`) USING BTREE,
 	INDEX `idpaket_belanja_apbd_detail` (`idpaket_belanja_apbd_detail`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+-- paket belanja draft
+CREATE TABLE `paket_belanja_draft` (
+	`idpaket_belanja_draft` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpaket_belanja` INT(10) NULL DEFAULT NULL COMMENT 'relasi ke tabel paket_belanja',
+	`sequence` INT(10) NULL DEFAULT '0' COMMENT 'untuk urutan data yang tersimpan',
+	`nama_paket_belanja` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`nilai_anggaran` DOUBLE NULL DEFAULT NULL,
+	`tahun_anggaran` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status_paket_belanja` VARCHAR(50) NULL DEFAULT 'DRAFT' COMMENT 'DRAFT / OK; draft : transaksi belum disimpan (trx baru), OK : transaksi pernah disimpan' COLLATE 'utf8mb4_unicode_ci',
+	`status_draft` VARCHAR(50) NULL DEFAULT 'DRAFT' COMMENT 'DRAFT | SUBMITTED | FINALIZED | CANCELLED' COLLATE 'utf8mb4_unicode_ci',
+	`idsub_kegiatan` INT(10) NULL DEFAULT NULL,
+	`idkegiatan` INT(10) NULL DEFAULT NULL,
+	`idprogram` INT(10) NULL DEFAULT NULL,
+	`select_ppkom_pptk` VARCHAR(50) NULL DEFAULT NULL COMMENT 'PPKom / PPTK; opsi ini harus terisi dulu sebelum lanjut ke step berikutnya' COLLATE 'utf8mb4_unicode_ci',
+	`is_active` INT(10) NULL DEFAULT '1',
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_draft`) USING BTREE,
+	INDEX `is_active` (`is_active`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idprogram` (`idprogram`) USING BTREE,
+	INDEX `idkegiatan` (`idkegiatan`) USING BTREE,
+	INDEX `select_ppkom_pptk` (`select_ppkom_pptk`) USING BTREE,
+	INDEX `status_paket_belanja` (`status_paket_belanja`) USING BTREE,
+	INDEX `nama_paket_belanja` (`nama_paket_belanja`) USING BTREE,
+	INDEX `idsub_kegiatan` (`idsub_kegiatan`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+-- paket belanja draft detail 
+CREATE TABLE `paket_belanja_draft_detail` (
+	`idpaket_belanja_draft_detail` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpaket_belanja_detail` INT(10) NULL DEFAULT NULL,
+	`idakun_belanja` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_draft` INT(10) NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_draft_detail`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `idakun_belanja` (`idakun_belanja`) USING BTREE,
+	INDEX `idpaket_belanja_draft` (`idpaket_belanja_draft`) USING BTREE,
+	CONSTRAINT `FK_paket_belanja_draft_detail_paket_belanja` FOREIGN KEY (`idpaket_belanja_draft`) REFERENCES `paket_belanja_draft` (`idpaket_belanja_draft`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+
+-- paket belanja draft detail sub 
+CREATE TABLE `paket_belanja_draft_detail_sub` (
+	`idpaket_belanja_draft_detail_sub` INT(10) NOT NULL AUTO_INCREMENT,
+	`idpaket_belanja_detail_sub` INT(10) NULL DEFAULT NULL,
+	`idkategori` INT(10) NULL DEFAULT NULL,
+	`idsub_kategori` INT(10) NULL DEFAULT NULL,
+	`idpaket_belanja_draft` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja',
+	`idpaket_belanja_draft_detail` INT(10) NULL DEFAULT NULL COMMENT 'turunan dari tabel paket_belanja detail berdasarkan idpaket_belanja_detail',
+	`is_idpaket_belanja_draft_detail_sub` INT(10) NULL DEFAULT NULL COMMENT 'terisi jika data ini turunan dari kategori, mengacu pada kolom idpaket_belanja_detail_sub',
+	`status_detail_step` VARCHAR(50) NULL DEFAULT NULL COMMENT 'untuk menandakan id tabel ini di step mana' COLLATE 'utf8mb4_unicode_ci',
+	`volume` DOUBLE NULL DEFAULT NULL,
+	`volume_realization` DOUBLE NULL DEFAULT '0' COMMENT 'volume yang sudah diproses ',
+	`idsatuan` INT(10) NULL DEFAULT NULL,
+	`harga_satuan` DOUBLE NULL DEFAULT NULL,
+	`jumlah` DOUBLE NULL DEFAULT NULL,
+	`is_kategori` INT(10) NULL DEFAULT NULL COMMENT 'bernilai 1 jika termasuk kategori',
+	`is_subkategori` INT(10) NULL DEFAULT NULL COMMENT 'bernilai 1 jika termasuk sub kategori',
+	`spesifikasi` TEXT NULL DEFAULT NULL COMMENT 'spesifikasi dari uraian yang dipilih' COLLATE 'utf8mb4_unicode_ci',
+	`link_url` VARCHAR(200) NULL DEFAULT NULL COMMENT 'link url dari spesifikasi yang diisi' COLLATE 'utf8mb4_unicode_ci',
+	`rak_volume_januari` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_januari` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_februari` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_februari` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_maret` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_maret` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_april` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_april` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_mei` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_mei` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juni` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juni` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_juli` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_juli` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_agustus` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_agustus` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_september` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_september` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_oktober` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_oktober` DOUBLE UNSIGNED NULL DEFAULT NULL,
+	`rak_volume_november` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_november` DOUBLE NULL DEFAULT NULL,
+	`rak_volume_desember` DOUBLE NULL DEFAULT NULL,
+	`rak_jumlah_desember` DOUBLE NULL DEFAULT NULL,
+	`created` DATETIME NULL DEFAULT NULL,
+	`createdby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`updated` DATETIME NULL DEFAULT NULL,
+	`updatedby` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`status` INT(10) NULL DEFAULT '1',
+	PRIMARY KEY (`idpaket_belanja_draft_detail_sub`) USING BTREE,
+	INDEX `status` (`status`) USING BTREE,
+	INDEX `is_kategori` (`is_kategori`) USING BTREE,
+	INDEX `is_subkategori` (`is_subkategori`) USING BTREE,
+	INDEX `idsub_kategori` (`idsub_kategori`) USING BTREE,
+	INDEX `volume` (`volume`) USING BTREE,
+	INDEX `idsatuan` (`idsatuan`) USING BTREE,
+	INDEX `harga_satuan` (`harga_satuan`) USING BTREE,
+	INDEX `jumlah` (`jumlah`) USING BTREE,
+	INDEX `link_url` (`link_url`) USING BTREE,
+	INDEX `status_detail_step` (`status_detail_step`) USING BTREE,
+	INDEX `volume_realization` (`volume_realization`) USING BTREE,
+	INDEX `idkategori` (`idkategori`) USING BTREE,
+	INDEX `is_idpaket_belanja_draft_detail_sub` (`is_idpaket_belanja_draft_detail_sub`) USING BTREE,
+	INDEX `idpaket_belanja_draft` (`idpaket_belanja_draft`) USING BTREE,
+	INDEX `idpaket_belanja_draft_detail` (`idpaket_belanja_draft_detail`) USING BTREE
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB

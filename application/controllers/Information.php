@@ -61,32 +61,41 @@ class Information extends CI_Controller
 			}
 
 			if ($anggaran_APBD !== null) {
-				// if ($anggaran_APBD == '2' && $type == "lock") {
-				// 	// kunci anggaran APBD PERUBAHAN
+				if ($anggaran_APBD == '0' && $type == "unlock") {
+				// Batalkan PAPBD Draft (dari PAPBD Draft ke APBD Murni)
 
-				// 	$check_locked = 1;
-				// 	$pb_data = $this->get_active_paket_belanja($year, $check_locked);
-
-				// 	if ($pb_data->num_rows() === 0) {
-				// 		$err_message = azlang('Tidak ada paket belanja yang bisa diproses.');
-				// 		$err_code = 1;
-				// 	} 
-				// 	else {
-				// 		$type = "APBD PERUBAHAN";
-				// 		$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
+					$check_locked = 1;
+					$type = "APBD";
+					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
+					
+					if ($pb_data->num_rows() === 0) {
+						$err_message = azlang('Tidak ada paket belanja yang bisa dibuka.');
+						$err_code = 1;
+					} 
+					else {
+						$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja');
+						// $delete_result = $this->delete_apbd_data($ids_to_unlock);
+						$delete_result = $this->return_paket_belanja_to_draft($ids_to_unlock, $type);
 						
-				// 		if ($duplicate_result['success'] === true) {
-				// 			$this->lock_paket_belanja($duplicate_result['ids'], $anggaran_APBD);
-				// 		} 
-				// 		else {
-				// 			$err_message = $duplicate_result['message'];
-				// 			$err_code = 1;
-				// 		}
-				// 	}
-				// }
-				// else 
-				if ($anggaran_APBD == '1' && $type == "lock") {
-					// kunci anggaran APBD
+						if ($delete_result['success'] === true) {
+							$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
+							
+							$pb_draft_data = $this->get_active_data_paket_belanja_draft($year, $check_locked);
+							$idpaket_belanja_draft = array_column($pb_draft_data->result_array(), 'idpaket_belanja_draft');
+
+							$this->update_draft($idpaket_belanja_draft, "DRAFT");
+
+							$this->save_unlock_log($delete_result, $anggaran_APBD);
+						} 
+						else {
+							$err_message = $delete_result['message'];
+							$err_code = 1;
+						}
+					}
+				}
+				else if ($anggaran_APBD == '1' && $type == "lock") {
+				// PAPBD Draft (dari APBD Murni ke PAPBD Draft)
+				// DONE
 
 					$check_locked = 0;
 					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
@@ -96,8 +105,7 @@ class Information extends CI_Controller
 						$err_code = 1;
 					} 
 					else {
-						$type = "APBD";
-						$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
+						$duplicate_result = $this->duplicate_paket_belanja_to_papbd_draft($pb_data->result_array());
 						
 						if ($duplicate_result['success'] === true) {
 							
@@ -112,56 +120,101 @@ class Information extends CI_Controller
 						}
 					}
 				}
-				// else if ($anggaran_APBD == '1' && $type == "unlock") {
-				// 	// buka kunci anggaran APBD PERUBAHAN
-
-				// 	$check_locked = 2;
-				// 	$type = "APBD PERUBAHAN";
-				// 	$pb_data = $this->get_active_paket_belanja($year, $check_locked);
-					
-				// 	if ($pb_data->num_rows() === 0) {
-				// 		$err_message = azlang('Tidak ada paket belanja yang bisa dibuka.');
-				// 		$err_code = 1;
-				// 	} 
-				// 	else {
-				// 		$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja');
-				// 		// $delete_result = $this->delete_apbd_data($ids_to_unlock);
-				// 		$delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
-						
-				// 		if ($delete_result['success'] === true) {
-				// 			$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
-				// 		} 
-				// 		else {
-				// 			$err_message = $delete_result['message'];
-				// 			$err_code = 1;
-				// 		}
-				// 	}
-				// }
-				else if ($anggaran_APBD == '0' && $type == "unlock") {
-					// buka kunci anggaran APBD
+				else if ($anggaran_APBD == '2' && $type == "lock") {
+				// Kunci APBD (dari PAPBD Draft ke PAPBD Final/publish)
+				// DONE
 
 					$check_locked = 1;
-					$type = "APBD";
 					$pb_data = $this->get_active_paket_belanja($year, $check_locked);
+
+					if ($pb_data->num_rows() === 0) {
+						$err_message = azlang('Tidak ada paket belanja yang bisa diproses.');
+						$err_code = 1;
+					} 
+					else {
+						$type = "APBD";
+						$duplicate_result = $this->duplicate_paket_belanja_to_apbd($pb_data->result_array(), $type);
+						
+						if ($duplicate_result['success'] === true) {
+
+							$pb_draft_data = $this->get_active_paket_belanja_draft($year);
+
+							$duplicate_draft_result = $this->duplicate_draft_to_paket_belanja($pb_draft_data->result_array());
+						
+							if ($duplicate_draft_result['success'] === true) {
+							
+								$this->lock_paket_belanja($duplicate_result['paket_ids'], $anggaran_APBD);
+								$this->save_publish_log($duplicate_result, $anggaran_APBD);
+
+								$this->update_draft($duplicate_draft_result['paket_ids'], "FINALIZED");
+
+							}
+							else {
+								$err_message = $duplicate_draft_result['message'];
+								$err_code = 1;
+							}
+						} 
+						else {
+							$err_message = $duplicate_result['message'];
+							$err_code = 1;
+						}
+					}
+				}
+				else if ($anggaran_APBD == '1' && $type == "unlock") {
+				// Buka Kunci APBD (dari PAPBD Final ke PAPBD Draft)
+				// DONE
+					$check_locked = 2;
+					// $type = "APBD PERUBAHAN";
+					$type = "APBD";
+					$pb_data = $this->get_active_data_paket_belanja_draft($year, $check_locked);
 					
 					if ($pb_data->num_rows() === 0) {
 						$err_message = azlang('Tidak ada paket belanja yang bisa dibuka.');
 						$err_code = 1;
 					} 
 					else {
+						// update status di tabel draft menjadi ON_PROCESS (data yang terakhir)
+						$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja_draft');
+						$update_status_draft = $this->update_draft($ids_to_unlock, "ON_PROCESS");
+
+						// update paket belanja berdasarkan data di tabel paket_belanja_apbd (data yang terakhir)
 						$ids_to_unlock = array_column($pb_data->result_array(), 'idpaket_belanja');
 						// $delete_result = $this->delete_apbd_data($ids_to_unlock);
 						$delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
 						
 						if ($delete_result['success'] === true) {
+							$anggaran_APBD = "2"; // karena dari PAPBD Final ke PAPBD Draft
 							$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
 
 							$this->save_unlock_log($delete_result, $anggaran_APBD);
+							
+							// update ulang karena efek $anggaran_APBD di set menjadi 2;
+							$update_unlock = array(
+								'is_locked' => 1,
+							);
+							$this->db->where_in('idpaket_belanja', $ids_to_unlock);
+							$this->db->update('paket_belanja', $update_unlock);
 						} 
 						else {
 							$err_message = $delete_result['message'];
 							$err_code = 1;
 						}
+
+						
+						// hapus data di tabel paket_belanja_apbd
+						// $delete_result = $this->delete_apbd_data($ids_to_unlock);/
+
+
+						// // $delete_result = $this->delete_apbd_data($ids_to_unlock);
+						// $delete_result = $this->return_paket_belanja_to_apbd($ids_to_unlock, $type);
+						
+						// if ($delete_result['success'] === true) {
+						// 	$this->unlock_paket_belanja($ids_to_unlock, $anggaran_APBD);
+						// } 
+						// else {
+						// 	$err_message = $delete_result['message'];
+						// 	$err_code = 1;
+						// }
 					}
 				}
 			}
@@ -213,12 +266,321 @@ class Information extends CI_Controller
 		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
 		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
 		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		// $this->db->join('paket_belanja_draft', 'paket_belanja_draft.idpaket_belanja = paket_belanja.idpaket_belanja', 'left');
 
-		$this->db->select('paket_belanja.*');
+		// $this->db->select('paket_belanja.*, urusan_pemerintah.tahun_anggaran_urusan, paket_belanja_draft.idpaket_belanja_draft, paket_belanja_draft.status_draft');
+		$this->db->select('paket_belanja.*, urusan_pemerintah.tahun_anggaran_urusan');
 		$pb = $this->db->get('paket_belanja');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 		
 		return $pb;
+	}
+
+	private function get_active_data_paket_belanja_draft($year, $check_lock)
+	{
+		// $this->db->where('idpaket_belanja', '76'); // testing
+		$this->db->select_max('sequence');
+		$pb_apbd = $this->db->get('paket_belanja_draft');
+		$sequence = $pb_apbd->row()->sequence;
+		$sequence = $sequence ? $sequence : 1;
+		
+		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $year);
+		$this->db->where('paket_belanja_draft.sequence', $sequence);
+		$this->db->where('urusan_pemerintah.is_active', 1);
+		$this->db->where('urusan_pemerintah.status', 1);
+		$this->db->where('bidang_urusan.status', 1);
+		$this->db->where('program.status', 1);
+		$this->db->where('kegiatan.status', 1);
+		$this->db->where('sub_kegiatan.status', 1);
+		$this->db->where('paket_belanja.status', 1);
+		$this->db->where('paket_belanja.status_paket_belanja !=', 'DRAFT');
+
+		// if ($check_lock == '2') {
+		// 	$this->db->where('paket_belanja.is_locked', 2);
+		// } 
+		// else if ($check_lock == '1') {
+		// 	$this->db->where('paket_belanja.is_locked', 1);
+		// } 
+		// else if ($check_lock == '0') {
+		// 	$this->db->where('paket_belanja.is_locked', 0);
+		// }
+
+		$this->db->join('paket_belanja', 'paket_belanja_draft.idpaket_belanja = paket_belanja.idpaket_belanja', 'left');
+		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
+		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+
+		$this->db->select('paket_belanja_draft.*');
+		$pb = $this->db->get('paket_belanja_draft');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+		
+		return $pb;
+	}
+
+	private function get_active_paket_belanja_draft($year)
+	{
+		// $this->db->where('idpaket_belanja', '76'); // testing
+
+		$this->db->select_max('sequence');
+		$pb_apbd = $this->db->get('paket_belanja_draft');
+		$sequence = $pb_apbd->row()->sequence;
+		$sequence = $sequence ? $sequence : 1;
+		
+		$this->db->where('paket_belanja_draft.tahun_anggaran', $year);
+		$this->db->where('paket_belanja_draft.sequence', $sequence);
+		$this->db->where('paket_belanja_draft.status', 1);
+		$this->db->where('paket_belanja_draft.status_paket_belanja !=', 'DRAFT');
+		$this->db->where('paket_belanja_draft.status_draft =', 'ON_PROCESS');
+
+		$this->db->select('paket_belanja_draft.*');
+		$pb = $this->db->get('paket_belanja_draft');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+		
+		return $pb;
+	}
+
+	private function duplicate_draft_to_paket_belanja(array $pb_rows) {
+		$inserted_ids = array();
+		$inserted_detail_ids = array();
+		$inserted_sub_detail_ids = array();
+		$inserted_sub_detail_child_ids = array();
+
+		foreach ($pb_rows as $pb) {
+			$idpaket_belanja_draft = $pb['idpaket_belanja_draft'];
+			$idpaket_belanja = $pb['idpaket_belanja'];
+			$inserted_ids[] = $idpaket_belanja_draft;
+
+			$pb_copy = $pb;
+			unset($pb_copy['idpaket_belanja_draft'], $pb_copy['idpaket_belanja'], $pb_copy['tahun_anggaran'], $pb_copy['status_draft'], $pb_copy['created'], $pb_copy['createdby'], $pb_copy['updated'], $pb_copy['updatedby'], $pb_copy['status'], $pb_copy['sequence']);
+			
+			// echo "<pre>"; print_r($pb_copy); die;
+
+			$save_pb = az_crud_save($idpaket_belanja, 'paket_belanja', $pb_copy);
+			$idpaket_belanja = azarr($save_pb, 'insert_id');
+
+			if (!$idpaket_belanja) {
+				return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbp].'));
+			}
+
+			$this->db->where('idpaket_belanja_draft', $idpaket_belanja_draft);
+			$this->db->where('status', 1);
+			$pb_detail_data = $this->db->get('paket_belanja_draft_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			foreach ($pb_detail_data->result_array() as $pbd) {
+				$idpaket_belanja_draft_detail = $pbd['idpaket_belanja_draft_detail'];
+				$idpaket_belanja_detail = $pbd['idpaket_belanja_detail'];
+				$inserted_detail_ids[] = $idpaket_belanja_draft_detail;
+				$pbd_copy = $pbd;
+
+				unset($pbd_copy['idpaket_belanja_draft_detail'], $pbd_copy['idpaket_belanja_detail'], $pbd_copy['idpaket_belanja_draft'], $pbd_copy['created'], $pbd_copy['createdby'], $pbd_copy['updated'], $pbd_copy['updatedby'], $pbd_copy['status']);
+
+				$pbd_copy['idpaket_belanja'] = $idpaket_belanja;
+				
+				// echo "<pre>"; print_r($pbd_copy); die;
+
+				$save_pb_detail = az_crud_save($idpaket_belanja_detail, 'paket_belanja_detail', $pbd_copy);
+				$idpaket_belanja_detail = azarr($save_pb_detail, 'insert_id');
+				
+				if (!$idpaket_belanja_detail) {
+					return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbpd].'));
+				}
+
+				// ambil data paket belanja detail sub yang tidak ada turunannya (is_idpaket_belanja_detail_sub)
+				$this->db->where('idpaket_belanja_draft_detail', $idpaket_belanja_draft_detail);
+				$this->db->where('status', 1);
+				$pb_detail_sub_data = $this->db->get('paket_belanja_draft_detail_sub');
+				// echo "<pre>"; print_r($this->db->last_query());die;
+
+				foreach ($pb_detail_sub_data->result_array() as $pbd_sub) {
+					$idpaket_belanja_draft_detail_sub = $pbd_sub['idpaket_belanja_draft_detail_sub'];
+					$idpaket_belanja_detail_sub = $pbd_sub['idpaket_belanja_detail_sub'];
+					$inserted_sub_detail_ids[] = $idpaket_belanja_draft_detail_sub;
+					$pbd_sub_copy = $pbd_sub;
+					
+					unset($pbd_sub_copy['idpaket_belanja_draft_detail_sub'], $pbd_sub_copy['idpaket_belanja_detail_sub'], $pbd_sub_copy['idpaket_belanja_draft'], $pbd_sub_copy['idpaket_belanja_draft_detail'], $pbd_sub_copy['is_idpaket_belanja_draft_detail_sub'], $pbd_sub_copy['created'], $pbd_sub_copy['createdby'], $pbd_sub_copy['updated'], $pbd_sub_copy['updatedby'], $pbd_sub_copy['status']);
+
+					$pbd_sub_copy['idpaket_belanja'] = $idpaket_belanja;
+					$pbd_sub_copy['idpaket_belanja_detail'] = $idpaket_belanja_detail;
+					$pbd_sub_copy['is_idpaket_belanja_detail_sub'] = null;
+
+					// echo "<pre>"; print_r($pbd_sub_copy); die;
+
+					$save_pb_detail_sub = az_crud_save($idpaket_belanja_detail_sub, 'paket_belanja_detail_sub', $pbd_sub_copy);
+					$idpaket_belanja_detail_sub = azarr($save_pb_detail_sub, 'insert_id');
+					
+					if (!$idpaket_belanja_detail_sub) {
+						return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbpds].'));
+					}
+
+
+					// cek idpaket_belanja_detail_sub apakah punya turunannya (is_idpaket_belanja_detail_sub)
+					$this->db->where('is_idpaket_belanja_draft_detail_sub', $idpaket_belanja_draft_detail_sub);
+					$this->db->where('status', 1);
+					$pb_detail_sub_child_data = $this->db->get('paket_belanja_draft_detail_sub');
+					// echo "<pre>"; print_r($this->db->last_query());die;
+
+					if ($pb_detail_sub_child_data->num_rows() > 0) {
+						foreach ($pb_detail_sub_child_data->result_array() as $pbd_sub_child) {
+							$idpaket_belanja_draft_detail_sub_child = $pbd_sub_child['idpaket_belanja_draft_detail_sub'];
+							$idpaket_belanja_detail_sub_child = $pbd_sub_child['idpaket_belanja_detail_sub'];
+							$inserted_sub_detail_child_ids[] = $idpaket_belanja_draft_detail_sub_child;
+							$pbd_sub_child_copy = $pbd_sub_child;
+							
+							unset($pbd_sub_child_copy['idpaket_belanja_draft_detail_sub'], $pbd_sub_child_copy['idpaket_belanja_detail_sub'], $pbd_sub_child_copy['idpaket_belanja_draft'], $pbd_sub_child_copy['idpaket_belanja_draft_detail'], $pbd_sub_child_copy['is_idpaket_belanja_draft_detail_sub'], $pbd_sub_child_copy['created'], $pbd_sub_child_copy['createdby'], $pbd_sub_child_copy['updated'], $pbd_sub_child_copy['updatedby'], $pbd_sub_child_copy['status']);
+							
+							$pbd_sub_child_copy['idpaket_belanja'] = $idpaket_belanja;
+							$pbd_sub_child_copy['idpaket_belanja_detail'] = null;
+							$pbd_sub_child_copy['is_idpaket_belanja_detail_sub'] = $idpaket_belanja_detail_sub;
+
+							// echo "<pre>"; print_r($pbd_sub_child_copy); die;
+
+							$save_pb_detail_sub_child = az_crud_save($idpaket_belanja_detail_sub_child, 'paket_belanja_detail_sub', $pbd_sub_child_copy);
+							$idpaket_belanja_detail_sub_child = azarr($save_pb_detail_sub_child, 'insert_id');
+							
+							if (!$idpaket_belanja_detail_sub_child) {
+								return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbpdsp].'));
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$arr_return = array(
+			'success' => true, 
+			'paket_ids' => $inserted_ids,
+    		'detail_ids' => $inserted_detail_ids,
+    		'sub_detail_ids' => $inserted_sub_detail_ids,
+			'sub_detail_child_ids' => $inserted_sub_detail_child_ids,
+		);
+
+		return $arr_return;
+	}
+
+	private function duplicate_paket_belanja_to_papbd_draft(array $pb_rows) {
+		$inserted_ids = array();
+		$inserted_detail_ids = array();
+		$inserted_sub_detail_ids = array();
+		$inserted_sub_detail_child_ids = array();
+
+		$this->db->select_max('sequence');
+		$pb_apbd = $this->db->get('paket_belanja_draft');
+		$sequence = $pb_apbd->row()->sequence;
+		$sequence = $sequence ? $sequence + 1 : 1;
+
+		foreach ($pb_rows as $pb) {
+			$idpaket_belanja = $pb['idpaket_belanja'];
+			$inserted_ids[] = $idpaket_belanja;
+
+			$pb_copy = $pb;
+			unset($pb_copy['created'], $pb_copy['createdby'], $pb_copy['updated'], $pb_copy['updatedby'], $pb_copy['status'], $pb_copy['is_locked'], $pb_copy['lockedby'], $pb_copy['locked_date'], $pb_copy['apbd_lockedby'], $pb_copy['apbd_locked_date'], $pb_copy['apbd_changes_lockedby'], $pb_copy['apbd_changes_locked_date'], $pb_copy['tahun_anggaran_urusan'], $pb_copy['idpaket_belanja_draft'], $pb_copy['status_draft']);
+			
+			$pb_copy['status_draft'] = "ON_PROCESS";
+			$pb_copy['tahun_anggaran'] = $pb['tahun_anggaran_urusan'];
+			$pb_copy['sequence'] = $sequence;
+
+			// echo "<pre>"; print_r($pb_copy); die;
+
+			$save_apbd = az_crud_save('', 'paket_belanja_draft', $pb_copy);
+			$idpaket_belanja_draft = azarr($save_apbd, 'insert_id');
+
+			if (!$idpaket_belanja_draft) {
+				return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbp].'));
+			}
+
+			$this->db->where('idpaket_belanja', $idpaket_belanja);
+			$this->db->where('status', 1);
+			$pb_detail_data = $this->db->get('paket_belanja_detail');
+			// echo "<pre>"; print_r($this->db->last_query());die;
+
+			foreach ($pb_detail_data->result_array() as $pbd) {
+				$idpaket_belanja_detail = $pbd['idpaket_belanja_detail'];
+				$inserted_detail_ids[] = $idpaket_belanja_detail;
+				$pbd_copy = $pbd;
+
+				unset($pbd_copy['idpaket_belanja'], $pbd_copy['created'], $pbd_copy['createdby'], $pbd_copy['updated'], $pbd_copy['updatedby'], $pbd_copy['status']);
+				
+				$pbd_copy['idpaket_belanja_draft'] = $idpaket_belanja_draft;
+		
+				// echo "<pre>"; print_r($pbd_copy); die;
+
+				$save_draft_detail = az_crud_save('', 'paket_belanja_draft_detail', $pbd_copy);
+				$idpaket_belanja_draft_detail = azarr($save_draft_detail, 'insert_id');
+				
+				if (!$idpaket_belanja_draft_detail) {
+					return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbpd].'));
+				}
+
+				// ambil data paket belanja detail sub yang tidak ada turunannya (is_idpaket_belanja_detail_sub)
+				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
+				$this->db->where('status', 1);
+				$pb_detail_sub_data = $this->db->get('paket_belanja_detail_sub');
+				// echo "<pre>"; print_r($this->db->last_query());die;
+
+				foreach ($pb_detail_sub_data->result_array() as $pbd_sub) {
+					$idpaket_belanja_detail_sub = $pbd_sub['idpaket_belanja_detail_sub'];
+					$inserted_sub_detail_ids[] = $idpaket_belanja_detail_sub;
+					$pbd_sub_copy = $pbd_sub;
+					
+					unset($pbd_sub_copy['idpaket_belanja'], $pbd_sub_copy['idpaket_belanja_detail'], $pbd_sub_copy['is_idpaket_belanja_detail_sub'], $pbd_sub_copy['created'], $pbd_sub_copy['createdby'], $pbd_sub_copy['updated'], $pbd_sub_copy['updatedby'], $pbd_sub_copy['status']);
+
+					$pbd_sub_copy['idpaket_belanja_draft'] = $idpaket_belanja_draft;
+					$pbd_sub_copy['idpaket_belanja_draft_detail'] = $idpaket_belanja_draft_detail;
+					$pbd_sub_copy['is_idpaket_belanja_draft_detail_sub'] = null;
+
+					// echo "<pre>"; print_r($pbd_sub_copy); die;
+
+					$save_draft_detail_sub = az_crud_save('', 'paket_belanja_draft_detail_sub', $pbd_sub_copy);
+					$idpaket_belanja_draft_detail_sub = azarr($save_draft_detail_sub, 'insert_id');
+					
+					if (!$idpaket_belanja_draft_detail_sub) {
+						return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbpds].'));
+					}
+
+
+					// cek idpaket_belanja_detail_sub apakah punya turunannya (is_idpaket_belanja_detail_sub)
+					$this->db->where('is_idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+					$this->db->where('status', 1);
+					$pb_detail_sub_child_data = $this->db->get('paket_belanja_detail_sub');
+					// echo "<pre>"; print_r($this->db->last_query());die;
+
+					if ($pb_detail_sub_child_data->num_rows() > 0) {
+						foreach ($pb_detail_sub_child_data->result_array() as $pbd_sub_child) {
+							$idpaket_belanja_detail_sub_child = $pbd_sub_child['idpaket_belanja_detail_sub'];
+							$inserted_sub_detail_child_ids[] = $idpaket_belanja_detail_sub_child;
+							$pbd_sub_child_copy = $pbd_sub_child;
+							
+							unset($pbd_sub_child_copy['idpaket_belanja'], $pbd_sub_child_copy['idpaket_belanja_detail'], $pbd_sub_child_copy['is_idpaket_belanja_detail_sub'], $pbd_sub_child_copy['created'], $pbd_sub_child_copy['createdby'], $pbd_sub_child_copy['updated'], $pbd_sub_child_copy['updatedby'], 
+							$pbd_sub_child_copy['status']);
+							
+							$pbd_sub_child_copy['idpaket_belanja_draft'] = $idpaket_belanja_draft;
+							$pbd_sub_child_copy['idpaket_belanja_draft_detail'] = null;
+							$pbd_sub_child_copy['is_idpaket_belanja_draft_detail_sub'] = $idpaket_belanja_draft_detail_sub;
+
+							$save_draft_detail_sub_child = az_crud_save('', 'paket_belanja_draft_detail_sub', $pbd_sub_child_copy);
+							$idpaket_belanja_draft_detail_sub_child = azarr($save_draft_detail_sub_child, 'insert_id');
+							
+							if (!$idpaket_belanja_draft_detail_sub_child) {
+								return array('success' => false, 'message' => azlang('Duplikasi data gagal[pbpdsp].'));
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$arr_return = array(
+			'success' => true, 
+			'paket_ids' => $inserted_ids,
+    		'detail_ids' => $inserted_detail_ids,
+    		'sub_detail_ids' => $inserted_sub_detail_ids,
+			'sub_detail_child_ids' => $inserted_sub_detail_child_ids,
+		);
+
+		return $arr_return;
 	}
 
 	private function duplicate_paket_belanja_to_apbd(array $pb_rows, $type) {
@@ -238,7 +600,8 @@ class Information extends CI_Controller
 			$inserted_ids[] = $idpaket_belanja;
 
 			$pb_copy = $pb;
-			unset($pb_copy['created'], $pb_copy['createdby'], $pb_copy['updated'], $pb_copy['updatedby'], $pb_copy['status'], $pb_copy['is_locked'], $pb_copy['lockedby'], $pb_copy['locked_date'], $pb_copy['apbd_lockedby'], $pb_copy['apbd_locked_date'], $pb_copy['apbd_changes_lockedby'], $pb_copy['apbd_changes_locked_date']);
+			unset($pb_copy['created'], $pb_copy['createdby'], $pb_copy['updated'], $pb_copy['updatedby'], $pb_copy['status'], $pb_copy['is_locked'], $pb_copy['lockedby'], $pb_copy['locked_date'], $pb_copy['apbd_lockedby'], $pb_copy['apbd_locked_date'], $pb_copy['apbd_changes_lockedby'], $pb_copy['apbd_changes_locked_date'], $pb_copy['tahun_anggaran_urusan'], $pb_copy['idpaket_belanja_draft'], $pb_copy['status_draft']);
+			
 			$pb_copy['jenis'] = $type;
 			$pb_copy['sequence'] = $sequence;
 			
@@ -262,6 +625,7 @@ class Information extends CI_Controller
 				$pbd_copy = $pbd;
 
 				unset($pbd_copy['idpaket_belanja'], $pbd_copy['created'], $pbd_copy['createdby'], $pbd_copy['updated'], $pbd_copy['updatedby'], $pbd_copy['status']);
+				
 				$pbd_copy['idpaket_belanja_apbd'] = $idpaket_belanja_apbd;
 				
 				// echo "<pre>"; print_r($pbd_copy); die;
@@ -285,6 +649,7 @@ class Information extends CI_Controller
 					$pbd_sub_copy = $pbd_sub;
 					
 					unset($pbd_sub_copy['idpaket_belanja'], $pbd_sub_copy['idpaket_belanja_detail'], $pbd_sub_copy['is_idpaket_belanja_detail_sub'], $pbd_sub_copy['created'], $pbd_sub_copy['createdby'], $pbd_sub_copy['updated'], $pbd_sub_copy['updatedby'], $pbd_sub_copy['status']);
+					
 					$pbd_sub_copy['idpaket_belanja_apbd'] = $idpaket_belanja_apbd;
 					$pbd_sub_copy['idpaket_belanja_apbd_detail'] = $idpaket_belanja_apbd_detail;
 					$pbd_sub_copy['is_idpaket_belanja_apbd_detail_sub'] = null;
@@ -312,6 +677,7 @@ class Information extends CI_Controller
 							$pbd_sub_child_copy = $pbd_sub_child;
 							
 							unset($pbd_sub_child_copy['idpaket_belanja'], $pbd_sub_child_copy['idpaket_belanja_detail'], $pbd_sub_child_copy['is_idpaket_belanja_detail_sub'], $pbd_sub_child_copy['created'], $pbd_sub_child_copy['createdby'], $pbd_sub_child_copy['updated'], $pbd_sub_child_copy['updatedby'], $pbd_sub_child_copy['status']);
+							
 							$pbd_sub_child_copy['idpaket_belanja_apbd'] = $idpaket_belanja_apbd;
 							$pbd_sub_child_copy['idpaket_belanja_apbd_detail'] = null;
 							$pbd_sub_child_copy['is_idpaket_belanja_apbd_detail_sub'] = $idpaket_belanja_apbd_detail_sub;
@@ -339,6 +705,181 @@ class Information extends CI_Controller
 		return $arr_return;
 	}
 
+	private function return_paket_belanja_to_draft($ids_to_unlock, $type) {
+		$inserted_ids = array();
+		$inserted_detail_ids = array();
+		$inserted_sub_detail_ids = array();
+		$inserted_sub_detail_child_ids = array();
+
+
+		// kembalikan data paket belanja apbd ke paket belanja berdasarkan idpaket_belanja
+		$this->db->select_max('sequence');
+		$pb_apbd = $this->db->get('paket_belanja_draft');
+		$sequence = $pb_apbd->row()->sequence;
+		$sequence = $sequence ? $sequence : 1;
+
+		$this->db->where_in('idpaket_belanja', $ids_to_unlock);
+		$this->db->where('sequence', $sequence);
+		$this->db->where('status', 1);
+		$pbd = $this->db->get('paket_belanja_draft');
+		// echo "<pre>"; print_r($this->db->last_query()); die;
+
+		foreach ($pbd->result_array() as $pb_pbd) {
+			$idpaket_belanja_draft = $pb_pbd['idpaket_belanja_draft'];
+			$idpaket_belanja = $pb_pbd['idpaket_belanja'];
+			$pb = $pb_pbd;
+			$inserted_ids[] = $idpaket_belanja;
+
+			unset($pb['idpaket_belanja_draft'], $pb['idpaket_belanja'], $pb['sequence'], $pb['tahun_anggaran'], $pb['status_draft'], $pb['created'], $pb['createdby'], $pb['updated'], $pb['updatedby'], $pb['status']);
+
+			if ($type == 'APBD') {
+				// turun dari APBD PERUBAHAN ke APBD
+				$pb['is_locked'] = 0;
+				$pb['apbd_lockedby'] = null;
+				$pb['apbd_locked_date'] = null;
+				$pb['apbd_changes_lockedby'] = null;
+				$pb['apbd_changes_locked_date'] = null;
+			}
+			else if ($type == 'PAPBD') {
+				// turun dari PAPBD ke APBD PERUBAHAN
+				$pb['is_locked'] = 1;
+				$pb['apbd_changes_lockedby'] = null;
+				$pb['apbd_changes_locked_date'] = null;
+			}
+			// echo "<pre>"; print_r($pb); die;
+			$this->db->where('idpaket_belanja', $idpaket_belanja);
+			$return_pb = $this->db->update('paket_belanja', $pb);
+			if (!$return_pb) {
+				return array(
+					'success' => false,
+					'message' => 'Gagal update[pb].'
+				);
+			}
+
+
+			// kembalikan data paket belanja apbd detail ke paket belanja detail berdasarkan idpaket_belanja_detail
+			$this->db->where('idpaket_belanja_draft', $idpaket_belanja_draft);
+			$this->db->where('status', 1);
+			$pbd_detail = $this->db->get('paket_belanja_draft_detail');
+			// echo "<pre>"; print_r($this->db->last_query()); die;
+			
+			foreach ($pbd_detail->result_array() as $detail) {
+				$idpaket_belanja_draft_detail = $detail['idpaket_belanja_draft_detail'];
+				$idpaket_belanja_detail = $detail['idpaket_belanja_detail'];
+				$inserted_detail_ids[] = $idpaket_belanja_detail;
+
+				$pb_detail = $detail;
+				unset($pb_detail['idpaket_belanja_draft_detail'], $pb_detail['idpaket_belanja_detail'], $pb_detail['idpaket_belanja_draft'], $pb_detail['created'], $pb_detail['createdby'], $pb_detail['updated'], $pb_detail['updatedby'], $pb_detail['status']);
+				$pb_detail['idpaket_belanja'] = $idpaket_belanja;
+				// echo "<pre>"; print_r($pb_detail); die;
+				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
+				$return_pbd = $this->db->update('paket_belanja_detail', $pb_detail);
+				
+				if (!$return_pbd) {
+					return array(
+						'success' => false,
+						'message' => 'Gagal update[pbd].'
+					);
+				}
+
+
+				// kembalikan data paket belanja apbd detail sub ke paket belanja detail sub berdasarkan idpaket_belanja_detail_sub
+				$this->db->where('idpaket_belanja_draft_detail', $idpaket_belanja_draft_detail);
+				$this->db->where('is_idpaket_belanja_draft_detail_sub IS NULL');
+				$this->db->where('status', 1);
+				$apbd_detail_sub = $this->db->get('paket_belanja_draft_detail_sub');
+				// echo "<pre>"; print_r($this->db->last_query()); die;
+
+				foreach ($apbd_detail_sub->result_array() as $detail_sub) {
+					$idpaket_belanja_draft_detail_sub = $detail_sub['idpaket_belanja_draft_detail_sub'];
+					$idpaket_belanja_detail_sub = $detail_sub['idpaket_belanja_detail_sub'];
+					$inserted_sub_detail_ids[] = $idpaket_belanja_detail_sub;
+
+					$pb_detail_sub = $detail_sub;
+
+					unset($pb_detail_sub['idpaket_belanja_draft_detail_sub'], $pb_detail_sub['idpaket_belanja_detail_sub'], $pb_detail_sub['idpaket_belanja_draft'], $pb_detail_sub['idpaket_belanja_draft_detail'], $pb_detail_sub['is_idpaket_belanja_draft_detail_sub'], $pb_detail_sub['volume_realization'], $pb_detail_sub['created'], $pb_detail_sub['createdby'], $pb_detail_sub['updated'], $pb_detail_sub['updatedby'], $pb_detail_sub['status']);
+
+					$pb_detail_sub['idpaket_belanja'] = $idpaket_belanja;
+					
+					$pb_detail_sub['idpaket_belanja_detail'] = $idpaket_belanja_detail;
+					$pb_detail_sub['is_idpaket_belanja_detail_sub'] = null;
+
+					// echo "<pre>"; print_r($pb_detail_sub); die;
+					$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub);
+					$return_pbds = $this->db->update('paket_belanja_detail_sub', $pb_detail_sub);
+					
+					if (!$return_pbds) {
+						return array(
+							'success' => false,
+							'message' => 'Gagal update[pbds].'
+						);
+					}
+
+					// cek apakah ada child data dari APBD yang punya parent is_idpaket_belanja_apbd_detail_sub
+					$this->db->where('is_idpaket_belanja_draft_detail_sub', $idpaket_belanja_draft_detail_sub);
+					$this->db->where('status', 1);
+					$apbd_detail_sub_child_data = $this->db->get('paket_belanja_draft_detail_sub');
+					// echo "<pre>"; print_r($this->db->last_query());die;
+
+					if ($apbd_detail_sub_child_data->num_rows() > 0) {
+						foreach ($apbd_detail_sub_child_data->result_array() as $detail_sub_child) {
+							$idpaket_belanja_draft_detail_sub_child = $detail_sub_child['idpaket_belanja_draft_detail_sub'];
+							$idpaket_belanja_detail_sub_child = $detail_sub_child['idpaket_belanja_detail_sub'];
+							$inserted_sub_detail_child_ids[] = $idpaket_belanja_detail_sub_child;
+
+							$pb_detail_sub_child = $detail_sub_child;
+
+							unset($pb_detail_sub_child['idpaket_belanja_draft_detail_sub'], $pb_detail_sub_child['idpaket_belanja_detail_sub'], $pb_detail_sub_child['idpaket_belanja_draft'], $pb_detail_sub_child['idpaket_belanja_draft_detail'], $pb_detail_sub_child['is_idpaket_belanja_draft_detail_sub'], $pb_detail_sub_child['volume_realization'], $pb_detail_sub_child['created'], $pb_detail_sub_child['createdby'], $pb_detail_sub_child['updated'], $pb_detail_sub_child['updatedby'], $pb_detail_sub_child['status']);
+
+							$pb_detail_sub_child['idpaket_belanja'] = $idpaket_belanja;
+							$pb_detail_sub_child['idpaket_belanja_detail'] = null;
+							
+							/*data yang ditampilkan masih ada yang salah*/ $pb_detail_sub_child['is_idpaket_belanja_detail_sub'] = $idpaket_belanja_detail_sub;
+							
+							// echo "<pre>"; print_r($pb_detail_sub_child); die;
+							$this->db->where('idpaket_belanja_detail_sub', $idpaket_belanja_detail_sub_child);
+							$return_pbdsc = $this->db->update('paket_belanja_detail_sub', $pb_detail_sub_child);
+							// echo "<pre>"; print_r($this->db->last_query()); echo "<br><br>";
+
+							if (!$return_pbdsc) {
+								return array(
+									'success' => false,
+									'message' => 'Gagal update[pbdsc].'
+								);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// jangan hapus data APBD jika sebelumnya ada error
+		if ($this->db->trans_status() === FALSE) {
+			return array(
+				'success' => false,
+				'message' => 'Terjadi kesalahan saat proses restore data APBD.'
+			);
+		}
+
+		// jika tidak ada eror sama sekali, maka hapus data paket belanja apbd nya
+		$delete_result = $this->delete_apbd_data($ids_to_unlock, $type, $sequence);
+
+		if ($this->db->trans_status() === FALSE) {
+			return array(
+				'success' => false,
+				'message' => 'Gagal menghapus data APBD.'
+			);
+		}
+
+		return array(
+			'success' => true,
+			'paket_ids' => $inserted_ids,
+    		'detail_ids' => $inserted_detail_ids,
+    		'sub_detail_ids' => $inserted_sub_detail_ids,
+			'sub_detail_child_ids' => $inserted_sub_detail_child_ids,
+		);
+	}
+
 	private function return_paket_belanja_to_apbd($ids_to_unlock, $type) {
 		$inserted_ids = array();
 		$inserted_detail_ids = array();
@@ -355,6 +896,7 @@ class Information extends CI_Controller
 		$this->db->where_in('idpaket_belanja', $ids_to_unlock);
 		$this->db->where('jenis', $type);
 		$this->db->where('sequence', $sequence);
+		$this->db->where('status', 1);
 		$apbd = $this->db->get('paket_belanja_apbd');
 		// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -364,7 +906,7 @@ class Information extends CI_Controller
 			$pb = $pb_apbd;
 			$inserted_ids[] = $idpaket_belanja;
 
-			unset($pb['idpaket_belanja'], $pb['jenis'], $pb['sequence'], $pb['idpaket_belanja_apbd'], $pb['created'], $pb['createdby'], $pb['updated'], $pb['updatedby']);
+			unset($pb['idpaket_belanja'], $pb['jenis'], $pb['sequence'], $pb['idpaket_belanja_apbd'], $pb['created'], $pb['createdby'], $pb['updated'], $pb['updatedby'], $pb['status']);
 
 			if ($type == 'APBD') {
 				// turun dari APBD PERUBAHAN ke APBD
@@ -393,6 +935,7 @@ class Information extends CI_Controller
 
 			// kembalikan data paket belanja apbd detail ke paket belanja detail berdasarkan idpaket_belanja_detail
 			$this->db->where('idpaket_belanja_apbd', $idpaket_belanja_apbd);
+			$this->db->where('status', 1);
 			$apbd_detail = $this->db->get('paket_belanja_apbd_detail');
 			// echo "<pre>"; print_r($this->db->last_query()); die;
 			
@@ -402,7 +945,7 @@ class Information extends CI_Controller
 				$inserted_detail_ids[] = $idpaket_belanja_detail;
 
 				$pb_detail = $detail;
-				unset($pb_detail['idpaket_belanja_apbd_detail'], $pb_detail['idpaket_belanja_detail'], $pb_detail['idpaket_belanja_apbd'], $pb_detail['created'], $pb_detail['createdby'], $pb_detail['updated'], $pb_detail['updatedby']);
+				unset($pb_detail['idpaket_belanja_apbd_detail'], $pb_detail['idpaket_belanja_detail'], $pb_detail['idpaket_belanja_apbd'], $pb_detail['created'], $pb_detail['createdby'], $pb_detail['updated'], $pb_detail['updatedby'], $pb_detail['status']);
 				$pb_detail['idpaket_belanja'] = $idpaket_belanja;
 				// echo "<pre>"; print_r($pb_detail); die;
 				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
@@ -418,7 +961,8 @@ class Information extends CI_Controller
 
 				// kembalikan data paket belanja apbd detail sub ke paket belanja detail sub berdasarkan idpaket_belanja_detail_sub
 				$this->db->where('idpaket_belanja_apbd_detail', $idpaket_belanja_apbd_detail);
-				$this->db->where('idpaket_belanja_apbd_detail IS NOT NULL');
+				$this->db->where('is_idpaket_belanja_apbd_detail_sub IS NULL');
+				$this->db->where('status', 1);
 				$apbd_detail_sub = $this->db->get('paket_belanja_apbd_detail_sub');
 				// echo "<pre>"; print_r($this->db->last_query()); die;
 
@@ -429,7 +973,7 @@ class Information extends CI_Controller
 
 					$pb_detail_sub = $detail_sub;
 
-					unset($pb_detail_sub['idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['idpaket_belanja_detail_sub'], $pb_detail_sub['idpaket_belanja_apbd'], $pb_detail_sub['idpaket_belanja_apbd_detail'], $pb_detail_sub['is_idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['created'], $pb_detail_sub['createdby'], $pb_detail_sub['updated'], $pb_detail_sub['updatedby']);
+					unset($pb_detail_sub['idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['idpaket_belanja_detail_sub'], $pb_detail_sub['idpaket_belanja_apbd'], $pb_detail_sub['idpaket_belanja_apbd_detail'], $pb_detail_sub['is_idpaket_belanja_apbd_detail_sub'], $pb_detail_sub['created'], $pb_detail_sub['createdby'], $pb_detail_sub['updated'], $pb_detail_sub['updatedby'], $pb_detail_sub['status']);
 
 					$pb_detail_sub['idpaket_belanja'] = $idpaket_belanja;
 					
@@ -553,6 +1097,16 @@ class Information extends CI_Controller
 		$this->db->update('paket_belanja', $update_unlock);
 	}
 
+	private function update_draft(array $ids, $status)
+	{
+		$update_lock = array(
+			'status_draft' => $status,
+		);
+
+		$this->db->where_in('idpaket_belanja_draft', $ids);
+		$this->db->update('paket_belanja_draft', $update_lock);
+	}
+
 	private function delete_apbd_data(array $ids, $type, $sequence)
 	{
 		$this->db->where_in('idpaket_belanja', $ids);
@@ -593,7 +1147,7 @@ class Information extends CI_Controller
 
 		$modul = ($anggaran_APBD == '1')
 			? 'APBD'
-			: 'PAPBD';
+			: 'PAPBD DRAFT';
 
 		$logs = array();
 
@@ -606,7 +1160,7 @@ class Information extends CI_Controller
 				'entity_id'      => $id,
 				'paket_id'       => $id,
 				'action'         => 'LOCK',
-				'note'           => 'Paket dipublikasikan dan dikunci.',
+				'note'           => 'Paket diduplikasikan dan dikunci.',
 				'changed_by'     => $username,
 				'changed_at'     => date('Y-m-d H:i:s')
 			);

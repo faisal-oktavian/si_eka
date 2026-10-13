@@ -121,6 +121,10 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 				(
 					(
+						" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
+					)
+					-
+					(
 						CASE
 							WHEN EXISTS (
 								" . $this->query_check_apbd("akun_belanja.idakun_belanja", $tahun) . "
@@ -132,10 +136,6 @@ class Report_papbd_akun_belanja extends CI_Controller {
 								" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
 							)
 						END
-					)
-					-
-					(
-						" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
 					)
 				) AS selisih
 			", FALSE);
@@ -230,6 +230,10 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 				(
 					(
+						" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
+					)
+					-
+					(
 						CASE
 							WHEN EXISTS (
 								" . $this->query_check_apbd("akun_belanja.idakun_belanja", $tahun) . "
@@ -241,10 +245,6 @@ class Report_papbd_akun_belanja extends CI_Controller {
 								" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
 							)
 						END
-					)
-					-
-					(
-						" . $this->query_total_murni("akun_belanja.idakun_belanja", $tahun) . "
 					)
 				) AS selisih
 			", FALSE);

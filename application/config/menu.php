@@ -78,6 +78,13 @@
                     ),
                 ),
                 array(
+                    "name" => "master_paket_belanja_draft",
+                    "title" => "Paket Belanja Draft",
+                    "url" => "master_paket_belanja_draft",
+                    "submenu" => array(),
+                    'role' => array(),
+                ),
+                array(
                     "name" => "master_akun_belanja",
                     "title" => "Akun Belanja",
                     "url" => "master_akun_belanja",

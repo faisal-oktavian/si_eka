@@ -1,0 +1,909 @@
+<script>
+	var is_viewonly = <?php if ($this->uri->segment(4)) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
+	var is_add = <?php if ($this->uri->segment(2) == 'add') {
+						echo "true";
+					} else {
+						echo "false";
+					} ?>;
+
+	var is_copy = <?php if ($this->uri->segment(2) == 'copy') {
+						echo "true";
+					} else {
+						echo "false";
+					} ?>;
+					
+	var role_ppkom_pptk = <?php if (aznav('role_select_ppkom_pptk')) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
+	var role_specification = <?php if (aznav('role_specification')) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
+	var role_special_paket_belanja = <?php if (aznav('role_special_paket_belanja')) {
+							echo "true";
+						} else {
+							echo "false";
+						} ?>;
+
+	var idrole = "<?php echo $this->session->userdata('idrole'); ?>";
+
+	// // set default hide tombol spesifikasi
+	// if (idrole != "" && idrole != null) {
+
+	// 	// jika hak akses "Bisa Pilih PPK / PP, Isi Spesifikasi" tidak dicentang
+	// 	if (role_special_paket_belanja == false) {
+	// 		setTimeout(function() {
+	// 			jQuery('#table_onthespot').find('.btn-specification').hide();
+	// 		}, 500);	
+	// 	}
+	// }
+
+	jQuery(document).ready(function() {
+		if (is_viewonly == true) {
+
+			readonly();
+		}
+	});
+
+	function readonly() {
+		jQuery('#form_paket_belanja').find('input, select').prop('disabled', true);
+		jQuery('.btn-add_paket_belanja, #btn_add_akun_belanja, #btn_save_paket_belanja').hide();
+
+		setTimeout(function() {
+			jQuery('#table_onthespot').find('button').hide();
+		}, 500);
+
+		if (role_ppkom_pptk == true) {
+			jQuery('#select_ppkom_pptk, #hd_idpaket_belanja').prop('disabled', false);
+			jQuery('#btn_save_paket_belanja').show();
+		}
+
+		if (role_specification == true) {
+			setTimeout(function() {
+				jQuery('#table_onthespot').find('.btn-specification').show();
+			}, 500);
+		}
+	}
+
+	if (is_copy == true) {
+		jQuery('#form_paket_belanja').find('#is_copy').val('1');
+	}
+
+    jQuery('body').on('click', '#btn_add_akun_belanja', function() {
+		var idprogram = jQuery('#idprogram').val();
+		var idkegiatan = jQuery('#idkegiatan').val();
+		var idsub_kegiatan = jQuery('#idsub_kegiatan').val();
+
+		if(idprogram == '' || idprogram == null) {
+			bootbox.alert('Pilih program terlebih dahulu');
+		}
+        else if(idkegiatan == '' || idkegiatan == null) {
+			bootbox.alert('Pilih kegiatan terlebih dahulu');
+		}
+        else if(idsub_kegiatan == '' || idsub_kegiatan == null) {
+			bootbox.alert('Pilih sub kegiatan terlebih dahulu');
+		}
+        else {
+			show_modal('add');
+
+			jQuery("#idakun_belanja").select2("val", "");
+			jQuery("#idpb_akun_belanja").val("");
+			jQuery('#is_edit').val('0');
+		}
+	});
+
+    jQuery('body').on('click', '.btn-action-save_akun_belanja', function() {
+        var idprogram = jQuery('#idprogram').val();
+		var idkegiatan = jQuery('#idkegiatan').val();
+		var idsub_kegiatan = jQuery('#idsub_kegiatan').val();
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/add_akun_belanja',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_add_akun_belanja').serialize() + '&idprogram=' + idprogram + '&idkegiatan=' + idkegiatan + '&idsub_kegiatan=' + idsub_kegiatan,
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add');
+					
+                    jQuery('#idpaket_belanja_draft').val(response.idpaket_belanja_draft);
+                    jQuery('#hd_idpaket_belanja_draft').val(response.idpaket_belanja_draft);
+					
+					generate_detail_paket_belanja(response.idpaket_belanja_draft);
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+    function generate_detail_paket_belanja(idpaket_belanja_draft) {
+		jQuery.ajax({
+			url: app_url+'master_paket_belanja_draft/get_list_akun_belanja/',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				idpaket_belanja_draft: idpaket_belanja_draft
+			},
+			success: function(response) {
+				jQuery('#table_onthespot tbody').html(response.data);
+			},
+			error: function(response) {}
+		});
+	}
+
+    jQuery('body').on('click', '#btn_save_paket_belanja', function() {
+		var idpaket_belanja_draft = jQuery('#hd_idpaket_belanja_draft').val();
+		
+        show_loading();
+        jQuery.ajax({
+            url: app_url + 'master_paket_belanja_draft/save_paket_belanja',
+            type: 'POST',
+            dataType: 'JSON',
+            data: jQuery('#form_paket_belanja').serialize(),
+            success: function(response) {
+                hide_loading();
+
+                if (response.err_code == 0) {
+					bootbox.alert("Data Berhasil Disimpan.");
+
+					if (is_copy == true) {
+						setTimeout(function() {
+							location.href = app_url + 'master_paket_belanja_draft';
+						}, 2000);
+					}
+					else {
+						setTimeout(function() {
+							// location.href = app_url + 'master_paket_belanja_draft/edit/' + idpaket_belanja;
+							location.reload();
+						}, 2000);
+					}
+                }
+                else {
+                    bootbox.alert(response.err_message);
+                }
+            },
+            error: function(response){}
+        });
+	});
+
+    jQuery('body').on('click','.btn-edit-akun-belanja', function() {
+		var id = jQuery(this).attr('data-id');
+
+        show_loading();
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/edit_paket_belanja',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				hide_loading();
+				show_modal('add');
+				jQuery('#is_edit').val(id);
+				jQuery('#idpb_akun_belanja').val(id);
+				
+				jQuery("#idakun_belanja").select2("val", "");
+				jQuery("#idakun_belanja.select2-ajax").append(new Option(response.data.nama_akun_belanja, response.data.idakun_belanja, true, true)).trigger('change');
+			},
+			error: function(response) {}
+		});
+	});
+
+    jQuery('body').on('click','.btn-delete-akun-belanja', function() {
+		var id = jQuery(this).attr('data-id');
+
+        bootbox.confirm("Apakah anda yakin ingin menghapus data ini? <br> jika data tersebut mempunyai detail data maka akan terhapus juga", function(e) {
+
+			show_loading();
+            if (e) {
+                jQuery.ajax({
+                    url: app_url + 'master_paket_belanja_draft/delete_akun_belanja',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        hide_loading();
+
+                        if (response.err_code == 0) {
+							bootbox.alert(response.message);
+                            generate_detail_paket_belanja(response.idpaket_belanja_draft);
+                        } 
+                        else {
+                            bootbox.alert(response.err_message);
+                        }
+                    },
+                    error: function(response) {}
+                });
+            }
+            else{
+                hide_loading();
+            } 
+        })
+	});
+
+
+	// edit
+	var the_id =  "<?php echo $id;?>";
+	if (the_id != "") {
+		generate_detail_paket_belanja(the_id);
+
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/get_data',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: the_id
+			},
+			success: function(response) {
+				jQuery("#idprogram").append(new Option(response.paket_belanja_draft.nama_program, response.paket_belanja_draft.idprogram, true, true)).trigger('change');
+				jQuery("#idkegiatan").append(new Option(response.paket_belanja_draft.nama_kegiatan, response.paket_belanja_draft.idkegiatan, true, true)).trigger('change');
+				jQuery("#idsub_kegiatan").append(new Option(response.paket_belanja_draft.nama_subkegiatan, response.paket_belanja_draft.idsub_kegiatan, true, true)).trigger('change');
+				
+				jQuery('#select_ppkom_pptk').val(response.paket_belanja_draft.select_ppkom_pptk);
+
+				jQuery('#nama_paket_belanja').val(response.paket_belanja_draft.nama_paket_belanja);
+				jQuery('#nilai_anggaran').val(thousand_separator(response.paket_belanja_draft.nilai_anggaran));
+			},
+			error: function(response) {}
+		});
+	}
+
+
+	// kategori
+	jQuery('body').on('click', '.btn-add-kategori', function() {
+		show_modal('add_kategori');
+
+		var idpaket_belanja_draft = jQuery(this).attr('data-idpaket-belanja-draft');
+		var idpaket_belanja_draft_detail = jQuery(this).attr('data-idpb-draft-detail');
+		var idakun_belanja = jQuery(this).attr('data-idakun-belanja');
+
+		jQuery("#idkategori").select2("val", "");
+		jQuery('#is_edit').val('0');
+
+		jQuery('#form_add_kategori input, #form_add_kategori select').val('').trigger('change.select2');
+		
+		jQuery('#hd_idpaket_belanja_draft').val(idpaket_belanja_draft);
+		jQuery('#hd_idpaket_belanja_draft_detail').val(idpaket_belanja_draft_detail);
+		jQuery('#hd_idakun_belanja').val(idakun_belanja);
+		jQuery('#is_kategori').val('1');
+		jQuery('#is_subkategori').val('0');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_kategori', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/add_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_add_kategori').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_kategori');
+
+					generate_detail_paket_belanja(response.idpaket_belanja_draft);
+					
+					// location.reload();
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+
+	// sub kategori
+	jQuery('body').on('click', '.btn-add-sub-kategori', function() {
+		show_modal('add_subkategori');
+
+		var idpaket_belanja_draft = jQuery(this).attr('data-idpaket-belanja-draft');
+		var idpaket_belanja_draft_detail = jQuery(this).attr('data-idpb-draft-detail');
+		var idakun_belanja = jQuery(this).attr('data-idakun-belanja');
+		var id_draft_ds_parent = jQuery(this).attr('data-id-draft-ds_parent'); // terisi jika mempunyai kategori
+
+		jQuery("#idsub_kategori").select2("val", "");
+		jQuery('#hds_is_edit').val('0');
+
+		jQuery('.akumulasi_jumlah_rak, .selisih_akumulasi_jumlah_rak').html('');
+
+		// jQuery('#form_add_subkategori input, #form_add_subkategori select').not('.x-hidden').val('').trigger('change.select2');
+		jQuery('#form_add_subkategori input, #form_add_subkategori select').val('').trigger('change.select2');
+		
+		jQuery('#hds_idpaket_belanja_draft').val(idpaket_belanja_draft);
+		jQuery('#hds_idpaket_belanja_draft_detail').val(idpaket_belanja_draft_detail);
+		jQuery('#hds_idakun_belanja').val(idakun_belanja);
+		jQuery('#hds_id_draft_ds_parent').val(id_draft_ds_parent); // idpaket_belanja_detail_sub_parent
+		jQuery('#hds_is_kategori').val('0');
+		jQuery('#hds_is_subkategori').val('1');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_subkategori', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/add_subkategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_add_subkategori').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_subkategori');
+					
+					jQuery('#nilai_anggaran').val(thousand_separator(response.total_jumlah));
+					
+					generate_detail_paket_belanja(response.idpaket_belanja_draft);
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+
+	// kategori & sub kategori
+	jQuery('body').on('click','.btn-edit-detail', function() {
+		var id = jQuery(this).attr('data-id');
+
+        show_loading();
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/edit_paket_belanja_detail',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				hide_loading();
+
+				setTimeout(function() {
+					jQuery('.kode-rekening').val(response.data.kode_rekening);
+				}, 1000);
+
+				jQuery('#hds_is_copy').val('');
+
+				if (response.data.idkategori !== null) {
+					show_modal('add_kategori');
+
+					jQuery('#is_edit').val(id);
+					jQuery('#hd_idpb_draft_detail_sub').val(id);
+					jQuery('#hd_idpaket_belanja_draft_detail').val(response.data.idpaket_belanja_draft_detail);
+					jQuery('#hd_idakun_belanja').val(response.data.idakun_belanja);
+					jQuery('#is_kategori').val(1);
+					jQuery('#is_subkategori').val(0);
+					
+					jQuery("#idkategori").select2("val", "");
+					jQuery("#idkategori.select2-ajax").append(new Option(response.data.nama_kategori, response.data.idkategori, true, true)).trigger('change');
+				}
+				else if (response.data.idsub_kategori !== null) {
+					show_modal('add_subkategori');
+
+					jQuery('#is_edit').val(id);
+					jQuery('#hds_idpb_draft_detail_sub').val(id);
+					jQuery('#hds_idpaket_belanja_draft_detail').val(response.data.idpaket_belanja_draft_detail);
+					jQuery('#hds_is_kategori').val(0);
+					jQuery('#hds_is_subkategori').val(1);
+					jQuery('#hds_id_draft_ds_parent').val(response.data.is_idpaket_belanja_draft_detail_sub);
+					
+					jQuery("#idsub_kategori").select2("val", "");
+					jQuery("#idsub_kategori.select2-ajax").append(new Option(response.data.nama_sub_kategori, response.data.idsub_kategori, true, true)).trigger('change');
+					jQuery('#volume').val(thousand_separator(response.data.volume));
+					jQuery("#idsatuan.select2-ajax").append(new Option(response.data.nama_satuan, response.data.idsatuan, true, true)).trigger('change');
+					jQuery('#harga_satuan').val(thousand_separator(response.data.harga_satuan));
+					jQuery('#jumlah').val(thousand_separator(response.data.jumlah));
+
+					jQuery('#rak_volume_januari').val(thousand_separator(response.data.rak_volume_januari));
+					jQuery('#rak_jumlah_januari').val(thousand_separator(response.data.rak_jumlah_januari));
+					jQuery('#rak_volume_februari').val(thousand_separator(response.data.rak_volume_februari));
+					jQuery('#rak_jumlah_februari').val(thousand_separator(response.data.rak_jumlah_februari));
+					jQuery('#rak_volume_maret').val(thousand_separator(response.data.rak_volume_maret));
+					jQuery('#rak_jumlah_maret').val(thousand_separator(response.data.rak_jumlah_maret));
+					jQuery('#rak_volume_april').val(thousand_separator(response.data.rak_volume_april));
+					jQuery('#rak_jumlah_april').val(thousand_separator(response.data.rak_jumlah_april));
+					jQuery('#rak_volume_mei').val(thousand_separator(response.data.rak_volume_mei));
+					jQuery('#rak_jumlah_mei').val(thousand_separator(response.data.rak_jumlah_mei));
+					jQuery('#rak_volume_juni').val(thousand_separator(response.data.rak_volume_juni));
+					jQuery('#rak_jumlah_juni').val(thousand_separator(response.data.rak_jumlah_juni));
+					jQuery('#rak_volume_juli').val(thousand_separator(response.data.rak_volume_juli));
+					jQuery('#rak_jumlah_juli').val(thousand_separator(response.data.rak_jumlah_juli));
+					jQuery('#rak_volume_agustus').val(thousand_separator(response.data.rak_volume_agustus));
+					jQuery('#rak_jumlah_agustus').val(thousand_separator(response.data.rak_jumlah_agustus));
+					jQuery('#rak_volume_september').val(thousand_separator(response.data.rak_volume_september));
+					jQuery('#rak_jumlah_september').val(thousand_separator(response.data.rak_jumlah_september));
+					jQuery('#rak_volume_oktober').val(thousand_separator(response.data.rak_volume_oktober));
+					jQuery('#rak_jumlah_oktober').val(thousand_separator(response.data.rak_jumlah_oktober));
+					jQuery('#rak_volume_november').val(thousand_separator(response.data.rak_volume_november));
+					jQuery('#rak_jumlah_november').val(thousand_separator(response.data.rak_jumlah_november));
+					jQuery('#rak_volume_desember').val(thousand_separator(response.data.rak_volume_desember));
+					jQuery('#rak_jumlah_desember').val(thousand_separator(response.data.rak_jumlah_desember));
+
+					calculate_rak();
+				} 
+			},
+			error: function(response) {}
+		});
+	});
+
+	jQuery('body').on('click','.btn-delete-detail', function() {
+		var id = jQuery(this).attr('data-id');
+
+        bootbox.confirm("Apakah anda yakin ingin menghapus data ini? <br> jika data tersebut mempunyai detail data maka akan terhapus juga", function(e) {
+
+			show_loading();
+            if (e) {
+                jQuery.ajax({
+                    url: app_url + 'master_paket_belanja_draft/delete_detail',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        hide_loading();
+
+                        if (response.err_code == 0) {
+							location.reload();
+                        } 
+                        else {
+                            bootbox.alert(response.err_message);
+                        }
+                    },
+                    error: function(response) {}
+                });
+            }
+            else{
+                hide_loading();
+            } 
+        })
+	});
+
+	jQuery('body').on('change', '#idsatuan', function() {
+		var id = jQuery(this).val();
+		var satuan 	=  jQuery('#idsatuan option:selected').text();
+		
+		// setTimeout(function() {
+		if (id != '' && satuan != 'LS') {
+			calculate();
+			calculate_rak();
+		}
+		// }, 500);
+	});
+
+	jQuery('#form_add_subkategori').on('keyup', '.volume, .harga-satuan', function() {
+		calculate();
+		calculate_rak();
+	});
+
+	function calculate() {
+		var volume			=  jQuery('#volume').val();
+		var harga_satuan 	=  jQuery('#harga_satuan').val();
+		var satuan 			=  jQuery('#idsatuan option:selected').text();
+		console.log(satuan);
+		
+		var rak_volume_januari		=  jQuery('#rak_volume_januari').val();
+		var rak_volume_februari		=  jQuery('#rak_volume_februari').val();
+		var rak_volume_maret		=  jQuery('#rak_volume_maret').val();
+		var rak_volume_april		=  jQuery('#rak_volume_april').val();
+		var rak_volume_mei			=  jQuery('#rak_volume_mei').val();
+		var rak_volume_juni			=  jQuery('#rak_volume_juni').val();
+		var rak_volume_juli			=  jQuery('#rak_volume_juli').val();
+		var rak_volume_agustus		=  jQuery('#rak_volume_agustus').val();
+		var rak_volume_september	=  jQuery('#rak_volume_september').val();
+		var rak_volume_oktober		=  jQuery('#rak_volume_oktober').val();
+		var rak_volume_november		=  jQuery('#rak_volume_november').val();
+		var rak_volume_desember		=  jQuery('#rak_volume_desember').val();
+
+		volume 					= remove_separator(volume);
+		harga_satuan 			= remove_separator(harga_satuan);
+		rak_volume_januari		= remove_separator(rak_volume_januari);
+		rak_volume_februari		= remove_separator(rak_volume_februari);
+		rak_volume_maret		= remove_separator(rak_volume_maret);
+		rak_volume_april		= remove_separator(rak_volume_april);
+		rak_volume_mei			= remove_separator(rak_volume_mei);
+		rak_volume_juni			= remove_separator(rak_volume_juni);
+		rak_volume_juli			= remove_separator(rak_volume_juli);
+		rak_volume_agustus		= remove_separator(rak_volume_agustus);
+		rak_volume_september	= remove_separator(rak_volume_september);
+		rak_volume_oktober		= remove_separator(rak_volume_oktober);
+		rak_volume_november		= remove_separator(rak_volume_november);
+		rak_volume_desember		= remove_separator(rak_volume_desember);
+
+  		var jumlah 					= volume * harga_satuan;
+		var rak_jumlah_januari		= rak_volume_januari * harga_satuan;
+		var rak_jumlah_februari		= rak_volume_februari * harga_satuan;
+		var rak_jumlah_maret		= rak_volume_maret * harga_satuan;
+		var rak_jumlah_april		= rak_volume_april * harga_satuan;
+		var rak_jumlah_mei			= rak_volume_mei * harga_satuan;
+		var rak_jumlah_juni			= rak_volume_juni * harga_satuan;
+		var rak_jumlah_juli			= rak_volume_juli * harga_satuan;
+		var rak_jumlah_agustus		= rak_volume_agustus * harga_satuan;
+		var rak_jumlah_september	= rak_volume_september * harga_satuan;
+		var rak_jumlah_oktober		= rak_volume_oktober * harga_satuan;
+		var rak_jumlah_november		= rak_volume_november * harga_satuan;
+		var rak_jumlah_desember		= rak_volume_desember * harga_satuan;
+
+		console.log('jumlah '+jumlah);
+		jQuery('#jumlah').val(thousand_separator(jumlah));
+		
+		if (satuan != 'LS') {
+			if (rak_volume_januari != '' && rak_volume_januari != null) {
+				jQuery('#rak_jumlah_januari').val(thousand_separator(rak_jumlah_januari));
+			}
+			if (rak_volume_februari != '' && rak_volume_februari != null) {
+				jQuery('#rak_jumlah_februari').val(thousand_separator(rak_jumlah_februari));
+			}
+			if (rak_volume_maret != '' && rak_volume_maret != null) {
+				jQuery('#rak_jumlah_maret').val(thousand_separator(rak_jumlah_maret));
+			}
+			if (rak_volume_april != '' && rak_volume_april != null) {
+				jQuery('#rak_jumlah_april').val(thousand_separator(rak_jumlah_april));
+			}
+			if (rak_volume_mei != '' && rak_volume_mei != null) {
+				jQuery('#rak_jumlah_mei').val(thousand_separator(rak_jumlah_mei));
+			}
+			if (rak_volume_juni != '' && rak_volume_juni != null) {
+				jQuery('#rak_jumlah_juni').val(thousand_separator(rak_jumlah_juni));
+			}
+			if (rak_volume_juli != '' && rak_volume_juli != null) {
+				jQuery('#rak_jumlah_juli').val(thousand_separator(rak_jumlah_juli));
+			}
+			if (rak_volume_agustus != '' && rak_volume_agustus != null) {
+				jQuery('#rak_jumlah_agustus').val(thousand_separator(rak_jumlah_agustus));
+			}
+			if (rak_volume_september != '' && rak_volume_september != null) {
+				jQuery('#rak_jumlah_september').val(thousand_separator(rak_jumlah_september));
+			}
+			if (rak_volume_oktober != '' && rak_volume_oktober != null) {
+				jQuery('#rak_jumlah_oktober').val(thousand_separator(rak_jumlah_oktober));
+			}
+			if (rak_volume_november != '' && rak_volume_november != null) {
+				jQuery('#rak_jumlah_november').val(thousand_separator(rak_jumlah_november));
+			}
+			if (rak_volume_desember != '' && rak_volume_desember != null) {
+				jQuery('#rak_jumlah_desember').val(thousand_separator(rak_jumlah_desember));
+			}
+		}
+	}
+
+	jQuery('#form_add_subkategori').on('keyup', '.calc-jumlah', function() {
+		calculate_rak();
+	});
+
+	function calculate_rak() {
+		var total = jQuery('#jumlah').val();
+		total = remove_separator(total) || 0;
+
+		var rak_jumlah_januari		=  jQuery('#rak_jumlah_januari').val();
+		var rak_jumlah_februari		=  jQuery('#rak_jumlah_februari').val();
+		var rak_jumlah_maret		=  jQuery('#rak_jumlah_maret').val();
+		var rak_jumlah_april		=  jQuery('#rak_jumlah_april').val();
+		var rak_jumlah_mei			=  jQuery('#rak_jumlah_mei').val();
+		var rak_jumlah_juni			=  jQuery('#rak_jumlah_juni').val();
+		var rak_jumlah_juli			=  jQuery('#rak_jumlah_juli').val();
+		var rak_jumlah_agustus		=  jQuery('#rak_jumlah_agustus').val();
+		var rak_jumlah_september	=  jQuery('#rak_jumlah_september').val();
+		var rak_jumlah_oktober		=  jQuery('#rak_jumlah_oktober').val();
+		var rak_jumlah_november		=  jQuery('#rak_jumlah_november').val();
+		var rak_jumlah_desember		=  jQuery('#rak_jumlah_desember').val();
+		
+		rak_jumlah_januari		= remove_separator(rak_jumlah_januari) || 0;
+		rak_jumlah_februari		= remove_separator(rak_jumlah_februari) || 0;
+		rak_jumlah_maret		= remove_separator(rak_jumlah_maret) || 0;
+		rak_jumlah_april		= remove_separator(rak_jumlah_april) || 0;
+		rak_jumlah_mei			= remove_separator(rak_jumlah_mei) || 0;
+		rak_jumlah_juni			= remove_separator(rak_jumlah_juni) || 0;
+		rak_jumlah_juli			= remove_separator(rak_jumlah_juli) || 0;
+		rak_jumlah_agustus		= remove_separator(rak_jumlah_agustus) || 0;
+		rak_jumlah_september	= remove_separator(rak_jumlah_september) || 0;
+		rak_jumlah_oktober		= remove_separator(rak_jumlah_oktober) || 0;
+		rak_jumlah_november		= remove_separator(rak_jumlah_november) || 0;
+		rak_jumlah_desember		= remove_separator(rak_jumlah_desember) || 0;
+
+		akumulasi_jumlah_rak = parseFloat(rak_jumlah_januari) + parseFloat(rak_jumlah_februari) + parseFloat(rak_jumlah_maret) + parseFloat(rak_jumlah_april) + parseFloat(rak_jumlah_mei) + parseFloat(rak_jumlah_juni) + parseFloat(rak_jumlah_juli) + parseFloat(rak_jumlah_agustus) + parseFloat(rak_jumlah_september) + parseFloat(rak_jumlah_oktober) + parseFloat(rak_jumlah_november) + parseFloat(rak_jumlah_desember);
+
+		console.log('akumulasi_jumlah_rak '+akumulasi_jumlah_rak);
+		console.log('total '+total);
+		if (akumulasi_jumlah_rak < total) {
+			jQuery('.akumulasi_jumlah_rak').html('<span style="color:red;">Rp. '+thousand_separator(akumulasi_jumlah_rak)+'</span>');
+			jQuery('.selisih_akumulasi_jumlah_rak').html('<span style="color:red;">(Rp. '+thousand_separator(akumulasi_jumlah_rak - total)+')</span>');
+		}
+		else if (akumulasi_jumlah_rak > total) {
+			jQuery('.akumulasi_jumlah_rak').html('<span style="color:green;">Rp. '+thousand_separator(akumulasi_jumlah_rak)+'</span>');
+			jQuery('.selisih_akumulasi_jumlah_rak').html('<span style="color:green;">(Rp. '+thousand_separator(akumulasi_jumlah_rak - total)+')</span>');
+		}
+		else {
+			jQuery('.akumulasi_jumlah_rak').html('Rp. '+thousand_separator(akumulasi_jumlah_rak));
+			jQuery('.selisih_akumulasi_jumlah_rak').html('');
+		}
+	}
+
+	jQuery('body').on('change', '#idsub_kategori', function() {
+		var id = jQuery(this).val();
+		console.log('asdasda '+id);
+		
+		// setTimeout(function() {
+		if (id != '') {
+			jQuery.ajax({
+				url: app_url + 'master_paket_belanja_draft/select_kode_rekening',
+				type: 'POST', 
+				dataType: 'JSON',
+				data: {
+					id: id
+				},
+				success: function(response) {
+					jQuery('.kode-rekening').val(response.kode_rekening);
+				},
+				error: function(response) {}
+			});
+		}
+		// }, 500);
+	});
+
+	jQuery('body').on('click','.btn-specification', function() {
+		var id = jQuery(this).attr('data-id');
+
+        show_loading();
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/add_spesifikasi',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				hide_loading();
+
+				show_modal('add_spesifikasi');
+
+				// reset
+				CKEDITOR.instances['specification'].setData('');
+				jQuery('#link_url').val('');
+
+
+				 // isi CKEditor dengan data dari response
+				setTimeout(function() {
+					CKEDITOR.instances['specification'].setData(response.specification || '');
+				}, 500);
+
+				// set value input lain
+				jQuery('#link_url').val(response.link_url || '');
+
+				jQuery('#form_add_spesifikasi').find('#hd_idpb_draft_detail_sub').val(id);
+			},
+			error: function(response) {}
+		});
+	});
+
+	jQuery('body').on('click', '.btn-action-save_spesifikasi', function() {
+
+		// paksa cdeditor update ke textarea
+		for (instance in CKEDITOR.instances) {
+			CKEDITOR.instances[instance].updateElement();
+		}
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/save_spesifikasi',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_add_spesifikasi').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_spesifikasi');
+
+					generate_detail_paket_belanja(response.idpaket_belanja_draft);
+
+					if (role_special_paket_belanja == false) {
+						readonly();
+					}
+					
+					// location.reload();
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+
+	jQuery('body').on('click', '.copy-detail', function() {
+		setTimeout(function() {
+			jQuery('#form_add_subkategori').find('#hds_is_copy').val('1');
+			check_copy();
+		}, 1000);
+	});
+
+	function check_copy() {
+		var is_copy = jQuery('#hds_is_copy').val();
+		if (is_copy == '1') {
+			// setTimeout(function() {
+			// 	console.log('oke');
+			// }, 2000);
+			jQuery('#hds_idpb_draft_detail_sub').val('');
+		}
+	}
+
+	// edit akun belanja di sub kategori
+	jQuery('body').on('click','.btn-edit-akun-sub', function() {
+		var id = jQuery(this).attr('data-id');
+
+        show_loading();
+		jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/edit_akun_belanja_sub_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id: id
+			},
+			success: function(response) {
+				hide_loading();
+
+				show_modal('edit_akun_belanja');
+
+				jQuery("#idedit_idakun_belanja.select2-ajax").append(new Option(response.nama_akun_belanja, response.idakun_belanja, true, true)).trigger('change');
+				jQuery('#idpaket_belanja_draft_detail_sub').val(id);
+			},
+			error: function(response) {}
+		});
+	});
+	
+	jQuery('body').on('click', '.btn-action-save_akun_belanja_sub_kategori', function() {
+        var idpaket_belanja_draft = jQuery('#idpaket_belanja_draft').val();
+		var idpaket_belanja_draft_detail_sub = jQuery('#idpaket_belanja_draft_detail_sub').val();
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/save_akun_belanja_sub_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_edit_akun_belanja').serialize() + '&idpaket_belanja_draft=' + idpaket_belanja_draft + '&idpaket_belanja_draft_detail_sub=' + idpaket_belanja_draft_detail_sub,
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					location.reload();
+					// hide_modal('edit_akun_belanja');
+					
+                    // jQuery('#idpaket_belanja').val(response.idpaket_belanja);
+                    // jQuery('#hd_idpaket_belanja').val(response.idpaket_belanja);
+					// generate_detail_paket_belanja(response.idpaket_belanja);
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+	
+	// tambah akun belanja baru
+	jQuery('body').on('click', '.btn-new-akunbelanja', function() {
+		show_modal('add_new_akunbelanja');
+
+		jQuery('#form_new_akunbelanja input, #form_new_akunbelanja select').val('').trigger('change.select2');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_new_akunbelanja', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/save_akunbelanja',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_new_akunbelanja').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_new_akunbelanja');
+
+					jQuery("#idakun_belanja.select2-ajax").append(new Option(response.nama_akunbelanja, response.idakun_belanja, true, true)).trigger('change');
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+	// tambah kategori baru
+	jQuery('body').on('click', '.btn-new-kategori', function() {
+		show_modal('add_new_kategori');
+
+		jQuery('#form_new_kategori input, #form_new_kategori select').val('').trigger('change.select2');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_new_kategori', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/save_kategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_new_kategori').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_new_kategori');
+
+					jQuery("#idkategori.select2-ajax").append(new Option(response.nama_kategori, response.idkategori, true, true)).trigger('change');
+				}
+			},
+			error: function(response) {}
+		});
+	});
+
+	// tambah sub kategori baru
+	jQuery('body').on('click', '.btn-new-subkategori', function() {
+		show_modal('add_new_subkategori');
+
+		jQuery('#form_new_subkategori input, #form_new_subkategori select').val('').trigger('change.select2');
+	});
+
+	jQuery('body').on('click', '.btn-action-save_new_subkategori', function() {
+		
+		show_loading();
+        jQuery.ajax({
+			url: app_url + 'master_paket_belanja_draft/save_subkategori',
+			type: 'POST',
+			dataType: 'JSON',
+			data: jQuery('#form_new_subkategori').serialize(),
+			success: function(response) {
+				
+                hide_loading();
+
+				if (response.err_code > 0) {
+					bootbox.alert(response.err_message);
+				}
+				else {
+					hide_modal('add_new_subkategori');
+
+					jQuery("#idsub_kategori.select2-ajax").append(new Option(response.nama_subkategori, response.idsub_kategori, true, true)).trigger('change');
+				}
+			},
+			error: function(response) {}
+		});
+	});

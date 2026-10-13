@@ -39,11 +39,18 @@
 				<?php
 					} 
 					else if ($value->type == 'button_apbd') {
+						/*
+							Kondisi		 |	paket_belanja	|	paket_belanja_apbd	 |	paket_belanja_draft			|	User umum
+							APBD		 |	APBD asli		|	Kosong				 |	Belum ada					|	Melihat APBD
+							ON_PROCESS	 |	APBD asli		|	Kosong				 |	Draft PAPBD					|	Tetap melihat APBD
+							FINALIZED	 |	PAPBD final		|	Snapshot APBD		 |	Draft berstatus FINALIZED	|	Melihat PAPBD
+						*/
+
 						if ($value->value == '0') {
 							// APBD murni
 				?>
 							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="1" data-type="lock" name="<?php echo $value->key; ?>">
-								<?php echo azlang('Kunci APBD'); ?>
+								<?php echo azlang('PAPBD Draft'); ?>
 							</button>
 
 							<div>
@@ -52,32 +59,32 @@
 				<?php
 						} 
 						else if ($value->value == '1') {
-							// PAPBD
+							// PAPBD Draft
 				?>			
 							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="0" data-type="unlock" name="<?php echo $value->key; ?>">
-								<?php echo azlang('Buka Kunci APBD'); ?>
+								<?php echo azlang('Batalkan PAPBD Draft'); ?>
 							</button>
-							<!-- <button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="2" data-type="lock" name="<?php echo $value->key; ?>">
-								<?php // echo azlang('Kunci APBD PERUBAHAN'); ?>
-							</button> -->
+							<button class="btn btn-danger btn-apbd" id="btn_apbd" type="button" data-value="2" data-type="lock" name="<?php echo $value->key; ?>">
+								<?php echo azlang('Kunci APBD'); ?>
+							</button>
 
 							<div>
-								<p style="color:red; font-weight:bold;">Paket belanja saat ini membaca data PAPBD</p>
+								<p style="color:red; font-weight:bold;">Paket belanja saat ini membaca data APBD (PAPBD Draft)</p>
 							</div>
 				<?php
 						}
-						// else if ($value->value == '2') {
-							// PAPBD Perubahan
+						else if ($value->value == '2') {
+							// PAPBD Final
 				?>			
-							<!-- <button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="1" data-type="unlock" name="<?php echo $value->key; ?>">
-								<?php // echo azlang('Buka Kunci APBD PERUBAHAN'); ?>
+							<button class="btn btn-success btn-apbd" id="btn_apbd" type="button" data-value="1" data-type="unlock" name="<?php echo $value->key; ?>">
+								<?php echo azlang('Buka Kunci APBD'); ?>
 							</button>
 
 							<div>
-								<p style="color:red; font-weight:bold;">Paket belanja saat ini membaca data PAPBD (Perubahan)</p>
-							</div> -->
+								<p style="color:red; font-weight:bold;">Paket belanja saat ini membaca data PAPBD (Final)</p>
+							</div>
 				<?php
-						// }
+						}
 				?>
 						
 				<?php
