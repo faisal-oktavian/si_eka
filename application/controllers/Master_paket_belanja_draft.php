@@ -1333,6 +1333,7 @@ class Master_paket_belanja_draft extends CI_Controller {
 					$arr_data['nama_paket_belanja'] = $nama_paket_belanja;
 					$arr_data['nilai_anggaran'] = $nilai_anggaran;
 					$arr_data['status_paket_belanja'] = "OK";
+					$arr_data['status_draft'] = "ON_PROCESS";
 				}
 			}
 			else {
@@ -1345,6 +1346,7 @@ class Master_paket_belanja_draft extends CI_Controller {
 					'nama_paket_belanja' => $nama_paket_belanja,
 					'nilai_anggaran' => $nilai_anggaran,
 					'status_paket_belanja' => "OK",
+					'status_draft' => "ON_PROCESS",
 					'select_ppkom_pptk' => $select_ppkom_pptk,
 				);
 			}

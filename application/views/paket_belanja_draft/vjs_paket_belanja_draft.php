@@ -1,5 +1,5 @@
 <script>
-	jQuery('body').on('click', '.btn-add-master_paket_belanja', function() {
+	jQuery('body').on('click', '.btn-add-master_paket_belanja_draft', function() {
 		location.href = app_url + 'master_paket_belanja_draft/add';
 	});
 
