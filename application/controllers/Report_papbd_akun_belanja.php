@@ -367,14 +367,12 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 	private function query_total_apbd($idakun_belanja, $tahun) {
 		$query = "
-				SELECT COALESCE(SUM(data_apbd.jumlah), 0)
-
-				FROM
-				(
+				SELECT
+					(
 					/* ====================================================
 					PARENT APBD
 					==================================================== */
-					SELECT parent_sub.jumlah
+					SELECT COALESCE(SUM(parent_sub.jumlah), 0)
 					FROM paket_belanja_apbd_detail pbad
 
 					JOIN paket_belanja_apbd pba ON pba.idpaket_belanja_apbd = pbad.idpaket_belanja_apbd
@@ -394,13 +392,15 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND ab_apbd.is_active = 1
 					AND pbad.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_apbd.tahun_anggaran_urusan = '$tahun'
+					)
 
-					UNION ALL
+					+
 
+					(
 					/* ====================================================
 					CHILD APBD
 					==================================================== */
-					SELECT child_sub.jumlah
+					SELECT COALESCE(SUM(child_sub.jumlah), 0)
 					FROM paket_belanja_apbd_detail pbad
 
 					JOIN paket_belanja_apbd pba ON pba.idpaket_belanja_apbd = pbad.idpaket_belanja_apbd
@@ -421,7 +421,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND ab_apbd.is_active = 1
 					AND pbad.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_apbd.tahun_anggaran_urusan = '$tahun'
-				) AS data_apbd
+					)
 			";
 
 		return $query;
@@ -429,14 +429,12 @@ class Report_papbd_akun_belanja extends CI_Controller {
 
 	private function query_total_murni($idakun_belanja, $tahun) {
 		$query = "
-				SELECT COALESCE(SUM(data_murni.jumlah), 0)
-
-				FROM
-				(
+				SELECT
+					(
 					/* ====================================================
 					PARENT MURNI
 					==================================================== */
-					SELECT parent_sub.jumlah
+					SELECT COALESCE(SUM(parent_sub.jumlah), 0)
 					FROM paket_belanja_detail pbd
 
 					JOIN paket_belanja pb ON pb.idpaket_belanja = pbd.idpaket_belanja
@@ -455,13 +453,15 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND ab_murni.is_active = 1
 					AND pbd.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_murni.tahun_anggaran_urusan = '$tahun'
+					)
 
-					UNION ALL
+					+
 
+					(
 					/* ====================================================
 					CHILD MURNI
 					==================================================== */
-					SELECT child_sub.jumlah
+					SELECT COALESCE(SUM(child_sub.jumlah), 0)
 					FROM paket_belanja_detail pbd
 
 					JOIN paket_belanja pb ON pb.idpaket_belanja = pbd.idpaket_belanja
@@ -481,7 +481,7 @@ class Report_papbd_akun_belanja extends CI_Controller {
 					AND ab_murni.is_active = 1
 					AND pbd.idakun_belanja = akun_belanja.idakun_belanja
 					AND up_murni.tahun_anggaran_urusan = '$tahun'
-				) AS data_murni
+					)
 			";
 		
 		return $query;
