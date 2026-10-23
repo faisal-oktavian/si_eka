@@ -669,24 +669,13 @@ class Master_paket_belanja extends CI_Controller {
 			}
 
 			if ($err_code == 0) {
-				// get idpaket_belanja
-				$this->db->where('idpaket_belanja_detail_sub', $idpb_detail_sub);
-				$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail', 'left');
-				$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
-				$paket_belanja = $this->db->get('paket_belanja_detail_sub');
 
-				if (strlen($paket_belanja->row()->idpaket_belanja) == 0) {
-					$this->db->where('idpaket_belanja_detail_sub', $paket_belanja->row()->is_idpaket_belanja_detail_sub);
-					$this->db->join('paket_belanja_detail', 'paket_belanja_detail.idpaket_belanja_detail = paket_belanja_detail_sub.idpaket_belanja_detail');
-					$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja_detail_sub.is_idpaket_belanja_detail_sub');
-					$paket_belanja = $this->db->get('paket_belanja_detail_sub');
-				}
-
-				$idpaket_belanja = $paket_belanja->row()->idpaket_belanja;
-
-				$this->db->where('idpaket_belanja', $idpaket_belanja);
-				$this->db->where('status', 1);
-				$pb = $this->db->get('paket_belanja');
+				$this->db->where('idpaket_belanja_detail', $idpaket_belanja_detail);
+				$this->db->where('paket_belanja_detail.status', 1);
+				$this->db->where('paket_belanja.status', 1);
+				$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
+				$pb = $this->db->get('paket_belanja_detail');
+				// echo "<pre>"; print_r($this->db->last_query());die;
 
 				if ($pb->num_rows() > 0) {
 					if ($pb->row()->is_locked == 1) {
@@ -1764,7 +1753,8 @@ class Master_paket_belanja extends CI_Controller {
 		$id = $this->input->post('id');
 
 		$this->db->where('idpaket_belanja_detail', $id);
-		$this->db->select('idpaket_belanja, is_locked');
+		$this->db->join('paket_belanja', 'paket_belanja.idpaket_belanja = paket_belanja_detail.idpaket_belanja');
+		$this->db->select('paket_belanja_detail.idpaket_belanja, paket_belanja.is_locked');
 		$pb = $this->db->get('paket_belanja_detail');
 		
 		$idpaket_belanja = $pb->row()->idpaket_belanja;
