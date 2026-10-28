@@ -25,6 +25,17 @@ class Master_paket_belanja extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		// cek apakah saat ini sedang menampilkan data PAPBD atau tidak
+		$this->db->where('key', 'anggaran_APBD');
+		$this->db->where('status', 1);
+		$this->db->select('value');
+		$config = $this->db->get('config')->row();
+		$is_papbd = $config->value;
+
+		if ($is_papbd == "1") {
+			$crud->set_btn_add(false);
+		}
+
 		if ( ( aznav('role_view_paket_belanja') || aznav('role_select_ppkom_pptk') || aznav('role_specification') ) 
 			&& strlen($idrole) > 0 ) {
 

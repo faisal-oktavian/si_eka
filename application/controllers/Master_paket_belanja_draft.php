@@ -25,6 +25,17 @@ class Master_paket_belanja_draft extends CI_Controller {
 		$crud->set_id($this->controller);
 		$crud->set_default_url(true);
 
+		// cek apakah saat ini sedang menampilkan data PAPBD atau tidak
+		$this->db->where('key', 'anggaran_APBD');
+		$this->db->where('status', 1);
+		$this->db->select('value');
+		$config = $this->db->get('config')->row();
+		$is_papbd = $config->value;
+
+		if (in_array($is_papbd, ['0', '2'])) {
+			$crud->set_btn_add(false);
+		}
+
 		$tahun_anggaran = $azapp->add_datetime();
 		$tahun_anggaran->set_id('vf_tahun_anggaran');
 		$tahun_anggaran->set_name('vf_tahun_anggaran');
@@ -1334,6 +1345,14 @@ class Master_paket_belanja_draft extends CI_Controller {
 					$arr_data['nilai_anggaran'] = $nilai_anggaran;
 					$arr_data['status_paket_belanja'] = "OK";
 					$arr_data['status_draft'] = "ON_PROCESS";
+					$arr_data['tahun_anggaran'] = Date('Y');
+
+					$this->db->select_max('sequence');
+					$pb_apbd = $this->db->get('paket_belanja_draft');
+					$sequence = $pb_apbd->row()->sequence;
+					$sequence = $sequence ? $sequence : 1;
+					
+					$arr_data['sequence'] = $sequence;
 				}
 			}
 			else {
