@@ -284,16 +284,17 @@ class Information extends CI_Controller
 		$sequence = $pb_apbd->row()->sequence;
 		$sequence = $sequence ? $sequence : 1;
 		
-		$this->db->where('urusan_pemerintah.tahun_anggaran_urusan', $year);
+		$this->db->where('paket_belanja_draft.tahun_anggaran', $year);
 		$this->db->where('paket_belanja_draft.sequence', $sequence);
-		$this->db->where('urusan_pemerintah.is_active', 1);
-		$this->db->where('urusan_pemerintah.status', 1);
-		$this->db->where('bidang_urusan.status', 1);
-		$this->db->where('program.status', 1);
-		$this->db->where('kegiatan.status', 1);
-		$this->db->where('sub_kegiatan.status', 1);
-		$this->db->where('paket_belanja.status', 1);
-		$this->db->where('paket_belanja.status_paket_belanja !=', 'DRAFT');
+		// $this->db->where('urusan_pemerintah.is_active', 1);
+		// $this->db->where('urusan_pemerintah.status', 1);
+		// $this->db->where('bidang_urusan.status', 1);
+		// $this->db->where('program.status', 1);
+		// $this->db->where('kegiatan.status', 1);
+		// $this->db->where('sub_kegiatan.status', 1);
+		$this->db->where('paket_belanja_draft.status', 1);
+		$this->db->where('paket_belanja_draft.status_paket_belanja !=', 'DRAFT');
+		$this->db->where('paket_belanja_draft.status_draft =', 'FINALIZED');
 
 		// if ($check_lock == '2') {
 		// 	$this->db->where('paket_belanja.is_locked', 2);
@@ -306,11 +307,11 @@ class Information extends CI_Controller
 		// }
 
 		$this->db->join('paket_belanja', 'paket_belanja_draft.idpaket_belanja = paket_belanja.idpaket_belanja', 'left');
-		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan');
-		$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan');
-		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram');
-		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan');
-		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah');
+		$this->db->join('sub_kegiatan', 'sub_kegiatan.idsub_kegiatan = paket_belanja.idsub_kegiatan', 'left');
+		$this->db->join('kegiatan', 'kegiatan.idkegiatan = paket_belanja.idkegiatan', 'left');
+		$this->db->join('program', 'program.idprogram = paket_belanja.idprogram', 'left');
+		$this->db->join('bidang_urusan', 'bidang_urusan.idbidang_urusan = program.idbidang_urusan', 'left');
+		$this->db->join('urusan_pemerintah', 'urusan_pemerintah.idurusan_pemerintah = bidang_urusan.idurusan_pemerintah', 'left');
 
 		$this->db->select('paket_belanja_draft.*');
 		$pb = $this->db->get('paket_belanja_draft');
