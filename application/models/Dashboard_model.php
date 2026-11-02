@@ -30,6 +30,7 @@ class Dashboard_model extends CI_Model {
             'tahun_ini' => $tahun,
             'total_anggaran_tahun_ini' => floatval($grafik_potensi['total_anggaran_tahun_ini']),
             'realisasi_anggaran_tahun_ini' => floatval($grafik_realisasi['sudah_dibayar']),
+            'sisa_anggaran' => floatval($grafik_realisasi['sisa_anggaran']),
 
             // Grafik realisasi anggaran (pie chart)
             'sudah_dibayar' => floatval($grafik_realisasi['sudah_dibayar']),
@@ -272,13 +273,11 @@ class Dashboard_model extends CI_Model {
         }
 
         // Belum Direalisasi
-        $belum_direalisasi = $total_anggaran - (floatval($sudah_dibayar)
-            + floatval($menunggu_pembayaran)
+        $sisa_anggaran = floatval($total_anggaran) - floatval($sudah_dibayar);
+        $belum_direalisasi = $sisa_anggaran - (floatval($menunggu_pembayaran)
             + floatval($npd)
             + floatval($sudah_diverifikasi)
             + floatval($menunggu_verifikasi)
-            + floatval($kontrak_pengadaan)
-            + floatval($proses_pengadaan)
         );
 
         return [
@@ -289,6 +288,7 @@ class Dashboard_model extends CI_Model {
             'menunggu_verifikasi' => floatval($menunggu_verifikasi),
             'kontrak_pengadaan' => floatval($kontrak_pengadaan),
             'proses_pengadaan' => floatval($proses_pengadaan),
+            'sisa_anggaran' => floatval($sisa_anggaran),
             'belum_direalisasi' => floatval($belum_direalisasi),
         ];
     }

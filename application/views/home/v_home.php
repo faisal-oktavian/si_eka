@@ -186,6 +186,292 @@
     .panel {
         border-radius:12px !important;
     }
+
+    #pengeluaran .card-content {
+        margin-top: 8px;
+    }
+
+    #pengeluaran .expense-chart-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 20px;
+        margin: 20px 0 0;
+    }
+
+    #pengeluaran .expense-chart-row:before,
+    #pengeluaran .expense-chart-row:after,
+    #pengeluaran .expense-donut-layout:before,
+    #pengeluaran .expense-donut-layout:after,
+    #pengeluaran .expense-status-grid:before,
+    #pengeluaran .expense-status-grid:after {
+        display: none;
+    }
+
+    #pengeluaran .expense-chart-row.expense-chart-wide {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #pengeluaran .expense-chart-row > [class*="col-"] {
+        float: none;
+        width: auto;
+        padding: 0;
+        min-width: 0;
+    }
+
+    #pengeluaran .expense-chart-card {
+        height: 100%;
+        margin: 0;
+        padding: 22px !important;
+        border: 1px solid #e6ebf0 !important;
+        border-radius: 16px !important;
+        background: #fff !important;
+        box-shadow: 0 6px 20px rgba(31, 56, 76, .06) !important;
+    }
+
+    #pengeluaran .expense-chart-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin: 0 0 18px !important;
+        text-align: left !important;
+    }
+
+    #pengeluaran .expense-chart-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #eef5fb;
+        color: #144e7c;
+        font-size: 18px !important;
+        margin: 0 !important;
+    }
+
+    #pengeluaran .expense-chart-icon:before {
+        display: inline-block;
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+    }
+
+    #pengeluaran .expense-chart-heading {
+        min-width: 0;
+    }
+
+    #pengeluaran .expense-chart-heading .title-chart {
+        display: block;
+        padding: 0;
+        color: #263746;
+        font-size: 17px !important;
+        line-height: 1.4;
+    }
+
+    #pengeluaran .expense-chart-subtitle {
+        display: block;
+        margin-top: 4px;
+        color: #778592;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    #pengeluaran .expense-chart-body {
+        position: relative;
+        min-width: 0;
+        height: 300px;
+    }
+
+    #pengeluaran .expense-chart-body canvas {
+        max-width: 100%;
+    }
+
+    #pengeluaran .expense-donut-layout {
+        display: grid;
+        /* Atur lebar kolom donut di sini; ukuran fisik ketiga donut diatur pada .expense-donut-visual di bawah. */
+        grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+        align-items: center;
+        gap: 20px;
+        margin: 0;
+    }
+
+    #pengeluaran .expense-donut-layout > [class*="col-"] {
+        float: none;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0;
+        min-width: 0;
+    }
+
+    #pengeluaran .expense-donut-visual {
+        position: relative;
+        /* Ubah width dan height ini untuk mengatur ukuran semua grafik pie/donut Pengeluaran. */
+        width: 220px;
+        max-width: 100%;
+        height: 220px !important;
+    }
+
+    #pengeluaran .expense-donut-visual canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    #pengeluaran .expense-status-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(240px, .85fr);
+        align-items: start;
+        gap: 16px;
+        margin: 0;
+    }
+
+    #pengeluaran .expense-status-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    #pengeluaran .expense-status-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        min-height: 62px;
+        margin: 0 !important;
+        padding: 12px !important;
+        border: 1px solid #edf0f3;
+        border-radius: 10px !important;
+        background: #f9fafb !important;
+    }
+
+    #pengeluaran .expense-status-item > span {
+        flex: 0 0 12px;
+        width: 12px !important;
+        height: 12px !important;
+        margin: 4px 0 0 !important;
+        border-radius: 4px !important;
+    }
+
+    #pengeluaran .expense-status-item > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    #pengeluaran .expense-status-item > div > div:first-child {
+        color: #495966;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    #pengeluaran .expense-status-item [id^="label-"] {
+        margin-top: 4px;
+        color: #263746;
+        font-size: 13px !important;
+        line-height: 1.45;
+    }
+
+    #pengeluaran .expense-procurement-summary {
+        min-width: 0;
+        padding: 16px;
+        border: 1px solid #e6ebf0;
+        border-radius: 12px;
+        background: #f8fafc;
+    }
+
+    #pengeluaran .expense-procurement-title {
+        margin-bottom: 16px;
+        color: #263746;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
+    #pengeluaran .expense-procurement-title i {
+        margin-right: 7px;
+        color: #ff9900;
+    }
+
+    #pengeluaran .expense-procurement-metric + .expense-procurement-metric {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #e6ebf0;
+    }
+
+    #pengeluaran .expense-procurement-value {
+        margin-top: 4px;
+        color: #263746;
+        font-size: 17px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    #pengeluaran .expense-metric {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin: 0 0 10px !important;
+        padding: 12px !important;
+        border: 1px solid #edf0f3;
+        border-radius: 10px !important;
+        background: #f9fafb !important;
+    }
+
+    #pengeluaran .expense-metric > span {
+        flex: 0 0 12px;
+        width: 12px !important;
+        height: 12px !important;
+        margin: 5px 0 0 !important;
+        border-radius: 4px !important;
+    }
+
+    #pengeluaran .expense-metric > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    #pengeluaran .expense-source-layout {
+        grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+    }
+
+    #pengeluaran .expense-source-metrics {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    @media (max-width: 1199px) {
+        #pengeluaran .expense-chart-row {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    @media (max-width: 991px) {
+        #pengeluaran .expense-status-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    @media (max-width: 600px) {
+        #pengeluaran .expense-chart-card {
+            padding: 16px !important;
+        }
+
+        #pengeluaran .expense-donut-layout,
+        #pengeluaran .expense-source-layout {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+        }
+
+        #pengeluaran .expense-donut-visual {
+            height: 220px !important;
+            max-width: 100%;
+            margin: auto !important;
+        }
+
+        #pengeluaran .expense-chart-body {
+            height: 260px;
+        }
+    }
 </style>
 <?php
 	if (aznav('role_table') || aznav('role_income_graphic')) {
@@ -238,17 +524,18 @@
                         <div class="rsedu-wrapper">
 
                             <!-- Grafik Line Persentase Capaian Target & Realisasi Anggaran per Bulan -->
-                                <div class="row" style="margin-top:30px;">
-                                    <div class="col-md-12 col-xs-12" style="margin:auto;">
-                                        <div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-                                            <div class="d-flex align-items-center" style="margin-bottom:18px; text-align:center;">
-                                                <i class="fa fa-line-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-                                                <span class="title-chart" style="font-size:20px;">Persentase Capaian Target & Realisasi Anggaran per Bulan (Tahun <?php echo $tahun_ini; ?>)</span>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
-                                                    <canvas id="lineCapaianPerBulan" height="120"></canvas>
+                                <div class="row expense-chart-row expense-chart-wide">
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="card shadow expense-chart-card">
+                                            <div class="expense-chart-header">
+                                                <i class="fa fa-chart-line expense-chart-icon"></i>
+                                                <div class="expense-chart-heading">
+                                                    <span class="title-chart">Capaian Target & Realisasi per Bulan</span>
+                                                    <span class="expense-chart-subtitle">Persentase kumulatif tahun <?php echo $tahun_ini; ?></span>
                                                 </div>
+                                            </div>
+                                            <div class="expense-chart-body">
+                                                <canvas id="lineCapaianPerBulan"></canvas>
                                             </div>
                                         </div>
                                     </div>
@@ -257,85 +544,83 @@
 
 
                             <!-- grafik realisasi anggaran -->
-                                <div class="row" style="margin-top:30px;">
-                                    <div class="col-md-12 col-xs-12" style="margin:auto;">
-                                        <div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-                                            <div class="d-flex align-items-center" style="margin-bottom:18px;">
-                                                <i class="fa fa-pie-chart" style="font-size:26px;color:#4caf50;margin-right:10px;"></i>
-                                                <span class="title-chart" style="font-size:20px;">Grafik Realisasi Anggaran Tahun <?php echo $tahun_ini; ?></span>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;width: 300px; height: 300px; margin: auto;">
-                                                    <canvas id="pieAnggaranChart" width="120" height="120"></canvas>
+                                <div class="row expense-chart-row expense-chart-wide">
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="card shadow expense-chart-card">
+                                            <div class="expense-chart-header">
+                                                <i class="fa fa-chart-pie expense-chart-icon"></i>
+                                                <div class="expense-chart-heading">
+                                                    <span class="title-chart">Realisasi Anggaran Tahun <?php echo $tahun_ini; ?></span>
+                                                    <span class="expense-chart-subtitle">Komposisi posisi anggaran berdasarkan pagu dan nilai realisasi</span>
                                                 </div>
-                                                <div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center; margin-left:5%">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+                                            </div>
+                                            <div class="row expense-donut-layout">
+                                                <div class="col-xs-12 col-md-6 expense-donut-visual">
+                                                    <canvas id="pieAnggaranChart"></canvas>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6">
+                                                    <div class="row expense-status-grid">
+                                                        <div class="expense-status-list">
+                                                            <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#28A745;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
                                                                     <div style="font-weight:600;">Sudah Dibayar</div>
                                                                     <div id="label-sudah-dibayar" style="font-size:15px;"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+                                                            <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#FFCC66;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
                                                                     <div style="font-weight:600;">Menunggu Pembayaran</div>
                                                                     <div id="label-menunggu-pembayaran" style="font-size:15px;"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+                                                            <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#999999;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
                                                                     <div style="font-weight:600;">NPD</div>
                                                                     <div id="label-npd" style="font-size:15px;"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+                                                            <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#0066FF;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
                                                                     <div style="font-weight:600;">Sudah Diverifikasi</div>
                                                                     <div id="label-sudah-diverifikasi" style="font-size:15px;"></div>
                                                                 </div>
                                                             </div>
-
-                                                        </div>
-                                                        <div class="col-md-6">
-
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
+                                                            <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#FF6600;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
                                                                     <div style="font-weight:600;">Menunggu Verifikasi</div>
                                                                     <div id="label-menunggu-verifikasi" style="font-size:15px;"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-                                                                <span style="display:inline-block;width:18px;height:18px;background:#FF9900;margin-right:10px;border-radius:4px;"></span>
-                                                                <div>
-                                                                    <div style="font-weight:600;">Kontrak Pengadaan</div>
-                                                                    <div id="label-kontrak-pengadaan" style="font-size:15px;"></div>
-                                                                </div>
-                                                            </div>
-                                                            <!-- <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
-                                                                <span style="display:inline-block;width:18px;height:18px;background:#FFCC00;margin-right:10px;border-radius:4px;"></span>
-                                                                <div>
-                                                                    <div style="font-weight:600;">Proses Pengadaan</div>
-                                                                    <div id="label-proses-pengadaan" style="font-size:15px;"></div>
-                                                                </div>
-                                                            </div> -->
-                                                            <div class="mb-3" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;">
+                                                            <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#f44336;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
                                                                     <div style="font-weight:600;">Belum Direalisasi</div>
                                                                     <div id="label-belum-direalisasi" style="font-size:15px;"></div>
+                                                                    <small style="display:block;margin-top:5px;color:#778592;line-height:1.45;">Sisa anggaran yang belum direalisasikan, termasuk pagu kontrak pengadaan yang belum mencerminkan nilai realisasi aktual.</small>
                                                                 </div>
                                                             </div>
-
+                                                        </div>
+                                                        <div class="expense-procurement-summary">
+                                                            <div class="expense-procurement-title">
+                                                                <i class="fa fa-briefcase"></i>
+                                                                Progres Pengadaan Tahun <?php echo $tahun_ini; ?>
+                                                            </div>
+                                                            <div class="expense-procurement-metric">
+                                                                <div style="color:#607d8b;font-size:13px;">Kontrak Pengadaan (nilai pagu)</div>
+                                                                <div id="label-kontrak-pengadaan" class="expense-procurement-value"></div>
+                                                            </div>
+                                                            <div class="expense-procurement-metric">
+                                                                <div style="color:#607d8b;font-size:13px;">Proses Pengadaan (nilai pagu)</div>
+                                                                <div id="label-proses-pengadaan" class="expense-procurement-value"></div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>	
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -344,34 +629,38 @@
 
 
                             <!-- grafik potensi sisa anggaran & Realisasi Anggaran per Sumber Dana -->
-                                <div class="row" style="margin-top:30px;">
+                                <div class="row expense-chart-row">
 
                                     <!-- grafik potensi sisa anggaran-->
-                                    <div class="col-md-6 col-xs-12" style="margin:auto;">
-                                        <div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-                                            <div class="d-flex align-items-center" style="margin-bottom:18px;">
-                                                <span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Potensi Sisa Anggaran Tahun <?php echo $tahun_ini; ?></span>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;width: 300px; height: 300px; margin: auto;">
-                                                    <canvas id="piePotensiSisaChart" width="120" height="120"></canvas>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="card shadow expense-chart-card">
+                                            <div class="expense-chart-header">
+                                                <i class="fa fa-chart-pie expense-chart-icon"></i>
+                                                <div class="expense-chart-heading">
+                                                    <span class="title-chart">Potensi Sisa Anggaran</span>
+                                                    <span class="expense-chart-subtitle">Realisasi dibayar dan saldo anggaran tahun <?php echo $tahun_ini; ?></span>
                                                 </div>
-                                                <div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
-                                                    <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
+                                            </div>
+                                            <div class="row expense-donut-layout">
+                                                <div class="col-xs-12 col-md-6 expense-donut-visual">
+                                                    <canvas id="piePotensiSisaChart"></canvas>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6">
+                                                    <div class="mb-3 expense-metric">
                                                         <span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
                                                         <div>
                                                             <div style="font-weight:700;color:#263238;">Total Anggaran</div>
                                                             <div id="label-total-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
                                                         </div>
                                                     </div>
-                                                    <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
+                                                    <div class="mb-3 expense-metric">
                                                         <span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
                                                         <div>
                                                             <div style="font-weight:700;color:#263238;">Realisasi Anggaran</div>
                                                             <div id="label-realisasi-anggaran-sisa" style="font-size:17px;color:#263238;"></div>
                                                         </div>
                                                     </div>
-                                                    <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
+                                                    <div class="mb-3 expense-metric">
                                                         <span style="display:inline-block;width:22px;height:22px;background:#c3c3c3;margin-right:14px;border-radius:5px;"></span>
                                                         <div>
                                                             <div style="font-weight:700;color:#263238;">Sisa Anggaran</div>
@@ -384,24 +673,28 @@
                                     </div>
 
                                     <!-- Realisasi Anggaran per Sumber Dana -->
-                                    <div class="col-md-6 col-xs-12" style="margin:auto;">
-                                        <div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-                                            <div class="d-flex align-items-center" style="margin-bottom:18px;">
-                                                <span class="title-chart" style="font-size:22px;font-weight:700;color:#263238;">Realisasi Anggaran per Sumber Dana Tahun <?php echo $tahun_ini; ?></span>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-md-6" style="display:flex;align-items:center;justify-content:center;width: 300px; height: 300px; margin: auto;">
-                                                    <canvas id="pieRealisasiSumberDanaChart" width="120" height="120"></canvas>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="card shadow expense-chart-card">
+                                            <div class="expense-chart-header">
+                                                <i class="fa fa-chart-pie expense-chart-icon"></i>
+                                                <div class="expense-chart-heading">
+                                                    <span class="title-chart">Realisasi per Sumber Dana</span>
+                                                    <span class="expense-chart-subtitle">Komposisi realisasi menurut sumber pada tahun <?php echo $tahun_ini; ?></span>
                                                 </div>
-                                                <div class="col-xs-12 col-md-6" style="display:flex;flex-direction:column;justify-content:center;">
-                                                    <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;">
+                                            </div>
+                                            <div class="row expense-donut-layout expense-source-layout">
+                                                <div class="col-xs-12 col-md-6 expense-donut-visual">
+                                                    <canvas id="pieRealisasiSumberDanaChart"></canvas>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 expense-source-metrics">
+                                                    <div class="mb-3 expense-metric">
                                                         <span style="display:inline-block;width:22px;height:22px;background:#2196f3;margin-right:14px;border-radius:5px;"></span>
                                                         <div>
                                                             <div style="font-weight:700;color:#263238;">DAU yang Ditentukan Penggunaannya Bidang Kesehatan</div>
                                                             <div id="label-realisasi-dau" style="font-size:17px;color:#263238;"></div>
                                                         </div>
                                                     </div>
-                                                    <div class="mb-3" style="background:#f6f6f6;border-radius:10px;padding:14px 16px;display:flex;align-items:center;">
+                                                    <div class="mb-3 expense-metric">
                                                         <span style="display:inline-block;width:22px;height:22px;background:#c500ff;margin-right:14px;border-radius:5px;"></span>
                                                         <div>
                                                             <div style="font-weight:700;color:#263238;">Pendapatan dari BLUD</div>
@@ -417,17 +710,18 @@
 
 
                             <!-- grafik Perbandingan Target & Realisasi Anggaran per Bulan -->
-                                <div class="row" style="margin-top:30px;">
-                                    <div class="col-md-12 col-xs-12" style="margin:auto;">
-                                        <div class="card shadow" style="border-radius:16px; border:1px solid #e0e0e0; padding:24px 18px 18px 18px; background:#fff;">
-                                            <!-- <div class="d-flex align-items-center" style="margin-bottom:18px;">
-                                                <i class="fa fa-bar-chart" style="font-size:26px;color:#2196f3;margin-right:10px;"></i>
-                                                <span class="title-chart" style="font-size:20px;">Perbandingan Target & Realisasi Anggaran per Bulan (Tahun <?php echo $tahun_ini; ?>)</span>
-                                            </div> -->
-                                            <div class="row">
-                                                <div class="col-xs-12" style="display:flex;align-items:center;justify-content:center;">
-                                                    <canvas id="perbandingan" height="120"></canvas>
+                                <div class="row expense-chart-row expense-chart-wide">
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="card shadow expense-chart-card">
+                                            <div class="expense-chart-header">
+                                                <i class="fa fa-chart-bar expense-chart-icon"></i>
+                                                <div class="expense-chart-heading">
+                                                    <span class="title-chart">Target & Realisasi per Bulan</span>
+                                                    <span class="expense-chart-subtitle">Perbandingan nilai anggaran tahun <?php echo $tahun_ini; ?></span>
                                                 </div>
+                                            </div>
+                                            <div class="expense-chart-body">
+                                                <canvas id="perbandingan"></canvas>
                                             </div>
                                         </div>
                                     </div>

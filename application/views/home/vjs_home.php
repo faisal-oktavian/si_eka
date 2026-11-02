@@ -26,34 +26,39 @@
                         label: 'Target',
                         data: CapaianTargetPerBulan,
                         borderColor: 'rgba(220, 0, 48, 0.85)',
-                        backgroundColor: 'rgba(220, 0, 48, 0.15)',
+                        backgroundColor: 'rgba(220, 0, 48, 0.08)',
                         fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
+                        tension: 0.35,
+                        borderWidth: 3,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: 'rgba(220, 0, 48, 0.85)'
                     },
                     {
                         label: 'Realisasi',
                         data: CapaianRealisasiPerBulan,
                         borderColor: 'rgba(54, 163, 235, 0.87)',
-                        backgroundColor: 'rgba(54, 163, 235, 0.15)',
+                        backgroundColor: 'rgba(54, 163, 235, 0.08)',
                         fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
+                        tension: 0.35,
+                        borderWidth: 3,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: 'rgba(54, 163, 235, 0.87)'
                     }
                 ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        // text: 'Persentase Capaian Target & Realisasi Anggaran per Bulan',
-                        // font: { size: 18 }
-                    },
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            padding: 18
+                        }
                     },
                     tooltip: {
                         mode: 'index',
@@ -72,15 +77,13 @@
                 },
                 scales: {
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Bulan'
+                        grid: {
+                            display: false
                         }
                     },
                     y: {
-                        title: {
-                            display: true,
-                            text: 'Persentase (%)'
+                        grid: {
+                            color: 'rgba(38, 55, 70, .08)'
                         },
                         beginAtZero: true,
                         max: 100,
@@ -109,78 +112,44 @@
         var nominal_kontrak_pengadaan = <?php echo isset($kontrak_pengadaan) ? $kontrak_pengadaan : 0; ?>;
         var nominal_proses_pengadaan = <?php echo isset($proses_pengadaan) ? $proses_pengadaan : 0; ?>;
         var nominal_belum_direalisasi = <?php echo isset($belum_direalisasi) ? $belum_direalisasi : 0; ?>;
-
-        // opsi proses pengadaan dilebur menjadi 1 di belum direalisasi
-        var new_nominal_belum_direalisasi = nominal_belum_direalisasi + nominal_proses_pengadaan;
-
-        // var total = nominal_sudah_dibayar + nominal_menunggu_pembayaran + nominal_npd + nominal_sudah_diverifikasi + nominal_menunggu_verifikasi + nominal_kontrak_pengadaan + nominal_proses_pengadaan + nominal_belum_direalisasi;
-        var total = nominal_sudah_dibayar + nominal_menunggu_pembayaran + nominal_npd + nominal_sudah_diverifikasi + nominal_menunggu_verifikasi + nominal_kontrak_pengadaan + new_nominal_belum_direalisasi;
-
-        // var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
-
-        var persen_sudah_dibayar = total ? Math.round( (nominal_sudah_dibayar / total * 100) * 100) / 100 : 0;
-        var persen_menunggu_pembayaran = total ? Math.round( (nominal_menunggu_pembayaran / total * 100) * 100) / 100 : 0;
-        var persen_npd = total ? Math.round( (nominal_npd / total * 100) * 100) / 100 : 0;
-        var persen_sudah_diverifikasi = total ? Math.round( (nominal_sudah_diverifikasi / total * 100) * 100) / 100 : 0;
-        var persen_menunggu_verifikasi = total ? Math.round( (nominal_menunggu_verifikasi / total * 100) * 100) / 100 : 0;
-        var persen_kontrak_pengadaan = total ? Math.round( (nominal_kontrak_pengadaan / total * 100) * 100) / 100 : 0;
-        var persen_proses_pengadaan = total ? Math.round( (nominal_proses_pengadaan / total * 100) * 100) / 100 : 0;
-
-        // var persen_belum_direalisasi = total ? Math.round((100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan + persen_proses_pengadaan)) * 100) / 100 : 0;
-        var persen_belum_direalisasi = total ? Math.round((100 - (persen_sudah_dibayar + persen_npd + persen_sudah_diverifikasi + persen_menunggu_verifikasi + persen_kontrak_pengadaan)) * 100) / 100 : 0;
+        var total = <?php echo isset($total_anggaran_tahun_ini) ? $total_anggaran_tahun_ini : 0; ?>;
 
         function formatRupiah(angka) {
-            return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return 'Rp. ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Math.round(angka));
         }
 
-        document.getElementById('label-sudah-dibayar').innerText = persen_sudah_dibayar + '% (' + formatRupiah(nominal_sudah_dibayar) + ')';
-        document.getElementById('label-menunggu-pembayaran').innerText = persen_menunggu_pembayaran + '% (' + formatRupiah(nominal_menunggu_pembayaran) + ')';
-        document.getElementById('label-npd').innerText = persen_npd + '% (' + formatRupiah(nominal_npd) + ')';
-        document.getElementById('label-sudah-diverifikasi').innerText = persen_sudah_diverifikasi + '% (' + formatRupiah(nominal_sudah_diverifikasi) + ')';
-        document.getElementById('label-menunggu-verifikasi').innerText = persen_menunggu_verifikasi + '% (' + formatRupiah(nominal_menunggu_verifikasi) + ')';
-        document.getElementById('label-kontrak-pengadaan').innerText = persen_kontrak_pengadaan + '% (' + formatRupiah(nominal_kontrak_pengadaan) + ')';
-        // document.getElementById('label-proses-pengadaan').innerText = persen_proses_pengadaan + '% (' + formatRupiah(nominal_proses_pengadaan) + ')';
-        
-        
-        // document.getElementById('label-belum-dibayar').innerText = persen_belum_dibayar + '% (' + formatRupiah(nominal_belum_dibayar) + ')';
-        // document.getElementById('label-belum-direalisasi').innerText = persen_belum_direalisasi + '% (' + formatRupiah(nominal_belum_direalisasi) + ')';
-        document.getElementById('label-belum-direalisasi').innerText = persen_belum_direalisasi + '% (' + formatRupiah(new_nominal_belum_direalisasi) + ')';
+        function formatPersentase(nilai, totalAnggaran) {
+            return (totalAnggaran ? Math.round(nilai / totalAnggaran * 10000) / 100 : 0).toFixed(2) + '%';
+        }
+
+        document.getElementById('label-sudah-dibayar').innerText = formatPersentase(nominal_sudah_dibayar, total) + ' (' + formatRupiah(nominal_sudah_dibayar) + ')';
+        document.getElementById('label-menunggu-pembayaran').innerText = formatPersentase(nominal_menunggu_pembayaran, total) + ' (' + formatRupiah(nominal_menunggu_pembayaran) + ')';
+        document.getElementById('label-npd').innerText = formatPersentase(nominal_npd, total) + ' (' + formatRupiah(nominal_npd) + ')';
+        document.getElementById('label-sudah-diverifikasi').innerText = formatPersentase(nominal_sudah_diverifikasi, total) + ' (' + formatRupiah(nominal_sudah_diverifikasi) + ')';
+        document.getElementById('label-menunggu-verifikasi').innerText = formatPersentase(nominal_menunggu_verifikasi, total) + ' (' + formatRupiah(nominal_menunggu_verifikasi) + ')';
+        document.getElementById('label-belum-direalisasi').innerText = formatPersentase(nominal_belum_direalisasi, total) + ' (' + formatRupiah(nominal_belum_direalisasi) + ')';
+        document.getElementById('label-kontrak-pengadaan').innerText = formatRupiah(nominal_kontrak_pengadaan);
+        document.getElementById('label-proses-pengadaan').innerText = formatRupiah(nominal_proses_pengadaan);
+
+        var chartCategories = [
+            { label: 'Sudah Dibayar', value: nominal_sudah_dibayar, color: '#28A745', url: '<?= site_url("realisasi_anggaran_detail/sudah_dibayar") ?>' },
+            { label: 'Menunggu Pembayaran', value: nominal_menunggu_pembayaran, color: '#FFCC66', url: '<?= site_url("realisasi_anggaran_detail/belum_dibayar") ?>' },
+            { label: 'NPD', value: nominal_npd, color: '#999999', url: '<?= site_url("realisasi_anggaran_detail/npd") ?>' },
+            { label: 'Sudah Diverifikasi', value: nominal_sudah_diverifikasi, color: '#0066FF', url: '<?= site_url("realisasi_anggaran_detail/sudah_diverifikasi") ?>' },
+            { label: 'Menunggu Verifikasi', value: nominal_menunggu_verifikasi, color: '#FF6600', url: '<?= site_url("realisasi_anggaran_detail/belum_diverifikasi") ?>' },
+            { label: 'Belum Direalisasi', value: nominal_belum_direalisasi, color: '#f44336', url: null }
+        ].filter(function(category) {
+            return category.value > 0;
+        });
 
         var ctx = document.getElementById('pieAnggaranChart').getContext('2d');
         var pieAnggaranChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: [
-                    'Sudah Dibayar',
-                    'Menunggu Pembayaran',
-                    'NPD',
-                    'Sudah Diverifikasi',
-                    'Menunggu Diverifikasi',
-                    'Kontrak Pengadaan',
-                    'Proses Pengadaan',
-                    'Belum Direalisasi'
-                ],
+                labels: chartCategories.map(function(category) { return category.label; }),
                 datasets: [{
-                    data: [
-                        nominal_sudah_dibayar,
-                        nominal_menunggu_pembayaran,
-                        nominal_npd,
-                        nominal_sudah_diverifikasi,
-                        nominal_menunggu_verifikasi,
-                        nominal_kontrak_pengadaan,
-                        nominal_proses_pengadaan,
-                        new_nominal_belum_direalisasi
-                    ],
-                    backgroundColor: [
-                        '#28A745',
-                        '#FFCC66',
-                        '#999999',
-                        '#0066FF',
-                        '#FF6600',
-                        '#FF9900',
-                        '#FFCC00',
-                        '#f44336',
-                    ],
+                    data: chartCategories.map(function(category) { return category.value; }),
+                    backgroundColor: chartCategories.map(function(category) { return category.color; }),
                     borderWidth: 2,
                     borderColor: '#fff',
                     hoverOffset: 8
@@ -199,8 +168,7 @@
                             label: function(context) {
                                 var label = context.label || '';
                                 var value = context.raw || 0;
-                                var percent = total ? Math.round(value / total * 100) : 0;
-                                return label + ': ' + percent + '% (' + formatRupiah(value) + ')';
+                                return label + ': ' + formatPersentase(value, total) + ' (' + formatRupiah(value) + ')';
                             }
                         }
                     }
@@ -213,25 +181,9 @@
             var activePoints = pieAnggaranChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
             if (activePoints.length > 0) {
                 var idx = activePoints[0].index;
-
-                console.log(idx);
-                // Tentukan link berdasarkan index
-                if (idx === 0) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/sudah_dibayar") ?>', '_blank');
-                } else if (idx === 1) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/belum_dibayar") ?>', '_blank');
-                } else if (idx === 2) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/npd") ?>', '_blank');
-                } else if (idx === 3) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/sudah_diverifikasi") ?>', '_blank');
-                } else if (idx === 4) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/belum_diverifikasi") ?>', '_blank');
-                } else if (idx === 5) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/kontrak_pengadaan") ?>', '_blank');
-                } else if (idx === 6) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/proses_pengadaan") ?>', '_blank');
-                } else if (idx === 7) {
-                    // window.open('<?= site_url("realisasi_anggaran_detail/belum_direalisasi") ?>', '_blank');
+                var category = chartCategories[idx];
+                if (category && category.url) {
+                    window.open(category.url, '_blank');
                 }
             }
         };
@@ -246,36 +198,30 @@
         
         var sisa_anggaran_tahun_ini = total_anggaran_tahun_ini - realisasi_anggaran_tahun_ini;
 
-        var persen_realisasi = total_anggaran_tahun_ini ? Math.round( (realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 100) * 100) / 100 : 0;
-        var persen_sisa = total_anggaran_tahun_ini ? 100 - persen_realisasi : 0;
-
-        function formatRupiah(angka) {
-            return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
+        var persen_realisasi = total_anggaran_tahun_ini ? Math.round(realisasi_anggaran_tahun_ini / total_anggaran_tahun_ini * 10000) / 100 : 0;
+        var persen_sisa = total_anggaran_tahun_ini ? Math.round(sisa_anggaran_tahun_ini / total_anggaran_tahun_ini * 10000) / 100 : 0;
 
         // Label
         document.getElementById('label-total-anggaran-sisa').innerText = formatRupiah(total_anggaran_tahun_ini);
-        document.getElementById('label-realisasi-anggaran-sisa').innerText = persen_realisasi + '% (' + formatRupiah(realisasi_anggaran_tahun_ini) + ')';
-        document.getElementById('label-sisa-anggaran-sisa').innerText = persen_sisa + '% (' + formatRupiah(sisa_anggaran_tahun_ini) + ')';
+        document.getElementById('label-realisasi-anggaran-sisa').innerText = persen_realisasi.toFixed(2) + '% (' + formatRupiah(realisasi_anggaran_tahun_ini) + ')';
+        document.getElementById('label-sisa-anggaran-sisa').innerText = persen_sisa.toFixed(2) + '% (' + formatRupiah(sisa_anggaran_tahun_ini) + ')';
 
         // Pie chart: hanya tampilkan realisasi dan sisa (total anggaran = 100%)
+        var potensiCategories = [
+            { label: 'Realisasi Anggaran', value: realisasi_anggaran_tahun_ini, color: '#2196f3' },
+            { label: 'Sisa Anggaran', value: sisa_anggaran_tahun_ini, color: '#c3c3c3' }
+        ].filter(function(category) {
+            return category.value > 0;
+        });
+
         var ctxPotensi = document.getElementById('piePotensiSisaChart').getContext('2d');
         var piePotensiSisaChart = new Chart(ctxPotensi, {
             type: 'doughnut',
             data: {
-                labels: [
-                    'Realisasi Anggaran',
-                    'Sisa Anggaran'
-                ],
+                labels: potensiCategories.map(function(category) { return category.label; }),
                 datasets: [{
-                    data: [
-                        realisasi_anggaran_tahun_ini,
-                        sisa_anggaran_tahun_ini
-                    ],
-                    backgroundColor: [
-                        '#2196f3', // Biru untuk Realisasi Anggaran
-                        '#c3c3c3'  // Abu-abu untuk Sisa Anggaran
-                    ],
+                    data: potensiCategories.map(function(category) { return category.value; }),
+                    backgroundColor: potensiCategories.map(function(category) { return category.color; }),
                     borderWidth: 2,
                     borderColor: '#fff',
                     hoverOffset: 8
@@ -292,8 +238,7 @@
                             label: function(context) {
                                 var label = context.label || '';
                                 var value = context.raw || 0;
-                                var percent = total_anggaran_tahun_ini ? Math.round(value / total_anggaran_tahun_ini * 100) : 0;
-                                return label + ': ' + percent + '% (' + formatRupiah(value) + ')';
+                                return label + ': ' + formatPersentase(value, total_anggaran_tahun_ini) + ' (' + formatRupiah(value) + ')';
                             }
                         }
                     }
@@ -340,23 +285,42 @@
         document.getElementById('label-realisasi-dau').innerText = persen_realisasi_dau + '% (' + formatRupiah(realisasi_dau) + ')';
         document.getElementById('label-realisasi-blud').innerText = persen_realisasi_blud + '% (' + formatRupiah(realisasi_blud) + ')';
 
+        var sourceCategories = [
+            {
+                label: 'DAU yang Ditentukan Penggunaannya Bidang Kesehatan',
+                value: realisasi_dau,
+                color: '#2196f3',
+                url: '<?= site_url("realisasi_anggaran_detail/dbh") ?>'
+            },
+            {
+                label: 'Pendapatan dari BLUD',
+                value: realisasi_blud,
+                color: '#c500ff',
+                url: '<?= site_url("realisasi_anggaran_detail/blud") ?>'
+            }
+        ].filter(function(category) {
+            return category.value > 0;
+        });
+        var totalRealisasiSumberDana = sourceCategories.reduce(function(total, category) {
+            return total + category.value;
+        }, 0);
+
         var ctxRealisasiSumberDana = document.getElementById('pieRealisasiSumberDanaChart').getContext('2d');
         var pieRealisasiSumberDanaChart = new Chart(ctxRealisasiSumberDana, {
             type: 'doughnut',
             data: {
-                labels: ['DAU yang Ditentukan Penggunaannya Bidang Kesehatan', 'Pendapatan dari BLUD'],
+                labels: sourceCategories.map(function(category) { return category.label; }),
                 datasets: [{
-                    data: [realisasi_dau, realisasi_blud],
-                    backgroundColor: [
-                        '#2196f3', // DAU yang Ditentukan Penggunaannya Bidang Kesehatan
-                        '#c500ff'  // BLUD
-                    ],
+                    data: sourceCategories.map(function(category) { return category.value; }),
+                    backgroundColor: sourceCategories.map(function(category) { return category.color; }),
                     borderWidth: 2,
                     borderColor: '#fff',
                     hoverOffset: 8
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
                     legend: {
@@ -367,8 +331,7 @@
                             label: function(context) {
                                 var label = context.label || '';
                                 var value = context.raw || 0;
-                                var percent = total_realisasi ? Math.round(value / total_realisasi * 100) : 0;
-                                return label + ': ' + percent + '% (' + formatRupiah(value) + ')';
+                                return label + ': ' + formatPersentase(value, totalRealisasiSumberDana) + ' (' + formatRupiah(value) + ')';
                             }
                         }
                     }
@@ -381,11 +344,9 @@
             var activePoints = pieRealisasiSumberDanaChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
             if (activePoints.length > 0) {
                 var idx = activePoints[0].index;
-                // 0: DBH, 1: BLUD
-                if (idx === 0) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/dbh") ?>', '_blank');
-                } else if (idx === 1) {
-                    window.open('<?= site_url("realisasi_anggaran_detail/blud") ?>', '_blank');
+                var category = sourceCategories[idx];
+                if (category) {
+                    window.open(category.url, '_blank');
                 }
             }
         };
@@ -397,10 +358,6 @@
             'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
         ];
         // Data dari backend PHP
-        var targetPerBulan = <?php echo json_encode($target_per_bulan); ?>;
-        var realisasiPerBulan = <?php echo json_encode($realisasi_per_bulan); ?>;
-        var tahunGrafik = <?php echo isset($tahun_ini) ? $tahun_ini : date('Y'); ?>;
-
         var ctx2 = document.getElementById("perbandingan").getContext('2d');
         var perbandingan = new Chart(ctx2, {
             type: 'bar',
@@ -409,32 +366,38 @@
                 datasets: [
                     {
                         label: 'Target',
-                        backgroundColor: 'rgba(220, 0, 48, 0.85)',
+                        backgroundColor: 'rgba(220, 0, 48, 0.72)',
+                        borderRadius: 5,
                         data: <?= json_encode($target_per_bulan) ?>
                     },
                     {
                         label: 'Realisasi',
-                        backgroundColor: 'rgba(54, 163, 235, 0.87)',
+                        backgroundColor: 'rgba(54, 163, 235, 0.88)',
+                        borderRadius: 5,
                         data: <?= json_encode($realisasi_per_bulan) ?>
                     }
                 ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Perbandingan Target & Realisasi Anggaran per Bulan (Tahun ' + tahunGrafik + ')',
-                        font: {
-                            size: 18
-                        }
-                    },
                     tooltip: {
                         mode: 'index',
-                        intersect: false
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                            }
+                        }
                     },
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            padding: 18
+                        }
                     }
                 },
                 interaction: {
@@ -444,20 +407,18 @@
                 },
                 scales: {
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Bulan'
-                        },
                         ticks: {
                             font: {
-                                weight: 'bold'
+                                weight: '500'
                             }
+                        },
+                        grid: {
+                            display: false
                         }
                     },
                     y: {
-                        title: {
-                            display: true,
-                            text: 'Nilai Anggaran'
+                        grid: {
+                            color: 'rgba(38, 55, 70, .08)'
                         },
                         beginAtZero: true,
                         ticks: {
