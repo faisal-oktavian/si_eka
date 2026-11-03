@@ -319,7 +319,7 @@
 
     #pengeluaran .expense-status-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(240px, .85fr);
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 1fr);
         align-items: start;
         gap: 16px;
         margin: 0;
