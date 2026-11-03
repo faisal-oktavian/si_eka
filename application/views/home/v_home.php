@@ -582,6 +582,9 @@
                                                                     <div id="label-npd" style="font-size:15px;"></div>
                                                                 </div>
                                                             </div>
+                                                        </div>
+
+                                                        <div class="expense-status-list">
                                                             <div class="mb-3 expense-status-item" style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;">
                                                                 <span style="display:inline-block;width:18px;height:18px;background:#0066FF;margin-right:10px;border-radius:4px;"></span>
                                                                 <div>
@@ -605,20 +608,31 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="expense-procurement-summary">
-                                                            <div class="expense-procurement-title">
-                                                                <i class="fa fa-briefcase"></i>
-                                                                Progres Pengadaan Tahun <?php echo $tahun_ini; ?>
+
+                                                        <!-- ===============================
+                                                             ===============================
+                                                                HIDE PROGRESS PENGADAAN
+                                                             ===============================
+                                                             =============================== -->
+                                                            <div class="expense-procurement-summary" style="display:none;">
+                                                                <div class="expense-procurement-title">
+                                                                    <i class="fa fa-briefcase"></i>
+                                                                    Progres Pengadaan Tahun <?php echo $tahun_ini; ?>
+                                                                </div>
+                                                                <div class="expense-procurement-metric">
+                                                                    <div style="color:#607d8b;font-size:13px;">Kontrak Pengadaan (nilai pagu)</div>
+                                                                    <div id="label-kontrak-pengadaan" class="expense-procurement-value"></div>
+                                                                </div>
+                                                                <div class="expense-procurement-metric">
+                                                                    <div style="color:#607d8b;font-size:13px;">Proses Pengadaan (nilai pagu)</div>
+                                                                    <div id="label-proses-pengadaan" class="expense-procurement-value"></div>
+                                                                </div>
                                                             </div>
-                                                            <div class="expense-procurement-metric">
-                                                                <div style="color:#607d8b;font-size:13px;">Kontrak Pengadaan (nilai pagu)</div>
-                                                                <div id="label-kontrak-pengadaan" class="expense-procurement-value"></div>
-                                                            </div>
-                                                            <div class="expense-procurement-metric">
-                                                                <div style="color:#607d8b;font-size:13px;">Proses Pengadaan (nilai pagu)</div>
-                                                                <div id="label-proses-pengadaan" class="expense-procurement-value"></div>
-                                                            </div>
-                                                        </div>
+                                                        <!-- ===============================
+                                                             ===============================
+                                                                HIDE PROGRESS PENGADAAN
+                                                             ===============================
+                                                             =============================== -->
                                                     </div>
                                                 </div>
                                             </div>

@@ -72,21 +72,28 @@ $('body').on('click','.az-header-toolbar-user', function(){
 // back to top
 	var btn=$("#backToTop");
     var circle=document.querySelector('.progress-ring-circle');
-    var radius=circle.r.baseVal.value;
-    var circumference=radius*2*Math.PI;
-    circle.style.strokeDasharray=circumference;
-    circle.style.strokeDashoffset=circumference;
+	var circumference=0;
+	if (circle) {
+	    var radius=circle.r.baseVal.value;
+	    circumference=radius*2*Math.PI;
+	    circle.style.strokeDasharray=circumference;
+	    circle.style.strokeDashoffset=circumference;
+	}
 
-    function setProgress(percent){
-        var offset=circumference-(percent/100)*circumference;
-        circle.style.strokeDashoffset=offset;
-    }
+	function setProgress(percent){
+	    if (circle) {
+	        var offset=circumference-(percent/100)*circumference;
+	        circle.style.strokeDashoffset=offset;
+	    }
+	}
 
-    $(window).scroll(function(){
-        var scrollTop=$(this).scrollTop();
-        var docHeight=$(document).height()-$(window).height();
-        var percent=(scrollTop/docHeight)*100;
-        setProgress(percent);
+	$(window).scroll(function(){
+	    var scrollTop=$(this).scrollTop();
+	    if (circle) {
+	        var docHeight=$(document).height()-$(window).height();
+	        var percent=docHeight>0 ? (scrollTop/docHeight)*100 : 0;
+	        setProgress(percent);
+	    }
         if(scrollTop>300){
             btn.addClass("show");
         }
